@@ -1,0 +1,114 @@
+// Apply Gradle plugins
+plugins {
+    id 'java'
+    id 'maven'
+    id 'eclipse'
+    id 'idea'
+    id 'checkstyle'
+
+    id 'com.github.hierynomus.license' version '0.11.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
+}
+
+defaultTasks 'clean', 'licenseFormat', 'build'
+
+// Project information
+group = 'blue.lapis.shroud'
+version = '1.0.0-SNAPSHOT'
+
+// Extended project information
+ext.projectName = 'shroud'
+ext.description = 'A graphical tool for creation of Java deobfuscation mappings.'
+ext.inceptionYear = '2015'
+ext.packaging = 'jar'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    shadow
+    compile {
+        extendsFrom shadow
+    }
+}
+
+// Project repositories
+repositories {
+    mavenCentral()
+}
+
+// Project dependencies
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+    compile 'org.jboss.windup.decompiler:decompiler-fernflower:2.4.0.Final'
+
+    testCompile 'junit:junit:4.12'
+}
+
+// Read source files using UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': version,
+                'Main-Class': 'blue.lapis.shroud.Main',
+        )
+    }
+    classifier = 'base'
+}
+
+shadowJar {
+
+    configurations = [project.configurations.shadow]
+
+    classifier = ''
+}
+
+
+processResources {
+    from 'LICENSE'
+}
+
+// License header formatting
+license {
+    header file('LICENSE')
+    excludes([
+            '**/*.MD',
+            'LICENSE'
+    ])
+    sourceSets = project.sourceSets
+    ignoreFailures false
+    strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+// check code style
+checkstyle {
+    toolVersion = '6.12'
+    configProperties = [
+            'name': project.name,
+            'year': project.inceptionYear
+    ]
+    configFile = file('etc/checkstyle.xml')
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.java
+    from sourceSets.main.resources
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.8'
+}
