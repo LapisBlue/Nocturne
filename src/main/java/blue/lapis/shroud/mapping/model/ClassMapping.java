@@ -1,0 +1,54 @@
+package blue.lapis.shroud.mapping.model;
+
+import blue.lapis.shroud.mapping.MappingSet;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Represents a {@link Mapping} for a class.
+ */
+public abstract class ClassMapping extends Mapping {
+
+    private final Map<String, FieldMapping> fieldMappings = new HashMap<>();
+    private final Map<String, MethodMapping> methodMappings = new HashMap<>();
+    private final Map<String, InnerClassMapping> innerClassMappings = new HashMap<>();
+
+    /**
+     * Constructs a new {@link ClassMapping} with the given parameters.
+     *
+     * @param obfName The obfuscated name of the class
+     * @param deobfName The deobfuscated name of the class
+     */
+    protected ClassMapping(String obfName, String deobfName) {
+        super(obfName, deobfName);
+    }
+
+    /**
+     * Adds the given {@link FieldMapping} to this {@link ClassMapping}.
+     *
+     * @param mapping The {@link FieldMapping} to add
+     */
+    void addFieldMapping(FieldMapping mapping) {
+        fieldMappings.put(mapping.getObfuscatedName(), mapping);
+    }
+
+    /**
+     * Adds the given {@link MethodMapping} to this {@link ClassMapping}.
+     *
+     * @param mapping The {@link MethodMapping} to add
+     */
+    void addMethodMapping(MethodMapping mapping) {
+        methodMappings.put(mapping.getObfuscatedName(), mapping);
+    }
+
+    /**
+     * Adds the given {@link InnerClassMapping} to this {@link ClassMapping}.
+     *
+     * @param mapping The {@link InnerClassMapping} to add
+     */
+    void addInnerClassMapping(InnerClassMapping mapping) {
+        innerClassMappings.put(mapping.getObfuscatedName(), mapping);
+    }
+
+}
