@@ -10,7 +10,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.0'
 }
 
-defaultTasks 'clean', 'licenseFormat', 'build'
+defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'blue.lapis.shroud'
@@ -39,8 +39,8 @@ repositories {
 
 // Project dependencies
 dependencies {
-    compile 'com.google.guava:guava:18.0'
-    compile 'org.jboss.windup.decompiler:decompiler-fernflower:2.4.0.Final'
+    shadow 'com.google.guava:guava:18.0'
+    shadow 'org.jboss.windup.decompiler:decompiler-fernflower:2.4.0.Final'
 
     testCompile 'junit:junit:4.12'
 }
