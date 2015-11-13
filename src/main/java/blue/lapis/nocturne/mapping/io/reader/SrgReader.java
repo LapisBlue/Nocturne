@@ -32,12 +32,22 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.BufferedReader;
-import java.util.Scanner;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * The mappings reader, for the SRG format.
  */
 public class SrgReader extends MappingsReader {
+
+    private static final String CLASS_MAPPING_KEY = "CL: ";
+    private static final String FIELD_MAPPING_KEY = "FD: ";
+    private static final String METHOD_MAPPING_KEY = "MD: ";
+
+    private static final int CLASS_MAPPING_ELEMENT_COUNT = 3;
+    private static final int FIELD_MAPPING_ELEMENT_COUNT = 3;
+    private static final int METHOD_MAPPING_ELEMENT_COUNT = 5;
 
     public SrgReader(BufferedReader reader) {
         super(reader);
@@ -47,55 +57,92 @@ public class SrgReader extends MappingsReader {
     public MappingSet read() {
         MappingSet mappings = new MappingSet();
 
-        Scanner scanner = new Scanner(this.reader);
-        while (scanner.hasNext()) {
-            String line = scanner.nextLine();
-            String[] split = line.substring(4).split(" ");
+        List<String> rawClassMappings = reader.lines()
+                .filter(s -> s.startsWith(CLASS_MAPPING_KEY) && s.split(" ").length == CLASS_MAPPING_ELEMENT_COUNT)
+                .sorted((s1, s2) -> getClassNestingLevel(s1) - getClassNestingLevel(s2))
+                .collect(Collectors.toList());
+        List<String> rawFieldMappings = reader.lines()
+                .filter(s -> s.startsWith(FIELD_MAPPING_KEY) && s.split(" ").length == FIELD_MAPPING_ELEMENT_COUNT)
+                .collect(Collectors.toList());
+        List<String> rawMethodMappings = reader.lines()
+                .filter(s -> s.startsWith(METHOD_MAPPING_KEY) && s.split(" ").length == METHOD_MAPPING_ELEMENT_COUNT)
+                .collect(Collectors.toList());
 
-            if (line.startsWith("CL: ")) {
-                mappings.addMapping(this.readClassMapping(mappings, split[0], split[1]));
-            } else if (line.startsWith("FD: ")) {
-                this.readFieldMapping(mappings, split[0], split[1]);
-            } else if (line.startsWith("MD: ")) {
-                this.readMethodMapping(mappings, split[0], split[1], split[2], split[3]);
-            }
-        }
+        genClassMappings(mappings, rawClassMappings);
+        genFieldMappings(mappings, rawFieldMappings);
+        genMethodMappings(mappings, rawMethodMappings);
 
         return mappings;
     }
 
     @Override
-    protected TopLevelClassMapping readClassMapping(MappingSet mappings, String obf, String deobf) {
-        String[] obfClassSplit = obf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
-        String[] deobfClassSplit = deobf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
+    protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
+        if (obf.contains("$")) {
+            String[] obfSplit = obf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
+            String[] deobfSplit = deobf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
+            if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
+                System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
+                return; // ignore it
+            }
 
-        TopLevelClassMapping topLevelClassMapping =
-                new TopLevelClassMapping(mappings, obfClassSplit[0], deobfClassSplit[0]);
-
-        // TODO: read inner classes
-
-        return topLevelClassMapping;
+            // iteratively get the direct parent class to this inner class
+            ClassMapping parent = mappingSet.getMappings().get(obfSplit[0]);
+            for (int i = 1; i < obfSplit.length - 1; i++) {
+                if (parent == null) {
+                    //TODO: this is a very valid case and needs to be addressed
+                    // My thought is that we'll create a dummy mapping (where obf == deobf)
+                    // for any referenced classes that don't have a specific mapping.
+                    // ~ caseif
+                    System.err.println("Failed to load mapping for obfuscated class " + obf
+                            + ": loading inner class mappings without a mapped parent is not supported at this time");
+                    return;
+                }
+                parent = parent.getInnerClassMappings().get(obfSplit[i]);
+            }
+            new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
+                    deobfSplit[deobfSplit.length - 1]);
+        } else {
+            mappingSet.addMapping(new TopLevelClassMapping(mappingSet, obf, deobf));
+        }
     }
 
     @Override
-    protected ClassMapping getClassMapping(MappingSet mappings, String obf, String deobf) {
-        String[] obfClassSplit = obf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
-
-        TopLevelClassMapping topLevelClassMapping = mappings.getMappings().get(obfClassSplit[0]);
-
-        // TODO: the rest
-
-        return null;
+    protected void genFieldMapping(MappingSet mappingSet, String obf, String deobf) {
+        //TODO
     }
 
     @Override
-    protected FieldMapping readFieldMapping(MappingSet mappings, String obf, String deobf) {
-        return null;
+    protected void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf, String deobfSig) {
+        //TODO
     }
 
-    @Override
-    protected MethodMapping readMethodMapping(MappingSet mappings, String obf, String obfSignature, String deobf,
-            String deobfSignature) {
-        return null;
+    private void genClassMappings(MappingSet mappingSet, List<String> classMappings) {
+        for (String mapping : classMappings) {
+            String[] arr = mapping.split(" ");
+            String obf = arr[1];
+            String deobf = arr[2];
+            genClassMapping(mappingSet, obf, deobf);
+        }
     }
+
+    private void genFieldMappings(MappingSet mappingSet, List<String> fieldMappings) {
+        for (String mapping : fieldMappings) {
+            String[] arr = mapping.split(" ");
+            String obf = arr[1];
+            String deobf = arr[2];
+            genFieldMapping(mappingSet, obf, deobf);
+        }
+    }
+
+    private void genMethodMappings(MappingSet mappingSet, List<String> methodMappings) {
+        for (String mapping : methodMappings) {
+            String[] arr = mapping.split(" ");
+            String obf = arr[1];
+            String obfSig = arr[2];
+            String deobf = arr[3];
+            String deobfSig = arr[4];
+            genMethodMapping(mappingSet, obf, obfSig, deobf, deobfSig);
+        }
+    }
+
 }

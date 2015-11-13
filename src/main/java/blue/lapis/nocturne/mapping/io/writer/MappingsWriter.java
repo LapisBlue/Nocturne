@@ -27,12 +27,13 @@ package blue.lapis.nocturne.mapping.io.writer;
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
 import java.io.PrintWriter;
 
 /**
- * Super-interface for all writer classes.
+ * Superclass for all writer classes.
  */
 public abstract class MappingsWriter {
 

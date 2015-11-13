@@ -25,15 +25,13 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.mapping.MappingSet;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.mapping.model.*;
 
 import java.io.BufferedReader;
+import java.util.List;
 
 /**
- * Super-interface for all reader classes.
+ * Superclass for all reader classes.
  */
 public abstract class MappingsReader {
 
@@ -50,12 +48,16 @@ public abstract class MappingsReader {
      */
     public abstract MappingSet read();
 
-    protected abstract TopLevelClassMapping readClassMapping(MappingSet mappings, String obf, String deobf);
+    protected abstract void genClassMapping(MappingSet mappingSet, String obf, String deobf);
 
-    protected abstract ClassMapping getClassMapping(MappingSet mappings, String obf, String deobf);
+    protected abstract void genFieldMapping(MappingSet mappingSet, String obf, String deobf);
 
-    protected abstract FieldMapping readFieldMapping(MappingSet mappings, String obf, String deobf);
+    protected abstract void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf,
+            String deobfSig);
 
-    protected abstract MethodMapping readMethodMapping(MappingSet mappings, String obf, String obfSignature,
-            String deobf, String deobfSignature);
+    protected int getClassNestingLevel(String name) {
+        return name.split(" ")[1].length()
+                - name.split(" ")[1].replace(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "", "").length();
+    }
+
 }
