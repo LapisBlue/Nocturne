@@ -44,7 +44,7 @@ public class SrgWriter extends MappingsWriter {
      *
      * @param out The {@link PrintWriter} to output to
      */
-    protected SrgWriter(PrintWriter out) {
+    public SrgWriter(PrintWriter out) {
         super(out);
     }
 

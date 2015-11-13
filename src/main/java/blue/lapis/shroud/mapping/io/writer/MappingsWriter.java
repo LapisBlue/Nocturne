@@ -68,7 +68,7 @@ public abstract class MappingsWriter {
      * Writes the given {@link FieldMapping} to the {@link MappingsWriter}'s
      * {@link PrintWriter}.
      *
-     * @param classMapping The {@link FieldMapping} to write
+     * @param fieldMapping The {@link FieldMapping} to write
      */
     protected abstract void writeFieldMapping(FieldMapping fieldMapping);
 
@@ -76,7 +76,7 @@ public abstract class MappingsWriter {
      * Writes the given {@link MethodMapping} to the {@link MappingsWriter}'s
      * {@link PrintWriter}.
      *
-     * @param classMapping The {@link MethodMapping} to write
+     * @param mapping The {@link MethodMapping} to write
      */
     protected abstract void writeMethodMapping(MethodMapping mapping);
 

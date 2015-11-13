@@ -39,7 +39,7 @@ import java.util.Scanner;
  */
 public class SrgReader extends MappingsReader {
 
-    protected SrgReader(BufferedReader reader) {
+    public SrgReader(BufferedReader reader) {
         super(reader);
     }
 
