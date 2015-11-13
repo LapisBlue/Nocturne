@@ -25,7 +25,6 @@
 package blue.lapis.shroud.mapping.model;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +51,7 @@ public abstract class ClassMapping extends Mapping {
     /**
      * Gets a clone of the {@link FieldMapping}s.
      *
-     * @return A clone of the {@link FieldMapping}s.
+     * @return A clone of the {@link FieldMapping}s
      */
     public Map<String, FieldMapping> getFieldMappings() {
         return ImmutableMap.copyOf(this.fieldMappings);
@@ -61,7 +60,7 @@ public abstract class ClassMapping extends Mapping {
     /**
      * Gets a clone of the {@link MethodMapping}s.
      *
-     * @return A clone of the {@link MethodMapping}s.
+     * @return A clone of the {@link MethodMapping}s
      */
     public Map<String, MethodMapping> getMethodMappings() {
         return ImmutableMap.copyOf(this.methodMappings);
@@ -70,7 +69,7 @@ public abstract class ClassMapping extends Mapping {
     /**
      * Gets a clone of the {@link InnerClassMapping}s.
      *
-     * @return A clone of the {@link InnerClassMapping}s.
+     * @return A clone of the {@link InnerClassMapping}s
      */
     public Map<String, InnerClassMapping> getInnerClassMappings() {
         return ImmutableMap.copyOf(this.innerClassMappings);

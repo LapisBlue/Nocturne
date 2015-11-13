@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.io;
+package blue.lapis.shroud.mapping.io.writer;
 
 import blue.lapis.shroud.mapping.MappingSet;
 import blue.lapis.shroud.mapping.model.ClassMapping;
@@ -35,16 +35,26 @@ import java.io.PrintWriter;
 
 /**
  * The mappings writer, for the SRG format.
- *
- * @author Jamie Mansfield
  */
-public class SrgWriter {
+public class SrgWriter extends MappingsWriter {
 
-    public static void write(PrintWriter out, MappingSet mappings) {
-        mappings.getMappings().values().forEach(m -> writeClass(out, m));
+    /**
+     * Constructs a new {@link SrgWriter} which outputs to the given
+     * {@link PrintWriter}.
+     *
+     * @param out The {@link PrintWriter} to output to
+     */
+    protected SrgWriter(PrintWriter out) {
+        super(out);
     }
 
-    private static void writeClass(PrintWriter out, ClassMapping classMapping) {
+    @Override
+    public void write(MappingSet mappings) {
+        mappings.getMappings().values().forEach(this::writeClassMapping);
+    }
+
+    @Override
+    protected void writeClassMapping(ClassMapping classMapping) {
         if (classMapping instanceof TopLevelClassMapping) {
             out.format("CL: %s %s\n",
                     classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
@@ -54,20 +64,23 @@ public class SrgWriter {
                     mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
         }
 
-        classMapping.getFieldMappings().values().forEach(m -> writeField(out, m));
-        classMapping.getMethodMappings().values().forEach(m -> writeMethod(out, m));
-        classMapping.getInnerClassMappings().values().forEach(m -> writeClass(out, m));
+        classMapping.getFieldMappings().values().forEach(this::writeFieldMapping);
+        classMapping.getMethodMappings().values().forEach(this::writeMethodMapping);
+        classMapping.getInnerClassMappings().values().forEach(this::writeClassMapping);
     }
 
-    private static void writeField(PrintWriter out, FieldMapping fieldMapping) {
+    @Override
+    protected void writeFieldMapping(FieldMapping fieldMapping) {
         out.format("FD: %s/%s %s/%s\n",
                 fieldMapping.getParent().getObfuscatedName(), fieldMapping.getObfuscatedName(),
                 fieldMapping.getParent().getDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
     }
 
-    private static void writeMethod(PrintWriter out, MethodMapping mapping) {
+    @Override
+    protected void writeMethodMapping(MethodMapping mapping) {
         out.format("MD: %s/%s %s %s/%s %s\n",
                 mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getSignature(),
-                mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(), mapping.getDeobfuscatedSignature());
+                mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
+                mapping.getDeobfuscatedSignature());
     }
 }
