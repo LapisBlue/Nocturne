@@ -27,7 +27,9 @@ package blue.lapis.shroud.mapping.io;
 import blue.lapis.shroud.mapping.MappingSet;
 import blue.lapis.shroud.mapping.model.ClassMapping;
 import blue.lapis.shroud.mapping.model.FieldMapping;
+import blue.lapis.shroud.mapping.model.InnerClassMapping;
 import blue.lapis.shroud.mapping.model.MethodMapping;
+import blue.lapis.shroud.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
 
@@ -43,9 +45,14 @@ public class SrgWriter {
     }
 
     private static void writeClass(PrintWriter out, ClassMapping classMapping) {
-        out.format("CL: %s %s\n",
-                classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
-        // TODO: handle inner classes
+        if (classMapping instanceof TopLevelClassMapping) {
+            out.format("CL: %s %s\n",
+                    classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
+        } else if (classMapping instanceof InnerClassMapping) {
+            InnerClassMapping mapping = (InnerClassMapping) classMapping;
+            out.format("CL: %s %s\n",
+                    mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
+        }
 
         classMapping.getFieldMappings().values().forEach(m -> writeField(out, m));
         classMapping.getMethodMappings().values().forEach(m -> writeMethod(out, m));
