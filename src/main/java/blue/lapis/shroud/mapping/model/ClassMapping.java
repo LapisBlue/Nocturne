@@ -24,7 +24,8 @@
  */
 package blue.lapis.shroud.mapping.model;
 
-import blue.lapis.shroud.mapping.MappingSet;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,18 @@ public abstract class ClassMapping extends Mapping {
      */
     protected ClassMapping(String obfName, String deobfName) {
         super(obfName, deobfName);
+    }
+
+    public Map<String, FieldMapping> getFieldMappings() {
+        return ImmutableMap.copyOf(this.fieldMappings);
+    }
+
+    public Map<String, MethodMapping> getMethodMappings() {
+        return ImmutableMap.copyOf(this.methodMappings);
+    }
+
+    public Map<String, InnerClassMapping> getInnerClassMappings() {
+        return ImmutableMap.copyOf(this.innerClassMappings);
     }
 
     /**
