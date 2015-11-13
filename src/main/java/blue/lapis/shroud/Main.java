@@ -1,3 +1,5 @@
+package blue.lapis.shroud;
+
 /*
  * Shroud
  * Copyright (c) 2015, Lapis <https://github.com/LapisBlue>
