@@ -35,12 +35,15 @@ configurations {
 // Project repositories
 repositories {
     mavenCentral()
+    maven {
+        url 'http://files.minecraftforge.net/maven/'
+    }
 }
 
 // Project dependencies
 dependencies {
     shadow 'com.google.guava:guava:18.0'
-    shadow 'org.jboss.windup.decompiler:decompiler-fernflower:2.4.0.Final'
+    shadow 'net.minecraftforge:fernflower:2.0-SNAPSHOT'
 
     testCompile 'junit:junit:4.12'
 }
