@@ -22,41 +22,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping;
+package blue.lapis.shroud.mapping.io.reader;
 
+import blue.lapis.shroud.mapping.MappingSet;
 import blue.lapis.shroud.mapping.model.ClassMapping;
+import blue.lapis.shroud.mapping.model.FieldMapping;
+import blue.lapis.shroud.mapping.model.MethodMapping;
 import blue.lapis.shroud.mapping.model.TopLevelClassMapping;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
 
 /**
- * Represents a set of {@link ClassMapping}s.
+ * Super-interface for all reader classes.
  */
-public class MappingSet {
+public abstract class MappingsReader {
 
-    private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
+    protected BufferedReader reader;
 
-    /**
-     * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     * this {@link MappingSet}.
-     *
-     * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     *     this {@link MappingSet}
-     */
-    public ImmutableMap<String, TopLevelClassMapping> getMappings() {
-        return ImmutableMap.copyOf(mappings);
+    protected MappingsReader(BufferedReader reader) {
+        this.reader = reader;
     }
 
     /**
-     * Adds the given {@link TopLevelClassMapping} to this {@link MappingSet}.
+     * Reads from the given {@link BufferedReader}.
      *
-     * @param mapping The {@link TopLevelClassMapping} to add
+     * @return A {@link MappingSet} from the {@link BufferedReader}.
      */
-    public void addMapping(TopLevelClassMapping mapping) {
-        mappings.put(mapping.getObfuscatedName(), mapping);
-    }
+    public abstract MappingSet read();
 
+    protected abstract TopLevelClassMapping readClassMapping(MappingSet mappings, String obf, String deobf);
+
+    protected abstract ClassMapping getClassMapping(MappingSet mappings, String obf, String deobf);
+
+    protected abstract FieldMapping readFieldMapping(MappingSet mappings, String obf, String deobf);
+
+    protected abstract MethodMapping readMethodMapping(MappingSet mappings, String obf, String obfSignature,
+            String deobf, String deobfSignature);
 }

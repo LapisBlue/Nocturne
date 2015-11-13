@@ -30,7 +30,7 @@ package blue.lapis.shroud.mapping.model;
  */
 public class InnerClassMapping extends ClassMapping implements ClassComponent {
 
-    private static final char INNER_CLASS_SEPARATOR_CHAR = '$';
+    public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
 
     private final ClassMapping parent;
 
