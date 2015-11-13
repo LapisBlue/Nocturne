@@ -53,7 +53,7 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link FieldMapping}s
      */
-    public Map<String, FieldMapping> getFieldMappings() {
+    public ImmutableMap<String, FieldMapping> getFieldMappings() {
         return ImmutableMap.copyOf(this.fieldMappings);
     }
 
@@ -62,7 +62,7 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link MethodMapping}s
      */
-    public Map<String, MethodMapping> getMethodMappings() {
+    public ImmutableMap<String, MethodMapping> getMethodMappings() {
         return ImmutableMap.copyOf(this.methodMappings);
     }
 
@@ -71,7 +71,7 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link InnerClassMapping}s
      */
-    public Map<String, InnerClassMapping> getInnerClassMappings() {
+    public ImmutableMap<String, InnerClassMapping> getInnerClassMappings() {
         return ImmutableMap.copyOf(this.innerClassMappings);
     }
 

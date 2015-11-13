@@ -36,18 +36,16 @@ import java.io.PrintWriter;
  */
 public abstract class MappingsWriter {
 
-    //TODO: need to write docs for this when I have time (caseif)
-
     protected PrintWriter out;
 
     /**
      * Constructs a new {@link MappingsWriter} which outputs to the given
      * {@link PrintWriter}.
      *
-     * @param out The {@link PrintWriter} to output to
+     * @param outputWriter The {@link PrintWriter} to output to
      */
-    protected MappingsWriter(PrintWriter out) {
-        this.out = out;
+    protected MappingsWriter(PrintWriter outputWriter) {
+        this.out = outputWriter;
     }
 
     /**
@@ -58,10 +56,28 @@ public abstract class MappingsWriter {
      */
     public abstract void write(MappingSet mappings);
 
+    /**
+     * Writes the given {@link ClassMapping} to the {@link MappingsWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param classMapping The {@link ClassMapping} to write
+     */
     protected abstract void writeClassMapping(ClassMapping classMapping);
 
+    /**
+     * Writes the given {@link FieldMapping} to the {@link MappingsWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param classMapping The {@link FieldMapping} to write
+     */
     protected abstract void writeFieldMapping(FieldMapping fieldMapping);
 
+    /**
+     * Writes the given {@link MethodMapping} to the {@link MappingsWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param classMapping The {@link MethodMapping} to write
+     */
     protected abstract void writeMethodMapping(MethodMapping mapping);
 
 }
