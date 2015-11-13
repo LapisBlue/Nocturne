@@ -22,41 +22,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping;
-
-import blue.lapis.shroud.mapping.model.ClassMapping;
-import blue.lapis.shroud.mapping.model.TopLevelClassMapping;
-
-import com.google.common.collect.ImmutableMap;
-
-import java.util.HashMap;
-import java.util.Map;
+package blue.lapis.nocturne.mapping.model;
 
 /**
- * Represents a set of {@link ClassMapping}s.
+ * Represents a single obfuscation mapping for a particular member.
  */
-public class MappingSet {
+public abstract class Mapping {
 
-    private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
+    private final String obf;
+    private final String deobf;
 
     /**
-     * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     * this {@link MappingSet}.
+     * Constructs a new mapping with the given parameters.
      *
-     * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     *     this {@link MappingSet}
+     * @param obfName The obfuscated name of the mapped member
+     * @param deobfName The deobfuscated name of the mapped member
      */
-    public ImmutableMap<String, TopLevelClassMapping> getMappings() {
-        return ImmutableMap.copyOf(mappings);
+    protected Mapping(String obfName, String deobfName) {
+        this.obf = obfName;
+        this.deobf = deobfName;
     }
 
     /**
-     * Adds the given {@link TopLevelClassMapping} to this {@link MappingSet}.
+     * Returns the obfuscated name of this {@link Mapping}.
      *
-     * @param mapping The {@link TopLevelClassMapping} to add
+     * @return The obfuscated name of this {@link Mapping}
      */
-    public void addMapping(TopLevelClassMapping mapping) {
-        mappings.put(mapping.getObfuscatedName(), mapping);
+    public String getObfuscatedName() {
+        return obf;
+    }
+
+    /**
+     * Returns the deobfuscated name of this {@link Mapping}.
+     *
+     * @return The deobfuscated name of this {@link Mapping}
+     */
+    public String getDeobfuscatedName() {
+        return deobf;
     }
 
 }

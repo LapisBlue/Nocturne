@@ -22,14 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.io.reader;
+package blue.lapis.nocturne.mapping.io.reader;
 
-import blue.lapis.shroud.mapping.MappingSet;
-import blue.lapis.shroud.mapping.model.ClassMapping;
-import blue.lapis.shroud.mapping.model.FieldMapping;
-import blue.lapis.shroud.mapping.model.InnerClassMapping;
-import blue.lapis.shroud.mapping.model.MethodMapping;
-import blue.lapis.shroud.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.BufferedReader;
 import java.util.Scanner;

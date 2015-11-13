@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud;
+package blue.lapis.nocturne;
 
 public class Main {
     //TODO: placeholder for now

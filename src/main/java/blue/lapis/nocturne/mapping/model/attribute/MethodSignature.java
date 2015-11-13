@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.model.attribute;
+package blue.lapis.nocturne.mapping.model.attribute;
 
 /**
  * Represents a method signature consisting of parameter {@link Type}s and a

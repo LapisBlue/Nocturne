@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.model;
+package blue.lapis.nocturne.mapping.model;
 
 import com.google.common.collect.ImmutableMap;
 

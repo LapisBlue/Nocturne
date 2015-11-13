@@ -22,55 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.model.attribute;
+package blue.lapis.nocturne.mapping;
+
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+
+import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represents a primitive data type.
+ * Represents a set of {@link ClassMapping}s.
  */
-public enum Primitive {
+public class MappingSet {
 
-    BOOLEAN('Z'),
-    BYTE('B'),
-    CHAR('C'),
-    DOUBLE('D'),
-    FLOAT('F'),
-    INT('I'),
-    LONG('J'),
-    SHORT('S');
-
-    private final char key;
+    private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
 
     /**
-     * Constructs a new {@link Primitive} with the given key character.
+     * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
+     * this {@link MappingSet}.
      *
-     * @param key The key character of the new {@link Primitive}
+     * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
+     *     this {@link MappingSet}
      */
-    Primitive(char key) {
-        this.key = key;
+    public ImmutableMap<String, TopLevelClassMapping> getMappings() {
+        return ImmutableMap.copyOf(mappings);
     }
 
     /**
-     * Gets the key character associated with this {@link Primitive} type.
+     * Adds the given {@link TopLevelClassMapping} to this {@link MappingSet}.
      *
-     * @return The key character associated with this {@link Primitive} type
+     * @param mapping The {@link TopLevelClassMapping} to add
      */
-    public char getKey() {
-        return key;
-    }
-
-    /**
-     * Gets the {@link Primitive} type associated with the given key character.
-     * @param key The key character to match
-     * @return The {@link Primitive} type associated with the given key
-     *     character
-     */
-    public static Primitive getFromKey(char key) {
-        for (Primitive prim : Primitive.values()) {
-            if (prim.getKey() == key) {
-                return prim;
-            }
-        }
-        throw new IllegalArgumentException("Illegal primitive key");
+    public void addMapping(TopLevelClassMapping mapping) {
+        mappings.put(mapping.getObfuscatedName(), mapping);
     }
 
 }

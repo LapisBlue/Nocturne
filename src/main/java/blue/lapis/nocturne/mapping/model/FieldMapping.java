@@ -22,33 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.shroud.mapping.model;
+package blue.lapis.nocturne.mapping.model;
+
+import blue.lapis.nocturne.mapping.model.attribute.Type;
 
 /**
- * Represents a {@link Mapping} for an inner class, i.e. a class parented by
- * another class.
+ * Represents a {@link Mapping} for a field.
  */
-public class InnerClassMapping extends ClassMapping implements ClassComponent {
-
-    public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
+public class FieldMapping extends Mapping implements ClassComponent {
 
     private final ClassMapping parent;
+    private final Type type; //TODO: not necessary (or possible) for SRG mappings so we won't enforce it
 
     /**
-     * Constructs a new {@link InnerClassMapping} with the given parameters.
-     *
-     * <p>The name should not include the parent class(es), just the name of the
-     * inner class itself.</p>
+     * Constructs a new {@link FieldMapping} with the given parameters.
      *
      * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the inner class
-     * @param deobfName The deobfuscated name of the inner class
+     * @param obfName The obfuscated name of the field
+     * @param deobfName The deobfuscated name of the field
+     * @param type The (obfuscated) {@link Type} of the field
      */
-    public InnerClassMapping(ClassMapping parent, String obfName, String deobfName) {
+    public FieldMapping(ClassMapping parent, String obfName, String deobfName, Type type) {
         super(obfName, deobfName);
         this.parent = parent;
+        this.type = type;
 
-        parent.addInnerClassMapping(this);
+        parent.addFieldMapping(this);
     }
 
     @Override
@@ -57,25 +56,21 @@ public class InnerClassMapping extends ClassMapping implements ClassComponent {
     }
 
     /**
-     * Returns the full obfuscated name of this inner class.
+     * Returns the {@link Type} of this field.
      *
-     * @return The full obfuscated name of this inner class
+     * @return The {@link Type} of this field
      */
-    public String getFullObfuscatedName() {
-        return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullObfuscatedName() + INNER_CLASS_SEPARATOR_CHAR : "")
-                + getObfuscatedName();
+    public Type getType() {
+        return type;
     }
 
     /**
-     * Returns the full deobfuscated name of this inner class.
+     * Returns the deobfuscated {@link Type} of this field.
      *
-     * @return The full deobfuscated name of this inner class
+     * @return The deobfuscated {@link Type} of this field
      */
-    public String getFullDeobfuscatedName() {
-        return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR : "")
-                + getDeobfuscatedName();
+    public Type getDeobfuscatedType() {
+        return getType().deobfuscate();
     }
 
 }

@@ -13,11 +13,11 @@ plugins {
 defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
-group = 'blue.lapis.shroud'
+group = 'blue.lapis.nocturne'
 version = '1.0.0-SNAPSHOT'
 
 // Extended project information
-ext.projectName = 'shroud'
+ext.projectName = 'nocturne'
 ext.description = 'A graphical tool for creation of Java deobfuscation mappings.'
 ext.inceptionYear = '2015'
 ext.packaging = 'jar'
@@ -55,7 +55,7 @@ jar {
         attributes(
                 'Implementation-Title': project.name,
                 'Implementation-Version': version,
-                'Main-Class': 'blue.lapis.shroud.Main',
+                'Main-Class': 'blue.lapis.nocturne.Main',
         )
     }
     classifier = 'base'
