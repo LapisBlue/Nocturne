@@ -35,7 +35,7 @@ public enum Primitive {
     DOUBLE('D'),
     FLOAT('F'),
     INT('I'),
-    LONG9('J'),
+    LONG('J'),
     SHORT('S');
 
     private final char key;
