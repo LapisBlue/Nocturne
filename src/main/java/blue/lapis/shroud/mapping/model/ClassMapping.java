@@ -49,14 +49,29 @@ public abstract class ClassMapping extends Mapping {
         super(obfName, deobfName);
     }
 
+    /**
+     * Gets a clone of the {@link FieldMapping}s.
+     *
+     * @return A clone of the {@link FieldMapping}s.
+     */
     public Map<String, FieldMapping> getFieldMappings() {
         return ImmutableMap.copyOf(this.fieldMappings);
     }
 
+    /**
+     * Gets a clone of the {@link MethodMapping}s.
+     *
+     * @return A clone of the {@link MethodMapping}s.
+     */
     public Map<String, MethodMapping> getMethodMappings() {
         return ImmutableMap.copyOf(this.methodMappings);
     }
 
+    /**
+     * Gets a clone of the {@link InnerClassMapping}s.
+     *
+     * @return A clone of the {@link InnerClassMapping}s.
+     */
     public Map<String, InnerClassMapping> getInnerClassMappings() {
         return ImmutableMap.copyOf(this.innerClassMappings);
     }
