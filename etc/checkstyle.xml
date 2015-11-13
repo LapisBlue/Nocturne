@@ -84,6 +84,8 @@
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="tokens" value="IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT,
+                    METHOD_DEF, CTOR_DEF"/>
         </module>
         <module name="SeparatorWrap">
             <property name="tokens" value="DOT"/>

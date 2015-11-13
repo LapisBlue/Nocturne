@@ -1,5 +1,3 @@
-package blue.lapis.shroud;
-
 /*
  * Shroud
  * Copyright (c) 2015, Lapis <https://github.com/LapisBlue>
@@ -24,6 +22,8 @@ package blue.lapis.shroud;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package blue.lapis.shroud;
+
 public class Main {
     //TODO: placeholder for now
 }
