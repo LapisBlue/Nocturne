@@ -26,14 +26,11 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.BufferedReader;
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

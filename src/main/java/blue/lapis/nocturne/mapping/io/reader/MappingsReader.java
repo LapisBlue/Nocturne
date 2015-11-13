@@ -25,10 +25,9 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.mapping.MappingSet;
-import blue.lapis.nocturne.mapping.model.*;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 
 import java.io.BufferedReader;
-import java.util.List;
 
 /**
  * Superclass for all reader classes.
