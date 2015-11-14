@@ -31,6 +31,8 @@
                                   text="Close Mappings"/>
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
                                   text="Save Mappings"/>
+                        <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
+                                  text="Save Mappings As..."/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose" text="Close"/>
                     </items>

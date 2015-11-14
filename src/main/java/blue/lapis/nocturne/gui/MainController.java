@@ -27,6 +27,7 @@ package blue.lapis.nocturne.gui;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
+import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 import blue.lapis.nocturne.util.Constants;
 
 import javafx.event.ActionEvent;
@@ -39,7 +40,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 /**
@@ -52,6 +56,7 @@ public class MainController implements Initializable {
     public MenuItem openMappingsButton;
     public MenuItem closeMappingsButton;
     public MenuItem saveMappingsButton;
+    public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
     public MenuItem aboutButton;
 
@@ -70,6 +75,7 @@ public class MainController implements Initializable {
                 new FileChooser.ExtensionFilter("jar Files", "*.jar")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        //TODO
     }
 
     public void closeJar(ActionEvent actionEvent) {
@@ -105,8 +111,33 @@ public class MainController implements Initializable {
         this.saveMappingsButton.setDisable(true);
     }
 
-    public void saveMappings(ActionEvent actionEvent) {
-        //TODO
+    public void saveMappings(ActionEvent actionEvent) throws IOException {
+        if (Main.currentMappingsPath == null) {
+            saveMappingsAs(actionEvent);
+            return;
+        }
+
+        saveMappings();
+    }
+
+    public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Destination File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("SRG Files", "*.srg"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        if (!selectedFile.exists()) {
+            Files.createFile(selectedFile.toPath());
+        }
+
+        saveMappings();
+    }
+
+    private void saveMappings() throws IOException {
+        SrgWriter writer = new SrgWriter(new PrintWriter(Main.currentMappingsPath.toFile()));
+        writer.write(Main.mappings);
     }
 
     public void onClose(ActionEvent actionEvent) {
