@@ -77,6 +77,6 @@ public class ReaderTests {
         assertTrue(mappings.getMappings().containsKey("a"));
         assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
         ClassMapping mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
-        assertTrue(mapping.getFieldMappings().containsKey("c"));
+        assertTrue(mapping.getFieldMappings().containsKey("a"));
     }
 }

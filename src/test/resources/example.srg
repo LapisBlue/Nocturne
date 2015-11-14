@@ -1,5 +1,5 @@
 # This is a comment, to check the reader doesn't read them.
-CL: a uk/jamierocks/iamthebest/Example
-CL: a$b uk/jamierocks/iamthebest/Example$Best
-FD: a/a uk/jamierocks/iamthebest/Example/name
-FD: a$b/c uk/jamierocks/iamthebest/Example$Best/logger
+CL: a com/example/project/Example
+CL: a$b com/example/project/Example$Inner
+FD: a/a com/example/project/Example/name
+FD: a$b/a com/example/project/Example$Inner/logger
