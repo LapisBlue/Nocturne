@@ -92,7 +92,7 @@ public class SrgReader extends MappingsReader {
 
             // iteratively get the direct parent class to this inner class
             ClassMapping parent = getOrCreateClassMapping(mappingSet,
-                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1));
+                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
 
             new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
                     deobfSplit[deobfSplit.length - 1]);
@@ -145,35 +145,6 @@ public class SrgReader extends MappingsReader {
             String deobfSig = arr[4];
             genMethodMapping(mappingSet, obf, obfSig, deobf, deobfSig);
         }
-    }
-
-    /**
-     * Gets the {@link ClassMapping} for the given qualified name, iteratively
-     * creating mappings for both outer and inner classes as needed if they do
-     * not exist.
-     *
-     * @param mappingSet The {@link MappingSet} to use
-     * @param qualifiedName The fully-qualified name of the class to get a
-     *     mapping for
-     * @return The retrieved or created {@link ClassMapping}
-     */
-    private static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
-        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
-
-        ClassMapping mapping = mappingSet.getMappings().get(arr[0]);
-        if (mapping == null) {
-            mapping = new TopLevelClassMapping(mappingSet, qualifiedName, qualifiedName);
-        }
-
-        for (int i = 1; i < arr.length; i++) {
-            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
-            if (child == null) {
-                child = new InnerClassMapping(mapping, arr[i], arr[i]);
-            }
-            mapping = child;
-        }
-
-        return mapping;
     }
 
 }

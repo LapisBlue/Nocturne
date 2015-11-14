@@ -1,5 +1,6 @@
 # This is a comment, to check the reader doesn't read them.
 CL: a com/example/project/Example
 CL: a$b com/example/project/Example$Inner
-FD: a/a com/example/project/Example/name
-FD: a$b/a com/example/project/Example$Inner/logger
+CL: b$a com/example/project/Another$Inner
+FD: a/a com/example/project/Example/someField
+FD: a$b/a com/example/project/Example$Inner/someInnerField

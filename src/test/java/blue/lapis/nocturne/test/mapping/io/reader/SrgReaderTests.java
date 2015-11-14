@@ -22,8 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.test;
+package blue.lapis.nocturne.test.mapping.io.reader;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -31,9 +32,9 @@ import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 
+import blue.lapis.nocturne.mapping.model.FieldMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import jdk.nashorn.api.scripting.URLReader;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,7 +43,9 @@ import java.io.BufferedReader;
 /**
  * Unit tests related to the {@link SrgReader}.
  */
-public class ReaderTests {
+public class SrgReaderTests {
+
+    private static final String EXAMPLE_PACKAGE = "com/example/project";
 
     private static MappingSet mappings;
 
@@ -56,6 +59,9 @@ public class ReaderTests {
     @Test
     public void classTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
+        ClassMapping mapping = mappings.getMappings().get("a");
+        assertEquals("a", mapping.getObfuscatedName());
+        assertEquals(EXAMPLE_PACKAGE + "/Example", mapping.getDeobfuscatedName());
     }
 
     @Test
@@ -63,20 +69,48 @@ public class ReaderTests {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
         assertTrue(mapping.getInnerClassMappings().containsKey("b"));
+
+        InnerClassMapping inner = mapping.getInnerClassMappings().get("b");
+        assertEquals("b", inner.getObfuscatedName());
+        assertEquals("Inner", inner.getDeobfuscatedName());
+        assertEquals(EXAMPLE_PACKAGE + "/Example$Inner", inner.getFullDeobfuscatedName());
+    }
+
+    @Test
+    public void innerClassWithoutParentMappingTest() {
+        assertTrue(mappings.getMappings().containsKey("b"));
+        ClassMapping mapping = mappings.getMappings().get("b");
+        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
+
+        InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
+        assertEquals("a", inner.getObfuscatedName());
+        assertEquals("Inner", inner.getDeobfuscatedName());
+        assertEquals("b$a", inner.getFullObfuscatedName());
+        assertEquals("b$Inner", inner.getFullDeobfuscatedName());
     }
 
     @Test
     public void fieldTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
+
         ClassMapping mapping = mappings.getMappings().get("a");
         assertTrue(mapping.getFieldMappings().containsKey("a"));
+
+        FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
+        assertEquals("a", fieldMapping.getObfuscatedName());
+        assertEquals("someField", fieldMapping.getDeobfuscatedName());
     }
 
     @Test
     public void fieldInnerClassTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
         assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
+
         ClassMapping mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
         assertTrue(mapping.getFieldMappings().containsKey("a"));
+
+        FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
+        assertEquals("a", fieldMapping.getObfuscatedName());
+        assertEquals("someInnerField", fieldMapping.getDeobfuscatedName());
     }
 }

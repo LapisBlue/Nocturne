@@ -67,8 +67,9 @@ public class InnerClassMapping extends ClassMapping implements ClassComponent {
      */
     public String getFullObfuscatedName() {
         return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullObfuscatedName() + INNER_CLASS_SEPARATOR_CHAR : "")
-                + getObfuscatedName();
+                ? ((InnerClassMapping) parent).getFullObfuscatedName()
+                : parent.getObfuscatedName())
+                + INNER_CLASS_SEPARATOR_CHAR + getObfuscatedName();
     }
 
     /**
@@ -78,8 +79,9 @@ public class InnerClassMapping extends ClassMapping implements ClassComponent {
      */
     public String getFullDeobfuscatedName() {
         return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR : "")
-                + getDeobfuscatedName();
+                ? ((InnerClassMapping) parent).getFullDeobfuscatedName()
+                : parent.getDeobfuscatedName())
+                + INNER_CLASS_SEPARATOR_CHAR + getDeobfuscatedName();
     }
 
 }

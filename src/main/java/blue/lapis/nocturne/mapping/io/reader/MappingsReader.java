@@ -25,8 +25,12 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.BufferedReader;
 
@@ -58,6 +62,36 @@ public abstract class MappingsReader {
     protected int getClassNestingLevel(String name) {
         return name.split(" ")[1].length()
                 - name.split(" ")[1].replace(INNER_CLASS_SEPARATOR_CHAR + "", "").length();
+    }
+
+    /**
+     * Gets the {@link ClassMapping} for the given qualified name, iteratively
+     * creating mappings for both outer and inner classes as needed if they do
+     * not exist.
+     *
+     * @param mappingSet The {@link MappingSet} to use
+     * @param qualifiedName The fully-qualified name of the class to get a
+     *     mapping for
+     * @return The retrieved or created {@link ClassMapping}
+     */
+    protected static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
+        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
+
+        ClassMapping mapping = mappingSet.getMappings().get(arr[0]);
+        if (mapping == null) {
+            mapping = new TopLevelClassMapping(mappingSet, arr[0], arr[0]);
+            mappingSet.addMapping((TopLevelClassMapping) mapping);
+        }
+
+        for (int i = 1; i < arr.length; i++) {
+            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
+            if (child == null) {
+                child = new InnerClassMapping(mapping, arr[i], arr[i]);
+            }
+            mapping = child;
+        }
+
+        return mapping;
     }
 
 }
