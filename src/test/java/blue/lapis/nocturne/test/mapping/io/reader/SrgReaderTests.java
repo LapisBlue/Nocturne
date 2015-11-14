@@ -26,14 +26,13 @@ package blue.lapis.nocturne.test.mapping.io.reader;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
-
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
