@@ -24,13 +24,21 @@
  */
 package blue.lapis.nocturne.gui;
 
+import blue.lapis.nocturne.Main;
+
 import javafx.event.ActionEvent;
+import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * The main Java.FX controller.
  */
-public class MainController {
+public class MainController implements Initializable {
 
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
@@ -39,24 +47,42 @@ public class MainController {
     public MenuItem saveMappingsButton;
     public MenuItem closeButton;
 
-    public void openJar(ActionEvent actionEvent) {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        this.closeJarButton.setDisable(true);
+        this.openMappingsButton.setDisable(true);
+        this.closeMappingsButton.setDisable(true);
+        this.saveMappingsButton.setDisable(true);
+    }
 
+    public void openJar(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select jar");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("jar file", "*.jar")
+        );
+        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }
 
     public void closeJar(ActionEvent actionEvent) {
-
+        //TODO
     }
 
     public void openMappings(ActionEvent actionEvent) {
-
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select mappings");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("srg file", "*.srg")
+        );
+        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }
 
     public void closeMappings(ActionEvent actionEvent) {
-
+        //TODO
     }
 
     public void saveMappings(ActionEvent actionEvent) {
-
+        //TODO
     }
 
     public void onClose(ActionEvent actionEvent) {

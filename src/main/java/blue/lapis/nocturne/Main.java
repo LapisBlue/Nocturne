@@ -32,12 +32,16 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    public static Stage mainStage;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        mainStage = primaryStage;
+
         Parent root = FXMLLoader.load(ClassLoader.getSystemResource("main.fxml"));
         Scene scene = new Scene(root);
         primaryStage.setTitle("Nocturne");

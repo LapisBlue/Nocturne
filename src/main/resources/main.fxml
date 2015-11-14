@@ -117,7 +117,7 @@
                                         </TitledPane>
                                         <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                             <content>
-                                                <TextFlow id="code" fx:id="code" VBox.vgrow="ALWAYS"/>
+                                                <TextFlow id="code" VBox.vgrow="ALWAYS"/>
                                             </content>
                                         </ScrollPane>
                                     </children>
