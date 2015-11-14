@@ -54,8 +54,40 @@ public class ReaderTests {
                 new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         MappingSet mappings = reader.read();
 
-        ClassMapping mapping = mappings.getMappings().get("a");
+        if (mappings.getMappings().containsKey("a")) {
+            ClassMapping mapping = mappings.getMappings().get("a");
+            Assert.assertTrue(mapping.getInnerClassMappings().containsKey("b"));
+        } else {
+            Assert.fail();
+        }
+    }
 
-        Assert.assertTrue(mapping.getInnerClassMappings().containsKey("b"));
+    @Test
+    public void fieldTest() {
+        SrgReader reader =
+                new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
+        MappingSet mappings = reader.read();
+
+        if (mappings.getMappings().containsKey("a")) {
+            ClassMapping mapping = mappings.getMappings().get("a");
+            Assert.assertTrue(mapping.getFieldMappings().containsKey("a"));
+        } else {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void fieldInnerClassTest() {
+        SrgReader reader =
+                new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
+        MappingSet mappings = reader.read();
+
+        if (mappings.getMappings().containsKey("a") &&
+                mappings.getMappings().get("a").getInnerClassMappings().containsKey("b")) {
+            ClassMapping mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
+            Assert.assertTrue(mapping.getFieldMappings().containsKey("c"));
+        } else {
+            Assert.fail();
+        }
     }
 }

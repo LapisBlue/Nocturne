@@ -1,2 +1,5 @@
-CL: a uk.jamierocks.iamthebest.Example
-CL: a$b uk.jamierocks.iamthebest.Example$Best
+# This is a comment, to check the reader doesn't read them.
+CL: a uk/jamierocks/iamthebest/Example
+CL: a$b uk/jamierocks/iamthebest/Example$Best
+FD: a/a uk/jamierocks/iamthebest/Example/name
+FD: a$b/c uk/jamierocks/iamthebest/Example$Best/logger
