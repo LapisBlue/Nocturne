@@ -25,11 +25,20 @@
 package blue.lapis.nocturne.gui.control;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 
+/**
+ * The code-tab Java.FX component.
+ */
 public class CodeTab extends Tab {
+
+    public Label methodIdentifier;
+    public Label methodSignature;
+    public TextFlow code;
 
     public CodeTab() {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("CodeTab.fxml"));
@@ -42,5 +51,23 @@ public class CodeTab extends Tab {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Sets the method identifier of this code-tab.
+     *
+     * @param identifier The method identifier.
+     */
+    public void setMethodIdentifier(String identifier) {
+        this.methodIdentifier.setText(identifier);
+    }
+
+    /**
+     * Sets the method signature of this code-tab.
+     *
+     * @param signature The method signature.
+     */
+    public void setMethodSignature(String signature) {
+        this.methodSignature.setText(signature);
     }
 }

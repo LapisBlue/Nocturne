@@ -25,7 +25,7 @@
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label id="methodIdentifier" text="doSomething"/>
+                                        <Label fx:id="methodIdentifier" id="methodIdentifier" text="doSomething"/>
                                     </children>
                                 </HBox>
                                 <HBox/>
@@ -37,7 +37,7 @@
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label id="methodSignature" text="(LThing;)V"/>
+                                        <Label fx:id="methodSignature" id="methodSignature" text="(LThing;)V"/>
                                     </children>
                                 </HBox>
                             </children>
@@ -46,7 +46,7 @@
                 </TitledPane>
                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                     <content>
-                        <TextFlow id="code" VBox.vgrow="ALWAYS"/>
+                        <TextFlow fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
                     </content>
                 </ScrollPane>
             </children>
