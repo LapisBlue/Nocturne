@@ -5,7 +5,7 @@ Please note that this software is *very* early in development and not yet stable
 
 ## Requirements
 
-Nocturne requires JDK 8 with JavaFX support for compilation and at least JRE 8u40 with JavaFX support for use.
+Nocturne requires at least Java 8u40 with JavaFX support for compilation and use.
 
 ## Download
 
