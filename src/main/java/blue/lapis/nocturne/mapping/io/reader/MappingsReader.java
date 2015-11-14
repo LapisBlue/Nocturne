@@ -24,8 +24,11 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static blue.lapis.nocturne.util.Constants.*;
+
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
 
@@ -56,7 +59,7 @@ public abstract class MappingsReader {
 
     protected int getClassNestingLevel(String name) {
         return name.split(" ")[1].length()
-                - name.split(" ")[1].replace(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "", "").length();
+                - name.split(" ")[1].replace(INNER_CLASS_SEPARATOR_CHAR + "", "").length();
     }
 
 }

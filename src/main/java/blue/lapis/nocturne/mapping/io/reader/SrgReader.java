@@ -24,12 +24,17 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static blue.lapis.nocturne.util.Constants.*;
+
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -55,14 +60,16 @@ public class SrgReader extends MappingsReader {
     public MappingSet read() {
         MappingSet mappings = new MappingSet();
 
-        List<String> rawClassMappings = reader.lines()
+        List<String> mappingList = reader.lines().collect(Collectors.toList());
+
+        List<String> rawClassMappings = mappingList.stream()
                 .filter(s -> s.startsWith(CLASS_MAPPING_KEY) && s.split(" ").length == CLASS_MAPPING_ELEMENT_COUNT)
                 .sorted((s1, s2) -> getClassNestingLevel(s1) - getClassNestingLevel(s2))
                 .collect(Collectors.toList());
-        List<String> rawFieldMappings = reader.lines()
+        List<String> rawFieldMappings = mappingList.stream()
                 .filter(s -> s.startsWith(FIELD_MAPPING_KEY) && s.split(" ").length == FIELD_MAPPING_ELEMENT_COUNT)
                 .collect(Collectors.toList());
-        List<String> rawMethodMappings = reader.lines()
+        List<String> rawMethodMappings = mappingList.stream()
                 .filter(s -> s.startsWith(METHOD_MAPPING_KEY) && s.split(" ").length == METHOD_MAPPING_ELEMENT_COUNT)
                 .collect(Collectors.toList());
 
@@ -75,33 +82,18 @@ public class SrgReader extends MappingsReader {
 
     @Override
     protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
-        if (obf.contains(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "")) {
+        if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
             // escape the separator char so it doesn't get parsed as regex
-            String[] obfSplit = InnerClassMapping.INNER_CLASS_SEPARATOR_PATTERN.split(obf);
-            String[] deobfSplit = InnerClassMapping.INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
+            String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
+            String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
                 System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
                 return; // ignore it
             }
 
             // iteratively get the direct parent class to this inner class
-            ClassMapping parent = mappingSet.getMappings().get(obfSplit[0]);
-            for (int i = 1; i < obfSplit.length - 1; i++) {
-                if (parent == null) {
-                    break;
-                }
-                parent = parent.getInnerClassMappings().get(obfSplit[i]);
-            }
-
-            if (parent == null) {
-                //TODO: this is a very valid case and needs to be addressed
-                // My thought is that we'll create a dummy mapping (where obf == deobf)
-                // for any referenced classes that don't have a specific mapping.
-                // ~ caseif
-                System.err.println("Failed to load mapping for obfuscated class " + obf
-                        + ": loading inner class mappings without a mapped parent is not supported at this time");
-                return;
-            }
+            ClassMapping parent = getOrCreateClassMapping(mappingSet,
+                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1));
 
             new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
                     deobfSplit[deobfSplit.length - 1]);
@@ -112,7 +104,14 @@ public class SrgReader extends MappingsReader {
 
     @Override
     protected void genFieldMapping(MappingSet mappingSet, String obf, String deobf) {
-        //TODO
+        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
+        String owningClass = obf.substring(0, lastIndex);
+        String obfName = obf.substring(lastIndex + 1);
+
+        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
+
+        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
+        new FieldMapping(parent, obfName, deobfName, null);
     }
 
     @Override
@@ -147,6 +146,35 @@ public class SrgReader extends MappingsReader {
             String deobfSig = arr[4];
             genMethodMapping(mappingSet, obf, obfSig, deobf, deobfSig);
         }
+    }
+
+    /**
+     * Gets the {@link ClassMapping} for the given qualified name, iteratively
+     * creating mappings for both outer and inner classes as needed if they do
+     * not exist.
+     *
+     * @param mappingSet The {@link MappingSet} to use
+     * @param qualifiedName The fully-qualified name of the class to get a
+     *     mapping for
+     * @return The retrieved or created {@link ClassMapping}
+     */
+    private static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
+        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
+
+        ClassMapping mapping = mappingSet.getMappings().get(arr[0]);
+        if (mapping == null) {
+            mapping = new TopLevelClassMapping(mappingSet, qualifiedName, qualifiedName);
+        }
+
+        for (int i = 1; i < arr.length; i++) {
+            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
+            if (child == null) {
+                child = new InnerClassMapping(mapping, arr[i], arr[i]);
+            }
+            mapping = child;
+        }
+
+        return mapping;
     }
 
 }

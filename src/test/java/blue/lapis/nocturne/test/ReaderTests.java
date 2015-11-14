@@ -34,6 +34,7 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -43,10 +44,10 @@ import java.io.BufferedReader;
  */
 public class ReaderTests {
 
-    private MappingSet mappings;
+    private static MappingSet mappings;
 
-    @Before
-    public void initialize() {
+    @BeforeClass
+    public static void initialize() {
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         mappings = reader.read();

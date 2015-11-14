@@ -24,6 +24,10 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+
+import blue.lapis.nocturne.util.Constants;
+
 import java.util.regex.Pattern;
 
 /**
@@ -31,10 +35,6 @@ import java.util.regex.Pattern;
  * another class.
  */
 public class InnerClassMapping extends ClassMapping implements ClassComponent {
-
-    public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
-    public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
-            = Pattern.compile(INNER_CLASS_SEPARATOR_CHAR + "", Pattern.LITERAL);
 
     private final ClassMapping parent;
 
