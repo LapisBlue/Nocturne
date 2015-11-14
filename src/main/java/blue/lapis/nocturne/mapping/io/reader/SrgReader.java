@@ -74,7 +74,7 @@ public class SrgReader extends MappingsReader {
 
     @Override
     protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
-        if (obf.contains("$")) {
+        if (obf.contains(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "")) {
             String[] obfSplit = obf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
             String[] deobfSplit = deobf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
