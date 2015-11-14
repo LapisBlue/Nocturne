@@ -24,6 +24,11 @@
  */
 package blue.lapis.nocturne.mapping.model.attribute;
 
+import com.google.common.base.Preconditions;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a primitive data type.
  */
@@ -36,7 +41,10 @@ public enum Primitive {
     FLOAT('F'),
     INT('I'),
     LONG('J'),
-    SHORT('S');
+    SHORT('S'),
+    VOID('V');
+
+    private static Map<Character, Primitive> KEY_MAP;
 
     private final char key;
 
@@ -47,6 +55,7 @@ public enum Primitive {
      */
     Primitive(char key) {
         this.key = key;
+        updateKeyMap(); // has to be in different method because of Java limitations
     }
 
     /**
@@ -59,18 +68,24 @@ public enum Primitive {
     }
 
     /**
-     * Gets the {@link Primitive} type associated with the given key character.
+     * Gets the {@link Primitive} type associated with the iven key character.
+     *
      * @param key The key character to match
      * @return The {@link Primitive} type associated with the given key
      *     character
+     * @throws IllegalArgumentException If the provided character cannot be
+     *     matched to a {@link Primitive} type
      */
     public static Primitive getFromKey(char key) {
-        for (Primitive prim : Primitive.values()) {
-            if (prim.getKey() == key) {
-                return prim;
-            }
+        Preconditions.checkArgument(KEY_MAP.containsKey(key), "Illegal primitive key");
+        return KEY_MAP.get(key);
+    }
+
+    private void updateKeyMap() {
+        if (KEY_MAP == null) {
+            KEY_MAP = new HashMap<>();
         }
-        throw new IllegalArgumentException("Illegal primitive key");
+        KEY_MAP.put(getKey(), this);
     }
 
 }

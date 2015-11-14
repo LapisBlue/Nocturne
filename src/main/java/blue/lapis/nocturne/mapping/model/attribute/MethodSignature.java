@@ -24,6 +24,11 @@
  */
 package blue.lapis.nocturne.mapping.model.attribute;
 
+import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a method signature consisting of parameter {@link Type}s and a
  * return {@link Type}.
@@ -45,6 +50,71 @@ public class MethodSignature {
     public MethodSignature(Type returnType, Type... paramTypes) {
         this.returnType = returnType;
         this.paramTypes = paramTypes;
+        for (Type type : paramTypes) {
+            if (type.isPrimitive() && type.asPrimitive() == Primitive.VOID) {
+                throw new IllegalArgumentException("VOID cannot be used as a method parameter type");
+            }
+        }
+    }
+
+    /**
+     * Parses and constructs a new {@link MethodSignature} from the given
+     * {@link CharSequence}.
+     *
+     * @param signature The {@link CharSequence} representing the signature
+     * @throws IllegalArgumentException If the provided {@link CharSequence} is
+     *     not a valid method signature
+     */
+    public MethodSignature(String signature) throws IllegalArgumentException {
+        final String errMsg = "Not a valid method signature";
+        Preconditions.checkArgument(signature.charAt(0) == '(', errMsg);
+
+        List<Type> paramTypeList = new ArrayList<>();
+
+        char[] chars = signature.toCharArray();
+        outer:
+        for (int i = 1; i < signature.length(); i++) {
+            switch (chars[i]) {
+                case ')': {
+                    break outer;
+                }
+                case 'L': {
+                    i++;
+                    StringBuilder sb = new StringBuilder();
+                    try {
+                        while (chars[i] != ';') {
+                            sb.append(chars[i]);
+                            i++;
+                        }
+                    } catch (IndexOutOfBoundsException ex) {
+                        throw new IllegalArgumentException(errMsg);
+                    }
+                    paramTypeList.add(new Type(sb.toString()));
+                    break;
+                }
+                case 'V': {
+                    throw new IllegalArgumentException("VOID cannot be used as a method parameter type");
+                }
+                default: {
+                    try {
+                        paramTypeList.add(new Type(Primitive.getFromKey(chars[i])));
+                    } catch (IllegalArgumentException ex) {
+                        throw new IllegalArgumentException(errMsg, ex);
+                    }
+                }
+            }
+        }
+        this.paramTypes = new Type[paramTypeList.size()];
+        paramTypeList.toArray(this.paramTypes);
+
+        String returnTypeStr = signature.substring(signature.indexOf(')') + 1);
+        if (returnTypeStr.length() == 1) {
+            this.returnType = new Type(Primitive.getFromKey(returnTypeStr.charAt(0)));
+        } else if (returnTypeStr.startsWith("L") && returnTypeStr.endsWith(";")) {
+            this.returnType = new Type(returnTypeStr.substring(1, returnTypeStr.length() - 1));
+        } else {
+            throw new IllegalArgumentException(errMsg);
+        }
     }
 
     /**

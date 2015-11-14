@@ -55,6 +55,15 @@ public class Type {
     }
 
     /**
+     * Returns whether this {@link Type} is primitive.
+     *
+     * @return Whether this {@link Type} is primitive
+     */
+    public boolean isPrimitive() {
+        return prim != null;
+    }
+
+    /**
      * Gets this {@link Type} as a {@link Primitive}.
      *
      * @return The {@link Primitive} corresponding to this {@link Type}
@@ -95,6 +104,33 @@ public class Type {
      */
     public Type deobfuscate() {
         return prim != null ? this : new Type(getDeobfuscatedClassName());
+    }
+
+    @Override
+    public String toString() {
+        if (isPrimitive()) {
+            return "Type:Primitive(" + asPrimitive().name() + ")";
+        } else {
+            return "Type:Class(" + getClassName() + ")";
+        }
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if (!(otherObject instanceof Type)) {
+            return false;
+        }
+
+        Type type = (Type) otherObject;
+        if (this.isPrimitive() != type.isPrimitive()) {
+            return false;
+        }
+
+        if (this.isPrimitive()) {
+            return this.asPrimitive() == type.asPrimitive();
+        } else {
+            return this.getClassName().equals(type.getClassName());
+        }
     }
 
 }
