@@ -31,6 +31,7 @@ import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.BufferedReader;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -75,8 +76,9 @@ public class SrgReader extends MappingsReader {
     @Override
     protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
         if (obf.contains(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "")) {
-            String[] obfSplit = obf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
-            String[] deobfSplit = deobf.split(InnerClassMapping.INNER_CLASS_SEPARATOR_CHAR + "");
+            // escape the separator char so it doesn't get parsed as regex
+            String[] obfSplit = InnerClassMapping.INNER_CLASS_SEPARATOR_PATTERN.split(obf);
+            String[] deobfSplit = InnerClassMapping.INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
                 System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
                 return; // ignore it
@@ -86,16 +88,21 @@ public class SrgReader extends MappingsReader {
             ClassMapping parent = mappingSet.getMappings().get(obfSplit[0]);
             for (int i = 1; i < obfSplit.length - 1; i++) {
                 if (parent == null) {
-                    //TODO: this is a very valid case and needs to be addressed
-                    // My thought is that we'll create a dummy mapping (where obf == deobf)
-                    // for any referenced classes that don't have a specific mapping.
-                    // ~ caseif
-                    System.err.println("Failed to load mapping for obfuscated class " + obf
-                            + ": loading inner class mappings without a mapped parent is not supported at this time");
-                    return;
+                    break;
                 }
                 parent = parent.getInnerClassMappings().get(obfSplit[i]);
             }
+
+            if (parent == null) {
+                //TODO: this is a very valid case and needs to be addressed
+                // My thought is that we'll create a dummy mapping (where obf == deobf)
+                // for any referenced classes that don't have a specific mapping.
+                // ~ caseif
+                System.err.println("Failed to load mapping for obfuscated class " + obf
+                        + ": loading inner class mappings without a mapped parent is not supported at this time");
+                return;
+            }
+
             new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
                     deobfSplit[deobfSplit.length - 1]);
         } else {

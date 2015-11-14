@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import java.util.regex.Pattern;
+
 /**
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
  * another class.
@@ -31,6 +33,8 @@ package blue.lapis.nocturne.mapping.model;
 public class InnerClassMapping extends ClassMapping implements ClassComponent {
 
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
+    public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
+            = Pattern.compile(INNER_CLASS_SEPARATOR_CHAR + "", Pattern.LITERAL);
 
     private final ClassMapping parent;
 
