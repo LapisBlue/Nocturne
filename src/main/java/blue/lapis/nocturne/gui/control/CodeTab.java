@@ -36,8 +36,10 @@ import java.io.IOException;
  */
 public class CodeTab extends Tab {
 
-    public Label methodIdentifier;
-    public Label methodSignature;
+    public Label memberNameLabel;
+    public Label memberInfoLabel;
+    public Label memberIdentifier;
+    public Label memberInfo;
     public TextFlow code;
 
     public CodeTab() {
@@ -54,20 +56,51 @@ public class CodeTab extends Tab {
     }
 
     /**
-     * Sets the method identifier of this code-tab.
+     * Sets the member type of the selected member.
      *
-     * @param identifier The method identifier.
+     * @param type the member type.
      */
-    public void setMethodIdentifier(String identifier) {
-        this.methodIdentifier.setText(identifier);
+    public void setMemberType(MemberType type) {
+        this.memberNameLabel.setText(String.format("%s: ", type.getName()));
+        this.memberInfoLabel.setText(String.format("%s: ", type.getInfo()));
     }
 
     /**
-     * Sets the method signature of this code-tab.
+     * Sets the member identifier of the selected member.
      *
-     * @param signature The method signature.
+     * @param identifier The member identifier.
      */
-    public void setMethodSignature(String signature) {
-        this.methodSignature.setText(signature);
+    public void setMemberIdentifier(String identifier) {
+        this.memberIdentifier.setText(identifier);
+    }
+
+    /**
+     * Sets the member info of the selected member.
+     *
+     * @param signature The member info.
+     */
+    public void setMemberInfo(String signature) {
+        this.memberInfo.setText(signature);
+    }
+
+    public enum MemberType {
+        FIELD("Field", "Type"),
+        METHOD("Member", "Signature");
+
+        private final String name;
+        private final String info;
+
+        MemberType(String name, String info) {
+            this.name = name;
+            this.info = info;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getInfo() {
+            return info;
+        }
     }
 }

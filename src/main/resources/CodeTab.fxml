@@ -19,25 +19,26 @@
                             <children>
                                 <HBox>
                                     <children>
-                                        <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Method: "
-                                               textAlignment="RIGHT">
+                                        <Label fx:id="memberNameLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
+                                               text="Method: " textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label fx:id="methodIdentifier" id="methodIdentifier" text="doSomething"/>
+                                        <Label fx:id="memberIdentifier" id="methodIdentifier" text="doSomething"/>
                                     </children>
                                 </HBox>
                                 <HBox/>
                                 <HBox>
                                     <children>
-                                        <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Signature: "
+                                        <Label fx:id="memberInfoLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
+                                               text="Signature: "
                                                textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label fx:id="methodSignature" id="methodSignature" text="(LThing;)V"/>
+                                        <Label fx:id="memberInfo" id="methodSignature" text="(LThing;)V"/>
                                     </children>
                                 </HBox>
                             </children>
