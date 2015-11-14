@@ -28,7 +28,9 @@ import blue.lapis.nocturne.Main;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -40,12 +42,15 @@ import java.util.ResourceBundle;
  */
 public class MainController implements Initializable {
 
+    private static final String VERSION = "1.0.0"; //TODO: keep up to date
+
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem openMappingsButton;
     public MenuItem closeMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem closeButton;
+    public MenuItem aboutButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -88,4 +93,16 @@ public class MainController implements Initializable {
     public void onClose(ActionEvent actionEvent) {
         System.exit(0);
     }
+
+    public void showAbout(ActionEvent actionEvent) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About Nocturne");
+        alert.setHeaderText("Nocturne " + VERSION);
+        alert.setContentText("Copyright (c) 2015 Lapis.\n"
+                + "This software is made available under the MIT license.\n"
+                + "\n"
+                + "Github: https://github.com/LapisBlue/Nocturne");
+        alert.showAndWait();
+    }
+
 }

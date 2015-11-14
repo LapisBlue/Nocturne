@@ -18,6 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.MainController">
@@ -46,10 +47,14 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About"/>
+                        <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout" text="About"/>
                     </items>
                 </Menu>
             </menus>
+
+            <padding>
+                <Insets right="-1.0" />
+            </padding>
         </MenuBar>
 
         <SplitPane dividerPositions="0.25, 0.75" VBox.vgrow="ALWAYS">

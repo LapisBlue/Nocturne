@@ -3,8 +3,13 @@
 Nocturne is a graphical utility designed to ease the process of creating deobfuscation mappings for Java applications.
 Please note that this software is *very* early in development and not yet stable.
 
-# Download
-Experimental development builds can be downloaded on the [Jenkins Server](http://ci.caseif.net/job/Nocturne/).
+## Requirements
+
+Nocturne requires JDK 8 with JavaFX support for compilation and at least JRE 8u40 with JavaFX support for use.
+
+## Download
+
+Bleeding-edge development builds can be downloaded from the [Jenkins Server](http://ci.caseif.net/job/Nocturne/).
 
 ## License
 
