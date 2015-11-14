@@ -24,6 +24,24 @@
  */
 package blue.lapis.nocturne;
 
-public class Main {
-    //TODO: placeholder for now
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(ClassLoader.getSystemResource("main.fxml"));
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("Nocturne");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 }
