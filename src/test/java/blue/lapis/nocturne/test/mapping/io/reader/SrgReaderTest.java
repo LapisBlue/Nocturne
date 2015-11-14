@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.test.mapping.io.reader;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -32,6 +33,10 @@ import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
+import blue.lapis.nocturne.mapping.model.attribute.Primitive;
+import blue.lapis.nocturne.mapping.model.attribute.Type;
 
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
@@ -42,7 +47,7 @@ import java.io.BufferedReader;
 /**
  * Unit tests related to the {@link SrgReader}.
  */
-public class SrgReaderTests {
+public class SrgReaderTest {
 
     private static final String EXAMPLE_PACKAGE = "com/example/project";
 
@@ -67,9 +72,10 @@ public class SrgReaderTests {
     public void innerClassTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
-        assertTrue(mapping.getInnerClassMappings().containsKey("b"));
 
+        assertTrue(mapping.getInnerClassMappings().containsKey("b"));
         InnerClassMapping inner = mapping.getInnerClassMappings().get("b");
+
         assertEquals("b", inner.getObfuscatedName());
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals(EXAMPLE_PACKAGE + "/Example$Inner", inner.getFullDeobfuscatedName());
@@ -79,9 +85,10 @@ public class SrgReaderTests {
     public void innerClassWithoutParentMappingTest() {
         assertTrue(mappings.getMappings().containsKey("b"));
         ClassMapping mapping = mappings.getMappings().get("b");
-        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
 
+        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
         InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
+
         assertEquals("a", inner.getObfuscatedName());
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals("b$a", inner.getFullObfuscatedName());
@@ -91,10 +98,9 @@ public class SrgReaderTests {
     @Test
     public void fieldTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
-
         ClassMapping mapping = mappings.getMappings().get("a");
-        assertTrue(mapping.getFieldMappings().containsKey("a"));
 
+        assertTrue(mapping.getFieldMappings().containsKey("a"));
         FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someField", fieldMapping.getDeobfuscatedName());
@@ -112,4 +118,27 @@ public class SrgReaderTests {
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someInnerField", fieldMapping.getDeobfuscatedName());
     }
+
+    @Test
+    public void methodTest() {
+        assertTrue(mappings.getMappings().containsKey("a"));
+        ClassMapping mapping = mappings.getMappings().get("a");
+
+        assertTrue(mapping.getMethodMappings().containsKey("a"));
+
+        MethodMapping methodMapping = mapping.getMethodMappings().get("a");
+        assertEquals("a", methodMapping.getObfuscatedName());
+        assertEquals("someMethod", methodMapping.getDeobfuscatedName());
+        assertArrayEquals(new Type[]{new Type(Primitive.INT), new Type("a"), new Type(Primitive.INT)},
+                methodMapping.getSignature().getParamTypes());
+        assertEquals(new Type("a"), methodMapping.getSignature().getReturnType());
+
+        MethodSignature deobfSig = methodMapping.getDeobfuscatedSignature(mappings);
+        assertArrayEquals(
+                new Type[]{new Type(Primitive.INT), new Type(EXAMPLE_PACKAGE + "/Example"), new Type(Primitive.INT)},
+                deobfSig.getParamTypes()
+        );
+        assertEquals(new Type(EXAMPLE_PACKAGE + "/Example"), deobfSig.getReturnType());
+    }
+
 }

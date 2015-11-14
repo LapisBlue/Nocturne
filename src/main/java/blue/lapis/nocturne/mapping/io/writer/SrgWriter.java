@@ -38,6 +38,8 @@ import java.io.PrintWriter;
  */
 public class SrgWriter extends MappingsWriter {
 
+    private MappingSet mappings;
+
     /**
      * Constructs a new {@link SrgWriter} which outputs to the given
      * {@link PrintWriter}.
@@ -50,7 +52,9 @@ public class SrgWriter extends MappingsWriter {
 
     @Override
     public void write(MappingSet mappings) {
+        this.mappings = mappings;
         mappings.getMappings().values().forEach(this::writeClassMapping);
+        this.mappings = null;
     }
 
     @Override
@@ -81,6 +85,6 @@ public class SrgWriter extends MappingsWriter {
         out.format("MD: %s/%s %s %s/%s %s\n",
                 mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getSignature(),
                 mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
-                mapping.getDeobfuscatedSignature());
+                mapping.getDeobfuscatedSignature(mappings));
     }
 }

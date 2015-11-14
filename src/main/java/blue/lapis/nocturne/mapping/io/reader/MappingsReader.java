@@ -29,8 +29,12 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
+import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
 
@@ -52,12 +56,48 @@ public abstract class MappingsReader {
      */
     public abstract MappingSet read();
 
-    protected abstract void genClassMapping(MappingSet mappingSet, String obf, String deobf);
+    protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
+        if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+            // escape the separator char so it doesn't get parsed as regex
+            String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
+            String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
+            if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
+                System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
+                return; // ignore it
+            }
 
-    protected abstract void genFieldMapping(MappingSet mappingSet, String obf, String deobf);
+            // iteratively get the direct parent class to this inner class
+            ClassMapping parent = getOrCreateClassMapping(mappingSet,
+                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
 
-    protected abstract void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf,
-            String deobfSig);
+            new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
+                    deobfSplit[deobfSplit.length - 1]);
+        } else {
+            mappingSet.addMapping(new TopLevelClassMapping(mappingSet, obf, deobf));
+        }
+    }
+
+    protected void genFieldMapping(MappingSet mappingSet, String obf, String deobf) {
+        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
+        String owningClass = obf.substring(0, lastIndex);
+        String obfName = obf.substring(lastIndex + 1);
+
+        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
+
+        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
+        new FieldMapping(parent, obfName, deobfName, null);
+    }
+
+    protected void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf, String deobfSig) {
+        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
+        String owningClass = obf.substring(0, lastIndex);
+        String obfName = obf.substring(lastIndex + 1);
+
+        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
+
+        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
+        new MethodMapping(parent, obfName, deobfName, new MethodSignature(obfSig));
+    }
 
     protected int getClassNestingLevel(String name) {
         return name.split(" ")[1].length()
@@ -74,7 +114,7 @@ public abstract class MappingsReader {
      *     mapping for
      * @return The retrieved or created {@link ClassMapping}
      */
-    protected static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
+    public static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = mappingSet.getMappings().get(arr[0]);

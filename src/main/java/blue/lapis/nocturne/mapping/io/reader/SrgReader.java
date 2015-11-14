@@ -31,7 +31,9 @@ import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
@@ -77,45 +79,6 @@ public class SrgReader extends MappingsReader {
         genMethodMappings(mappings, rawMethodMappings);
 
         return mappings;
-    }
-
-    @Override
-    protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
-        if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-            // escape the separator char so it doesn't get parsed as regex
-            String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
-            String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
-            if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
-                System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
-                return; // ignore it
-            }
-
-            // iteratively get the direct parent class to this inner class
-            ClassMapping parent = getOrCreateClassMapping(mappingSet,
-                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
-
-            new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
-                    deobfSplit[deobfSplit.length - 1]);
-        } else {
-            mappingSet.addMapping(new TopLevelClassMapping(mappingSet, obf, deobf));
-        }
-    }
-
-    @Override
-    protected void genFieldMapping(MappingSet mappingSet, String obf, String deobf) {
-        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
-        String owningClass = obf.substring(0, lastIndex);
-        String obfName = obf.substring(lastIndex + 1);
-
-        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
-
-        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
-        new FieldMapping(parent, obfName, deobfName, null);
-    }
-
-    @Override
-    protected void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf, String deobfSig) {
-        //TODO
     }
 
     private void genClassMappings(MappingSet mappingSet, List<String> classMappings) {

@@ -4,3 +4,4 @@ CL: a$b com/example/project/Example$Inner
 CL: b$a com/example/project/Another$Inner
 FD: a/a com/example/project/Example/someField
 FD: a$b/a com/example/project/Example$Inner/someInnerField
+MD: a/a (ILa;I)La; com/example/project/Example/someMethod (ILcom/example/project/Example;I)Lcom/example/project/Example;

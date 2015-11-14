@@ -24,6 +24,9 @@
  */
 package blue.lapis.nocturne.mapping.model.attribute;
 
+import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -40,6 +43,8 @@ public class Type {
      * @param primitive The {@link Primitive} representing the new {@link Type}
      */
     public Type(Primitive primitive) {
+        Preconditions.checkArgument(primitive != null);
+
         this.prim = primitive;
         this.clazz = null;
     }
@@ -50,6 +55,8 @@ public class Type {
      * @param className The class name representing the new {@link Type}
      */
     public Type(String className) {
+        Preconditions.checkArgument(className != null);
+
         this.clazz = className;
         this.prim = null;
     }
@@ -92,18 +99,21 @@ public class Type {
      * @return The deobfuscated name of the class represented by this {@link Type}
      * @throws IllegalStateException If this {@link Type} is primitive
      */
-    private String getDeobfuscatedClassName() throws IllegalStateException {
-        Preconditions.checkState(clazz != null, "Cannot get primitive type as class");
-        return null; //TODO
+    private String getDeobfuscatedClassName(MappingSet mappingSet) throws IllegalStateException {
+        Preconditions.checkState(!isPrimitive(), "Cannot get primitive type as class");
+
+        return MappingsReader.getOrCreateClassMapping(mappingSet, getClassName()).getDeobfuscatedName();
     }
 
     /**
      * Attempts to deobfuscate this {@link Type}.
      *
+     * @param mappingSet The {@link MappingSet} to obtain the deobfuscated name
+     *     from
      * @return The deobfuscated {@link Type}
      */
-    public Type deobfuscate() {
-        return prim != null ? this : new Type(getDeobfuscatedClassName());
+    public Type deobfuscate(MappingSet mappingSet) {
+        return prim != null ? this : new Type(getDeobfuscatedClassName(mappingSet));
     }
 
     @Override

@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.model.attribute;
 
+import blue.lapis.nocturne.mapping.MappingSet;
+
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -138,15 +140,17 @@ public class MethodSignature {
     /**
      * Attempts to deobfuscate this {@link MethodSignature}.
      *
+     * @param mappingSet The {@link MappingSet} to use for obtaining
+     *     deobfuscation mappings
      * @return The deobfuscated {@link MethodSignature}
      */
-    public MethodSignature deobfuscate() {
+    public MethodSignature deobfuscate(MappingSet mappingSet) {
         Type[] deobfParams = new Type[getParamTypes().length];
         for (int i = 0; i < getParamTypes().length; i++) {
-            deobfParams[i] = getParamTypes()[i].deobfuscate();
+            deobfParams[i] = getParamTypes()[i].deobfuscate(mappingSet);
         }
 
-        return new MethodSignature(getReturnType().deobfuscate(), deobfParams);
+        return new MethodSignature(getReturnType().deobfuscate(mappingSet), deobfParams);
     }
 
 }

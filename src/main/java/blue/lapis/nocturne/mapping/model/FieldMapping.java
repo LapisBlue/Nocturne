@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.attribute.Type;
 
 /**
@@ -67,10 +68,12 @@ public class FieldMapping extends Mapping implements ClassComponent {
     /**
      * Returns the deobfuscated {@link Type} of this field.
      *
+     * @param mappingSet The {@link MappingSet} to obtain deobfuscation mappings
+     *     from
      * @return The deobfuscated {@link Type} of this field
      */
-    public Type getDeobfuscatedType() {
-        return getType().deobfuscate();
+    public Type getDeobfuscatedType(MappingSet mappingSet) {
+        return getType().deobfuscate(mappingSet);
     }
 
 }
