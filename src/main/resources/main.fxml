@@ -1,132 +1,148 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
-<?import javafx.scene.chart.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
 
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Close"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Edit">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Delete"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="About"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
 
-<VBox prefHeight="480.0" prefWidth="854.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
+        <SplitPane dividerPositions="0.25, 0.75" VBox.vgrow="ALWAYS">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
+                    <items>
+                        <TitledPane animated="false" collapsible="false" text="Obfuscated Classes" maxHeight="Infinity">
+                            <content>
+                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                    <content>
+                                        <ListView id="obfuscatedClassesList"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane animated="false" collapsible="false" text="Deobfuscated Classes" maxHeight="Infinity">
+                            <content>
+                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                    <content>
+                                        <ListView id="deobfuscatedClassesList"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </TitledPane>
+                    </items>
+                </SplitPane>
+
+                <TabPane id="tabs">
+                    <tabs>
+                        <Tab text="cG">
+                            <content>
+                                <VBox>
+                                    <children>
+                                        <TitledPane animated="false" collapsible="false" text="Identifier Info">
+                                            <content>
+                                                <VBox>
+                                                    <children>
+                                                        <HBox>
+                                                            <children>
+                                                                <Label prefWidth="100.0" textAlignment="RIGHT" alignment="CENTER_RIGHT"
+                                                                       text="Method: ">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="13.0"/>
+                                                                    </font>
+                                                                </Label>
+                                                                <Label id="methodIdentifier" text="doSomething"/>
+                                                            </children>
+                                                        </HBox>
+                                                        <HBox/>
+                                                        <HBox>
+                                                            <children>
+                                                                <Label prefWidth="100.0" alignment="CENTER_RIGHT" textAlignment="RIGHT"
+                                                                       text="Signature: ">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="13.0"/>
+                                                                    </font>
+                                                                </Label>
+                                                                <Label id="methodSignature" text="(LThing;)V"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </TitledPane>
+                                        <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <TextFlow id="code" VBox.vgrow="ALWAYS"/>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+                        <Tab text="aQ">
+                            <content>
+                                <AnchorPane/>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+
+                <Accordion SplitPane.resizableWithParent="false">
+                    <panes>
+                        <TitledPane text="Call Graph">
+                            <content>
+                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                    <content>
+                                        <TreeView id="callGraphTree"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </TitledPane>
+                        <TitledPane text="Inheritance">
+                            <content>
+                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                    <content>
+                                        <TreeView id="inheritanceTree"/>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </TitledPane>
+                    </panes>
+                </Accordion>
             </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <SplitPane dividerPositions="0.25, 0.75" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="854.0">
-        <items>
-            <SplitPane dividerPositions="0.5" orientation="VERTICAL">
-               <items>
-                  <TitledPane animated="false" collapsible="false" text="Obfuscated">
-                     <content>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="209.0" prefViewportWidth="248.0">
-                           <content>
-                              <ListView id="obfuscatedClassesList" />
-                           </content>
-                        </ScrollPane>
-                     </content>
-                  </TitledPane>
-                  <TitledPane animated="false" collapsible="false" text="Deobfuscated">
-                     <content>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="209.0" prefViewportWidth="248.0">
-                           <content>
-                              <ListView id="deobfuscatedClassesList" />
-                           </content>
-                        </ScrollPane>
-                     </content>
-                  </TitledPane>
-               </items>
-            </SplitPane>
-            <TabPane id="tabs">
-               <tabs>
-                  <Tab text="cG">
-                     <content>
-                        <VBox prefHeight="200.0" prefWidth="100.0">
-                           <children>
-                              <TitledPane animated="false" collapsible="false" text="Info">
-                                 <content>
-                                    <VBox>
-                                       <children>
-                                          <HBox>
-                                             <children>
-                                                <Label alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="100.0" text="Method" textAlignment="RIGHT">
-                                                   <font>
-                                                      <Font name="System Bold" size="13.0" />
-                                                   </font>
-                                                </Label>
-                                                <Label id="methodIdentifier" text="doSomething" />
-                                             </children>
-                                          </HBox>
-                                          <HBox />
-                                          <HBox layoutX="20.0" layoutY="36.0">
-                                             <children>
-                                                <Label alignment="CENTER_RIGHT" minWidth="-Infinity" prefWidth="100.0" text="Signature" textAlignment="RIGHT">
-                                                   <font>
-                                                      <Font name="System Bold" size="13.0" />
-                                                   </font>
-                                                </Label>
-                                                <Label id="methodSignature" text="(LThing;)V" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </VBox>
-                                 </content>
-                              </TitledPane>
-                              <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="367.0" prefViewportWidth="338.0">
-                                 <content>
-                                    <TextFlow id="code" VBox.vgrow="ALWAYS" />
-                                 </content>
-                              </ScrollPane>
-                           </children>
-                        </VBox>
-                     </content>
-                  </Tab>
-                  <Tab text="aQ">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
-                  </Tab>
-               </tabs>
-            </TabPane>
-            <Accordion>
-              <panes>
-                <TitledPane text="Call Graph">
-                     <content>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="428.0" prefViewportWidth="248.0">
-                           <content>
-                              <TreeView id="callGraphTree" />
-                           </content>
-                        </ScrollPane>
-                     </content>
-                </TitledPane>
-                <TitledPane text="Inheritance">
-                     <content>
-                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="428.0" prefViewportWidth="248.0">
-                           <content>
-                              <TreeView id="inheritanceTree" />
-                           </content>
-                        </ScrollPane>
-                     </content>
-                </TitledPane>
-              </panes>
-            </Accordion>
-        </items>
-      </SplitPane>
-   </children>
+        </SplitPane>
+
+    </children>
 </VBox>
