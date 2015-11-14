@@ -24,7 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
-import static blue.lapis.nocturne.util.Constants.*;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
@@ -34,9 +35,7 @@ import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
