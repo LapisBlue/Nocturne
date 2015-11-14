@@ -59,4 +59,18 @@ public class MappingSet {
         mappings.put(mapping.getObfuscatedName(), mapping);
     }
 
+    /**
+     * Merges the given {@link MappingSet} into the current one.
+     *
+     * <p>Note that mappings from the provided set will take precedence over
+     * existing ones if they are already present.</p>
+     *
+     * @param mappingSet The {@link MappingSet} to merge
+     */
+    public void merge(MappingSet mappingSet) {
+        for (Map.Entry<String, TopLevelClassMapping> entry : mappingSet.getMappings().entrySet()) {
+            mappings.put(entry.getKey(), entry.getValue());
+        }
+    }
+
 }
