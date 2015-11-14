@@ -25,12 +25,12 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.Constants;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
-import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -41,8 +41,6 @@ import java.util.ResourceBundle;
  * The main Java.FX controller.
  */
 public class MainController implements Initializable {
-
-    private static final String VERSION = "1.0.0"; //TODO: keep up to date
 
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
@@ -62,9 +60,9 @@ public class MainController implements Initializable {
 
     public void openJar(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select jar");
+        fileChooser.setTitle("Select jar File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("jar file", "*.jar")
+                new FileChooser.ExtensionFilter("jar File", "*.jar")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }
@@ -75,9 +73,9 @@ public class MainController implements Initializable {
 
     public void openMappings(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select mappings");
+        fileChooser.setTitle("Select Mapping File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("srg file", "*.srg")
+                new FileChooser.ExtensionFilter("SRG File", "*.srg")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }
@@ -97,7 +95,7 @@ public class MainController implements Initializable {
     public void showAbout(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About Nocturne");
-        alert.setHeaderText("Nocturne " + VERSION);
+        alert.setHeaderText("Nocturne " + Constants.VERSION);
         alert.setContentText("Copyright (c) 2015 Lapis.\n"
                 + "This software is made available under the MIT license.\n"
                 + "\n"

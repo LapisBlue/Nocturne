@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
  */
 public class Constants {
 
+    public static final String VERSION = "1.0.0"; // TODO: keep up-to-date
+
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
     public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
             = Pattern.compile(INNER_CLASS_SEPARATOR_CHAR + "", Pattern.LITERAL);
