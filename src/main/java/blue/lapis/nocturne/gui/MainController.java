@@ -62,7 +62,7 @@ public class MainController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select jar File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("jar File", "*.jar")
+                new FileChooser.ExtensionFilter("jar Files", "*.jar")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }
@@ -75,7 +75,8 @@ public class MainController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Mapping File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG File", "*.srg")
+                new FileChooser.ExtensionFilter("SRG Files", "*.srg"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
     }

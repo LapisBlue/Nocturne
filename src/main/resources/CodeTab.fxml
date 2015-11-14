@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import blue.lapis.nocturne.gui.control.CodeTab?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
+
+<fx:root xmlns:fx="http://javafx.com/fxml" type="blue.lapis.nocturne.gui.control.CodeTab">
+    <content>
+        <VBox>
+            <children>
+                <TitledPane animated="false" collapsible="false" text="Identifier Info">
+                    <content>
+                        <VBox>
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Method: "
+                                               textAlignment="RIGHT">
+                                            <font>
+                                                <Font name="System Bold" size="13.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label id="methodIdentifier" text="doSomething"/>
+                                    </children>
+                                </HBox>
+                                <HBox/>
+                                <HBox>
+                                    <children>
+                                        <Label alignment="CENTER_RIGHT" prefWidth="100.0" text="Signature: "
+                                               textAlignment="RIGHT">
+                                            <font>
+                                                <Font name="System Bold" size="13.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label id="methodSignature" text="(LThing;)V"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <content>
+                        <TextFlow id="code" VBox.vgrow="ALWAYS"/>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </content>
+</fx:root>
