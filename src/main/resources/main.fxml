@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Label?>
@@ -7,6 +7,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -18,13 +19,24 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
+      fx:controller="blue.lapis.nocturne.gui.MainController">
     <children>
         <MenuBar>
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar" text="Open Jar"/>
+                        <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar" text="Close Jar"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" fx:id="openMappingsButton" onAction="#openMappings"
+                                  text="Open Mappings"/>
+                        <MenuItem mnemonicParsing="false" fx:id="closeMappingsButton" onAction="#closeMappings"
+                                  text="Close Mappings"/>
+                        <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
+                                  text="Save Mappings"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose" text="Close"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
@@ -44,7 +56,7 @@
             <items>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                     <items>
-                        <TitledPane animated="false" collapsible="false" text="Obfuscated Classes" maxHeight="Infinity">
+                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity" text="Obfuscated Classes">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
@@ -53,7 +65,8 @@
                                 </ScrollPane>
                             </content>
                         </TitledPane>
-                        <TitledPane animated="false" collapsible="false" text="Deobfuscated Classes" maxHeight="Infinity">
+                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
+                                    text="Deobfuscated Classes">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
@@ -77,8 +90,8 @@
                                                     <children>
                                                         <HBox>
                                                             <children>
-                                                                <Label prefWidth="100.0" textAlignment="RIGHT" alignment="CENTER_RIGHT"
-                                                                       text="Method: ">
+                                                                <Label alignment="CENTER_RIGHT" prefWidth="100.0"
+                                                                       text="Method: " textAlignment="RIGHT">
                                                                     <font>
                                                                         <Font name="System Bold" size="13.0"/>
                                                                     </font>
@@ -89,8 +102,8 @@
                                                         <HBox/>
                                                         <HBox>
                                                             <children>
-                                                                <Label prefWidth="100.0" alignment="CENTER_RIGHT" textAlignment="RIGHT"
-                                                                       text="Signature: ">
+                                                                <Label alignment="CENTER_RIGHT" prefWidth="100.0"
+                                                                       text="Signature: " textAlignment="RIGHT">
                                                                     <font>
                                                                         <Font name="System Bold" size="13.0"/>
                                                                     </font>
@@ -104,7 +117,7 @@
                                         </TitledPane>
                                         <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                                             <content>
-                                                <TextFlow id="code" VBox.vgrow="ALWAYS"/>
+                                                <TextFlow id="code" fx:id="code" VBox.vgrow="ALWAYS"/>
                                             </content>
                                         </ScrollPane>
                                     </children>
