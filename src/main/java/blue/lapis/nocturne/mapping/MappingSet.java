@@ -68,9 +68,7 @@ public class MappingSet {
      * @param mappingSet The {@link MappingSet} to merge
      */
     public void merge(MappingSet mappingSet) {
-        for (Map.Entry<String, TopLevelClassMapping> entry : mappingSet.getMappings().entrySet()) {
-            mappings.put(entry.getKey(), entry.getValue());
-        }
+        this.mappings.putAll(mappingSet.getMappings());
     }
 
 }

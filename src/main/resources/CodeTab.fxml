@@ -32,8 +32,7 @@
                                 <HBox>
                                     <children>
                                         <Label fx:id="memberInfoLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
-                                               text="Signature: "
-                                               textAlignment="RIGHT">
+                                               text="Signature: " textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
