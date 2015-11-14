@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
-          "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
-          "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+        "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
 <!--
 
@@ -24,14 +24,15 @@
 <module name = "Checker">
     <property name="charset" value="UTF-8"/>
 
-    <property name="severity" value="warning"/>
+    <!--<property name="severity" value="warning"/>-->
+    <property name="severity" value="${severity}"/>
 
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
-        <module name="FileTabCharacter">
-            <property name="eachLine" value="true"/>
-        </module>
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
 
     <module name="TreeWalker">
         <module name="OuterTypeFilename"/>
@@ -46,6 +47,8 @@
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
         <module name="LineLength">
+            <!--<property name="max" value="100"/>-->
+            <!--<property name="max" value="150"/>-->
             <property name="max" value="120"/>
             <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
         </module>
@@ -58,6 +61,8 @@
         </module>
         <module name="NeedBraces"/>
         <module name="LeftCurly">
+            <!--<property name="maxLineLength" value="100"/>-->
+            <!--<property name="maxLineLength" value="150"/>-->
             <property name="maxLineLength" value="120"/>
         </module>
         <module name="RightCurly"/>
@@ -71,9 +76,9 @@
             <property name="allowEmptyTypes" value="true"/>
             <property name="allowEmptyLoops" value="true"/>
             <message key="ws.notFollowed"
-             value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
-             <message key="ws.notPreceded"
-             value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
+                     value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
+            <message key="ws.notPreceded"
+                     value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
         </module>
         <module name="OneStatementPerLine"/>
         <module name="MultipleVariableDeclarations"/>
@@ -84,8 +89,10 @@
         <module name="ModifierOrder"/>
         <module name="EmptyLineSeparator">
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
-            <property name="tokens" value="IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT,
-                    METHOD_DEF, CTOR_DEF"/>
+
+            <!-- TODO: This is disabled for package because the Gradle License plugin doesn't create a new line after the license header, do we want to enable this? -->
+            <property name="tokens" value="IMPORT, CLASS_DEF, ENUM_DEF, INTERFACE_DEF, CTOR_DEF, METHOD_DEF, STATIC_INIT, INSTANCE_INIT, VARIABLE_DEF"/>
+
         </module>
         <module name="SeparatorWrap">
             <property name="tokens" value="DOT"/>
@@ -98,56 +105,62 @@
         <module name="PackageName">
             <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
             <message key="name.invalidPattern"
-             value="Package name ''{0}'' must match pattern ''{1}''."/>
+                     value="Package name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="TypeName">
             <message key="name.invalidPattern"
-             value="Type name ''{0}'' must match pattern ''{1}''."/>
+                     value="Type name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="MemberName">
-            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+            <!--<property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>-->
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
-             value="Member name ''{0}'' must match pattern ''{1}''."/>
+                     value="Member name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="ParameterName">
-            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+            <!--<property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>-->
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
-             value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+                     value="Parameter name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="LocalVariableName">
             <property name="tokens" value="VARIABLE_DEF"/>
-            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+            <!--<property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>-->
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <property name="allowOneCharVarInForLoop" value="true"/>
             <message key="name.invalidPattern"
-             value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+                     value="Local variable name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="ClassTypeParameterName">
             <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
             <message key="name.invalidPattern"
-             value="Class type name ''{0}'' must match pattern ''{1}''."/>
+                     value="Class type name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="MethodTypeParameterName">
             <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
             <message key="name.invalidPattern"
-             value="Method type name ''{0}'' must match pattern ''{1}''."/>
+                     value="Method type name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="NoFinalizer"/>
         <module name="GenericWhitespace">
             <message key="ws.followed"
-             value="GenericWhitespace ''{0}'' is followed by whitespace."/>
-             <message key="ws.preceded"
-             value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
-             <message key="ws.illegalFollow"
-             value="GenericWhitespace ''{0}'' should followed by whitespace."/>
-             <message key="ws.notPreceded"
-             value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+                     value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+            <message key="ws.preceded"
+                     value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+            <message key="ws.illegalFollow"
+                     value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+            <message key="ws.notPreceded"
+                     value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
         </module>
         <module name="Indentation">
+            <!--<property name="basicOffset" value="2"/>-->
             <property name="basicOffset" value="4"/>
             <property name="braceAdjustment" value="0"/>
+            <!--<property name="caseIndent" value="2"/>-->
             <property name="caseIndent" value="4"/>
-            <property name="throwsIndent" value="8"/>
-            <property name="lineWrappingIndentation" value="8"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="4"/>
+            <!--<property name="arrayInitIndent" value="2"/>-->
             <property name="arrayInitIndent" value="4"/>
         </module>
         <module name="AbbreviationAsWordInName">
@@ -157,9 +170,15 @@
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="VariableDeclarationUsageDistance"/>
         <module name="CustomImportOrder">
-            <property name="specialImportsRegExp" value="blue.lapis.nocturne"/>
+            <!--<property name="specialImportsRegExp" value="com.google"/>-->
+
+            <property name="specialImportsRegExp" value="blue.lapis"/>
+
             <property name="sortImportsInGroupAlphabetically" value="true"/>
             <property name="customImportOrderRules" value="STATIC###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE"/>
+
+            <property name="thirdPartyPackageRegExp" value=".*"/>
+
         </module>
         <module name="MethodParamPad"/>
         <module name="OperatorWrap">
@@ -190,14 +209,15 @@
             <property name="allowMissingThrowsTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
             <property name="minLineCount" value="2"/>
-            <property name="allowedAnnotations" value="Override, Test"/>
             -->
+            <property name="allowedAnnotations" value="Override, Test"/>
             <property name="allowThrowsTagsForSubclasses" value="true"/>
         </module>
         <module name="MethodName">
-            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+            <!--<property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>-->
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
             <message key="name.invalidPattern"
-             value="Method name ''{0}'' must match pattern ''{1}''."/>
+                     value="Method name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="SingleLineJavadoc">
             <property name="ignoreInlineTags" value="false"/>
@@ -206,5 +226,21 @@
             <property name="exceptionVariableName" value="expected"/>
         </module>
         <module name="CommentsIndentation"/>
+
+
+        <module name="RedundantImport"/>
+        <module name="RedundantModifier"/>
+        <!-- TODO: Do we use this?
+        <module name="RequireThis">
+            <property name="checkMethods" value="false"/>
+        </module>
+        -->
     </module>
+
+    <module name="NewlineAtEndOfFile"/>
+    <module name="SuppressionFilter">
+        <property name="file" value="${suppressions}"/>
+    </module>
+
+    <property name="basedir" value="${basedir}"/>
 </module>
