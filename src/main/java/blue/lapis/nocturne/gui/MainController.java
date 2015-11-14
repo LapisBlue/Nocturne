@@ -25,6 +25,8 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.util.Constants;
 
 import javafx.event.ActionEvent;
@@ -33,7 +35,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -71,7 +76,7 @@ public class MainController implements Initializable {
         //TODO
     }
 
-    public void openMappings(ActionEvent actionEvent) {
+    public void openMappings(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Mapping File");
         fileChooser.getExtensionFilters().addAll(
@@ -79,10 +84,19 @@ public class MainController implements Initializable {
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+
+        SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
+        MappingSet mappingSet = reader.read();
+        if (Main.mappings == null) {
+            Main.mappings = mappingSet;
+        } else {
+            Main.mappings.merge(mappingSet);
+        }
     }
 
     public void closeMappings(ActionEvent actionEvent) {
-        //TODO
+        Main.mappings = null;
+        //TODO: update the views and stuff
     }
 
     public void saveMappings(ActionEvent actionEvent) {

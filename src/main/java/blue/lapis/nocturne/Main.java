@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne;
 
+import blue.lapis.nocturne.mapping.MappingSet;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -33,6 +35,8 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public static Stage mainStage;
+
+    public static MappingSet mappings;
 
     public static void main(String[] args) {
         launch(args);
