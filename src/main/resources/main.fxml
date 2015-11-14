@@ -22,8 +22,10 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar" text="Open Jar"/>
-                        <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar" text="Close Jar"/>
+                        <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
+                                  text="Open Jar"/>
+                        <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
+                                  text="Close Jar" disable="true"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" fx:id="openMappingsButton" onAction="#openMappings"
                                   text="Open Mappings"/>
@@ -34,7 +36,8 @@
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
                                   text="Save Mappings As..."/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose" text="Close"/>
+                        <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
+                                  text="Close"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">

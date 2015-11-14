@@ -47,7 +47,7 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 /**
- * The main Java.FX controller.
+ * The main JavaFX controller.
  */
 public class MainController implements Initializable {
 
@@ -62,36 +62,36 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.closeJarButton.setDisable(true);
-        this.openMappingsButton.setDisable(true);
-        this.closeMappingsButton.setDisable(true);
-        this.saveMappingsButton.setDisable(true);
+        openJarButton.setDisable(true); //TODO: temporary
     }
 
     public void openJar(ActionEvent actionEvent) {
+        //TODO: close current JAR if applicable
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select jar File");
+        fileChooser.setTitle("Select JAR File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("jar Files", "*.jar")
+                new FileChooser.ExtensionFilter("JAR Files", "*.jar")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
         //TODO
+        closeJarButton.setDisable(false);
     }
 
     public void closeJar(ActionEvent actionEvent) {
         //TODO
+        closeJarButton.setDisable(true);
     }
 
     public void openMappings(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Mapping File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG Files", "*.srg"),
+                new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
 
-        if (selectedFile != null) {
+        if (selectedFile != null && selectedFile.exists()) {
             SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
             MappingSet mappingSet = reader.read();
             if (Main.mappings == null) {
@@ -99,16 +99,14 @@ public class MainController implements Initializable {
             } else {
                 Main.mappings.merge(mappingSet);
             }
-            this.closeMappingsButton.setDisable(false);
-            this.saveMappingsButton.setDisable(false);
+
+            Main.currentMappingsPath = selectedFile.toPath();
         }
     }
 
     public void closeMappings(ActionEvent actionEvent) {
+        //TODO: prompt to save if applicable
         Main.mappings = null;
-
-        this.closeMappingsButton.setDisable(true);
-        this.saveMappingsButton.setDisable(true);
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
@@ -124,13 +122,20 @@ public class MainController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Destination File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG Files", "*.srg"),
+                new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        File selectedFile = fileChooser.showSaveDialog(Main.mainStage);
+
+        if (selectedFile == null) {
+            return;
+        }
+
         if (!selectedFile.exists()) {
             Files.createFile(selectedFile.toPath());
         }
+
+        Main.currentMappingsPath = selectedFile.toPath();
 
         saveMappings();
     }
