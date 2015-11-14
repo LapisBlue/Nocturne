@@ -85,18 +85,24 @@ public class MainController implements Initializable {
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
 
-        SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
-        MappingSet mappingSet = reader.read();
-        if (Main.mappings == null) {
-            Main.mappings = mappingSet;
-        } else {
-            Main.mappings.merge(mappingSet);
+        if (selectedFile != null) {
+            SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
+            MappingSet mappingSet = reader.read();
+            if (Main.mappings == null) {
+                Main.mappings = mappingSet;
+            } else {
+                Main.mappings.merge(mappingSet);
+            }
+            this.closeMappingsButton.setDisable(false);
+            this.saveMappingsButton.setDisable(false);
         }
     }
 
     public void closeMappings(ActionEvent actionEvent) {
         Main.mappings = null;
-        //TODO: update the views and stuff
+
+        this.closeMappingsButton.setDisable(true);
+        this.saveMappingsButton.setDisable(true);
     }
 
     public void saveMappings(ActionEvent actionEvent) {
