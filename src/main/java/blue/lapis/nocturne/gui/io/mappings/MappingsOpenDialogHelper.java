@@ -30,7 +30,9 @@ import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 
 import javafx.stage.FileChooser;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,13 +47,13 @@ public final class MappingsOpenDialogHelper {
 
     public static void openMappings() throws IOException {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_mapping"));
+        fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_srg"), "*.srg"),
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_all"), "*.*")
+                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
+                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_all"), "*.*")
         );
 
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        File selectedFile = fileChooser.showOpenDialog(Main.getMainStage());
         if (selectedFile == null) {
             return;
         }
@@ -59,15 +61,13 @@ public final class MappingsOpenDialogHelper {
         Path selectedPath = selectedFile.toPath();
 
         if (Files.exists(selectedPath)) {
-            MappingContext context;
-            try (SrgReader reader = new SrgReader(Files.newBufferedReader(selectedPath))) {
-                context = reader.read();
+            try (SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)))) {
+                MappingContext context = reader.read();
+                Main.getMappings().merge(context);
+                Main.getMappings().setDirty(false);
             }
 
-            Main.mappings.merge(context);
-            Main.mappings.setDirty(false);
-
-            Main.currentMappingsPath = selectedPath;
+            Main.setCurrentMappingsPath(selectedPath);
         }
     }
 

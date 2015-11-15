@@ -31,10 +31,12 @@ import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -74,7 +76,7 @@ public class MainController implements Initializable {
 
         final String langRadioPrefix = "langRadio-";
         languageGroup.getToggles().stream()
-                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.locale))
+                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.getCurrentLocale()))
                 .forEach(toggle -> toggle.setSelected(true));
 
         setAccelerators();
@@ -134,7 +136,7 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        Main.mappings = new MappingContext();
+        Main.getMappings().clear();
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
@@ -158,28 +160,28 @@ public class MainController implements Initializable {
 
     public void showAbout(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(Main.resourceBundle.getString("about.title"));
+        alert.setTitle(Main.getResourceBundle().getString("about.title"));
         alert.setHeaderText("Nocturne " + Constants.VERSION);
 
         alert.setContentText(
-                Main.resourceBundle.getString("about.copyright") + " (c) 2015 Lapis.\n"
-                + Main.resourceBundle.getString("about.license") + "\n\n"
-                + "Github: https://github.com/LapisBlue/Nocturne"
+                Main.getResourceBundle().getString("about.copyright") + " (c) 2015 Lapis.\n"
+                        + Main.getResourceBundle().getString("about.license") + "\n\n"
+                        + "Github: https://github.com/LapisBlue/Nocturne"
         );
         alert.showAndWait();
     }
 
     public void onLanguageSelect(ActionEvent actionEvent) throws IOException {
-        //TODO: this is going to be a huge pain in the ass further on in development,
-        // so we should probably store it somewhere (e.g. the appdata folder) and request a restart
-        // also, memory leaks
         RadioMenuItem radioItem = (RadioMenuItem) actionEvent.getSource();
-        if (!radioItem.isSelected()) {
-            final String langPrefix = "langRadio-";
-            String langId = radioItem.getId().substring(langPrefix.length());
-            Main.getInstance().loadView(langId);
+        final String langPrefix = "langRadio-";
+        String langId = radioItem.getId().substring(langPrefix.length());
+
+        if (!langId.equals(Main.getCurrentLocale())) {
+            Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LOCALE, langId);
+
+            Main.reload();
         }
-        throw new NullPointerException();
+
     }
 
 }

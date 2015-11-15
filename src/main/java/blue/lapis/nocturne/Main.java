@@ -26,8 +26,10 @@ package blue.lapis.nocturne;
 
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,6 +39,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,23 +49,59 @@ import java.util.ResourceBundle;
 
 public class Main extends Application {
 
+    private static String[] args;
+
     private static Main instance;
 
-    public static String locale = "en_US";
-    public static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang." + locale);
+    private static final EventHandler<WindowEvent> CLOSE_HANDLER = event -> {
+        try {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+                event.consume();
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    };
 
-    public static Stage mainStage;
+    private PropertiesHelper propertiesHelper;
 
-    public static MappingContext mappings = new MappingContext();
-    public static Path currentMappingsPath;
+    private String locale; // reassigned on reload
+    private ResourceBundle resourceBundle; // reassigned on reload
+
+    private Stage mainStage;
+    private Scene scene;
+
+    private MappingContext mappings = new MappingContext();
+    private Path currentMappingsPath;
 
     public static void main(String[] args) {
+        Main.args = args;
         launch(args);
+    }
+
+    public Main() {
+        super();
+
+        instance = this;
+
+        initialize();
+    }
+
+    public void initialize() {
+        propertiesHelper = new PropertiesHelper();
+        locale = getPropertiesHelper().getProperty(PropertiesHelper.Key.LOCALE);
+        resourceBundle = ResourceBundle.getBundle("lang." + locale);
+    }
+
+    public static void reload() throws IOException {
+        //getMainStage().close();
+        getInstance().initialize();
+        getInstance().loadView(getCurrentLocale());
+        System.gc(); //TODO: I'm a terrible person
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        instance = this;
         mainStage = primaryStage;
 
         loadView("en_US");
@@ -71,14 +110,14 @@ public class Main extends Application {
             throwable.printStackTrace();
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(Main.resourceBundle.getString("exception.title"));
-            alert.setHeaderText(Main.resourceBundle.getString("exception.header"));
+            alert.setTitle(resourceBundle.getString("exception.title"));
+            alert.setHeaderText(resourceBundle.getString("exception.header"));
 
             Text description = new Text();
             description.setText(
-                    Main.resourceBundle.getString("exception.dialog1") + "\n"
-                    + Main.resourceBundle.getString("exception.dialog2") + "\n\n"
-                    + Main.resourceBundle.getString("exception.dialog3")
+                    resourceBundle.getString("exception.dialog1") + "\n"
+                            + resourceBundle.getString("exception.dialog2") + "\n\n"
+                            + resourceBundle.getString("exception.dialog3")
             );
             description.setLayoutX(20);
             description.setLayoutY(25);
@@ -114,19 +153,43 @@ public class Main extends Application {
         loader.setResources(resourceBundle);
         Parent root = loader.load();
 
-        Scene scene = new Scene(root);
-        mainStage.setTitle("Nocturne");
-        mainStage.setScene(scene);
-        mainStage.setOnCloseRequest(event -> {
-            try {
-                if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                    event.consume();
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        mainStage.show();
+        if (scene == null) {
+            scene = new Scene(root);
+            mainStage.setTitle("Nocturne");
+            mainStage.setScene(scene);
+            mainStage.setOnCloseRequest(CLOSE_HANDLER);
+            mainStage.show();
+        } else {
+            scene.setRoot(root);
+        }
+    }
+
+    public static PropertiesHelper getPropertiesHelper() {
+        return getInstance().propertiesHelper;
+    }
+
+    public static String getCurrentLocale() {
+        return getInstance().locale;
+    }
+
+    public static ResourceBundle getResourceBundle() {
+        return getInstance().resourceBundle;
+    }
+
+    public static Stage getMainStage() {
+        return getInstance().mainStage;
+    }
+
+    public static MappingContext getMappings() {
+        return getInstance().mappings;
+    }
+
+    public static Path getCurrentMappingsPath() {
+        return getInstance().currentMappingsPath;
+    }
+
+    public static void setCurrentMappingsPath(Path path) {
+        getInstance().currentMappingsPath = path;
     }
 
 }

@@ -79,6 +79,13 @@ public class MappingContext {
         }
     }
 
+    /**
+     * Immediately clears all mappings from this {@link MappingContext}.
+     */
+    public void clear() {
+        this.mappings.clear();
+    }
+
     public boolean isDirty() {
         return dirty;
     }

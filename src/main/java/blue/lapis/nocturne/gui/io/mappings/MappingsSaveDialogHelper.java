@@ -46,7 +46,7 @@ public final class MappingsSaveDialogHelper {
     }
 
     public static void saveMappings() throws IOException {
-        if (Main.currentMappingsPath == null) {
+        if (Main.getCurrentMappingsPath() == null) {
             saveMappingsAs();
             return;
         }
@@ -61,7 +61,7 @@ public final class MappingsSaveDialogHelper {
                 new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
-        File selectedFile = fileChooser.showSaveDialog(Main.mainStage);
+        File selectedFile = fileChooser.showSaveDialog(Main.getMainStage());
 
         if (selectedFile == null) {
             return;
@@ -73,22 +73,22 @@ public final class MappingsSaveDialogHelper {
             Files.createFile(selectedPath);
         }
 
-        if (!Files.isSameFile(Main.currentMappingsPath, selectedPath)) {
-            Main.mappings.setDirty(true);
+        if (!Files.isSameFile(Main.getCurrentMappingsPath(), selectedPath)) {
+            Main.getMappings().setDirty(true);
         }
 
-        Main.currentMappingsPath = selectedPath;
+        Main.setCurrentMappingsPath(selectedFile.toPath());
 
         saveMappings0();
     }
 
     private static void saveMappings0() throws IOException {
-        if (Main.mappings.isDirty()) {
-            try (SrgWriter writer = new SrgWriter(new PrintWriter(Files.newBufferedWriter(Main.currentMappingsPath)))) {
-                writer.write(Main.mappings);
+        if (Main.getMappings().isDirty()) {
+            try (SrgWriter writer = new SrgWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
+                writer.write(Main.getMappings());
             }
 
-            Main.mappings.setDirty(false);
+            Main.getMappings().setDirty(false);
         }
     }
 
@@ -100,7 +100,7 @@ public final class MappingsSaveDialogHelper {
      * @throws IOException If an exception occurs while saving the mappings
      */
     public static boolean doDirtyConfirmation() throws IOException {
-        if (Main.mappings.isDirty()) {
+        if (Main.getMappings().isDirty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Save?");
             alert.setHeaderText(null);

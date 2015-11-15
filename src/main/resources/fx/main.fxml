@@ -43,10 +43,13 @@
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
-                           text="English (US)" id="langRadio-en_US" selected="true">
+                           text="Deutsch" id="langRadio-de_DE">
                 <toggleGroup>
                     <ToggleGroup fx:id="languageGroup"/>
                 </toggleGroup>
+            </RadioMenuItem>
+            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
+                           text="English (US)" id="langRadio-en_US" selected="true">
             </RadioMenuItem>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.help">

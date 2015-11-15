@@ -47,7 +47,7 @@ public class CodeTab extends Tab {
 
     public CodeTab() {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/CodeTab.fxml"));
-        loader.setResources(Main.resourceBundle);
+        loader.setResources(Main.getResourceBundle());
 
         loader.setRoot(this);
         loader.setController(this);
@@ -123,11 +123,11 @@ public class CodeTab extends Tab {
         }
 
         public String getIdentifierLabel() {
-            return Main.resourceBundle.getString(this.identifierLabel);
+            return Main.getResourceBundle().getString(this.identifierLabel);
         }
 
         public String getInfoLabel() {
-            return Main.resourceBundle.getString(this.infoLabel);
+            return Main.getResourceBundle().getString(this.infoLabel);
         }
 
         public boolean isInfoEnabled() {

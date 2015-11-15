@@ -42,11 +42,11 @@ public final class JarDialogHelper {
     public static void openJar() throws IOException {
         //TODO: close current JAR if applicable
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_jar"));
+        fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_jar"));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_jar"), "*.jar")
+                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_jar"), "*.jar")
         );
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        File selectedFile = fileChooser.showOpenDialog(Main.getMainStage());
         //TODO
     }
 
