@@ -32,7 +32,7 @@ import javafx.scene.text.TextFlow;
 import java.io.IOException;
 
 /**
- * The code-tab Java.FX component.
+ * The code-tab JavaFX component.
  */
 public class CodeTab extends Tab {
 
@@ -77,10 +77,10 @@ public class CodeTab extends Tab {
     /**
      * Sets the member info of the selected member.
      *
-     * @param signature The member info.
+     * @param info The member info.
      */
-    public void setMemberInfo(String signature) {
-        this.memberInfo.setText(signature);
+    public void setMemberInfo(String info) {
+        this.memberInfo.setText(info);
     }
 
     public enum MemberType {

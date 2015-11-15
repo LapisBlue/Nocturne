@@ -83,16 +83,7 @@
                     </items>
                 </SplitPane>
 
-                <TabPane id="tabs">
-                    <tabs>
-                        <!-- These are currently here to show them off. -->
-                        <CodeTab text="cG">
-
-                        </CodeTab>
-                        <CodeTab text="aQ">
-
-                        </CodeTab>
-                    </tabs>
+                <TabPane fx:id="tabs" id="tabs">
                 </TabPane>
 
                 <Accordion SplitPane.resizableWithParent="false">

@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.mapping.MappingSet;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
@@ -34,6 +35,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -43,7 +45,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 /**
@@ -59,9 +60,22 @@ public class MainController implements Initializable {
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
     public MenuItem aboutButton;
+    public TabPane tabs;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // The following is example code, for adding code-tabs
+        CodeTab fieldExample = new CodeTab();
+        fieldExample.setText("cG");
+        fieldExample.setMemberType(CodeTab.MemberType.FIELD);
+        fieldExample.setMemberIdentifier("logger");
+        fieldExample.setMemberInfo("java.util.Logger");
+
+        CodeTab methodExample = new CodeTab();
+        methodExample.setText("aQ");
+
+        this.tabs.getTabs().addAll(fieldExample, methodExample);
+
         openJarButton.setDisable(true); //TODO: temporary
     }
 
