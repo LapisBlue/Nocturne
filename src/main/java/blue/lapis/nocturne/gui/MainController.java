@@ -175,7 +175,7 @@ public class MainController implements Initializable {
 
         Text text2 = new Text(Main.getResourceBundle().getString("about.license") + "\n\n");
 
-        Hyperlink link = new Hyperlink("Github");
+        Hyperlink link = new Hyperlink("GitHub");
         link.setOnAction(event -> {
             try {
                 final String url = "https://github.com/LapisBlue/Nocturne";
