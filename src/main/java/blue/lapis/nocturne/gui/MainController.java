@@ -36,7 +36,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 
@@ -59,6 +62,7 @@ public class MainController implements Initializable {
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
+    public ToggleGroup languageGroup;
     public MenuItem aboutButton;
     public TabPane tabs;
 
@@ -73,18 +77,27 @@ public class MainController implements Initializable {
 
         CodeTab methodExample = new CodeTab();
         methodExample.setText("aQ");
+        methodExample.setMemberType(CodeTab.MemberType.METHOD);
+        methodExample.setMemberIdentifier("doSomething");
+        methodExample.setMemberInfo("(Ljava/lang/String)V");
 
         this.tabs.getTabs().addAll(fieldExample, methodExample);
 
         openJarButton.setDisable(true); //TODO: temporary
+        closeJarButton.setDisable(true);
+
+        final String langRadioPrefix = "langRadio-";
+        languageGroup.getToggles().stream()
+                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.locale))
+                .forEach(toggle -> toggle.setSelected(true));
     }
 
     public void openJar(ActionEvent actionEvent) {
         //TODO: close current JAR if applicable
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select JAR File");
+        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_jar"));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("JAR Files", "*.jar")
+                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_jar"), "*.jar")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
         //TODO
@@ -98,10 +111,10 @@ public class MainController implements Initializable {
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Mapping File");
+        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_mapping"));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
+                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_srg"), "*.srg"),
+                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_all"), "*.*")
         );
         File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
 
@@ -146,13 +159,28 @@ public class MainController implements Initializable {
 
     public void showAbout(ActionEvent actionEvent) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("About Nocturne");
+        alert.setTitle(Main.resourceBundle.getString("about.title"));
         alert.setHeaderText("Nocturne " + Constants.VERSION);
-        alert.setContentText("Copyright (c) 2015 Lapis.\n"
-                + "This software is made available under the MIT license.\n"
-                + "\n"
-                + "Github: https://github.com/LapisBlue/Nocturne");
+
+        alert.setContentText(
+                Main.resourceBundle.getString("about.copyright") + " (c) 2015 Lapis.\n"
+                + Main.resourceBundle.getString("about.license") + "\n\n"
+                + "Github: https://github.com/LapisBlue/Nocturne"
+        );
         alert.showAndWait();
+    }
+
+    public void onLanguageSelect(ActionEvent actionEvent) throws IOException {
+        //TODO: this is going to be a huge pain in the ass further on in development,
+        // so we should probably store it somewhere (e.g. the appdata folder) and request a restart
+        // also, memory leaks
+        RadioMenuItem radioItem = (RadioMenuItem) actionEvent.getSource();
+        if (!radioItem.isSelected()) {
+            final String langPrefix = "langRadio-";
+            String langId = radioItem.getId().substring(langPrefix.length());
+            Main.getInstance().loadView(langId);
+        }
+        throw new NullPointerException();
     }
 
 }

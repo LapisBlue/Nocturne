@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.gui.control;
 
+import blue.lapis.nocturne.Main;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -32,6 +34,7 @@ import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 /**
  * The code-tab JavaFX component.
@@ -46,6 +49,7 @@ public class CodeTab extends Tab {
 
     public CodeTab() {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("CodeTab.fxml"));
+        loader.setResources(Main.resourceBundle);
 
         loader.setRoot(this);
         loader.setController(this);
@@ -67,8 +71,9 @@ public class CodeTab extends Tab {
      * @param type the member type.
      */
     public void setMemberType(MemberType type) {
-        this.memberIdentifierLabel.setText(String.format("%s: ", type.getIdentifierLabel()));
-        this.memberInfoLabel.setText(String.format("%s: ", type.getInfoLabel()));
+        this.memberIdentifierLabel.setText(String.format("%s: ",
+                Main.resourceBundle.getString(type.getIdentifierLabel())));
+        this.memberInfoLabel.setText(String.format("%s: ", Main.resourceBundle.getString(type.getInfoLabel())));
     }
 
     /**
@@ -95,8 +100,8 @@ public class CodeTab extends Tab {
     }
 
     public enum MemberType {
-        FIELD("Field", "Type"),
-        METHOD("Member", "Signature");
+        FIELD("codetab.identifier.field", "codetab.identifier.type"),
+        METHOD("codetab.identifier.method", "codetab.identifier.signature");
 
         private final String identifierLabel;
         private final String infoLabel;

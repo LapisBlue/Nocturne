@@ -48,8 +48,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class Main extends Application {
+
+    private static Main instance;
+
+    public static String locale = "en_US";
+    public static ResourceBundle resourceBundle = ResourceBundle.getBundle("lang." + locale);
 
     public static Stage mainStage;
 
@@ -62,35 +69,23 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        instance = this;
         mainStage = primaryStage;
 
-        Parent root = FXMLLoader.load(ClassLoader.getSystemResource("main.fxml"));
-        Scene scene = new Scene(root);
-        primaryStage.setTitle("Nocturne");
-        primaryStage.setScene(scene);
-        primaryStage.setOnCloseRequest(event -> {
-            try {
-                if (SaveDialogHelper.doDirtyConfirmation()) {
-                    event.consume();
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        primaryStage.show();
+        loadView("en_US");
 
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
             throwable.printStackTrace();
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Aw, rats!");
-            alert.setHeaderText("Something has broken inside Nocturne! :(");
+            alert.setTitle(Main.resourceBundle.getString("exception.title"));
+            alert.setHeaderText(Main.resourceBundle.getString("exception.header"));
 
             Text description = new Text();
             description.setText(
-                    "You may click \"OK\" to continue work within the program, or \"Close\" to exit." + '\n'
-                            + "You will lose all unsaved work if you exit!" + '\n' + '\n'
-                            + "Below is a stack trace of the uncaught exception:"
+                    Main.resourceBundle.getString("exception.dialog1") + "\n"
+                    + Main.resourceBundle.getString("exception.dialog2") + "\n\n"
+                    + Main.resourceBundle.getString("exception.dialog3")
             );
             description.setLayoutX(20);
             description.setLayoutY(25);
@@ -114,4 +109,31 @@ public class Main extends Application {
             }
         });
     }
+
+    public static Main getInstance() {
+        return instance;
+    }
+
+    public void loadView(String lang) throws IOException {
+        locale = lang;
+        resourceBundle = ResourceBundle.getBundle("lang." + lang);
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("main.fxml"));
+        loader.setResources(resourceBundle);
+        Parent root = loader.load();
+
+        Scene scene = new Scene(root);
+        mainStage.setTitle("Nocturne");
+        mainStage.setScene(scene);
+        mainStage.setOnCloseRequest(event -> {
+            try {
+                if (SaveDialogHelper.doDirtyConfirmation()) {
+                    event.consume();
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        mainStage.show();
+    }
+
 }

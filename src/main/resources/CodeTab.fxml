@@ -13,31 +13,31 @@
     <content>
         <VBox>
             <children>
-                <TitledPane animated="false" collapsible="false" text="Identifier Info">
+                <TitledPane animated="false" collapsible="false" text="%codetab.identifier">
                     <content>
                         <VBox>
                             <children>
                                 <HBox>
                                     <children>
                                         <Label fx:id="memberIdentifierLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
-                                               text="Method: " textAlignment="RIGHT">
+                                               textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label fx:id="memberIdentifier" id="methodIdentifier" text="doSomething"/>
+                                        <Label fx:id="memberIdentifier"/>
                                     </children>
                                 </HBox>
                                 <HBox/>
                                 <HBox>
                                     <children>
                                         <Label fx:id="memberInfoLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
-                                               text="Signature: " textAlignment="RIGHT">
+                                               textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>
                                             </font>
                                         </Label>
-                                        <Label fx:id="memberInfo" id="methodSignature" text="(LThing;)V"/>
+                                        <Label fx:id="memberInfo"/>
                                     </children>
                                 </HBox>
                             </children>

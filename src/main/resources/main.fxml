@@ -14,39 +14,53 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.MainController" prefWidth="1280" prefHeight="720">
     <children>
         <MenuBar>
             <menus>
-                <Menu mnemonicParsing="false" text="File">
+                <Menu mnemonicParsing="false" text="%menu.file">
                     <items>
                         <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
-                                  text="Open Jar"/>
+                                  text="%menu.file.open_jar"/>
                         <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
-                                  text="Close Jar" disable="true"/>
+                                  text="%menu.file.close_jar"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" fx:id="loadMappingsButton" onAction="#loadMappings"
-                                  text="Load Mappings"/>
-                        <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
-                                  text="Clear Current Mappings"/>
+                                  text="%menu.file.load_mappings"/>
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
-                                  text="Save Mappings"/>
+                                  text="%menu.file.save_mappings"/>
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
-                                  text="Save Mappings As..."/>
+                                  text="%menu.file.save_mappings_as"/>
+                        <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
+                                  text="%menu.file.clear_mappings"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
-                                  text="Close"/>
+                                  text="%menu.file.close"/>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
+                <Menu mnemonicParsing="false" text="%menu.edit">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Delete"/>
+                        <MenuItem mnemonicParsing="false" text="%menu.edit.delete"/>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu mnemonicParsing="false" text="%menu.language">
                     <items>
-                        <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout" text="About"/>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
+                                       text="English (US)" id="langRadio-en_US" selected="true">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="languageGroup"/>
+                            </toggleGroup>
+                        </RadioMenuItem>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="%menu.help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout"
+                                  text="%menu.help.about"/>
                     </items>
                 </Menu>
             </menus>
@@ -60,7 +74,8 @@
             <items>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
                     <items>
-                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity" text="Obfuscated Classes">
+                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
+                                    text="%classes.obfuscated">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
@@ -70,7 +85,7 @@
                             </content>
                         </TitledPane>
                         <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
-                                    text="Deobfuscated Classes">
+                                    text="%classes.deobfuscated">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
@@ -87,7 +102,7 @@
 
                 <Accordion SplitPane.resizableWithParent="false">
                     <panes>
-                        <TitledPane text="Call Graph">
+                        <TitledPane text="%side.call_graph">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
@@ -96,7 +111,7 @@
                                 </ScrollPane>
                             </content>
                         </TitledPane>
-                        <TitledPane text="Inheritance">
+                        <TitledPane text="%side.inheritance">
                             <content>
                                 <ScrollPane fitToHeight="true" fitToWidth="true">
                                     <content>
