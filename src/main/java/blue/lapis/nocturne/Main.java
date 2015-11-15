@@ -39,7 +39,7 @@ public class Main extends Application {
 
     public static Stage mainStage;
 
-    public static MappingSet mappings;
+    public static MappingSet mappings = new MappingSet();
     public static Path currentMappingsPath;
 
     public static void main(String[] args) {

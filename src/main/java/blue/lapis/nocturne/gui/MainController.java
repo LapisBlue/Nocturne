@@ -108,19 +108,15 @@ public class MainController implements Initializable {
         if (selectedFile != null && selectedFile.exists()) {
             SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
             MappingSet mappingSet = reader.read();
-            if (Main.mappings == null) {
-                Main.mappings = mappingSet;
-            } else {
                 Main.mappings.merge(mappingSet);
-            }
 
             Main.currentMappingsPath = selectedFile.toPath();
         }
     }
 
     public void clearMappings(ActionEvent actionEvent) {
-        //TODO: prompt to save if applicable
-        Main.mappings = null;
+        //TODO: prompt to save if dirty
+        Main.mappings = new MappingSet();
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
