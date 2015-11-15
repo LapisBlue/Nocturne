@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
  */
 public class WebLink extends Hyperlink {
 
+    private final StringProperty urlProperty = new SimpleStringProperty(this, "url");
+
     public WebLink() {
         setOnAction(event -> {
             String url = getUrl();
@@ -42,8 +44,6 @@ public class WebLink extends Hyperlink {
             }
         });
     }
-
-    private final StringProperty urlProperty = new SimpleStringProperty(this, "url");
 
     public final StringProperty urlProperty() {
         return urlProperty;

@@ -4,10 +4,10 @@
 <?import javafx.scene.text.Text?>
 <?import blue.lapis.nocturne.gui.control.WebLink?>
 <TextFlow xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40">
-    <Text styleClass="copyright" text="%about.copyright"/>
-    <Text styleClass="copyright" text=" (c) 2015 Lapis."/>
-    <Text text="&#10;"/>
-    <Text text="%about.license"/>
+    <Text styleClass="copyright" text="%about.copyright"/><Text styleClass="copyright" text=" (c) 2015 Lapis."/>
     <Text text="&#10;&#10;"/>
-    <WebLink url="https://github.com/LapisBlue/Nocturne">GitHub</WebLink>
+    <Text text="%about.license"/>
+    <Text text="&#10;"/>
+    <Text text="%about.github"/>
+    <WebLink url="https://git.io/nocturne">https://git.io/nocturne</WebLink>
 </TextFlow>
