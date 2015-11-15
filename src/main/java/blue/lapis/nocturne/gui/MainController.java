@@ -145,40 +145,15 @@ public class MainController implements Initializable {
     }
 
     public void showAbout(ActionEvent actionEvent) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        throw new NullPointerException();
+        /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About Nocturne");
         alert.setHeaderText("Nocturne " + Constants.VERSION);
         alert.setContentText("Copyright (c) 2015 Lapis.\n"
                 + "This software is made available under the MIT license.\n"
                 + "\n"
                 + "Github: https://github.com/LapisBlue/Nocturne");
-        alert.showAndWait();
-    }
-
-    /**
-     * Prompts the user to save the current mappings if dirty.
-     *
-     * @return {@code true} if the user cancelled the action, {@code false}
-     *     otherwise
-     * @throws IOException If an exception occurs while saving the mappings
-     */
-    private boolean doDirtyConfirmation() throws IOException {
-        //if (Main.mappings.isDirty()) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Save?");
-        alert.setHeaderText(null);
-        alert.setContentText("Would you like to save the current mappings?");
-        alert.getButtonTypes().clear();
-        alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-        alert.showAndWait();
-
-        if (alert.getResult() == ButtonType.YES) {
-            saveMappingsAs(null);
-        } else if (alert.getResult() == ButtonType.CANCEL) {
-            return true;
-        }
-        //}
-        return false;
+        alert.showAndWait();*/
     }
 
 }

@@ -31,12 +31,22 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
 
 public class Main extends Application {
@@ -68,5 +78,40 @@ public class Main extends Application {
             }
         });
         primaryStage.show();
+
+        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
+            throwable.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Aw, rats!");
+            alert.setHeaderText("Something has broken inside Nocturne! :(");
+
+            Text description = new Text();
+            description.setText(
+                    "You may click \"OK\" to continue work within the program, or \"Close\" to exit." + '\n'
+                            + "You will lose all unsaved work if you exit!" + '\n' + '\n'
+                            + "Below is a stack trace of the uncaught exception:"
+            );
+            description.setLayoutX(20);
+            description.setLayoutY(25);
+
+            TextArea exceptionText = new TextArea();
+            StringWriter exceptionWriter = new StringWriter();
+            throwable.printStackTrace(new PrintWriter(exceptionWriter));
+            exceptionText.setText(exceptionWriter.toString());
+            exceptionText.setLayoutX(20);
+            exceptionText.setLayoutY(85);
+
+            Pane contentPane = new Pane(description, exceptionText);
+            alert.getDialogPane().setContent(contentPane);
+
+            alert.getButtonTypes().setAll(ButtonType.OK, ButtonType.CLOSE);
+
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.CLOSE) {
+                System.exit(0);
+            }
+        });
     }
 }
