@@ -28,6 +28,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.text.TextFlow;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.IOException;
 
@@ -40,7 +42,7 @@ public class CodeTab extends Tab {
     public Label memberInfoLabel;
     public Label memberIdentifier;
     public Label memberInfo;
-    public TextFlow code;
+    public CodeArea code;
 
     public CodeTab() {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("CodeTab.fxml"));
@@ -53,6 +55,10 @@ public class CodeTab extends Tab {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.setCode("public static void main(String[] args) {\n    System.out.println(\"Hello World\");\n}\n");
+        this.code.setParagraphGraphicFactory(LineNumberFactory.get(this.code));
+        this.code.setDisable(true);
     }
 
     /**
@@ -81,6 +87,11 @@ public class CodeTab extends Tab {
      */
     public void setMemberInfo(String info) {
         this.memberInfo.setText(info);
+    }
+
+    public void setCode(String code) {
+        this.code.clear();
+        this.code.appendText(code);
     }
 
     public enum MemberType {
