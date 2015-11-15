@@ -50,6 +50,7 @@ public class WebLink extends Hyperlink {
 
             try { // First try the JavaFX way to open URLs (doesn't seem to be supported everywhere)
                 Main.getInstance().getHostServices().showDocument(url);
+                return;
             } catch (Throwable ignored) {
             }
 
