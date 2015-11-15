@@ -145,15 +145,14 @@ public class MainController implements Initializable {
     }
 
     public void showAbout(ActionEvent actionEvent) {
-        throw new NullPointerException();
-        /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About Nocturne");
         alert.setHeaderText("Nocturne " + Constants.VERSION);
         alert.setContentText("Copyright (c) 2015 Lapis.\n"
                 + "This software is made available under the MIT license.\n"
                 + "\n"
                 + "Github: https://github.com/LapisBlue/Nocturne");
-        alert.showAndWait();*/
+        alert.showAndWait();
     }
 
 }
