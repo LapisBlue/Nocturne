@@ -29,14 +29,12 @@ import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
-import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
