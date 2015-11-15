@@ -49,6 +49,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -176,13 +177,18 @@ public class MainController implements Initializable {
 
         Hyperlink link = new Hyperlink("Github");
         link.setOnAction(event -> {
-            Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-                try {
-                    desktop.browse(new URI("https://github.com/LapisBlue/Nocturne"));
-                } catch (IOException | URISyntaxException ex) {
-                    throw new RuntimeException(ex);
+            try {
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    Desktop.getDesktop().browse(new URI("https://github.com/LapisBlue/Nocturne"));
+                } else if ((System.getProperty("os.name").contains("nix") || System.getProperty("os.name").contains("nux"))
+                        && (new File("/usr/bin/xdg-open").exists() || new File("/usr/local/bin/xdg-open").exists())) {
+                    // Work-around to support non-GNOME Linux desktop environments with xdg-open installed
+                    new ProcessBuilder("xdg-open", "https://github.com/LapisBlue/Nocturne").start();
+                } else {
+                    Main.getLogger().warning("Could not open Java Download url, not supported");
                 }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         });
 
