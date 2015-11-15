@@ -24,7 +24,6 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 
 /**

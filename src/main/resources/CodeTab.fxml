@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.fxmisc.richtext.CodeArea?>
-
 <fx:root xmlns:fx="http://javafx.com/fxml" type="blue.lapis.nocturne.gui.control.CodeTab">
     <content>
         <VBox>

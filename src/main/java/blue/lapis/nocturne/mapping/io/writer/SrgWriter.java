@@ -51,6 +51,7 @@ public class SrgWriter extends MappingsWriter {
     @Override
     public void write(MappingContext mappingContext) {
         mappingContext.getMappings().values().forEach(this::writeClassMapping);
+        out.flush();
     }
 
     @Override

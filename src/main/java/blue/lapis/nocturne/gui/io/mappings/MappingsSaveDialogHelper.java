@@ -1,9 +1,8 @@
-package blue.lapis.nocturne.gui.io;
+package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 
-import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -14,9 +13,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 
 /**
- * Handles save dialogs.
+ * Static utility class for dialogs for saving mappings.
  */
-public class SaveDialogHelper {
+public class MappingsSaveDialogHelper {
 
     public static void saveMappings() throws IOException {
         if (Main.currentMappingsPath == null) {
@@ -42,6 +41,10 @@ public class SaveDialogHelper {
 
         if (!selectedFile.exists()) {
             Files.createFile(selectedFile.toPath());
+        }
+
+        if (Main.currentMappingsPath != selectedFile.toPath()) {
+            Main.mappings.setDirty(true);
         }
 
         Main.currentMappingsPath = selectedFile.toPath();

@@ -29,12 +29,10 @@ import blue.lapis.nocturne.Main;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.IOException;
-import java.util.ResourceBundle;
 
 /**
  * The code-tab JavaFX component.

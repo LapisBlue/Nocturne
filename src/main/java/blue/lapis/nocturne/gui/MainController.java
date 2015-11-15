@@ -26,30 +26,23 @@ package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
+import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
+import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
+import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.gui.io.SaveDialogHelper;
-import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.util.Constants;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -76,6 +69,18 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        openJarButton.setDisable(true); //TODO: temporary
+        closeJarButton.setDisable(true);
+
+        final String langRadioPrefix = "langRadio-";
+        languageGroup.getToggles().stream()
+                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.locale))
+                .forEach(toggle -> toggle.setSelected(true));
+
+        setAccelerators();
+    }
+
+    private void initSampleCodeTabs() {
         // The following is example code, for adding code-tabs
         CodeTab fieldExample = new CodeTab();
         fieldExample.setText("cG");
@@ -90,16 +95,6 @@ public class MainController implements Initializable {
         methodExample.setMemberInfo("(Ljava/lang/String)V");
 
         this.tabs.getTabs().addAll(fieldExample, methodExample);
-
-        openJarButton.setDisable(true); //TODO: temporary
-        closeJarButton.setDisable(true);
-
-        final String langRadioPrefix = "langRadio-";
-        languageGroup.getToggles().stream()
-                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.locale))
-                .forEach(toggle -> toggle.setSelected(true));
-
-        setAccelerators();
     }
 
     private void setAccelerators() {
@@ -111,15 +106,8 @@ public class MainController implements Initializable {
         aboutButton.setAccelerator(new KeyCodeCombination(KeyCode.F1));
     }
 
-    public void openJar(ActionEvent actionEvent) {
-        //TODO: close current JAR if applicable
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_jar"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_jar"), "*.jar")
-        );
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
-        //TODO
+    public void openJar(ActionEvent actionEvent) throws IOException {
+        JarDialogHelper.openJar();
         closeJarButton.setDisable(false);
     }
 
@@ -129,26 +117,12 @@ public class MainController implements Initializable {
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(Main.resourceBundle.getString("filechooser.open_mapping"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_srg"), "*.srg"),
-                new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_all"), "*.*")
-        );
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
-
-        if (selectedFile != null && selectedFile.exists()) {
-            SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
-            MappingContext context = reader.read();
-            Main.mappings.merge(context);
-
-            Main.currentMappingsPath = selectedFile.toPath();
-        }
+        MappingsOpenDialogHelper.openMappings();
     }
 
     public void clearMappings(ActionEvent actionEvent) {
         try {
-            if (SaveDialogHelper.doDirtyConfirmation()) {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
                 return;
             }
         } catch (IOException ex) {
@@ -158,16 +132,16 @@ public class MainController implements Initializable {
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
-        SaveDialogHelper.saveMappings();
+        MappingsSaveDialogHelper.saveMappings();
     }
 
     public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
-        SaveDialogHelper.saveMappingsAs();
+        MappingsSaveDialogHelper.saveMappingsAs();
     }
 
     public void onClose(ActionEvent actionEvent) {
         try {
-            if (SaveDialogHelper.doDirtyConfirmation()) {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
                 return;
             }
         } catch (IOException ex) {

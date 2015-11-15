@@ -27,9 +27,6 @@ package blue.lapis.nocturne.mapping.model;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.Constants;
-
-import java.util.regex.Pattern;
 
 /**
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
