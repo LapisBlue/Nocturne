@@ -19,7 +19,7 @@
                             <children>
                                 <HBox>
                                     <children>
-                                        <Label fx:id="memberNameLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
+                                        <Label fx:id="memberIdentifierLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
                                                text="Method: " textAlignment="RIGHT">
                                             <font>
                                                 <Font name="System Bold" size="13.0"/>

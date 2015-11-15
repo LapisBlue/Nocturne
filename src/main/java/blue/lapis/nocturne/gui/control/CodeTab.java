@@ -36,7 +36,7 @@ import java.io.IOException;
  */
 public class CodeTab extends Tab {
 
-    public Label memberNameLabel;
+    public Label memberIdentifierLabel;
     public Label memberInfoLabel;
     public Label memberIdentifier;
     public Label memberInfo;
@@ -61,8 +61,8 @@ public class CodeTab extends Tab {
      * @param type the member type.
      */
     public void setMemberType(MemberType type) {
-        this.memberNameLabel.setText(String.format("%s: ", type.getName()));
-        this.memberInfoLabel.setText(String.format("%s: ", type.getInfo()));
+        this.memberIdentifierLabel.setText(String.format("%s: ", type.getIdentifierLabel()));
+        this.memberInfoLabel.setText(String.format("%s: ", type.getInfoLabel()));
     }
 
     /**
@@ -87,20 +87,20 @@ public class CodeTab extends Tab {
         FIELD("Field", "Type"),
         METHOD("Member", "Signature");
 
-        private final String name;
-        private final String info;
+        private final String identifierLabel;
+        private final String infoLabel;
 
-        MemberType(String name, String info) {
-            this.name = name;
-            this.info = info;
+        MemberType(String identifierLabel, String infoLabel) {
+            this.identifierLabel = identifierLabel;
+            this.infoLabel = infoLabel;
         }
 
-        public String getName() {
-            return name;
+        public String getIdentifierLabel() {
+            return this.identifierLabel;
         }
 
-        public String getInfo() {
-            return info;
+        public String getInfoLabel() {
+            return this.infoLabel;
         }
     }
 }

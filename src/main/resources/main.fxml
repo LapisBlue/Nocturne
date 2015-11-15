@@ -14,7 +14,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<?import blue.lapis.nocturne.gui.control.CodeTab?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.MainController" prefWidth="1280" prefHeight="720">
     <children>
@@ -110,6 +109,5 @@
                 </Accordion>
             </items>
         </SplitPane>
-
     </children>
 </VBox>
