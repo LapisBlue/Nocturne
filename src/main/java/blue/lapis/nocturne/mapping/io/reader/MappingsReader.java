@@ -56,7 +56,7 @@ public abstract class MappingsReader {
      */
     public abstract MappingContext read();
 
-    protected void genClassMapping(MappingContext mappingSet, String obf, String deobf) {
+    protected void genClassMapping(MappingContext context, String obf, String deobf) {
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
             // escape the separator char so it doesn't get parsed as regex
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
@@ -67,28 +67,28 @@ public abstract class MappingsReader {
             }
 
             // iteratively get the direct parent class to this inner class
-            ClassMapping parent = getOrCreateClassMapping(mappingSet,
+            ClassMapping parent = getOrCreateClassMapping(context,
                     obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
 
             new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
                     deobfSplit[deobfSplit.length - 1]);
         } else {
-            mappingSet.addMapping(new TopLevelClassMapping(mappingSet, obf, deobf));
+            context.addMapping(new TopLevelClassMapping(context, obf, deobf));
         }
     }
 
-    protected void genFieldMapping(MappingContext mappingSet, String obf, String deobf) {
+    protected void genFieldMapping(MappingContext context, String obf, String deobf) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
         String obfName = obf.substring(lastIndex + 1);
 
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
-        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
+        ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         new FieldMapping(parent, obfName, deobfName, null);
     }
 
-    protected void genMethodMapping(MappingContext mappingSet, String obf, String obfSig, String deobf,
+    protected void genMethodMapping(MappingContext context, String obf, String obfSig, String deobf,
             String deobfSig) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
@@ -96,7 +96,7 @@ public abstract class MappingsReader {
 
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
-        ClassMapping parent = getOrCreateClassMapping(mappingSet, owningClass);
+        ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         new MethodMapping(parent, obfName, deobfName, new MethodSignature(obfSig));
     }
 
@@ -115,13 +115,13 @@ public abstract class MappingsReader {
      *     mapping for
      * @return The retrieved or created {@link ClassMapping}
      */
-    public static ClassMapping getOrCreateClassMapping(MappingContext mappingSet, String qualifiedName) {
+    public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
-        ClassMapping mapping = mappingSet.getMappings().get(arr[0]);
+        ClassMapping mapping = context.getMappings().get(arr[0]);
         if (mapping == null) {
-            mapping = new TopLevelClassMapping(mappingSet, arr[0], arr[0]);
-            mappingSet.addMapping((TopLevelClassMapping) mapping);
+            mapping = new TopLevelClassMapping(context, arr[0], arr[0]);
+            context.addMapping((TopLevelClassMapping) mapping);
         }
 
         for (int i = 1; i < arr.length; i++) {

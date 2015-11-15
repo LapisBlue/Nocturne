@@ -71,32 +71,32 @@ public class SrgReader extends MappingsReader {
         return mappings;
     }
 
-    private void genClassMappings(MappingContext mappingSet, List<String> classMappings) {
+    private void genClassMappings(MappingContext context, List<String> classMappings) {
         for (String mapping : classMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            genClassMapping(mappingSet, obf, deobf);
+            genClassMapping(context, obf, deobf);
         }
     }
 
-    private void genFieldMappings(MappingContext mappingSet, List<String> fieldMappings) {
+    private void genFieldMappings(MappingContext context, List<String> fieldMappings) {
         for (String mapping : fieldMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            genFieldMapping(mappingSet, obf, deobf);
+            genFieldMapping(context, obf, deobf);
         }
     }
 
-    private void genMethodMappings(MappingContext mappingSet, List<String> methodMappings) {
+    private void genMethodMappings(MappingContext context, List<String> methodMappings) {
         for (String mapping : methodMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String obfSig = arr[2];
             String deobf = arr[3];
             String deobfSig = arr[4];
-            genMethodMapping(mappingSet, obf, obfSig, deobf, deobfSig);
+            genMethodMapping(context, obf, obfSig, deobf, deobfSig);
         }
     }
 
