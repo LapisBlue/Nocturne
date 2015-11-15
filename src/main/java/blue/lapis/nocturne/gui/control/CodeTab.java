@@ -46,7 +46,7 @@ public class CodeTab extends Tab {
     public CodeArea code;
 
     public CodeTab() {
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("CodeTab.fxml"));
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/CodeTab.fxml"));
         loader.setResources(Main.resourceBundle);
 
         loader.setRoot(this);

@@ -110,7 +110,7 @@ public class Main extends Application {
     public void loadView(String lang) throws IOException {
         locale = lang;
         resourceBundle = ResourceBundle.getBundle("lang." + lang);
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("main.fxml"));
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/main.fxml"));
         loader.setResources(resourceBundle);
         Parent root = loader.load();
 
