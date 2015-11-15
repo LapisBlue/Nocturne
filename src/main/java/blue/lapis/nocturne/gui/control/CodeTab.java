@@ -60,7 +60,7 @@ public class CodeTab extends Tab {
 
         this.setCode("public static void main(String[] args) {\n    System.out.println(\"Hello World\");\n}\n");
         this.code.setParagraphGraphicFactory(LineNumberFactory.get(this.code));
-        this.code.setDisable(true);
+        this.code.setEditable(false);
     }
 
     /**
