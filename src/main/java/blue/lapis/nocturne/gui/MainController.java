@@ -33,7 +33,9 @@ import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuItem;
@@ -45,14 +47,9 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -165,36 +162,19 @@ public class MainController implements Initializable {
         System.exit(0);
     }
 
-    public void showAbout(ActionEvent actionEvent) {
+    public void showAbout(ActionEvent actionEvent) throws IOException {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(Main.getResourceBundle().getString("about.title"));
         alert.setHeaderText("Nocturne " + Constants.VERSION);
 
-        Text text1 = new Text(Main.getResourceBundle().getString("about.copyright") + " (c) 2015 Lapis.\n");
-        text1.setFont(Font.font(text1.getFont().getFamily(), FontWeight.BOLD, text1.getFont().getSize()));
+        alert.getDialogPane().getStyleClass().add("about");
+        alert.getDialogPane().getStylesheets().add("css/nocturne.css");
 
-        Text text2 = new Text(Main.getResourceBundle().getString("about.license") + "\n\n");
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/about.fxml"));
+        loader.setResources(Main.getResourceBundle());
+        Node content = loader.load();
+        alert.getDialogPane().setContent(content);
 
-        Hyperlink link = new Hyperlink("GitHub");
-        link.setOnAction(event -> {
-            try {
-                final String url = "https://github.com/LapisBlue/Nocturne";
-                if ((System.getProperty("os.name").contains("nix") || System.getProperty("os.name").contains("nux"))
-                        && (new File("/usr/bin/xdg-open").exists() || new File("/usr/local/bin/xdg-open").exists())) {
-                    // Work-around to support non-GNOME Linux desktop environments with xdg-open installed
-                    new ProcessBuilder("xdg-open", url).start();
-                } else if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI(url));
-                } else {
-                    Main.getLogger().warning("Could not open hyperlink (not supported)");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        TextFlow flow = new TextFlow(text1, text2, link);
-        alert.getDialogPane().setContent(flow);
         alert.showAndWait();
     }
 
