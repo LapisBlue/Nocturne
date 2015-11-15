@@ -12,44 +12,32 @@
 <fx:root xmlns:fx="http://javafx.com/fxml" type="blue.lapis.nocturne.gui.control.CodeTab">
     <content>
         <VBox>
-            <children>
-                <TitledPane animated="false" collapsible="false" text="%codetab.identifier">
-                    <content>
-                        <VBox>
-                            <children>
-                                <HBox>
-                                    <children>
-                                        <Label fx:id="memberIdentifierLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
-                                               textAlignment="RIGHT">
-                                            <font>
-                                                <Font name="System Bold" size="13.0"/>
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="memberIdentifier"/>
-                                    </children>
-                                </HBox>
-                                <HBox/>
-                                <HBox>
-                                    <children>
-                                        <Label fx:id="memberInfoLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
-                                               textAlignment="RIGHT">
-                                            <font>
-                                                <Font name="System Bold" size="13.0"/>
-                                            </font>
-                                        </Label>
-                                        <Label fx:id="memberInfo"/>
-                                    </children>
-                                </HBox>
-                            </children>
-                        </VBox>
-                    </content>
-                </TitledPane>
-                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                    <content>
-                        <CodeArea fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
-                    </content>
-                </ScrollPane>
-            </children>
+            <TitledPane animated="false" collapsible="false" text="%codetab.identifier">
+                <VBox>
+                    <HBox>
+                        <Label fx:id="memberIdentifierLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
+                               textAlignment="RIGHT">
+                            <font>
+                                <Font name="System Bold" size="13.0"/>
+                            </font>
+                        </Label>
+                        <Label fx:id="memberIdentifier"/>
+                    </HBox>
+                    <HBox/>
+                    <HBox>
+                        <Label fx:id="memberInfoLabel" alignment="CENTER_RIGHT" prefWidth="100.0"
+                               textAlignment="RIGHT">
+                            <font>
+                                <Font name="System Bold" size="13.0"/>
+                            </font>
+                        </Label>
+                        <Label fx:id="memberInfo"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+            <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+                <CodeArea fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
+            </ScrollPane>
         </VBox>
     </content>
 </fx:root>

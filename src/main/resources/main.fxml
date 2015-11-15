@@ -19,110 +19,75 @@
 <?import javafx.scene.control.ToggleGroup?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.MainController" prefWidth="1280" prefHeight="720">
-    <children>
-        <MenuBar>
-            <menus>
-                <Menu mnemonicParsing="false" text="%menu.file">
-                    <items>
-                        <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
-                                  text="%menu.file.open_jar"/>
-                        <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
-                                  text="%menu.file.close_jar"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" fx:id="loadMappingsButton" onAction="#loadMappings"
-                                  text="%menu.file.load_mappings"/>
-                        <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
-                                  text="%menu.file.save_mappings"/>
-                        <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
-                                  text="%menu.file.save_mappings_as"/>
-                        <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
-                                  text="%menu.file.clear_mappings"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
-                                  text="%menu.file.close"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="%menu.edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="%menu.edit.delete"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="%menu.language">
-                    <items>
-                        <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
-                                       text="English (US)" id="langRadio-en_US" selected="true">
-                            <toggleGroup>
-                                <ToggleGroup fx:id="languageGroup"/>
-                            </toggleGroup>
-                        </RadioMenuItem>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="%menu.help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout"
-                                  text="%menu.help.about"/>
-                    </items>
-                </Menu>
-            </menus>
+    <MenuBar>
+        <padding>
+            <Insets right="-1.0"/>
+        </padding>
+        <Menu mnemonicParsing="false" text="%menu.file">
+            <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
+                      text="%menu.file.open_jar"/>
+            <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
+                      text="%menu.file.close_jar"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" fx:id="loadMappingsButton" onAction="#loadMappings"
+                      text="%menu.file.load_mappings"/>
+            <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
+                      text="%menu.file.save_mappings"/>
+            <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
+                      text="%menu.file.save_mappings_as"/>
+            <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
+                      text="%menu.file.clear_mappings"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
+                      text="%menu.file.close"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="%menu.edit">
+            <MenuItem mnemonicParsing="false" text="%menu.edit.delete"/>
+        </Menu>
+        <Menu mnemonicParsing="false" text="%menu.language">
+            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
+                           text="English (US)" id="langRadio-en_US" selected="true">
+                <toggleGroup>
+                    <ToggleGroup fx:id="languageGroup"/>
+                </toggleGroup>
+            </RadioMenuItem>
+        </Menu>
+        <Menu mnemonicParsing="false" text="%menu.help">
+            <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout" text="%menu.help.about"/>
+        </Menu>
+    </MenuBar>
 
-            <padding>
-                <Insets right="-1.0" />
-            </padding>
-        </MenuBar>
-
-        <SplitPane dividerPositions="0.25, 0.75" VBox.vgrow="ALWAYS">
-            <items>
-                <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
-                    <items>
-                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
-                                    text="%classes.obfuscated">
-                            <content>
-                                <ScrollPane fitToHeight="true" fitToWidth="true">
-                                    <content>
-                                        <ListView id="obfuscatedClassesList"/>
-                                    </content>
-                                </ScrollPane>
-                            </content>
-                        </TitledPane>
-                        <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
-                                    text="%classes.deobfuscated">
-                            <content>
-                                <ScrollPane fitToHeight="true" fitToWidth="true">
-                                    <content>
-                                        <ListView id="deobfuscatedClassesList"/>
-                                    </content>
-                                </ScrollPane>
-                            </content>
-                        </TitledPane>
-                    </items>
-                </SplitPane>
-
-                <TabPane fx:id="tabs" id="tabs">
-                </TabPane>
-
-                <Accordion SplitPane.resizableWithParent="false">
-                    <panes>
-                        <TitledPane text="%side.call_graph">
-                            <content>
-                                <ScrollPane fitToHeight="true" fitToWidth="true">
-                                    <content>
-                                        <TreeView id="callGraphTree"/>
-                                    </content>
-                                </ScrollPane>
-                            </content>
-                        </TitledPane>
-                        <TitledPane text="%side.inheritance">
-                            <content>
-                                <ScrollPane fitToHeight="true" fitToWidth="true">
-                                    <content>
-                                        <TreeView id="inheritanceTree"/>
-                                    </content>
-                                </ScrollPane>
-                            </content>
-                        </TitledPane>
-                    </panes>
-                </Accordion>
-            </items>
+    <SplitPane dividerPositions="0.25, 0.75" VBox.vgrow="ALWAYS">
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
+            <TitledPane animated="false" collapsible="false" maxHeight="Infinity" text="%classes.obfuscated">
+                <ScrollPane fitToHeight="true" fitToWidth="true">
+                    <ListView id="obfuscatedClassesList"/>
+                </ScrollPane>
+            </TitledPane>
+            <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
+                        text="%classes.deobfuscated">
+                <ScrollPane fitToHeight="true" fitToWidth="true">
+                    <ListView id="deobfuscatedClassesList"/>
+                </ScrollPane>
+            </TitledPane>
         </SplitPane>
-    </children>
+
+        <TabPane fx:id="tabs" id="tabs">
+        </TabPane>
+
+        <Accordion SplitPane.resizableWithParent="false">
+            <panes>
+                <TitledPane text="%side.call_graph">
+                    <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <TreeView id="callGraphTree"/>
+                    </ScrollPane>
+                </TitledPane>
+                <TitledPane text="%side.inheritance">
+                    <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <TreeView id="inheritanceTree"/>
+                    </ScrollPane>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </SplitPane>
 </VBox>
