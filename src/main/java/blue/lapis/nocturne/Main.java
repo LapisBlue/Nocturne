@@ -49,8 +49,6 @@ import java.util.ResourceBundle;
 
 public class Main extends Application {
 
-    private static String[] args;
-
     private static Main instance;
 
     private static final EventHandler<WindowEvent> CLOSE_HANDLER = event -> {
@@ -62,6 +60,8 @@ public class Main extends Application {
             throw new RuntimeException(ex);
         }
     };
+
+    //TODO: ADD A STUPID LOGGER BECAUSE I KEEP FORGETTING
 
     private PropertiesHelper propertiesHelper;
 
@@ -75,15 +75,12 @@ public class Main extends Application {
     private Path currentMappingsPath;
 
     public static void main(String[] args) {
-        Main.args = args;
         launch(args);
     }
 
     public Main() {
         super();
-
         instance = this;
-
         initialize();
     }
 
@@ -94,7 +91,6 @@ public class Main extends Application {
     }
 
     public static void reload() throws IOException {
-        //getMainStage().close();
         getInstance().initialize();
         getInstance().loadView(getCurrentLocale());
         System.gc(); //TODO: I'm a terrible person
@@ -104,7 +100,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mainStage = primaryStage;
 
-        loadView("en_US");
+        loadView(locale);
 
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
             throwable.printStackTrace();
