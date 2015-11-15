@@ -25,7 +25,6 @@
 package blue.lapis.nocturne.gui.io.jar;
 
 import blue.lapis.nocturne.Main;
-
 import javafx.stage.FileChooser;
 
 import java.io.File;

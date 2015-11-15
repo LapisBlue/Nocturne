@@ -25,7 +25,6 @@
 package blue.lapis.nocturne.mapping.model.attribute;
 
 import blue.lapis.nocturne.mapping.MappingContext;
-
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;

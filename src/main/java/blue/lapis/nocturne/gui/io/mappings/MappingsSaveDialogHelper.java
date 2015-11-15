@@ -26,7 +26,6 @@ package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;

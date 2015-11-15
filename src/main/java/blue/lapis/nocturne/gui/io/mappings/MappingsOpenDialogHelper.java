@@ -27,12 +27,9 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
-
 import javafx.stage.FileChooser;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
