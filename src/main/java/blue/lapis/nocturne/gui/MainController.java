@@ -78,6 +78,7 @@ public class MainController implements Initializable {
                 .forEach(toggle -> toggle.setSelected(true));
 
         setAccelerators();
+        this.initSampleCodeTabs();
     }
 
     private void initSampleCodeTabs() {
@@ -94,7 +95,12 @@ public class MainController implements Initializable {
         methodExample.setMemberIdentifier("doSomething");
         methodExample.setMemberInfo("(Ljava/lang/String)V");
 
-        this.tabs.getTabs().addAll(fieldExample, methodExample);
+        CodeTab classExample = new CodeTab();
+        classExample.setText("jH");
+        classExample.setMemberType(CodeTab.MemberType.CLASS);
+        classExample.setMemberIdentifier("jH");
+
+        this.tabs.getTabs().addAll(fieldExample, methodExample, classExample);
     }
 
     private void setAccelerators() {

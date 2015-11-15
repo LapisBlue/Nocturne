@@ -69,9 +69,10 @@ public class CodeTab extends Tab {
      * @param type the member type.
      */
     public void setMemberType(MemberType type) {
-        this.memberIdentifierLabel.setText(String.format("%s: ",
-                Main.resourceBundle.getString(type.getIdentifierLabel())));
-        this.memberInfoLabel.setText(String.format("%s: ", Main.resourceBundle.getString(type.getInfoLabel())));
+        this.memberIdentifierLabel.setText(String.format("%s: ", type.getIdentifierLabel()));
+        if (type.isInfoEnabled()) {
+            this.memberInfoLabel.setText(String.format("%s: ", type.getInfoLabel()));
+        }
     }
 
     /**
@@ -92,29 +93,45 @@ public class CodeTab extends Tab {
         this.memberInfo.setText(info);
     }
 
+    /**
+     * Sets the open source file's code.
+     *
+     * @param code The code.
+     */
     public void setCode(String code) {
         this.code.clear();
         this.code.appendText(code);
     }
 
     public enum MemberType {
-        FIELD("codetab.identifier.field", "codetab.identifier.type"),
-        METHOD("codetab.identifier.method", "codetab.identifier.signature");
+        FIELD("codetab.identifier.field", "codetab.identifier.type", true),
+        METHOD("codetab.identifier.method", "codetab.identifier.signature", true),
+        CLASS("codetab.identifier.class");
 
         private final String identifierLabel;
         private final String infoLabel;
+        private final boolean infoEnabled;
 
-        MemberType(String identifierLabel, String infoLabel) {
+        MemberType(String identifierLabel, String infoLabel, boolean infoEnabled) {
             this.identifierLabel = identifierLabel;
             this.infoLabel = infoLabel;
+            this.infoEnabled = infoEnabled;
+        }
+
+        MemberType(String identifierLabel) {
+            this(identifierLabel, "", false);
         }
 
         public String getIdentifierLabel() {
-            return this.identifierLabel;
+            return Main.resourceBundle.getString(this.identifierLabel);
         }
 
         public String getInfoLabel() {
-            return this.infoLabel;
+            return Main.resourceBundle.getString(this.infoLabel);
+        }
+
+        public boolean isInfoEnabled() {
+            return infoEnabled;
         }
     }
 }
