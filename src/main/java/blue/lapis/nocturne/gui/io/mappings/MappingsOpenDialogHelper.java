@@ -27,6 +27,7 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
+
 import javafx.stage.FileChooser;
 
 import java.io.File;

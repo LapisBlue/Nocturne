@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;

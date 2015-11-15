@@ -31,6 +31,7 @@ import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.Constants;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;

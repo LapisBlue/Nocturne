@@ -37,6 +37,7 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 import blue.lapis.nocturne.mapping.model.attribute.Primitive;
 import blue.lapis.nocturne.mapping.model.attribute.Type;
+
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
 import org.junit.Test;

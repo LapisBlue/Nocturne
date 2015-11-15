@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.model.attribute;
 
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+
 import com.google.common.base.Preconditions;
 
 /**

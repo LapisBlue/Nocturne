@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.gui.control;
 
 import blue.lapis.nocturne.Main;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;

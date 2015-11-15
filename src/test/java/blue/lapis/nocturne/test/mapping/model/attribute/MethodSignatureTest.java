@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 import blue.lapis.nocturne.mapping.model.attribute.Primitive;
 import blue.lapis.nocturne.mapping.model.attribute.Type;
+
 import org.junit.Test;
 
 /**
