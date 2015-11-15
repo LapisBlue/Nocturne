@@ -58,12 +58,16 @@ public class MainController implements Initializable {
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
-    public MenuItem clearMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
+
+    public MenuItem clearMappingsButton;
+
     public ToggleGroup languageGroup;
+
     public MenuItem aboutButton;
+
     public TabPane tabs;
 
     @Override

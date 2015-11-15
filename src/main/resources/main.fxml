@@ -35,14 +35,13 @@
                       text="%menu.file.save_mappings"/>
             <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
                       text="%menu.file.save_mappings_as"/>
-            <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
-                      text="%menu.file.clear_mappings"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
                       text="%menu.file.close"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%menu.edit">
-            <MenuItem mnemonicParsing="false" text="%menu.edit.delete"/>
+            <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
+                      text="%menu.file.clear_mappings"/>
         </Menu>
         <Menu mnemonicParsing="false" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
