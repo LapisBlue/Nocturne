@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 
 /**
@@ -68,12 +68,12 @@ public class MethodMapping extends Mapping implements ClassComponent {
     /**
      * Returns the deobfuscated {@link MethodSignature} of this method.
      *
-     * @param mappingSet The {@link MappingSet} to use for obtaining
+     * @param mappingSet The {@link MappingContext} to use for obtaining
      *     deobfuscation mappings
      * @return The deobfuscated {@link MethodSignature} of this method
      */
-    public MethodSignature getDeobfuscatedSignature(MappingSet mappingSet) {
-        return getSignature().deobfuscate(mappingSet);
+    public MethodSignature getDeobfuscatedSignature() {
+        return getSignature().deobfuscate(((TopLevelClassMapping) getParent()).getParent());
     }
 
 }

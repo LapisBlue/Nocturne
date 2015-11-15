@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.io.writer;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
@@ -38,8 +38,6 @@ import java.io.PrintWriter;
  */
 public class SrgWriter extends MappingsWriter {
 
-    private MappingSet mappings;
-
     /**
      * Constructs a new {@link SrgWriter} which outputs to the given
      * {@link PrintWriter}.
@@ -51,10 +49,8 @@ public class SrgWriter extends MappingsWriter {
     }
 
     @Override
-    public void write(MappingSet mappings) {
-        this.mappings = mappings;
-        mappings.getMappings().values().forEach(this::writeClassMapping);
-        this.mappings = null;
+    public void write(MappingContext mappingContext) {
+        mappingContext.getMappings().values().forEach(this::writeClassMapping);
     }
 
     @Override
@@ -85,6 +81,6 @@ public class SrgWriter extends MappingsWriter {
         out.format("MD: %s/%s %s %s/%s %s\n",
                 mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getSignature(),
                 mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
-                mapping.getDeobfuscatedSignature(mappings));
+                mapping.getDeobfuscatedSignature());
     }
 }

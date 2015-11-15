@@ -35,23 +35,23 @@ import java.util.Map;
 /**
  * Represents a set of {@link ClassMapping}s.
  */
-public class MappingSet {
+public class MappingContext {
 
     private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
 
     /**
      * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     * this {@link MappingSet}.
+     * this {@link MappingContext}.
      *
      * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     *     this {@link MappingSet}
+     *     this {@link MappingContext}
      */
     public ImmutableMap<String, TopLevelClassMapping> getMappings() {
         return ImmutableMap.copyOf(mappings);
     }
 
     /**
-     * Adds the given {@link TopLevelClassMapping} to this {@link MappingSet}.
+     * Adds the given {@link TopLevelClassMapping} to this {@link MappingContext}.
      *
      * @param mapping The {@link TopLevelClassMapping} to add
      */
@@ -60,14 +60,14 @@ public class MappingSet {
     }
 
     /**
-     * Merges the given {@link MappingSet} into the current one.
+     * Merges the given {@link MappingContext} into the current one.
      *
      * <p>Note that mappings from the provided set will take precedence over
      * existing ones if they are already present.</p>
      *
-     * @param mappingSet The {@link MappingSet} to merge
+     * @param mappingSet The {@link MappingContext} to merge
      */
-    public void merge(MappingSet mappingSet) {
+    public void merge(MappingContext mappingSet) {
         this.mappings.putAll(mappingSet.getMappings());
     }
 

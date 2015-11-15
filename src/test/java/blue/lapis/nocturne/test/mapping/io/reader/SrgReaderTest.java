@@ -28,7 +28,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -51,7 +51,7 @@ public class SrgReaderTest {
 
     private static final String EXAMPLE_PACKAGE = "com/example/project";
 
-    private static MappingSet mappings;
+    private static MappingContext mappings;
 
     @BeforeClass
     public static void initialize() {
@@ -133,7 +133,7 @@ public class SrgReaderTest {
                 methodMapping.getSignature().getParamTypes());
         assertEquals(new Type("a"), methodMapping.getSignature().getReturnType());
 
-        MethodSignature deobfSig = methodMapping.getDeobfuscatedSignature(mappings);
+        MethodSignature deobfSig = methodMapping.getDeobfuscatedSignature();
         assertArrayEquals(
                 new Type[]{new Type(Primitive.INT), new Type(EXAMPLE_PACKAGE + "/Example"), new Type(Primitive.INT)},
                 deobfSig.getParamTypes()

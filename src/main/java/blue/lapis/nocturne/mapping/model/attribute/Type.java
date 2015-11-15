@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model.attribute;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 
 import com.google.common.base.Preconditions;
@@ -99,7 +99,7 @@ public class Type {
      * @return The deobfuscated name of the class represented by this {@link Type}
      * @throws IllegalStateException If this {@link Type} is primitive
      */
-    private String getDeobfuscatedClassName(MappingSet mappingSet) throws IllegalStateException {
+    private String getDeobfuscatedClassName(MappingContext mappingSet) throws IllegalStateException {
         Preconditions.checkState(!isPrimitive(), "Cannot get primitive type as class");
 
         return MappingsReader.getOrCreateClassMapping(mappingSet, getClassName()).getDeobfuscatedName();
@@ -108,11 +108,11 @@ public class Type {
     /**
      * Attempts to deobfuscate this {@link Type}.
      *
-     * @param mappingSet The {@link MappingSet} to obtain the deobfuscated name
+     * @param mappingSet The {@link MappingContext} to obtain the deobfuscated name
      *     from
      * @return The deobfuscated {@link Type}
      */
-    public Type deobfuscate(MappingSet mappingSet) {
+    public Type deobfuscate(MappingContext mappingSet) {
         return prim != null ? this : new Type(getDeobfuscatedClassName(mappingSet));
     }
 

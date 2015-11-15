@@ -24,10 +24,9 @@
  */
 package blue.lapis.nocturne.mapping.io.writer;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
 import java.io.PrintWriter;
@@ -50,12 +49,12 @@ public abstract class MappingsWriter {
     }
 
     /**
-     * Writes the given {@link MappingSet} to this {@link MappingsWriter}'s
+     * Writes the given {@link MappingContext} to this {@link MappingsWriter}'s
      * {@link PrintWriter}.
      *
-     * @param mappings The {@link MappingSet} to write.
+     * @param mappings The {@link MappingContext} to write.
      */
-    public abstract void write(MappingSet mappings);
+    public abstract void write(MappingContext mappings);
 
     /**
      * Writes the given {@link ClassMapping} to the {@link MappingsWriter}'s

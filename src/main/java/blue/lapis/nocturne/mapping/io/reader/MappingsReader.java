@@ -27,7 +27,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
@@ -52,11 +52,11 @@ public abstract class MappingsReader {
     /**
      * Reads from the given {@link BufferedReader}.
      *
-     * @return A {@link MappingSet} from the {@link BufferedReader}.
+     * @return A {@link MappingContext} from the {@link BufferedReader}.
      */
-    public abstract MappingSet read();
+    public abstract MappingContext read();
 
-    protected void genClassMapping(MappingSet mappingSet, String obf, String deobf) {
+    protected void genClassMapping(MappingContext mappingSet, String obf, String deobf) {
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
             // escape the separator char so it doesn't get parsed as regex
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
@@ -77,7 +77,7 @@ public abstract class MappingsReader {
         }
     }
 
-    protected void genFieldMapping(MappingSet mappingSet, String obf, String deobf) {
+    protected void genFieldMapping(MappingContext mappingSet, String obf, String deobf) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
         String obfName = obf.substring(lastIndex + 1);
@@ -88,7 +88,8 @@ public abstract class MappingsReader {
         new FieldMapping(parent, obfName, deobfName, null);
     }
 
-    protected void genMethodMapping(MappingSet mappingSet, String obf, String obfSig, String deobf, String deobfSig) {
+    protected void genMethodMapping(MappingContext mappingSet, String obf, String obfSig, String deobf,
+            String deobfSig) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
         String obfName = obf.substring(lastIndex + 1);
@@ -109,12 +110,12 @@ public abstract class MappingsReader {
      * creating mappings for both outer and inner classes as needed if they do
      * not exist.
      *
-     * @param mappingSet The {@link MappingSet} to use
+     * @param mappingSet The {@link MappingContext} to use
      * @param qualifiedName The fully-qualified name of the class to get a
      *     mapping for
      * @return The retrieved or created {@link ClassMapping}
      */
-    public static ClassMapping getOrCreateClassMapping(MappingSet mappingSet, String qualifiedName) {
+    public static ClassMapping getOrCreateClassMapping(MappingContext mappingSet, String qualifiedName) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = mappingSet.getMappings().get(arr[0]);

@@ -26,7 +26,7 @@ package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
-import blue.lapis.nocturne.mapping.MappingSet;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 import blue.lapis.nocturne.util.Constants;
@@ -107,7 +107,7 @@ public class MainController implements Initializable {
 
         if (selectedFile != null && selectedFile.exists()) {
             SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
-            MappingSet mappingSet = reader.read();
+            MappingContext mappingSet = reader.read();
                 Main.mappings.merge(mappingSet);
 
             Main.currentMappingsPath = selectedFile.toPath();
@@ -116,7 +116,7 @@ public class MainController implements Initializable {
 
     public void clearMappings(ActionEvent actionEvent) {
         //TODO: prompt to save if dirty
-        Main.mappings = new MappingSet();
+        Main.mappings = new MappingContext();
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {

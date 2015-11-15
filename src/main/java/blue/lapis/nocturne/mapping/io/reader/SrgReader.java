@@ -24,17 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
-
-import blue.lapis.nocturne.mapping.MappingSet;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
-import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.mapping.MappingContext;
 
 import java.io.BufferedReader;
 import java.util.List;
@@ -58,8 +48,8 @@ public class SrgReader extends MappingsReader {
     }
 
     @Override
-    public MappingSet read() {
-        MappingSet mappings = new MappingSet();
+    public MappingContext read() {
+        MappingContext mappings = new MappingContext();
 
         List<String> mappingList = reader.lines().collect(Collectors.toList());
 
@@ -81,7 +71,7 @@ public class SrgReader extends MappingsReader {
         return mappings;
     }
 
-    private void genClassMappings(MappingSet mappingSet, List<String> classMappings) {
+    private void genClassMappings(MappingContext mappingSet, List<String> classMappings) {
         for (String mapping : classMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
@@ -90,7 +80,7 @@ public class SrgReader extends MappingsReader {
         }
     }
 
-    private void genFieldMappings(MappingSet mappingSet, List<String> fieldMappings) {
+    private void genFieldMappings(MappingContext mappingSet, List<String> fieldMappings) {
         for (String mapping : fieldMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
@@ -99,7 +89,7 @@ public class SrgReader extends MappingsReader {
         }
     }
 
-    private void genMethodMappings(MappingSet mappingSet, List<String> methodMappings) {
+    private void genMethodMappings(MappingContext mappingSet, List<String> methodMappings) {
         for (String mapping : methodMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
