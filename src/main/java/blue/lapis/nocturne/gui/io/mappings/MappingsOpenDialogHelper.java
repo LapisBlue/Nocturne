@@ -37,7 +37,7 @@ import java.nio.file.Path;
 /**
  * Static utility class for dialogs for opening mappings.
  */
-public class MappingsOpenDialogHelper {
+public final class MappingsOpenDialogHelper {
 
     private MappingsOpenDialogHelper() {
     }

@@ -39,7 +39,10 @@ import java.nio.file.Path;
 /**
  * Static utility class for dialogs for saving mappings.
  */
-public class MappingsSaveDialogHelper {
+public final class MappingsSaveDialogHelper {
+
+    private MappingsSaveDialogHelper() {
+    }
 
     public static void saveMappings() throws IOException {
         if (Main.currentMappingsPath == null) {

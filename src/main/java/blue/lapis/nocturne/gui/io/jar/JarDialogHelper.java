@@ -33,7 +33,10 @@ import java.io.IOException;
 /**
  * Static utility class for JAR open/save dialogs.
  */
-public class JarDialogHelper {
+public final class JarDialogHelper {
+
+    private JarDialogHelper() {
+    }
 
     public static void openJar() throws IOException {
         //TODO: close current JAR if applicable
