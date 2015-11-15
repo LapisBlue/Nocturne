@@ -37,6 +37,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -44,8 +45,15 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -163,11 +171,25 @@ public class MainController implements Initializable {
         alert.setTitle(Main.getResourceBundle().getString("about.title"));
         alert.setHeaderText("Nocturne " + Constants.VERSION);
 
-        alert.setContentText(
-                Main.getResourceBundle().getString("about.copyright") + " (c) 2015 Lapis.\n"
-                        + Main.getResourceBundle().getString("about.license") + "\n\n"
-                        + "Github: https://github.com/LapisBlue/Nocturne"
-        );
+        Text text1 = new Text(Main.getResourceBundle().getString("about.copyright") + " (c) 2015 Lapis.\n");
+        text1.setFont(Font.font(text1.getFont().getFamily(), FontWeight.BOLD, text1.getFont().getSize()));
+
+        Text text2 = new Text(Main.getResourceBundle().getString("about.license") + "\n\n");
+
+        Hyperlink link = new Hyperlink("Github");
+        link.setOnAction(event -> {
+            Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(new URI("https://github.com/LapisBlue/Nocturne"));
+                } catch (IOException | URISyntaxException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        TextFlow flow = new TextFlow(text1, text2, link);
+        alert.getDialogPane().setContent(flow);
         alert.showAndWait();
     }
 
