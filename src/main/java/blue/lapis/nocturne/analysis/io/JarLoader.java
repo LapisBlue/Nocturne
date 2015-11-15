@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.analysis.io;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.analysis.model.JarClassEntry;
 
 import com.google.common.collect.ImmutableSet;
@@ -49,7 +50,7 @@ public class JarLoader {
         JarEntry entry;
         while ((entry = jIs.getNextJarEntry()) != null) {
             if (entry.getSize() > Integer.MAX_VALUE) {
-                System.out.println("Not reading JAR entry " + entry.getName() + " - it's too damn big");
+                Main.getLogger().warning("Not reading JAR entry " + entry.getName() + " - it's too damn big");
                 continue;
             }
             byte[] bytes = new byte[(int) entry.getSize()];

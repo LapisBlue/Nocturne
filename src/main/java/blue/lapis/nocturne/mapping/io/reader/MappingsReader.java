@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -64,7 +65,7 @@ public abstract class MappingsReader implements Closeable {
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
-                System.err.println("Unsupported mapping: " + obf + " <-> " + deobf);
+                Main.getLogger().warning("Unsupported mapping: " + obf + " <-> " + deobf);
                 return; // ignore it
             }
 

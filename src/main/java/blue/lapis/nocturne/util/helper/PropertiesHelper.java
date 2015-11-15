@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.util.helper;
 
+import blue.lapis.nocturne.Main;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -50,10 +52,10 @@ public final class PropertiesHelper {
             if (!Files.exists(globalPropertiesFile.toPath())) {
                 Files.createDirectories(globalPropertiesFile.getParentFile().toPath());
                 Files.createFile(globalPropertiesFile.toPath());
-                System.out.println("Created new global properties file");
+                Main.getLogger().info("Created new global properties file");
             }
             globalProperties.load(new FileInputStream(globalPropertiesFile));
-            System.out.println("Loaded global properties file from " + globalPropertiesFile.getAbsolutePath());
+            Main.getLogger().info("Loaded global properties file from " + globalPropertiesFile.getAbsolutePath());
 
             // set keys
             Key.getKeys().stream().filter(key -> !globalProperties.containsKey(key.getKey()))

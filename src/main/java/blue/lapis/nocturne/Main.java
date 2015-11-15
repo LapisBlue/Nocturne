@@ -46,6 +46,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 public class Main extends Application {
 
@@ -61,7 +62,7 @@ public class Main extends Application {
         }
     };
 
-    //TODO: ADD A STUPID LOGGER BECAUSE I KEEP FORGETTING
+    private static final Logger LOGGER = Logger.getLogger("Nocturne");
 
     private PropertiesHelper propertiesHelper;
 
@@ -82,6 +83,10 @@ public class Main extends Application {
         super();
         instance = this;
         initialize();
+    }
+
+    public static Logger getLogger() {
+        return LOGGER;
     }
 
     public void initialize() {
