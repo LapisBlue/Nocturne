@@ -27,8 +27,8 @@ package blue.lapis.nocturne.gui;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.gui.io.SaveDialogHelper;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
-import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 import blue.lapis.nocturne.util.Constants;
 
 import javafx.event.ActionEvent;
@@ -44,9 +44,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ResourceBundle;
 
 /**
@@ -118,7 +116,7 @@ public class MainController implements Initializable {
 
     public void clearMappings(ActionEvent actionEvent) {
         try {
-            if (doDirtyConfirmation()) {
+            if (SaveDialogHelper.doDirtyConfirmation()) {
                 return;
             }
         } catch (IOException ex) {
@@ -128,47 +126,16 @@ public class MainController implements Initializable {
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
-        if (Main.currentMappingsPath == null) {
-            saveMappingsAs(actionEvent);
-            return;
-        }
-
-        saveMappings();
+        SaveDialogHelper.saveMappings();
     }
 
     public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Destination File");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
-        );
-        File selectedFile = fileChooser.showSaveDialog(Main.mainStage);
-
-        if (selectedFile == null) {
-            return;
-        }
-
-        if (!selectedFile.exists()) {
-            Files.createFile(selectedFile.toPath());
-        }
-
-        Main.currentMappingsPath = selectedFile.toPath();
-
-        saveMappings();
-    }
-
-    private void saveMappings() throws IOException {
-        if (Main.mappings.isDirty()) {
-            SrgWriter writer = new SrgWriter(new PrintWriter(Main.currentMappingsPath.toFile()));
-            writer.write(Main.mappings);
-            Main.mappings.setDirty(false);
-        }
+        SaveDialogHelper.saveMappingsAs();
     }
 
     public void onClose(ActionEvent actionEvent) {
         try {
-            if (doDirtyConfirmation()) {
+            if (SaveDialogHelper.doDirtyConfirmation()) {
                 return;
             }
         } catch (IOException ex) {

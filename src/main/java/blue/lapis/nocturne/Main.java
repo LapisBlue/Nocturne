@@ -24,14 +24,19 @@
  */
 package blue.lapis.nocturne;
 
+import blue.lapis.nocturne.gui.MainController;
+import blue.lapis.nocturne.gui.io.SaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class Main extends Application {
@@ -53,6 +58,15 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setTitle("Nocturne");
         primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(event -> {
+            try {
+                if (SaveDialogHelper.doDirtyConfirmation()) {
+                    event.consume();
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         primaryStage.show();
     }
 }
