@@ -35,11 +35,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 
@@ -94,6 +98,17 @@ public class MainController implements Initializable {
         languageGroup.getToggles().stream()
                 .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.locale))
                 .forEach(toggle -> toggle.setSelected(true));
+
+        setAccelerators();
+    }
+
+    private void setAccelerators() {
+        openJarButton.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        loadMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
+        saveMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        saveMappingsAsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
+                KeyCombination.ALT_DOWN));
+        aboutButton.setAccelerator(new KeyCodeCombination(KeyCode.F1));
     }
 
     public void openJar(ActionEvent actionEvent) {

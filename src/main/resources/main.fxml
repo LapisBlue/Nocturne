@@ -23,27 +23,27 @@
         <padding>
             <Insets right="-1.0"/>
         </padding>
-        <Menu mnemonicParsing="false" text="%menu.file">
+        <Menu mnemonicParsing="true" text="%menu.file">
             <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
                       text="%menu.file.open_jar"/>
-            <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
+            <MenuItem mnemonicParsing="true" fx:id="closeJarButton" onAction="#closeJar"
                       text="%menu.file.close_jar"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" fx:id="loadMappingsButton" onAction="#loadMappings"
+            <MenuItem mnemonicParsing="true" fx:id="loadMappingsButton" onAction="#loadMappings"
                       text="%menu.file.load_mappings"/>
-            <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
+            <MenuItem mnemonicParsing="true" fx:id="saveMappingsButton" onAction="#saveMappings"
                       text="%menu.file.save_mappings"/>
-            <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
+            <MenuItem mnemonicParsing="true" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
                       text="%menu.file.save_mappings_as"/>
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" fx:id="closeButton" onAction="#onClose"
                       text="%menu.file.close"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="%menu.edit">
-            <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
+        <Menu mnemonicParsing="true" text="%menu.edit">
+            <MenuItem mnemonicParsing="true" fx:id="clearMappingsButton" onAction="#clearMappings"
                       text="%menu.file.clear_mappings"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="%menu.language">
+        <Menu mnemonicParsing="true" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
                            text="English (US)" id="langRadio-en_US" selected="true">
                 <toggleGroup>
@@ -51,8 +51,8 @@
                 </toggleGroup>
             </RadioMenuItem>
         </Menu>
-        <Menu mnemonicParsing="false" text="%menu.help">
-            <MenuItem mnemonicParsing="false" fx:id="aboutButton" onAction="#showAbout" text="%menu.help.about"/>
+        <Menu mnemonicParsing="true" text="%menu.help">
+            <MenuItem mnemonicParsing="true" fx:id="aboutButton" onAction="#showAbout" text="%menu.help.about"/>
         </Menu>
     </MenuBar>
 
