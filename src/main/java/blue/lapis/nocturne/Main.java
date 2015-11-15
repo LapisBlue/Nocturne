@@ -26,7 +26,6 @@ package blue.lapis.nocturne;
 
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.StdoutConsoleHandler;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.application.Application;
@@ -43,14 +42,13 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
-import java.util.logging.Handler;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 
 public class Main extends Application {
 
@@ -81,7 +79,12 @@ public class Main extends Application {
 
     static {
         LOGGER.setUseParentHandlers(false);
-        LOGGER.addHandler(new StdoutConsoleHandler());
+        LOGGER.addHandler(new ConsoleHandler() {
+            @Override
+            protected void setOutputStream(OutputStream out) throws SecurityException {
+                super.setOutputStream(System.out);
+            }
+        });
     }
 
     public static void main(String[] args) {
