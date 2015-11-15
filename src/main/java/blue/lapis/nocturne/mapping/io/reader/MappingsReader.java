@@ -37,11 +37,13 @@ import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * Superclass for all reader classes.
  */
-public abstract class MappingsReader {
+public abstract class MappingsReader implements Closeable {
 
     protected BufferedReader reader;
 
@@ -133,6 +135,11 @@ public abstract class MappingsReader {
         }
 
         return mapping;
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 
 }

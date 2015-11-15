@@ -34,11 +34,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Static utility class for dialogs for opening mappings.
  */
 public class MappingsOpenDialogHelper {
+
+    private MappingsOpenDialogHelper() {
+    }
 
     public static void openMappings() throws IOException {
         FileChooser fileChooser = new FileChooser();
@@ -47,15 +52,24 @@ public class MappingsOpenDialogHelper {
                 new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_srg"), "*.srg"),
                 new FileChooser.ExtensionFilter(Main.resourceBundle.getString("filechooser.type_all"), "*.*")
         );
-        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
 
-        if (selectedFile != null && selectedFile.exists()) {
-            SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
-            MappingContext context = reader.read();
+        File selectedFile = fileChooser.showOpenDialog(Main.mainStage);
+        if (selectedFile == null) {
+            return;
+        }
+
+        Path selectedPath = selectedFile.toPath();
+
+        if (Files.exists(selectedPath)) {
+            MappingContext context;
+            try (SrgReader reader = new SrgReader(Files.newBufferedReader(selectedPath))) {
+                context = reader.read();
+            }
+
             Main.mappings.merge(context);
             Main.mappings.setDirty(false);
 
-            Main.currentMappingsPath = selectedFile.toPath();
+            Main.currentMappingsPath = selectedPath;
         }
     }
 

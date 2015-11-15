@@ -29,12 +29,14 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
  * Superclass for all writer classes.
  */
-public abstract class MappingsWriter {
+public abstract class MappingsWriter implements Closeable {
 
     protected PrintWriter out;
 
@@ -79,5 +81,10 @@ public abstract class MappingsWriter {
      * @param mapping The {@link MethodMapping} to write
      */
     protected abstract void writeMethodMapping(MethodMapping mapping);
+
+    @Override
+    public void close() throws IOException {
+        out.close();
+    }
 
 }

@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Static utility class for dialogs for saving mappings.
@@ -63,23 +64,27 @@ public class MappingsSaveDialogHelper {
             return;
         }
 
-        if (!selectedFile.exists()) {
-            Files.createFile(selectedFile.toPath());
+        Path selectedPath = selectedFile.toPath();
+
+        if (Files.notExists(selectedPath)) {
+            Files.createFile(selectedPath);
         }
 
-        if (Main.currentMappingsPath != selectedFile.toPath()) {
+        if (!Files.isSameFile(Main.currentMappingsPath, selectedPath)) {
             Main.mappings.setDirty(true);
         }
 
-        Main.currentMappingsPath = selectedFile.toPath();
+        Main.currentMappingsPath = selectedPath;
 
         saveMappings0();
     }
 
     private static void saveMappings0() throws IOException {
         if (Main.mappings.isDirty()) {
-            SrgWriter writer = new SrgWriter(new PrintWriter(Main.currentMappingsPath.toFile()));
-            writer.write(Main.mappings);
+            try (SrgWriter writer = new SrgWriter(new PrintWriter(Files.newBufferedWriter(Main.currentMappingsPath)))) {
+                writer.write(Main.mappings);
+            }
+
             Main.mappings.setDirty(false);
         }
     }
