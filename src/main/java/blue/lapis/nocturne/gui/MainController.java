@@ -34,9 +34,11 @@ import blue.lapis.nocturne.util.Constants;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -107,15 +109,21 @@ public class MainController implements Initializable {
 
         if (selectedFile != null && selectedFile.exists()) {
             SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)));
-            MappingContext mappingSet = reader.read();
-                Main.mappings.merge(mappingSet);
+            MappingContext context = reader.read();
+            Main.mappings.merge(context);
 
             Main.currentMappingsPath = selectedFile.toPath();
         }
     }
 
     public void clearMappings(ActionEvent actionEvent) {
-        //TODO: prompt to save if dirty
+        try {
+            if (doDirtyConfirmation()) {
+                return;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
         Main.mappings = new MappingContext();
     }
 
@@ -151,11 +159,21 @@ public class MainController implements Initializable {
     }
 
     private void saveMappings() throws IOException {
-        SrgWriter writer = new SrgWriter(new PrintWriter(Main.currentMappingsPath.toFile()));
-        writer.write(Main.mappings);
+        if (Main.mappings.isDirty()) {
+            SrgWriter writer = new SrgWriter(new PrintWriter(Main.currentMappingsPath.toFile()));
+            writer.write(Main.mappings);
+            Main.mappings.setDirty(false);
+        }
     }
 
     public void onClose(ActionEvent actionEvent) {
+        try {
+            if (doDirtyConfirmation()) {
+                return;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
         System.exit(0);
     }
 
@@ -168,6 +186,32 @@ public class MainController implements Initializable {
                 + "\n"
                 + "Github: https://github.com/LapisBlue/Nocturne");
         alert.showAndWait();
+    }
+
+    /**
+     * Prompts the user to save the current mappings if dirty.
+     *
+     * @return {@code true} if the user cancelled the action, {@code false}
+     *     otherwise
+     * @throws IOException If an exception occurs while saving the mappings
+     */
+    private boolean doDirtyConfirmation() throws IOException {
+        //if (Main.mappings.isDirty()) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Save?");
+        alert.setHeaderText(null);
+        alert.setContentText("Would you like to save the current mappings?");
+        alert.getButtonTypes().clear();
+        alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+        alert.showAndWait();
+
+        if (alert.getResult() == ButtonType.YES) {
+            saveMappingsAs(null);
+        } else if (alert.getResult() == ButtonType.CANCEL) {
+            return true;
+        }
+        //}
+        return false;
     }
 
 }

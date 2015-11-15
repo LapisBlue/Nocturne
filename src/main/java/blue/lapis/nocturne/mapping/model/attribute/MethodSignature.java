@@ -140,17 +140,17 @@ public class MethodSignature {
     /**
      * Attempts to deobfuscate this {@link MethodSignature}.
      *
-     * @param mappingSet The {@link MappingContext} to use for obtaining
+     * @param context The {@link MappingContext} to use for obtaining
      *     deobfuscation mappings
      * @return The deobfuscated {@link MethodSignature}
      */
-    public MethodSignature deobfuscate(MappingContext mappingSet) {
+    public MethodSignature deobfuscate(MappingContext context) {
         Type[] deobfParams = new Type[getParamTypes().length];
         for (int i = 0; i < getParamTypes().length; i++) {
-            deobfParams[i] = getParamTypes()[i].deobfuscate(mappingSet);
+            deobfParams[i] = getParamTypes()[i].deobfuscate(context);
         }
 
-        return new MethodSignature(getReturnType().deobfuscate(mappingSet), deobfParams);
+        return new MethodSignature(getReturnType().deobfuscate(context), deobfParams);
     }
 
 }

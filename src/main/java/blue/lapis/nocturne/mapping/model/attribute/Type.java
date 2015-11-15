@@ -99,21 +99,21 @@ public class Type {
      * @return The deobfuscated name of the class represented by this {@link Type}
      * @throws IllegalStateException If this {@link Type} is primitive
      */
-    private String getDeobfuscatedClassName(MappingContext mappingSet) throws IllegalStateException {
+    private String getDeobfuscatedClassName(MappingContext context) throws IllegalStateException {
         Preconditions.checkState(!isPrimitive(), "Cannot get primitive type as class");
 
-        return MappingsReader.getOrCreateClassMapping(mappingSet, getClassName()).getDeobfuscatedName();
+        return MappingsReader.getOrCreateClassMapping(context, getClassName()).getDeobfuscatedName();
     }
 
     /**
      * Attempts to deobfuscate this {@link Type}.
      *
-     * @param mappingSet The {@link MappingContext} to obtain the deobfuscated name
+     * @param context The {@link MappingContext} to obtain the deobfuscated name
      *     from
      * @return The deobfuscated {@link Type}
      */
-    public Type deobfuscate(MappingContext mappingSet) {
-        return prim != null ? this : new Type(getDeobfuscatedClassName(mappingSet));
+    public Type deobfuscate(MappingContext context) {
+        return prim != null ? this : new Type(getDeobfuscatedClassName(context));
     }
 
     @Override

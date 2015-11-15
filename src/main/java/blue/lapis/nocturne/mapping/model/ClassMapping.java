@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.mapping.MappingContext;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -82,6 +84,7 @@ public abstract class ClassMapping extends Mapping {
      */
     void addFieldMapping(FieldMapping mapping) {
         fieldMappings.put(mapping.getObfuscatedName(), mapping);
+        getContext().setDirty(true);
     }
 
     /**
@@ -100,6 +103,14 @@ public abstract class ClassMapping extends Mapping {
      */
     void addInnerClassMapping(InnerClassMapping mapping) {
         innerClassMappings.put(mapping.getObfuscatedName(), mapping);
+        getContext().setDirty(true);
     }
+
+    /**
+     * Gets the {@link MappingContext} which owns this {@link ClassMapping}.
+     *
+     * @return The {@link MappingContext} which owns this {@link ClassMapping}
+     */
+    public abstract MappingContext getContext();
 
 }

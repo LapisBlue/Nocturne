@@ -110,7 +110,7 @@ public abstract class MappingsReader {
      * creating mappings for both outer and inner classes as needed if they do
      * not exist.
      *
-     * @param mappingSet The {@link MappingContext} to use
+     * @param context The {@link MappingContext} to use
      * @param qualifiedName The fully-qualified name of the class to get a
      *     mapping for
      * @return The retrieved or created {@link ClassMapping}

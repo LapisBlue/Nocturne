@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.Constants;
 
 import java.util.regex.Pattern;
@@ -82,6 +83,11 @@ public class InnerClassMapping extends ClassMapping implements ClassComponent {
                 ? ((InnerClassMapping) parent).getFullDeobfuscatedName()
                 : parent.getDeobfuscatedName())
                 + INNER_CLASS_SEPARATOR_CHAR + getDeobfuscatedName();
+    }
+
+    @Override
+    public MappingContext getContext() {
+        return getParent().getContext();
     }
 
 }

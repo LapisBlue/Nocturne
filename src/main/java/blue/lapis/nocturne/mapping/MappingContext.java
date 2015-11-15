@@ -39,6 +39,8 @@ public class MappingContext {
 
     private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
 
+    private boolean dirty;
+
     /**
      * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
      * this {@link MappingContext}.
@@ -57,7 +59,10 @@ public class MappingContext {
      */
     public void addMapping(TopLevelClassMapping mapping) {
         mappings.put(mapping.getObfuscatedName(), mapping);
+        setDirty(true);
     }
+
+    //TODO: probably add a removeMapping method at some point
 
     /**
      * Merges the given {@link MappingContext} into the current one.
@@ -65,10 +70,21 @@ public class MappingContext {
      * <p>Note that mappings from the provided set will take precedence over
      * existing ones if they are already present.</p>
      *
-     * @param mappingSet The {@link MappingContext} to merge
+     * @param context The {@link MappingContext} to merge
      */
-    public void merge(MappingContext mappingSet) {
-        this.mappings.putAll(mappingSet.getMappings());
+    public void merge(MappingContext context) {
+        this.mappings.putAll(context.getMappings());
+        if (!context.getMappings().isEmpty()) {
+            setDirty(true);
+        }
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
 }

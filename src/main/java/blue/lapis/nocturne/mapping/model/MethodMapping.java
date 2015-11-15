@@ -68,12 +68,10 @@ public class MethodMapping extends Mapping implements ClassComponent {
     /**
      * Returns the deobfuscated {@link MethodSignature} of this method.
      *
-     * @param mappingSet The {@link MappingContext} to use for obtaining
-     *     deobfuscation mappings
      * @return The deobfuscated {@link MethodSignature} of this method
      */
     public MethodSignature getDeobfuscatedSignature() {
-        return getSignature().deobfuscate(((TopLevelClassMapping) getParent()).getParent());
+        return getSignature().deobfuscate(getParent().getContext());
     }
 
 }

@@ -46,14 +46,8 @@ public class TopLevelClassMapping extends ClassMapping {
         this.parent = parent;
     }
 
-    /**
-     * Returns the parent {@link MappingContext} of this
-     * {@link TopLevelClassMapping}.
-     *
-     * @return The parent {@link MappingContext} of this
-     *     {@link TopLevelClassMapping}
-     */
-    public MappingContext getParent() {
+    @Override
+    public MappingContext getContext() {
         return parent;
     }
 
