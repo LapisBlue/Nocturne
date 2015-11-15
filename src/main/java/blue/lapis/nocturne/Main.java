@@ -26,6 +26,7 @@ package blue.lapis.nocturne;
 
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.StdoutConsoleHandler;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.application.Application;
@@ -46,7 +47,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 public class Main extends Application {
 
@@ -74,6 +78,11 @@ public class Main extends Application {
 
     private MappingContext mappings = new MappingContext();
     private Path currentMappingsPath;
+
+    static {
+        LOGGER.setUseParentHandlers(false);
+        LOGGER.addHandler(new StdoutConsoleHandler());
+    }
 
     public static void main(String[] args) {
         launch(args);
