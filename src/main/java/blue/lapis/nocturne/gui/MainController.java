@@ -53,8 +53,8 @@ public class MainController implements Initializable {
 
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
-    public MenuItem openMappingsButton;
-    public MenuItem closeMappingsButton;
+    public MenuItem loadMappingsButton;
+    public MenuItem clearMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
@@ -82,7 +82,7 @@ public class MainController implements Initializable {
         closeJarButton.setDisable(true);
     }
 
-    public void openMappings(ActionEvent actionEvent) throws IOException {
+    public void loadMappings(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Mapping File");
         fileChooser.getExtensionFilters().addAll(
@@ -104,7 +104,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public void closeMappings(ActionEvent actionEvent) {
+    public void clearMappings(ActionEvent actionEvent) {
         //TODO: prompt to save if applicable
         Main.mappings = null;
     }

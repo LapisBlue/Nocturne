@@ -27,10 +27,10 @@
                         <MenuItem mnemonicParsing="false" fx:id="closeJarButton" onAction="#closeJar"
                                   text="Close Jar" disable="true"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" fx:id="openMappingsButton" onAction="#openMappings"
-                                  text="Open Mappings"/>
-                        <MenuItem mnemonicParsing="false" fx:id="closeMappingsButton" onAction="#closeMappings"
-                                  text="Close Mappings"/>
+                        <MenuItem mnemonicParsing="false" fx:id="loadMappingsButton" onAction="#loadMappings"
+                                  text="Load Mappings"/>
+                        <MenuItem mnemonicParsing="false" fx:id="clearMappingsButton" onAction="#clearMappings"
+                                  text="Clear Current Mappings"/>
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsButton" onAction="#saveMappings"
                                   text="Save Mappings"/>
                         <MenuItem mnemonicParsing="false" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
