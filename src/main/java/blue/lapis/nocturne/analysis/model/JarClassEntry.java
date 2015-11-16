@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.analysis.model;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Represents an class entry within a JAR file.
@@ -34,32 +34,64 @@ public class JarClassEntry {
 
     private String name;
     private byte[] content;
+    private boolean deobfuscated;
 
+    /**
+     * Constructs a new {@link JarClassEntry} with the given name and byte
+     * content.
+     *
+     * @param name The name of the {@link JarClassEntry}.
+     * @param content A byte array representing the raw content of the class
+     */
     public JarClassEntry(String name, byte[] content) {
         this.name = name;
         this.content = new byte[content.length];
         System.arraycopy(content, 0, this.content, 0, content.length);
     }
 
+    /**
+     * Returns the name of this {@link JarClassEntry}.
+     * @return The name of this {@link JarClassEntry}
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the raw byte content of this {@link JarClassEntry}.
+     *
+     * @return The raw byte content of this {@link JarClassEntry}.
+     */
     public byte[] getContent() {
         return content;
     }
 
-    public boolean isObfuscated() {
-        return true; //TODO
+    /**
+     * Returns whether this {@link JarClassEntry} is marked as deobfuscated.
+     * @return Whether this {@link JarClassEntry} is marked as deobfuscated
+     */
+    public boolean isDeobfuscated() {
+        return deobfuscated;
     }
 
+    /**
+     * Sets whether this {@link JarClassEntry} is marked as deobfuscated.
+     *
+     * @param deobfuscated Whether this {@link JarClassEntry} is marked as
+     *     deobfuscated
+     */
+    public void setDebfuscated(boolean deobfuscated) {
+        this.deobfuscated = deobfuscated;
+    }
+
+    @Override
     public boolean equals(Object otherObject) {
-        if (!(otherObject instanceof JarClassEntry)) {
-            return false;
-        }
-        JarClassEntry other = (JarClassEntry) otherObject;
-        return other.getName().equals(getName())
-                && Arrays.hashCode(other.getContent()) == Arrays.hashCode(getContent());
+        return otherObject instanceof JarClassEntry && hashCode() == otherObject.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getContent());
     }
 
 }

@@ -25,9 +25,9 @@
 package blue.lapis.nocturne.analysis.model;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 public class ClassSet {
 
-    private Set<JarClassEntry> classes = new HashSet<>();
+    private Map<String, JarClassEntry> classMap = new HashMap<>();
 
     /**
      * Constructs a new {@link ClassSet} from the given {@link JarClassEntry}
@@ -47,7 +47,7 @@ public class ClassSet {
      *     new {@link ClassSet} with
      */
     public ClassSet(Set<JarClassEntry> classes) {
-        this.classes = Sets.newHashSet(classes);
+        classes.forEach(cl -> classMap.put(cl.getName(), cl));
     }
 
     /**
@@ -58,7 +58,7 @@ public class ClassSet {
      *     this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getClasses() {
-        return ImmutableSet.copyOf(classes);
+        return ImmutableSet.copyOf(classMap.values());
     }
 
     /**
@@ -69,7 +69,7 @@ public class ClassSet {
      *     this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getObfuscatedClasses() {
-        return ImmutableSet.copyOf(classes.stream().filter(JarClassEntry::isObfuscated).collect(Collectors.toSet()));
+        return ImmutableSet.copyOf(getClasses().stream().filter(c -> !c.isDeobfuscated()).collect(Collectors.toSet()));
     }
 
     /**
@@ -80,7 +80,8 @@ public class ClassSet {
      *     this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getDebfuscatedClasses() {
-        return ImmutableSet.copyOf(classes.stream().filter(c -> !c.isObfuscated()).collect(Collectors.toSet()));
+        return ImmutableSet.copyOf(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
+                .collect(Collectors.toSet()));
     }
 
 }

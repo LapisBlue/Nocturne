@@ -64,6 +64,7 @@ public class JarLoader {
             //noinspection ResultOfMethodCallIgnored
             jIs.read(bytes);
             classes.add(new JarClassEntry(entry.getName(), bytes));
+            //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
         }
         return new ClassSet(classes);
     }
