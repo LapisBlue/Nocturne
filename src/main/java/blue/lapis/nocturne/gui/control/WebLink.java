@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.gui.control;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.OperatingSystem;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -55,7 +56,7 @@ public class WebLink extends Hyperlink {
             }
 
             try {
-                if ((System.getProperty("os.name").contains("nix") || System.getProperty("os.name").contains("nux"))
+                if (OperatingSystem.getOs() == OperatingSystem.LINUX
                         && (new File("/usr/bin/xdg-open").exists() || new File("/usr/local/bin/xdg-open").exists())) {
                     // Work-around to support non-GNOME Linux desktop environments with xdg-open installed
                     new ProcessBuilder("xdg-open", url).start();
