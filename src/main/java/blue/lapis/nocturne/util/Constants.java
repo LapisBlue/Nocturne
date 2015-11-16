@@ -24,6 +24,10 @@
  */
 package blue.lapis.nocturne.util;
 
+import blue.lapis.nocturne.Main;
+
+import com.google.common.base.MoreObjects;
+
 import java.util.regex.Pattern;
 
 /**
@@ -31,10 +35,7 @@ import java.util.regex.Pattern;
  */
 public final class Constants {
 
-    private Constants() {
-    }
-
-    public static final String VERSION = "1.0.0"; // TODO: keep up-to-date
+    public static final String VERSION;
 
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
     public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
@@ -43,4 +44,11 @@ public final class Constants {
     public static final char CLASS_PATH_SEPARATOR_CHAR = '/';
     public static final Pattern CLASS_PATH_SEPARATOR_PATTERN
             = Pattern.compile(CLASS_PATH_SEPARATOR_CHAR + "", Pattern.LITERAL);
+
+    static {
+        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "?.?.?");
+    }
+
+    private Constants() {
+    }
 }
