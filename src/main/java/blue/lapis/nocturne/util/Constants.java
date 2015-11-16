@@ -46,7 +46,7 @@ public final class Constants {
             = Pattern.compile(CLASS_PATH_SEPARATOR_CHAR + "", Pattern.LITERAL);
 
     static {
-        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "?.?.?");
+        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }
 
     private Constants() {

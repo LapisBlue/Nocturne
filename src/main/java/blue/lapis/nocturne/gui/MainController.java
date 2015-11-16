@@ -37,7 +37,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -45,10 +44,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -165,7 +161,7 @@ public class MainController implements Initializable {
     public void showAbout(ActionEvent actionEvent) throws IOException {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(Main.getResourceBundle().getString("about.title"));
-        alert.setHeaderText("Nocturne " + Constants.VERSION);
+        alert.setHeaderText("Nocturne v" + Constants.VERSION);
 
         alert.getDialogPane().getStyleClass().add("about");
         alert.getDialogPane().getStylesheets().add("css/nocturne.css");

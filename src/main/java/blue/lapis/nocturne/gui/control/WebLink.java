@@ -34,7 +34,6 @@ import javafx.scene.control.Hyperlink;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -53,6 +52,7 @@ public class WebLink extends Hyperlink {
                 Main.getInstance().getHostServices().showDocument(url);
                 return;
             } catch (Throwable ignored) {
+                // shut up, checkstyle
             }
 
             try {
