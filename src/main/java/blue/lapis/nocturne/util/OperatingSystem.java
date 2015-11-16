@@ -29,24 +29,27 @@ import java.util.function.Predicate;
 /**
  * Represents common operating systems.
  */
-public enum OperatingSystem {
+public enum OperatingSystem implements Predicate<String> {
 
     OSX("mac"),
     LINUX("nix", "nux"),
     WINDOWS("win"),
     UNKNOWN;
 
-    private Predicate<String> matcher;
+    private final String[] partials;
 
     OperatingSystem(String... partials) {
-        this.matcher = s -> {
-            for (String partial : partials) {
-                if (s.contains(partial)) {
-                    return true;
-                }
+        this.partials = partials;
+    }
+
+    @Override
+    public boolean test(String s) {
+        for (String partial : this.partials) {
+            if (s.contains(partial)) {
+                return true;
             }
-            return false;
-        };
+        }
+        return false;
     }
 
     /**
@@ -58,7 +61,7 @@ public enum OperatingSystem {
         String osName = System.getProperty("os.name").toLowerCase();
 
         for (OperatingSystem os : values()) {
-            if (os.matcher.test(osName)) {
+            if (os.test(osName)) {
                 return os;
             }
         }
