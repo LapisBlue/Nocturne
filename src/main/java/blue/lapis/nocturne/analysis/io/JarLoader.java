@@ -25,9 +25,8 @@
 package blue.lapis.nocturne.analysis.io;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.analysis.model.ClassSet;
 import blue.lapis.nocturne.analysis.model.JarClassEntry;
-
-import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +41,15 @@ import java.util.jar.JarInputStream;
  */
 public class JarLoader {
 
-    public static ImmutableSet<JarClassEntry> loadJar(File jarFile) throws IOException {
+    /**
+     * Loads the given JAR {@link File} for use with Nocturne.
+     *
+     * @param jarFile The {@link File} handle to the JAR file to load
+     * @return A {@link ClassSet} representing the JAR file
+     * @throws IOException If an exception occurs while loading the provided
+     *     {@link File}
+     */
+    public static ClassSet loadJar(File jarFile) throws IOException {
         JarInputStream jIs = new JarInputStream(new FileInputStream(jarFile));
 
         Set<JarClassEntry> classes = new HashSet<>();
@@ -58,7 +65,7 @@ public class JarLoader {
             jIs.read(bytes);
             classes.add(new JarClassEntry(entry.getName(), bytes));
         }
-        return ImmutableSet.copyOf(classes);
+        return new ClassSet(classes);
     }
 
 }

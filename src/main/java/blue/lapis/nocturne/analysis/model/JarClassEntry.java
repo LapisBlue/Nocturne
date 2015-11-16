@@ -24,9 +24,12 @@
  */
 package blue.lapis.nocturne.analysis.model;
 
+import java.util.Arrays;
+
 /**
  * Represents an class entry within a JAR file.
  */
+//TODO: document (caseif)
 public class JarClassEntry {
 
     private String name;
@@ -44,6 +47,19 @@ public class JarClassEntry {
 
     public byte[] getContent() {
         return content;
+    }
+
+    public boolean isObfuscated() {
+        return true; //TODO
+    }
+
+    public boolean equals(Object otherObject) {
+        if (!(otherObject instanceof JarClassEntry)) {
+            return false;
+        }
+        JarClassEntry other = (JarClassEntry) otherObject;
+        return other.getName().equals(getName())
+                && Arrays.hashCode(other.getContent()) == Arrays.hashCode(getContent());
     }
 
 }
