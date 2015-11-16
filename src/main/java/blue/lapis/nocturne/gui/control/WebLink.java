@@ -42,11 +42,11 @@ import java.net.URISyntaxException;
  */
 public class WebLink extends Hyperlink {
 
-    private final StringProperty urlProperty = new SimpleStringProperty(this, "url");
+    private final StringProperty addressProperty = new SimpleStringProperty(this, "url");
 
     public WebLink() {
         setOnAction(event -> {
-            String url = getUrl();
+            String url = getAddress();
 
             try { // First try the JavaFX way to open URLs (doesn't seem to be supported everywhere)
                 Main.getInstance().getHostServices().showDocument(url);
@@ -71,16 +71,16 @@ public class WebLink extends Hyperlink {
         });
     }
 
-    public final StringProperty urlProperty() {
-        return urlProperty;
+    public final StringProperty addressProperty() {
+        return addressProperty;
     }
 
-    public final String getUrl() {
-        return urlProperty.get();
+    public final String getAddress() {
+        return addressProperty.get();
     }
 
-    public final void setUrl(String value) {
-        urlProperty.set(value);
+    public final void setAddress(String value) {
+        addressProperty.set(value);
     }
 
 }
