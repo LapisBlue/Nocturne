@@ -104,8 +104,8 @@ public class CodeTab extends Tab {
     }
 
     public enum MemberType {
-        FIELD("codetab.identifier.field", "codetab.identifier.type", true),
-        METHOD("codetab.identifier.method", "codetab.identifier.signature", true),
+        FIELD("codetab.identifier.field", "codetab.identifier.type"),
+        METHOD("codetab.identifier.method", "codetab.identifier.signature"),
         CLASS("codetab.identifier.class");
 
         private final String identifierLabel;
@@ -122,14 +122,33 @@ public class CodeTab extends Tab {
             this(identifierLabel, "", false);
         }
 
+        MemberType(String identifierLabel, String infoLabel) {
+            this(identifierLabel, infoLabel, true);
+        }
+
+        /**
+         * Gets the localised identifier label for this member type.
+         *
+         * @return The identifier label.
+         */
         public String getIdentifierLabel() {
             return Main.getResourceBundle().getString(this.identifierLabel);
         }
 
+        /**
+         * Gets the localised info label for this member type.
+         *
+         * @return The info label.
+         */
         public String getInfoLabel() {
             return Main.getResourceBundle().getString(this.infoLabel);
         }
 
+        /**
+         * Gets if the info label should be displayed or not.
+         *
+         * @return {@code True} if the label should be displayed.
+         */
         public boolean isInfoEnabled() {
             return infoEnabled;
         }
