@@ -56,6 +56,9 @@ public class JarLoader {
 
         JarEntry entry;
         while ((entry = jIs.getNextJarEntry()) != null) {
+            if (!entry.getName().endsWith(".class")) {
+                continue; // not a class so we can ignore it
+            }
             if (entry.getSize() > Integer.MAX_VALUE) {
                 Main.getLogger().warning("Not reading JAR entry " + entry.getName() + " - it's too damn big");
                 continue;
@@ -63,8 +66,12 @@ public class JarLoader {
             byte[] bytes = new byte[(int) entry.getSize()];
             //noinspection ResultOfMethodCallIgnored
             jIs.read(bytes);
-            classes.add(new JarClassEntry(entry.getName(), bytes));
-            //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
+            JarClassEntry classEntry = new JarClassEntry(entry.getName(), bytes);
+            //TODO: detect whether class is inherently deobfuscated (e.g. this is usually the case for entry classes)
+            if (Main.getMappings().getMappings().keySet().contains(entry.getName())) {
+                classEntry.setDebfuscated(true);
+            }
+            classes.add(classEntry);
         }
         return new ClassSet(classes);
     }

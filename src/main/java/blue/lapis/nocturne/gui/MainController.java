@@ -71,8 +71,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        openJarButton.setDisable(true); //TODO: temporary
-        closeJarButton.setDisable(true);
+        closeJarButton.setDisable(Main.getLoadedJar() == null)  ;
 
         final String langRadioPrefix = "langRadio-";
         languageGroup.getToggles().stream()
@@ -115,13 +114,28 @@ public class MainController implements Initializable {
     }
 
     public void openJar(ActionEvent actionEvent) throws IOException {
+        if (Main.getLoadedJar() != null) {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+                return;
+            }
+            Main.getMappings().clear();
+            Main.setLoadedJar(null);
+        }
+
         JarDialogHelper.openJar();
         closeJarButton.setDisable(false);
+        //TODO: update views
     }
 
-    public void closeJar(ActionEvent actionEvent) {
-        //TODO
+    public void closeJar(ActionEvent actionEvent) throws IOException {
+        if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+            return;
+        }
+
+        Main.getMappings().clear();
+        Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
+        //TODO: update views
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {

@@ -29,7 +29,6 @@ import java.util.Objects;
 /**
  * Represents an class entry within a JAR file.
  */
-//TODO: document (caseif)
 public class JarClassEntry {
 
     private String name;

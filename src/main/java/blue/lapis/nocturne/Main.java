@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne;
 
+import blue.lapis.nocturne.analysis.model.ClassSet;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
@@ -76,6 +77,7 @@ public class Main extends Application {
 
     private MappingContext mappings = new MappingContext();
     private Path currentMappingsPath;
+    private ClassSet loadedJar;
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -203,6 +205,14 @@ public class Main extends Application {
 
     public static void setCurrentMappingsPath(Path path) {
         getInstance().currentMappingsPath = path;
+    }
+
+    public static ClassSet getLoadedJar() {
+        return getInstance().loadedJar;
+    }
+
+    public static void setLoadedJar(ClassSet classSet) {
+        getInstance().loadedJar = classSet;
     }
 
 }

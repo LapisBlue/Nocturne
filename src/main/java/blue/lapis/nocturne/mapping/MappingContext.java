@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.mapping;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.analysis.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
@@ -31,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a set of {@link ClassMapping}s.
@@ -59,6 +62,10 @@ public class MappingContext {
      */
     public void addMapping(TopLevelClassMapping mapping) {
         mappings.put(mapping.getObfuscatedName(), mapping);
+        Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getObfuscatedName());
+        if (classEntry.isPresent()) {
+            classEntry.get().setDebfuscated(true);
+        }
         setDirty(true);
     }
 

@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -83,5 +84,17 @@ public class ClassSet {
         return ImmutableSet.copyOf(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
                 .collect(Collectors.toSet()));
     }
+
+    /**
+     * Returns the {@link JarClassEntry} for the given FQ name, if it exists.
+     *
+     * @return The {@link JarClassEntry} for the given FQ name, or
+     *     {@link Optional#empty()} if it does not exist in this
+     *     {@link ClassSet}
+     */
+    public Optional<JarClassEntry> getClass(String name) {
+        return classMap.containsKey(name) ? Optional.of(classMap.get(name)) : Optional.empty();
+    }
+
 
 }
