@@ -22,7 +22,7 @@
             <Insets right="-1.0"/>
         </padding>
         <Menu mnemonicParsing="true" text="%menu.file">
-            <MenuItem mnemonicParsing="false" fx:id="openJarButton" onAction="#openJar"
+            <MenuItem mnemonicParsing="true" fx:id="openJarButton" onAction="#openJar"
                       text="%menu.file.open_jar"/>
             <MenuItem mnemonicParsing="true" fx:id="closeJarButton" onAction="#closeJar"
                       text="%menu.file.close_jar"/>
