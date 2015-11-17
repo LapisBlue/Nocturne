@@ -24,12 +24,15 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.analysis.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a {@link Mapping} for a class.
@@ -103,6 +106,14 @@ public abstract class ClassMapping extends Mapping {
      */
     void addInnerClassMapping(InnerClassMapping mapping) {
         innerClassMappings.put(mapping.getObfuscatedName(), mapping);
+
+        if (Main.getInstance() != null && Main.getLoadedJar() != null) { // the first check is to fix stupid unit tests
+            Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getFullObfuscatedName());
+            if (classEntry.isPresent()) {
+                classEntry.get().setDebfuscated(true);
+            }
+        }
+
         getContext().setDirty(true);
     }
 
