@@ -31,10 +31,13 @@ import blue.lapis.nocturne.analysis.model.JarClassEntry;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.zip.ZipFile;
 
 /**
  * Utility class for loading JAR files.
@@ -50,29 +53,32 @@ public class JarLoader {
      *     {@link File}
      */
     public static ClassSet loadJar(File jarFile) throws IOException {
-        JarInputStream jIs = new JarInputStream(new FileInputStream(jarFile));
+        JarFile jar = new JarFile(jarFile);
+        //JarInputStream jIs = new JarInputStream(new FileInputStream(jarFile));
 
         Set<JarClassEntry> classes = new HashSet<>();
 
-        JarEntry entry;
-        while ((entry = jIs.getNextJarEntry()) != null) {
+        jar.stream().forEach(entry -> {
             if (!entry.getName().endsWith(".class")) {
-                continue; // not a class so we can ignore it
+                return; // not a class so we can ignore it
             }
-            if (entry.getSize() > Integer.MAX_VALUE) {
-                Main.getLogger().warning("Not reading JAR entry " + entry.getName() + " - it's too damn big");
-                continue;
+
+            try {
+                InputStream entryStream = jar.getInputStream(entry);
+
+                byte[] bytes = new byte[entryStream.available()];
+                //noinspection ResultOfMethodCallIgnored
+                entryStream.read(bytes);
+                JarClassEntry classEntry = new JarClassEntry(entry.getName(), bytes);
+                //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
+                if (Main.getMappings().getMappings().keySet().contains(entry.getName())) {
+                    classEntry.setDebfuscated(true);
+                }
+                classes.add(classEntry);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
-            byte[] bytes = new byte[(int) entry.getSize()];
-            //noinspection ResultOfMethodCallIgnored
-            jIs.read(bytes);
-            JarClassEntry classEntry = new JarClassEntry(entry.getName(), bytes);
-            //TODO: detect whether class is inherently deobfuscated (e.g. this is usually the case for entry classes)
-            if (Main.getMappings().getMappings().keySet().contains(entry.getName())) {
-                classEntry.setDebfuscated(true);
-            }
-            classes.add(classEntry);
-        }
+        });
         return new ClassSet(classes);
     }
 
