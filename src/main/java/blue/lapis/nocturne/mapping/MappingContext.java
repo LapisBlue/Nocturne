@@ -64,9 +64,11 @@ public class MappingContext {
         mappings.put(mapping.getObfuscatedName(), mapping);
 
         if (Main.getInstance() != null && Main.getLoadedJar() != null) { // the first check is to fix stupid unit tests
-            Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getObfuscatedName());
-            if (classEntry.isPresent()) {
-                classEntry.get().setDebfuscated(true);
+            if (!mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) { // don't mark it if it's 1:1
+                Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getObfuscatedName());
+                if (classEntry.isPresent()) {
+                    classEntry.get().setDebfuscated(true);
+                }
             }
         }
 
