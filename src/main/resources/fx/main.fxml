@@ -61,13 +61,13 @@
         <SplitPane dividerPositions="0.5" orientation="VERTICAL" SplitPane.resizableWithParent="false">
             <TitledPane animated="false" collapsible="false" maxHeight="Infinity" text="%classes.obfuscated">
                 <ScrollPane fitToHeight="true" fitToWidth="true">
-                    <ListView id="obfuscatedClassesList"/>
+                    <TreeView fx:id="obfTree" id="obfuscatedClassesTree"/>
                 </ScrollPane>
             </TitledPane>
             <TitledPane animated="false" collapsible="false" maxHeight="Infinity"
                         text="%classes.deobfuscated">
                 <ScrollPane fitToHeight="true" fitToWidth="true">
-                    <ListView id="deobfuscatedClassesList"/>
+                    <TreeView fx:id="deobfTree" id="deobfuscatedClassesTree"/>
                 </ScrollPane>
             </TitledPane>
         </SplitPane>

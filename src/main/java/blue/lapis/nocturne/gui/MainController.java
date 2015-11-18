@@ -41,6 +41,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -68,6 +69,9 @@ public class MainController implements Initializable {
     public MenuItem aboutButton;
 
     public TabPane tabs;
+
+    public TreeView obfTree;
+    public TreeView deobfTree;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -198,6 +202,14 @@ public class MainController implements Initializable {
             Main.reload();
         }
 
+    }
+
+    public void updateObfuscatedClassListView() {
+        //TODO
+    }
+
+    public void updateDeobfuscatedClassListView() {
+        //TODO
     }
 
 }
