@@ -27,7 +27,10 @@ package blue.lapis.nocturne.analysis.model;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import blue.lapis.nocturne.util.Constants;
+
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -160,7 +163,8 @@ public class HierarchyElement {
 
     @Override
     public String toString() {
-        return (getParent().isPresent() ? getParent().get().toString() + "/" : "") + getName();
+        return (getParent().isPresent() ? getParent().get().toString() + Constants.CLASS_PATH_SEPARATOR_CHAR : "")
+                + getName();
     }
 
     /**
@@ -170,7 +174,23 @@ public class HierarchyElement {
      * @return The generated entry {@link HierarchyElement}
      */
     public static HierarchyElement fromSet(Set<String> strings) {
-        return null; //TODO
+        HierarchyElement superElement = new HierarchyElement(null, false);
+
+        for (String str : strings) {
+            String[] arr = Constants.CLASS_PATH_SEPARATOR_PATTERN.split(str);
+
+            HierarchyElement parent = superElement;
+            for (int i = 0; i < arr.length - 1; i++) {
+                if (parent != null && parent.getChild(arr[i]).isPresent()) {
+                    parent = parent.getChild(arr[i]).get();
+                } else {
+                    parent = new HierarchyElement(arr[i], false, parent);
+                }
+            }
+            new HierarchyElement(arr[arr.length - 1], true, parent);
+        }
+
+        return superElement;
     }
 
 }
