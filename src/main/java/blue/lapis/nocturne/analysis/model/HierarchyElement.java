@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.mapping.model;
+package blue.lapis.nocturne.analysis.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents an item in a hierarchy (either a package or a class).
@@ -99,6 +100,16 @@ public class HierarchyElement {
     @Override
     public String toString() {
         return (getParent().isPresent() ? getParent().get().toString() + "/" : "") + getName();
+    }
+
+    /**
+     * Generates a hierarchy from the given string {@link Set}.
+     *
+     * @param strings The strings to generate a hierarchy from
+     * @return The generated entry {@link HierarchyElement}
+     */
+    public static HierarchyElement fromSet(Set<String> strings) {
+        return null; //TODO
     }
 
 }

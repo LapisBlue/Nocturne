@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.analysis.model;
 
+import blue.lapis.nocturne.util.Constants;
+
 import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
@@ -80,7 +82,7 @@ public class ClassSet {
      * @return An {@link ImmutableSet} of all deobfuscated classes contained by
      *     this {@link ClassSet}
      */
-    public ImmutableSet<JarClassEntry> getDebfuscatedClasses() {
+    public ImmutableSet<JarClassEntry> getDeobfuscatedClasses() {
         return ImmutableSet.copyOf(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
                 .collect(Collectors.toSet()));
     }
@@ -96,5 +98,32 @@ public class ClassSet {
         return classMap.containsKey(name) ? Optional.of(classMap.get(name)) : Optional.empty();
     }
 
+    /**
+     * Returns a {@link HierarchyElement} representing the structure of
+     * obfuscated classes contained by this {@link ClassSet}.
+     *
+     * @return A {@link HierarchyElement} representing the structure of
+     *     obfuscated classes contained by this {@link ClassSet}
+     */
+    public HierarchyElement getObfuscatedHierarchy() {
+        return generateHierarchy(getObfuscatedClasses());
+    }
+
+    /**
+     * Returns a {@link HierarchyElement} representing the structure of
+     * deobfuscated classes contained by this {@link ClassSet}.
+     *
+     * @return A {@link HierarchyElement} representing the structure of
+     *     deobfuscated classes contained by this {@link ClassSet}
+     */
+    public HierarchyElement getDeobfuscatedHierarchy() {
+        return generateHierarchy(getDeobfuscatedClasses());
+    }
+
+    private HierarchyElement generateHierarchy(Set<JarClassEntry> entrySet) {
+        return HierarchyElement.fromSet(entrySet.stream()
+                .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
+                .map(JarClassEntry::getName).collect(Collectors.toSet()));
+    }
 
 }
