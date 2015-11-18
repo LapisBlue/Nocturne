@@ -31,16 +31,12 @@ import blue.lapis.nocturne.analysis.model.JarClassEntry;
 import javafx.scene.control.Alert;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 /**
  * Utility class for loading JAR files.
