@@ -122,8 +122,7 @@ public class MainController implements Initializable {
             Main.setLoadedJar(null);
         }
 
-        JarDialogHelper.openJar();
-        closeJarButton.setDisable(false);
+        JarDialogHelper.openJar(this);
         //TODO: update views
     }
 

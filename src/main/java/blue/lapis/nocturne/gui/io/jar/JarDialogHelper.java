@@ -26,6 +26,8 @@ package blue.lapis.nocturne.gui.io.jar;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.analysis.io.JarLoader;
+import blue.lapis.nocturne.analysis.model.ClassSet;
+import blue.lapis.nocturne.gui.MainController;
 
 import javafx.stage.FileChooser;
 
@@ -41,7 +43,7 @@ public final class JarDialogHelper {
     private JarDialogHelper() {
     }
 
-    public static void openJar() throws IOException {
+    public static void openJar(MainController controller) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_jar"));
         fileChooser.getExtensionFilters().addAll(
@@ -54,7 +56,11 @@ public final class JarDialogHelper {
         }
 
         if (Files.exists(selectedFile.toPath())) {
-            Main.setLoadedJar(JarLoader.loadJar(selectedFile));
+            ClassSet classSet = JarLoader.loadJar(selectedFile);
+            if (classSet != null) {
+                Main.setLoadedJar(classSet);
+                controller.closeJarButton.setDisable(false);
+            }
         }
     }
 

@@ -28,6 +28,8 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.analysis.model.ClassSet;
 import blue.lapis.nocturne.analysis.model.JarClassEntry;
 
+import javafx.scene.control.Alert;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +39,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
@@ -53,8 +56,16 @@ public class JarLoader {
      *     {@link File}
      */
     public static ClassSet loadJar(File jarFile) throws IOException {
-        JarFile jar = new JarFile(jarFile);
-        //JarInputStream jIs = new JarInputStream(new FileInputStream(jarFile));
+        JarFile jar;
+        try {
+            jar = new JarFile(jarFile);
+        } catch (ZipException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setContentText(Main.getResourceBundle().getString("jarload.invalid"));
+            alert.showAndWait();
+            return null;
+        }
 
         Set<JarClassEntry> classes = new HashSet<>();
 
@@ -79,6 +90,16 @@ public class JarLoader {
                 throw new RuntimeException(ex);
             }
         });
+
+        if (classes.size() == 0) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText(null);
+            alert.setContentText(Main.getResourceBundle().getString("jarload.empty"));
+            alert.showAndWait();
+            return null;
+        }
+
+        jar.close(); // release the handle (TODO: is this right since we have the data in memory?)
         return new ClassSet(classes);
     }
 
