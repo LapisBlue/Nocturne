@@ -57,10 +57,10 @@ public final class MappingsSaveDialogHelper {
 
     public static void saveMappingsAs() throws IOException {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Destination File");
+        fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
+                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
+                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_all"), "*.*")
         );
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
@@ -112,9 +112,9 @@ public final class MappingsSaveDialogHelper {
     public static boolean doDirtyConfirmation() throws IOException {
         if (Main.getMappings().isDirty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Save?");
+            alert.setTitle(Main.getResourceBundle().getString("filechooser.dirty.title"));
             alert.setHeaderText(null);
-            alert.setContentText("Would you like to save the current mappings?");
+            alert.setContentText(Main.getResourceBundle().getString("filechooser.dirty.content"));
             alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
             alert.showAndWait();
 
