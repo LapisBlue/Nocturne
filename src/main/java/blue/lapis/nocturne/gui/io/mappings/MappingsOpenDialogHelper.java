@@ -27,6 +27,7 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
+import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.stage.FileChooser;
 
@@ -53,10 +54,19 @@ public final class MappingsOpenDialogHelper {
                 new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_all"), "*.*")
         );
 
+        String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
+        if (!lastDir.isEmpty()) {
+            File initialDir = new File(lastDir);
+            if (initialDir.exists()) {
+                fileChooser.setInitialDirectory(initialDir);
+            }
+        }
+
         File selectedFile = fileChooser.showOpenDialog(Main.getMainStage());
         if (selectedFile == null) {
             return;
         }
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
 
         Path selectedPath = selectedFile.toPath();
 

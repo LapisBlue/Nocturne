@@ -26,6 +26,7 @@ package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
+import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -61,11 +62,20 @@ public final class MappingsSaveDialogHelper {
                 new FileChooser.ExtensionFilter("SRG Mapping Files", "*.srg"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
-        File selectedFile = fileChooser.showSaveDialog(Main.getMainStage());
 
+        String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
+        if (!lastDir.isEmpty()) {
+            File initialDir = new File(lastDir);
+            if (initialDir.exists()) {
+                fileChooser.setInitialDirectory(initialDir);
+            }
+        }
+
+        File selectedFile = fileChooser.showSaveDialog(Main.getMainStage());
         if (selectedFile == null) {
             return;
         }
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
 
         Path selectedPath = selectedFile.toPath();
 

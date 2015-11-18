@@ -60,6 +60,7 @@ public final class PropertiesHelper {
             // set keys
             Key.getKeys().stream().filter(key -> !globalProperties.containsKey(key.getKey()))
                     .forEach(key -> globalProperties.setProperty(key.getKey(), key.getDefaultValue()));
+            store();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -102,6 +103,8 @@ public final class PropertiesHelper {
         private static final List<Key> KEYS = new ArrayList<>();
 
         public static final Key LOCALE = new Key("locale", "en_US");
+        public static final Key LAST_JAR_DIRECTORY = new Key("lastJarDir", "");
+        public static final Key LAST_MAPPINGS_DIRECTORY = new Key("lastMappingsDir", "");
 
         private String key;
         private String defaultValue;
