@@ -45,6 +45,14 @@ public class HierarchyElement {
     private HierarchyElement parent;
     private Map<String, HierarchyElement> children;
 
+    /**
+     * Constructs a new {@link HierarchyElement} with the given parameters.
+     *
+     * @param name The name of the {@link HierarchyElement}
+     * @param terminal Whether this element is terminal (terminal elements
+     *     may not contain children)
+     * @param parent The {@link HierarchyElement} parenting the new one
+     */
     public HierarchyElement(String name, boolean terminal, HierarchyElement parent) {
         this.name = name;
         this.terminal = terminal;
@@ -60,14 +68,48 @@ public class HierarchyElement {
         }
     }
 
+    /**
+     * Constructs a new entry {@link HierarchyElement} with the given
+     * parameters.
+     *
+     * @param name The name of the {@link HierarchyElement}
+     * @param terminal Whether this element is terminal (terminal elements
+     *     may not contain children)
+     */
     public HierarchyElement(String name, boolean terminal) {
         this(name, terminal, null);
     }
 
+    /**
+     * Returns the name of this {@link HierarchyElement}.
+     *
+     * @return The name of this {@link HierarchyElement}
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns whether this {@link HierarchyElement} is terminal. A terminal
+     * element marks the end of its respective branch, and may not be assigned
+     * children.
+     *
+     * @return Whether this {@link HierarchyElement} is terminal
+     */
+    // in other words, it's kind of a loser
+    public boolean isTerminal() {
+        return terminal;
+    }
+
+    /**
+     * Adds a child {@link HierarchyElement} to the current one
+     *
+     * @param element The child element to add
+     * @throws IllegalArgumentException If the current element is
+     *     {@link HierarchyElement#isTerminal() terminal}
+     * @throws IllegalStateException If an element by the given name is already
+     *     a child of the current one
+     */
     public void addChild(HierarchyElement element) throws IllegalArgumentException, IllegalStateException {
         checkState(!isTerminal(), "addChild called on terminal HierarchyElement");
         checkArgument(!getChild(element.getName()).isPresent(),
@@ -76,6 +118,13 @@ public class HierarchyElement {
         children.put(element.getName(), element);
     }
 
+    /**
+     * Attempts to get the child element by the given name from the current one.
+     *
+     * @param name The name of the child element
+     * @return The child element if it exists, or {@link Optional#empty()}
+     *     otherwise
+     */
     public Optional<HierarchyElement> getChild(String name) {
         if (children.containsKey(name)) {
             return Optional.of(children.get(name));
@@ -83,18 +132,30 @@ public class HierarchyElement {
         return Optional.empty();
     }
 
+
+    /**
+     * Returns an {@link ImmutableSet} of all children of this
+     * {@link HierarchyElement}.
+     *
+     * @return An {@link ImmutableSet} of all children of this
+     *     {@link HierarchyElement}
+     * @throws IllegalStateException If this element is
+     *     {@link HierarchyElement#isTerminal()}
+     */
     public ImmutableList<HierarchyElement> getChildren() throws IllegalStateException {
         checkState(!isTerminal(), "getChildren called on terminal HierarchyElement");
 
         return ImmutableList.copyOf(children.values());
     }
 
+    /**
+     * Returns the parent of this {@link HierarchyElement}, if applicable.
+     *
+     * @return The parent of this {@link HierarchyElement}, or
+     *     {@link Optional#empty()}
+     */
     public Optional<HierarchyElement> getParent() {
         return Optional.ofNullable(parent);
-    }
-
-    public boolean isTerminal() {
-        return terminal;
     }
 
     @Override

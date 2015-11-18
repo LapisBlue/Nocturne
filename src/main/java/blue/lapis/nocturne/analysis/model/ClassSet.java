@@ -120,6 +120,13 @@ public class ClassSet {
         return generateHierarchy(getDeobfuscatedClasses());
     }
 
+    /**
+     * Generates a {@link HierarchyElement} from the given {@link JarClassEntry}
+     * {@link Set}
+     * @param entrySet The {@link JarClassEntry} {@link Set} to generate the
+     *     {@link HierarchyElement} from
+     * @return The generated {@link HierarchyElement}
+     */
     private HierarchyElement generateHierarchy(Set<JarClassEntry> entrySet) {
         return HierarchyElement.fromSet(entrySet.stream()
                 .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
