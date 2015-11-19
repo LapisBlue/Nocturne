@@ -24,6 +24,12 @@
  */
 package blue.lapis.nocturne.analysis.model;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
+import blue.lapis.nocturne.Main;
+
+import com.google.common.base.Preconditions;
+
 import java.util.Objects;
 
 /**
@@ -56,6 +62,11 @@ public class JarClassEntry {
         return name;
     }
 
+    public String getDeobfuscatedName() {
+        checkArgument(isDeobfuscated(), "Cannot get deobfuscated name from non-deobfuscated class entry");
+        return Main.getMappings().getMappings().get(name).getDeobfuscatedName();
+    }
+
     /**
      * Returns the raw byte content of this {@link JarClassEntry}.
      *
@@ -80,7 +91,7 @@ public class JarClassEntry {
      * @param deobfuscated Whether this {@link JarClassEntry} is marked as
      *     deobfuscated
      */
-    public void setDebfuscated(boolean deobfuscated) {
+    public void setDeobfuscated(boolean deobfuscated) {
         this.deobfuscated = deobfuscated;
     }
 

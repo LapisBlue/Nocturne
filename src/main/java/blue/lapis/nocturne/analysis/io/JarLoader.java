@@ -27,8 +27,11 @@ package blue.lapis.nocturne.analysis.io;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.analysis.model.ClassSet;
 import blue.lapis.nocturne.analysis.model.JarClassEntry;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.util.Constants;
 
 import javafx.scene.control.Alert;
+import sun.tools.jar.resources.jar;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,10 +79,18 @@ public class JarLoader {
                 byte[] bytes = new byte[entryStream.available()];
                 //noinspection ResultOfMethodCallIgnored
                 entryStream.read(bytes);
-                JarClassEntry classEntry = new JarClassEntry(entry.getName(), bytes);
+
+                String className = entry.getName();
+                if (className.endsWith(Constants.CLASS_FILE_NAME_TAIL)) {
+                    className = className.substring(0, className.length() - Constants.CLASS_FILE_NAME_TAIL.length());
+                }
+
+                JarClassEntry classEntry = new JarClassEntry(className, bytes);
+
                 //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
-                if (Main.getMappings().getMappings().keySet().contains(entry.getName())) {
-                    classEntry.setDebfuscated(true);
+                ClassMapping mapping = Main.getMappings().getMappings().get(className);
+                if (mapping != null && !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) {
+                    classEntry.setDeobfuscated(true);
                 }
                 classes.add(classEntry);
             } catch (IOException ex) {

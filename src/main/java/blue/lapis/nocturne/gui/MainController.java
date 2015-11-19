@@ -233,6 +233,7 @@ public class MainController implements Initializable {
         }
 
         root.setExpanded(true);
+        root.getChildren().setAll(root.getChildren().sorted());
         deobfTree.setRoot(root);
     }
 
@@ -240,9 +241,6 @@ public class MainController implements Initializable {
         String name = "Root";
         if (element instanceof HierarchyNode) {
             name = ((HierarchyNode) element).getName();
-            if (name.endsWith(Constants.CLASS_FILE_NAME_TAIL)) {
-                name = name.substring(0, name.length() - Constants.CLASS_FILE_NAME_TAIL.length());
-            }
         }
         TreeItem<String> treeItem = new TreeItem<>(name);
         if (element instanceof Hierarchy
@@ -251,6 +249,7 @@ public class MainController implements Initializable {
                     element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
             );
         }
+        treeItem.getChildren().setAll(treeItem.getChildren().sorted());
         return treeItem;
     }
 

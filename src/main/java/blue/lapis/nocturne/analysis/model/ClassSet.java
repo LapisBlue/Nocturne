@@ -108,7 +108,7 @@ public class ClassSet {
      *     obfuscated classes contained by this {@link ClassSet}
      */
     public Hierarchy getObfuscatedHierarchy() {
-        return generateHierarchy(getObfuscatedClasses());
+        return generateHierarchy(getObfuscatedClasses(), false);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ClassSet {
      *     deobfuscated classes contained by this {@link ClassSet}
      */
     public Hierarchy getDeobfuscatedHierarchy() {
-        return generateHierarchy(getDeobfuscatedClasses());
+        return generateHierarchy(getDeobfuscatedClasses(), true);
     }
 
     /**
@@ -129,10 +129,11 @@ public class ClassSet {
      *     {@link HierarchyNode} from
      * @return The generated {@link HierarchyNode}
      */
-    private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet) {
+    private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet, boolean deobfuscate) {
         return Hierarchy.fromSet(entrySet.stream()
                 .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
-                .map(JarClassEntry::getName).collect(Collectors.toSet()));
+                .map(deobfuscate ? JarClassEntry::getDeobfuscatedName : JarClassEntry::getName)
+                .collect(Collectors.toSet()));
     }
 
 }

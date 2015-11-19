@@ -63,11 +63,12 @@ public class MappingContext {
     public void addMapping(TopLevelClassMapping mapping) {
         mappings.put(mapping.getObfuscatedName(), mapping);
 
+        //TODO: this whole block is wrong - entries aren't created for inner classes (I'll fix it later) ~ caseif
         if (Main.getInstance() != null && Main.getLoadedJar() != null) { // the first check is to fix stupid unit tests
             if (!mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) { // don't mark it if it's 1:1
                 Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getObfuscatedName());
                 if (classEntry.isPresent()) {
-                    classEntry.get().setDebfuscated(true);
+                    classEntry.get().setDeobfuscated(true);
                 }
             }
         }

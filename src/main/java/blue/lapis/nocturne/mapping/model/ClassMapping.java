@@ -111,7 +111,7 @@ public abstract class ClassMapping extends Mapping {
             if (!mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) { // don't mark it if it's 1:1
                 Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getFullObfuscatedName());
                 if (classEntry.isPresent()) {
-                    classEntry.get().setDebfuscated(true);
+                    classEntry.get().setDeobfuscated(true); //TODO; why tf did I write this
                 }
             }
         }
