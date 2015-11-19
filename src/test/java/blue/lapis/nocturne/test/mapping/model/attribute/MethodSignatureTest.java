@@ -42,9 +42,28 @@ public class MethodSignatureTest {
     public void testPrimitiveSignature() {
         String sig = "(IDZ)V";
         MethodSignature ms = new MethodSignature(sig);
-        assertArrayEquals(new Type[] {new Type(Primitive.INT), new Type(Primitive.DOUBLE), new Type(Primitive.BOOLEAN)},
+        assertArrayEquals(
+                new Type[] {
+                        new Type(Primitive.INT, 0),
+                        new Type(Primitive.DOUBLE, 0),
+                        new Type(Primitive.BOOLEAN, 0)
+                },
                 ms.getParamTypes());
-        assertEquals(new Type(Primitive.VOID), ms.getReturnType());
+        assertEquals(new Type(Primitive.VOID, 0), ms.getReturnType());
+    }
+
+    @Test
+    public void testArraySignature() {
+        String sig = "(I[[D[Z)V";
+        MethodSignature ms = new MethodSignature(sig);
+        assertArrayEquals(
+                new Type[] {
+                        new Type(Primitive.INT, 0),
+                        new Type(Primitive.DOUBLE, 2),
+                        new Type(Primitive.BOOLEAN, 1)
+                },
+                ms.getParamTypes());
+        assertEquals(new Type(Primitive.VOID, 0), ms.getReturnType());
     }
 
     @Test
@@ -53,9 +72,9 @@ public class MethodSignatureTest {
         String c2 = "java/lang/String";
         String sig = "(BL" + c1 + ";I)L" + c2 + ";";
         MethodSignature ms = new MethodSignature(sig);
-        assertArrayEquals(new Type[] {new Type(Primitive.BYTE), new Type(c1), new Type(Primitive.INT)},
+        assertArrayEquals(new Type[] {new Type(Primitive.BYTE, 0), new Type(c1, 0), new Type(Primitive.INT, 0)},
                 ms.getParamTypes());
-        assertEquals(new Type(c2), ms.getReturnType());
+        assertEquals(new Type(c2, 0), ms.getReturnType());
     }
 
 }

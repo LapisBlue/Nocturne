@@ -133,8 +133,7 @@ public class MainController implements Initializable {
         }
 
         JarDialogHelper.openJar(this);
-        updateObfuscatedClassListView();
-        updateDeobfuscatedClassListView();
+        updateClassViews();
     }
 
     public void closeJar(ActionEvent actionEvent) throws IOException {
@@ -145,11 +144,12 @@ public class MainController implements Initializable {
         Main.getMappings().clear();
         Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
-        //TODO: update views
+        updateClassViews();
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
         MappingsOpenDialogHelper.openMappings();
+        updateClassViews();
     }
 
     public void clearMappings(ActionEvent actionEvent) {
@@ -161,6 +161,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(ex);
         }
         Main.getMappings().clear();
+        updateClassViews();
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
@@ -212,15 +213,27 @@ public class MainController implements Initializable {
     }
 
     public void updateObfuscatedClassListView() {
-        TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+        TreeItem<String> root;
+        if (Main.getLoadedJar() != null) {
+            root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+        } else {
+            root = new TreeItem<>();
+        }
+
         root.setExpanded(true);
         obfTree.setRoot(root);
     }
 
     public void updateDeobfuscatedClassListView() {
-        TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+        TreeItem<String> root;
+        if (Main.getLoadedJar() != null) {
+            root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
+        } else {
+            root = new TreeItem<>();
+        }
+
         root.setExpanded(true);
-        obfTree.setRoot(root);
+        deobfTree.setRoot(root);
     }
 
     public TreeItem<String> generateTreeItem(HierarchyElement element) {
@@ -231,8 +244,7 @@ public class MainController implements Initializable {
                 name = name.substring(0, name.length() - Constants.CLASS_FILE_NAME_TAIL.length());
             }
         }
-        TreeItem<String> treeItem
-                = new TreeItem<>(element instanceof HierarchyNode ? ((HierarchyNode) element).getName() : "Root");
+        TreeItem<String> treeItem = new TreeItem<>(name);
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
             treeItem.getChildren().addAll(
@@ -240,6 +252,11 @@ public class MainController implements Initializable {
             );
         }
         return treeItem;
+    }
+
+    public void updateClassViews() {
+        updateObfuscatedClassListView();
+        updateDeobfuscatedClassListView();
     }
 
 }

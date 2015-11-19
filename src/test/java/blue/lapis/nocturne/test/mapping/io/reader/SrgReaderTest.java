@@ -129,16 +129,25 @@ public class SrgReaderTest {
         MethodMapping methodMapping = mapping.getMethodMappings().get("a");
         assertEquals("a", methodMapping.getObfuscatedName());
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
-        assertArrayEquals(new Type[]{new Type(Primitive.INT), new Type("a"), new Type(Primitive.INT)},
+        assertArrayEquals(
+                new Type[]{
+                        new Type(Primitive.INT, 0),
+                        new Type("a", 0),
+                        new Type(Primitive.INT, 0)
+                },
                 methodMapping.getSignature().getParamTypes());
-        assertEquals(new Type("a"), methodMapping.getSignature().getReturnType());
+        assertEquals(new Type("a", 0), methodMapping.getSignature().getReturnType());
 
         MethodSignature deobfSig = methodMapping.getDeobfuscatedSignature();
         assertArrayEquals(
-                new Type[]{new Type(Primitive.INT), new Type(EXAMPLE_PACKAGE + "/Example"), new Type(Primitive.INT)},
+                new Type[]{
+                        new Type(Primitive.INT, 0),
+                        new Type(EXAMPLE_PACKAGE + "/Example", 0),
+                        new Type(Primitive.INT, 0)
+                },
                 deobfSig.getParamTypes()
         );
-        assertEquals(new Type(EXAMPLE_PACKAGE + "/Example"), deobfSig.getReturnType());
+        assertEquals(new Type(EXAMPLE_PACKAGE + "/Example", 0), deobfSig.getReturnType());
     }
 
 }

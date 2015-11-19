@@ -67,6 +67,7 @@ public class JarClassEntry {
 
     /**
      * Returns whether this {@link JarClassEntry} is marked as deobfuscated.
+     *
      * @return Whether this {@link JarClassEntry} is marked as deobfuscated
      */
     public boolean isDeobfuscated() {

@@ -37,16 +37,20 @@ public class Type {
     private final Primitive prim;
     private final String clazz;
 
+    private final int arrayDims;
+
     /**
      * Constructs a new {@link Type} of the given {@link Primitive} type.
      *
      * @param primitive The {@link Primitive} representing the new {@link Type}
      */
-    public Type(Primitive primitive) {
+    public Type(Primitive primitive, int arrayDims) {
         Preconditions.checkArgument(primitive != null);
 
         this.prim = primitive;
         this.clazz = null;
+
+        this.arrayDims = arrayDims;
     }
 
     /**
@@ -54,11 +58,23 @@ public class Type {
      *
      * @param className The class name representing the new {@link Type}
      */
-    public Type(String className) {
+    public Type(String className, int arrayDims) {
         Preconditions.checkArgument(className != null);
 
         this.clazz = className;
         this.prim = null;
+
+        this.arrayDims = arrayDims;
+    }
+
+    /**
+     * Returns the number of array dimensions of this {@link Type} (a returned
+     * of {@code 0} indicates that this is not an array type).
+     *
+     * @return The number of array dimensions of this {@link Type}
+     */
+    public int getArrayDimensions() {
+        return arrayDims;
     }
 
     /**
@@ -113,15 +129,20 @@ public class Type {
      * @return The deobfuscated {@link Type}
      */
     public Type deobfuscate(MappingContext context) {
-        return prim != null ? this : new Type(getDeobfuscatedClassName(context));
+        return prim != null ? this : new Type(getDeobfuscatedClassName(context), getArrayDimensions());
     }
 
     @Override
     public String toString() {
+        String arrayPrefix = "";
+        for (int i = 0; i < getArrayDimensions(); i++) {
+            arrayPrefix += "[";
+        }
+
         if (isPrimitive()) {
-            return "Type:Primitive(" + asPrimitive().name() + ")";
+            return arrayPrefix + asPrimitive().name();
         } else {
-            return "Type:Class(" + getClassName() + ")";
+            return arrayPrefix + "L" + getClassName() + ";";
         }
     }
 
