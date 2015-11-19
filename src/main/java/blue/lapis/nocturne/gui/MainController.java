@@ -213,32 +213,28 @@ public class MainController implements Initializable {
     }
 
     public void updateObfuscatedClassListView() {
-        TreeItem<String> root;
         if (Main.getLoadedJar() != null) {
-            root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+            root.setExpanded(true);
+            obfTree.setRoot(root);
         } else {
-            root = new TreeItem<>();
+            obfTree.setRoot(null);
         }
 
-        root.setExpanded(true);
-        obfTree.setRoot(root);
     }
 
     public void updateDeobfuscatedClassListView() {
-        TreeItem<String> root;
         if (Main.getLoadedJar() != null) {
-            root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
+            root.setExpanded(true);
+            deobfTree.setRoot(root);
         } else {
-            root = new TreeItem<>();
+            deobfTree.setRoot(null);
         }
-
-        root.setExpanded(true);
-        root.getChildren().setAll(root.getChildren().sorted());
-        deobfTree.setRoot(root);
     }
 
     public TreeItem<String> generateTreeItem(HierarchyElement element) {
-        String name = "Root";
+        String name = "(root)";
         if (element instanceof HierarchyNode) {
             name = ((HierarchyNode) element).getName();
         }
