@@ -31,7 +31,6 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.util.Constants;
 
 import javafx.scene.control.Alert;
-import sun.tools.jar.resources.jar;
 
 import java.io.File;
 import java.io.IOException;

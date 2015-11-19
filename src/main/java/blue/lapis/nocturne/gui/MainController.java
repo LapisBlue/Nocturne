@@ -53,7 +53,6 @@ import javafx.scene.input.KeyCombination;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**

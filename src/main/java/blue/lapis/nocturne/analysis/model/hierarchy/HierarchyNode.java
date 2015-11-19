@@ -30,13 +30,9 @@ import static com.google.common.base.Preconditions.checkState;
 import blue.lapis.nocturne.util.Constants;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Represents an item in a hierarchy (either a package or a class).
