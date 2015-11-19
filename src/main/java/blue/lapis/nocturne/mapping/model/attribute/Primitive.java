@@ -77,7 +77,7 @@ public enum Primitive {
      *     matched to a {@link Primitive} type
      */
     public static Primitive getFromKey(char key) {
-        Preconditions.checkArgument(KEY_MAP.containsKey(key), "Illegal primitive key");
+        Preconditions.checkArgument(KEY_MAP.containsKey(key), "Illegal primitive key: " + key);
         return KEY_MAP.get(key);
     }
 

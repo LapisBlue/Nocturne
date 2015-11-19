@@ -25,7 +25,9 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.analysis.model.HierarchyElement;
+import blue.lapis.nocturne.analysis.model.hierarchy.Hierarchy;
+import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyElement;
+import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
@@ -42,6 +44,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -50,6 +53,8 @@ import javafx.scene.input.KeyCombination;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -71,8 +76,8 @@ public class MainController implements Initializable {
 
     public TabPane tabs;
 
-    public TreeView obfTree;
-    public TreeView deobfTree;
+    public TreeView<String> obfTree;
+    public TreeView<String> deobfTree;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -128,7 +133,8 @@ public class MainController implements Initializable {
         }
 
         JarDialogHelper.openJar(this);
-        //TODO: update views
+        updateObfuscatedClassListView();
+        updateDeobfuscatedClassListView();
     }
 
     public void closeJar(ActionEvent actionEvent) throws IOException {
@@ -206,11 +212,34 @@ public class MainController implements Initializable {
     }
 
     public void updateObfuscatedClassListView() {
-        //TODO
+        TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+        root.setExpanded(true);
+        obfTree.setRoot(root);
     }
 
     public void updateDeobfuscatedClassListView() {
-        //TODO
+        TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+        root.setExpanded(true);
+        obfTree.setRoot(root);
+    }
+
+    public TreeItem<String> generateTreeItem(HierarchyElement element) {
+        String name = "Root";
+        if (element instanceof HierarchyNode) {
+            name = ((HierarchyNode) element).getName();
+            if (name.endsWith(Constants.CLASS_FILE_NAME_TAIL)) {
+                name = name.substring(0, name.length() - Constants.CLASS_FILE_NAME_TAIL.length());
+            }
+        }
+        TreeItem<String> treeItem
+                = new TreeItem<>(element instanceof HierarchyNode ? ((HierarchyNode) element).getName() : "Root");
+        if (element instanceof Hierarchy
+                || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
+            treeItem.getChildren().addAll(
+                    element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
+            );
+        }
+        return treeItem;
     }
 
 }

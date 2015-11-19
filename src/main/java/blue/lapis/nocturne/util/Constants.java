@@ -45,6 +45,8 @@ public final class Constants {
     public static final Pattern CLASS_PATH_SEPARATOR_PATTERN
             = Pattern.compile(CLASS_PATH_SEPARATOR_CHAR + "", Pattern.LITERAL);
 
+    public static final String CLASS_FILE_NAME_TAIL = ".class";
+
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }

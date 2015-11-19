@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.analysis.model;
 
+import blue.lapis.nocturne.analysis.model.hierarchy.Hierarchy;
+import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 
 import com.google.common.collect.ImmutableSet;
@@ -99,36 +101,36 @@ public class ClassSet {
     }
 
     /**
-     * Returns a {@link HierarchyElement} representing the structure of
+     * Returns a {@link HierarchyNode} representing the structure of
      * obfuscated classes contained by this {@link ClassSet}.
      *
-     * @return A {@link HierarchyElement} representing the structure of
+     * @return A {@link HierarchyNode} representing the structure of
      *     obfuscated classes contained by this {@link ClassSet}
      */
-    public HierarchyElement getObfuscatedHierarchy() {
+    public Hierarchy getObfuscatedHierarchy() {
         return generateHierarchy(getObfuscatedClasses());
     }
 
     /**
-     * Returns a {@link HierarchyElement} representing the structure of
+     * Returns a {@link HierarchyNode} representing the structure of
      * deobfuscated classes contained by this {@link ClassSet}.
      *
-     * @return A {@link HierarchyElement} representing the structure of
+     * @return A {@link HierarchyNode} representing the structure of
      *     deobfuscated classes contained by this {@link ClassSet}
      */
-    public HierarchyElement getDeobfuscatedHierarchy() {
+    public Hierarchy getDeobfuscatedHierarchy() {
         return generateHierarchy(getDeobfuscatedClasses());
     }
 
     /**
-     * Generates a {@link HierarchyElement} from the given {@link JarClassEntry}
+     * Generates a {@link HierarchyNode} from the given {@link JarClassEntry}
      * {@link Set}
      * @param entrySet The {@link JarClassEntry} {@link Set} to generate the
-     *     {@link HierarchyElement} from
-     * @return The generated {@link HierarchyElement}
+     *     {@link HierarchyNode} from
+     * @return The generated {@link HierarchyNode}
      */
-    private HierarchyElement generateHierarchy(Set<JarClassEntry> entrySet) {
-        return HierarchyElement.fromSet(entrySet.stream()
+    private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet) {
+        return Hierarchy.fromSet(entrySet.stream()
                 .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
                 .map(JarClassEntry::getName).collect(Collectors.toSet()));
     }
