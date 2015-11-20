@@ -29,6 +29,8 @@ import blue.lapis.nocturne.Main;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 
@@ -43,7 +45,7 @@ public class CodeTab extends Tab {
     public Label memberInfoLabel;
     public Label memberIdentifier;
     public Label memberInfo;
-    public CodeArea code;
+    public TextFlow code;
 
     public CodeTab() {
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/CodeTab.fxml"));
@@ -59,8 +61,6 @@ public class CodeTab extends Tab {
         }
 
         this.setCode("public static void main(String[] args) {\n    System.out.println(\"Hello World\");\n}\n");
-        this.code.setParagraphGraphicFactory(LineNumberFactory.get(this.code));
-        this.code.setEditable(false);
     }
 
     /**
@@ -99,8 +99,10 @@ public class CodeTab extends Tab {
      * @param code The code.
      */
     public void setCode(String code) {
-        this.code.clear();
-        this.code.appendText(code);
+        this.code.getChildren().clear();
+        for (String line : code.split("\n")) {
+            this.code.getChildren().add(new Text(line + "\n"));
+        }
     }
 
     public enum MemberType {

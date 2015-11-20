@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import org.fxmisc.richtext.CodeArea?>
+<?import javafx.scene.text.TextFlow?>
 <fx:root xmlns:fx="http://javafx.com/fxml" type="blue.lapis.nocturne.gui.control.CodeTab">
     <content>
         <VBox>
@@ -35,7 +35,7 @@
                 </VBox>
             </TitledPane>
             <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                <CodeArea fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
+                <TextFlow fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
             </ScrollPane>
         </VBox>
     </content>

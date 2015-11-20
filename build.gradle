@@ -31,7 +31,6 @@ repositories {
 dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'net.minecraftforge:fernflower:2.0-SNAPSHOT'
-    compile 'org.fxmisc.richtext:richtextfx:0.6.10'
 
     testCompile 'junit:junit:4.12'
 }
