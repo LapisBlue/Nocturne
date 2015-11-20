@@ -124,7 +124,8 @@ public class ClassSet {
 
     /**
      * Generates a {@link HierarchyNode} from the given {@link JarClassEntry}
-     * {@link Set}
+     * {@link Set}.
+     *
      * @param entrySet The {@link JarClassEntry} {@link Set} to generate the
      *     {@link HierarchyNode} from
      * @return The generated {@link HierarchyNode}

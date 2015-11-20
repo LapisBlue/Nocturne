@@ -74,16 +74,16 @@ public class MethodSignature {
         List<Type> paramTypeList = new ArrayList<>();
 
         char[] chars = signature.toCharArray();
+        int arrayDims = 0;
         outer:
         for (int i = 1; i < signature.length(); i++) {
-            int arrayDims = 0;
-
             switch (chars[i]) {
                 case ')': {
                     break outer;
                 }
                 case '[': {
                     arrayDims++;
+                    break;
                 }
                 case 'L': {
                     i++;
@@ -97,6 +97,7 @@ public class MethodSignature {
                         throw new IllegalArgumentException(errMsg);
                     }
                     paramTypeList.add(new Type(sb.toString(), arrayDims));
+                    arrayDims = 0;
                     break;
                 }
                 case 'V': {
@@ -105,6 +106,7 @@ public class MethodSignature {
                 default: {
                     try {
                         paramTypeList.add(new Type(Primitive.getFromKey(chars[i]), arrayDims));
+                        arrayDims = 0;
                     } catch (IllegalArgumentException ex) {
                         throw new IllegalArgumentException(errMsg, ex);
                     }
@@ -116,7 +118,7 @@ public class MethodSignature {
 
         String returnTypeStr = signature.substring(signature.indexOf(')') + 1);
 
-        int arrayDims = 0;
+        arrayDims = 0;
         if (returnTypeStr.startsWith("[")) {
             for (char c : returnTypeStr.toCharArray()) {
                 if (c == '[') {

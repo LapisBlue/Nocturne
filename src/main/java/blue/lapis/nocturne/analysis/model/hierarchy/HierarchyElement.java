@@ -69,7 +69,7 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
     }
 
     /**
-     * Adds a child {@link HierarchyNode} to the current one
+     * Adds a child {@link HierarchyNode} to the current one.
      *
      * @param element The child element to add
      * @throws IllegalArgumentException If the current element is
