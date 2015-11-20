@@ -25,14 +25,13 @@
 package blue.lapis.nocturne.gui.control;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.text.SelectableMember;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.IOException;
 
@@ -100,9 +99,8 @@ public class CodeTab extends Tab {
      */
     public void setCode(String code) {
         this.code.getChildren().clear();
-        for (String line : code.split("\n")) {
-            this.code.getChildren().add(new Text(line + "\n"));
-        }
+        this.code.getChildren().add(new Text(code));
+        this.code.getChildren().add(new SelectableMember("test"));
     }
 
     public enum MemberType {
