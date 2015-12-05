@@ -96,7 +96,7 @@ public abstract class ClassMapping extends Mapping {
      * @param mapping The {@link MethodMapping} to add
      */
     void addMethodMapping(MethodMapping mapping) {
-        methodMappings.put(mapping.getObfuscatedName(), mapping);
+        methodMappings.put(mapping.getObfuscatedName() + mapping.getSignature(), mapping);
     }
 
     /**
