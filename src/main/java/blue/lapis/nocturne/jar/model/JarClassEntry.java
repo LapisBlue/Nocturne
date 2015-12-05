@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.analysis.model;
+package blue.lapis.nocturne.jar.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

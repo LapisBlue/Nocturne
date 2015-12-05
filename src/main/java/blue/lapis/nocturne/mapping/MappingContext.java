@@ -25,7 +25,7 @@
 package blue.lapis.nocturne.mapping;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.analysis.model.JarClassEntry;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 

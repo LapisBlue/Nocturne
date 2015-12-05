@@ -22,11 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.analysis.io;
+package blue.lapis.nocturne.jar.io;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.analysis.model.ClassSet;
-import blue.lapis.nocturne.analysis.model.JarClassEntry;
+import blue.lapis.nocturne.jar.model.ClassSet;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.util.Constants;
 

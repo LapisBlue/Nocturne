@@ -25,8 +25,8 @@
 package blue.lapis.nocturne.gui.io.jar;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.analysis.io.JarLoader;
-import blue.lapis.nocturne.analysis.model.ClassSet;
+import blue.lapis.nocturne.jar.io.JarLoader;
+import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 

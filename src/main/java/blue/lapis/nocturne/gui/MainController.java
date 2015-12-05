@@ -25,9 +25,9 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.analysis.model.hierarchy.Hierarchy;
-import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyElement;
-import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyNode;
+import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
+import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
+import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;

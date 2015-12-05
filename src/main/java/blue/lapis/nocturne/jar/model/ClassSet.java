@@ -22,10 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.analysis.model;
+package blue.lapis.nocturne.jar.model;
 
-import blue.lapis.nocturne.analysis.model.hierarchy.Hierarchy;
-import blue.lapis.nocturne.analysis.model.hierarchy.HierarchyNode;
+import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
+import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 
 import com.google.common.collect.ImmutableSet;

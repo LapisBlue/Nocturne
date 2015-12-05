@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne;
 
-import blue.lapis.nocturne.analysis.model.ClassSet;
+import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
