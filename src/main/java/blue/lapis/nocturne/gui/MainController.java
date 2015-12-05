@@ -25,13 +25,13 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
+import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
+import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
