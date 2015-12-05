@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class ConstantPoolTransformer {
 
+    private static final int SHORT_UNSIGNER = 0xFFFF;
+
     private final byte[] bytes;
 
     private List<ConstantStructure> constantPool = new ArrayList<>();
@@ -24,9 +26,9 @@ public class ConstantPoolTransformer {
 
     public ConstantPoolTransformer(byte[] bytes) {
         this.bytes = bytes;
-        int constPoolCount = ByteBuffer.allocate(2)
+        int constPoolCount = ByteBuffer.allocate(Short.BYTES)
                 .put(bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET], bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1])
-                .get() & 0xFFFF;
+                .get() & SHORT_UNSIGNER;
         int offset = CLASS_FORMAT_CONSTANT_POOL_OFFSET + 2;
         for (int i = 0; i < constPoolCount; i++) {
             int length = StructureType.fromTag(bytes[offset]).getLength();
