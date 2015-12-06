@@ -40,4 +40,12 @@ public class RefStructure extends ConstantStructure {
         natIndex = ByteBuffer.allocate(2).put(bytes[3], bytes[4]).asShortBuffer().get() & 0xFFFF;
     }
 
+    public int getClassIndex() {
+        return classIndex;
+    }
+
+    public int getNameAndTypeIndex() {
+        return natIndex;
+    }
+
 }

@@ -31,29 +31,21 @@ import java.nio.ByteBuffer;
  */
 public class NameAndTypeStructure extends ConstantStructure {
 
-    private int nameIndex;
-    private int sigIndex;
+    private final int nameIndex;
+    private final int typeIndex;
 
     public NameAndTypeStructure(byte[] bytes) {
         super(bytes);
         this.nameIndex = ByteBuffer.allocate(2).put(bytes[1], bytes[2]).asShortBuffer().get() & 0xFFFF;
-        this.sigIndex = ByteBuffer.allocate(2).put(bytes[3], bytes[4]).asShortBuffer().get() & 0xFFFF;
+        this.typeIndex = ByteBuffer.allocate(2).put(bytes[3], bytes[4]).asShortBuffer().get() & 0xFFFF;
     }
 
     public int getNameIndex() {
         return nameIndex;
     }
 
-    public void setNameIndex(int index) {
-        this.nameIndex = index;
-    }
-
-    public int getSignatureIndex() {
-        return sigIndex;
-    }
-
-    public void setSignatureIndex(int index) {
-        this.sigIndex = index;
+    public int getTypeIndex() {
+        return typeIndex;
     }
 
 }

@@ -37,4 +37,9 @@ public class ClassStructure extends ConstantStructure {
         super(bytes);
         nameIndex = ByteBuffer.allocate(2).put(bytes[1], bytes[2]).asShortBuffer().get() & 0xFFFF;
     }
+
+    public int getNameIndex() {
+        return nameIndex;
+    }
+
 }

@@ -24,17 +24,25 @@
  */
 package blue.lapis.nocturne.transform.constpool.structure;
 
+import com.google.common.base.Utf8;
+
 /**
  * Represents a structure in the constant pool.
  */
 public abstract class ConstantStructure {
 
-    private StructureType type;
+    private final byte[] bytes;
+    private final StructureType type;
 
     protected ConstantStructure(byte[] bytes) {
         assert bytes.length > 0;
+        this.bytes = bytes;
         this.type = StructureType.fromTag(bytes[0]);
         assert bytes.length == type.getLength() + 1;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
     }
 
     public StructureType getType() {
@@ -48,17 +56,20 @@ public abstract class ConstantStructure {
             case CLASS: {
                 return new ClassStructure(bytes);
             }
-            case FIELD_REF: {
+            case FIELDREF: {
                 return new FieldrefStructure(bytes);
             }
-            case INTERFACE_METHOD_REF: {
+            case INTERFACE_METHODREF: {
                 return new InterfaceMethodrefStructure(bytes);
             }
-            case METHOD_REF: {
+            case METHODREF: {
                 return new MethodrefStructure(bytes);
             }
             case NAME_AND_TYPE: {
                 return new NameAndTypeStructure(bytes);
+            }
+            case UTF_8: {
+                return new Utf8Structure(bytes);
             }
             default: {
                 return new IrrelevantStructure(bytes);
