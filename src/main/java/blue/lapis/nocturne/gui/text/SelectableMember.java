@@ -55,7 +55,7 @@ public class SelectableMember extends Text {
 
         contextMenu.getItems().add(renameItem);
 
-        this.setOnContextMenuRequested(
-                event -> contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
+        this.setOnContextMenuRequested(event ->
+                contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
     }
 }

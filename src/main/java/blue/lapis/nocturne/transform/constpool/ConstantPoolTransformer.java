@@ -25,10 +25,8 @@
 package blue.lapis.nocturne.transform.constpool;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
@@ -36,9 +34,7 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.transform.constpool.structure.ClassStructure;
 import blue.lapis.nocturne.transform.constpool.structure.ConstantStructure;
-import blue.lapis.nocturne.transform.constpool.structure.FieldrefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.IrrelevantStructure;
-import blue.lapis.nocturne.transform.constpool.structure.MethodrefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.StructureType;
@@ -51,11 +47,7 @@ import com.google.common.collect.Lists;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Manages interpretation and transformation of constant pool, given the raw
@@ -91,7 +83,7 @@ public class ConstantPoolTransformer {
      * given {@link MappingContext}.
      *
      * @param mappingContext The {@link MappingContext} to transform the class
-     *                       against
+     *     against
      * @return The transformed bytecode of the class
      */
     public byte[] transform(MappingContext mappingContext) {
@@ -117,6 +109,7 @@ public class ConstantPoolTransformer {
         return newBytes;
     }
 
+    @SuppressWarnings("fallthrough")
     private List<ConstantStructure> getTransformedPool(MappingContext mappingContext) {
         List<ConstantStructure> newPool = Lists.newArrayList(constantPool);
 
@@ -246,7 +239,7 @@ public class ConstantPoolTransformer {
         private final String name;
         private final String type;
 
-        public NameAndType(String name, String type) {
+        NameAndType(String name, String type) {
             this.name = name;
             this.type = type;
         }

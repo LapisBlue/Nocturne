@@ -24,8 +24,6 @@
  */
 package blue.lapis.nocturne.transform.constpool.structure;
 
-import com.google.common.base.Utf8;
-
 /**
  * Represents a structure in the constant pool.
  */
