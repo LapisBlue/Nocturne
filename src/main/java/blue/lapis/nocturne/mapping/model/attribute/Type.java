@@ -140,7 +140,7 @@ public class Type {
         }
 
         if (isPrimitive()) {
-            return arrayPrefix + asPrimitive().name();
+            return arrayPrefix + asPrimitive().getKey();
         } else {
             return arrayPrefix + "L" + getClassName() + ";";
         }

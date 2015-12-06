@@ -124,9 +124,9 @@ public class SrgReaderTest {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
 
-        assertTrue(mapping.getMethodMappings().containsKey("a(INTLa;INT)La;"));
+        assertTrue(mapping.getMethodMappings().containsKey("a(ILa;I)La;"));
 
-        MethodMapping methodMapping = mapping.getMethodMappings().get("a(INTLa;INT)La;");
+        MethodMapping methodMapping = mapping.getMethodMappings().get("a(ILa;I)La;");
         assertEquals("a", methodMapping.getObfuscatedName());
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
         assertArrayEquals(
