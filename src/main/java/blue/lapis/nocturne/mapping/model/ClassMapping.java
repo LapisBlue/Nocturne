@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
+
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
@@ -125,5 +127,38 @@ public abstract class ClassMapping extends Mapping {
      * @return The {@link MappingContext} which owns this {@link ClassMapping}
      */
     public abstract MappingContext getContext();
+
+    /**
+     * Deobfuscates the given class name to the best of the given
+     * {@link MappingContext}'s ability.
+     *
+     * @param context The {@link MappingContext} to use
+     * @param qualifiedName The fully-qualified name of the class to get a
+     *     mapping for
+     * @return The retrieved or created {@link ClassMapping}
+     */
+    public static String deobfuscate(MappingContext context, String qualifiedName) {
+        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
+
+        ClassMapping mapping = context.getMappings().get(arr[0]);
+        if (mapping == null) {
+            return qualifiedName;
+        }
+
+        String deobfName = mapping.getDeobfuscatedName();
+        for (int i = 1; i < arr.length; i++) {
+            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
+            if (child == null) {
+                for (; i < arr.length; i++) {
+                    deobfName += "$" + arr[i];
+                }
+                break;
+            }
+            deobfName += "$" + child.getDeobfuscatedName();
+            mapping = child;
+        }
+
+        return deobfName;
+    }
 
 }

@@ -150,4 +150,9 @@ public class SrgReaderTest {
         assertEquals(new Type(EXAMPLE_PACKAGE + "/Example", 0), deobfSig.getReturnType());
     }
 
+    @Test
+    public void partialDeobfuscationTest() {
+        assertEquals("com/example/project/Example$c", ClassMapping.deobfuscate(mappings, "a$c"));
+    }
+
 }

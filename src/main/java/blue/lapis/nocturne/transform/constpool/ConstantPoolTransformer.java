@@ -28,6 +28,8 @@ import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFS
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -117,12 +120,28 @@ public class ConstantPoolTransformer {
     private List<ConstantStructure> getTransformedPool(MappingContext mappingContext) {
         List<ConstantStructure> newPool = Lists.newArrayList(constantPool);
 
+        int i = -1;
         outer:
         for (ConstantStructure cs : constantPool) {
+            ++i;
             if (!(cs instanceof IrrelevantStructure)) {
                 switch (cs.getType()) {
                     case CLASS: {
-                        //TODO
+                        String obfName = getString(((ClassStructure) cs).getNameIndex());
+                        String deobfName = ClassMapping.deobfuscate(mappingContext, obfName);
+                        if (!obfName.equals(deobfName)) {
+                            byte[] strBytes = deobfName.getBytes(StandardCharsets.UTF_8);
+                            ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
+                            strBuffer.put(StructureType.UTF_8.getTag());
+                            strBuffer.putShort((short) strBytes.length);
+                            strBuffer.put(strBytes);
+                            newPool.add(new Utf8Structure(strBuffer.array()));
+
+                            ByteBuffer classBuffer = ByteBuffer.allocate(StructureType.CLASS.getLength());
+                            classBuffer.put(StructureType.CLASS.getTag());
+                            classBuffer.putShort((short) newPool.size());
+                            newPool.set(i, new ClassStructure(classBuffer.array()));
+                        }
                         break;
                     }
                     case FIELDREF: {
