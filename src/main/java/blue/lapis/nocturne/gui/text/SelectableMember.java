@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.gui.text;
 
+import blue.lapis.nocturne.Main;
+
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
@@ -41,12 +43,14 @@ public class SelectableMember extends Text {
 
         ContextMenu contextMenu = new ContextMenu();
 
-        MenuItem renameItem = new MenuItem("Rename");
+        MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog(this.getText());
-            textInputDialog.setHeaderText("Rename");
+            textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
             textInputDialog.showAndWait();
-            this.setText(textInputDialog.getResult());
+            if (textInputDialog.getResult() != null && !textInputDialog.getResult().equals("")) {
+                this.setText(textInputDialog.getResult());
+            }
         });
 
         contextMenu.getItems().add(renameItem);
