@@ -5,5 +5,5 @@
     <suppress checks=".*" files="[\\/]lib[\\/]"/>
     <suppress checks="JavadocMethod" files="^src[\\/](main|test)[\\/]java"/>
     <suppress checks="Indentation" files="package-info\.java"/>
-    <suppress checks="Fallthrough" files="ConstantPoolTransformer\.java"/>
+    <suppress checks="Fallthrough" files="ConstantPoolProcessor \.java"/>
 </suppressions>
