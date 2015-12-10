@@ -26,6 +26,8 @@ package blue.lapis.nocturne.gui.text;
 
 import blue.lapis.nocturne.Main;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
@@ -37,8 +39,15 @@ import javafx.scene.text.Text;
  */
 public class SelectableMember extends Text {
 
-    public SelectableMember(String text) {
-        super(text);
+    private final StringProperty typeProperty = new SimpleStringProperty(this, "type");
+    private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
+    private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
+
+    public SelectableMember(String type, String name) {
+        super(name);
+        this.typeProperty.set(type);
+        this.nameProperty.set(name);
+
         this.setFill(Color.web("orange"));
 
         ContextMenu contextMenu = new ContextMenu();
@@ -58,4 +67,35 @@ public class SelectableMember extends Text {
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
     }
+
+    public StringProperty getTypeProperty() {
+        return typeProperty;
+    }
+
+    public StringProperty getNameProperty() {
+        return nameProperty;
+    }
+
+    public StringProperty getParentClassProperty() {
+        return parentClassProperty;
+    }
+
+    public String getType() {
+        return getTypeProperty().get();
+    }
+
+    public String getName() {
+        return getNameProperty().get();
+    }
+
+    public String getParentClass() {
+        return getParentClassProperty().get();
+    }
+
+    public void updateText() {
+        String newText = getText();
+        //TODO
+        setText(newText);
+    }
+
 }
