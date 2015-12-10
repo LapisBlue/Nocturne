@@ -27,9 +27,6 @@ package blue.lapis.nocturne.transform.constpool;
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
-import static blue.lapis.nocturne.util.Constants.MEMBER_KEY_CLASS;
-import static blue.lapis.nocturne.util.Constants.MEMBER_KEY_FIELD;
-import static blue.lapis.nocturne.util.Constants.MEMBER_KEY_METHOD;
 import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 
@@ -41,6 +38,7 @@ import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.StructureType;
 import blue.lapis.nocturne.transform.constpool.structure.Utf8Structure;
 import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -138,7 +136,7 @@ public class ConstantPoolProcessor {
 
     private void handleClassMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
         String name = getString(((ClassStructure) cs).getNameIndex());
-        String newName = getProcessedName(name, MEMBER_KEY_CLASS);
+        String newName = getProcessedName(name, MemberType.CLASS.name());
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -156,14 +154,14 @@ public class ConstantPoolProcessor {
         String typeStr;
         switch (cs.getType()) {
             case FIELDREF: {
-                typeStr = MEMBER_KEY_FIELD;
+                typeStr = MemberType.FIELD.name();
                 break;
             }
             case INTERFACE_METHODREF: {
                 // fall through
             }
             case METHODREF: {
-                typeStr = MEMBER_KEY_METHOD;
+                typeStr = MemberType.METHOD.name();
                 break;
             }
             default: {

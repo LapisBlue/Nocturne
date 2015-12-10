@@ -50,10 +50,6 @@ public final class Constants {
     public static final int CLASS_FORMAT_CONSTANT_POOL_OFFSET = 8; // byte offset of the CP per the class file format
     public static final int SHORT_UNSIGNER = 0xFFFF;
 
-    public static final String MEMBER_KEY_CLASS = "CLASS";
-    public static final String MEMBER_KEY_FIELD = "FIELD";
-    public static final String MEMBER_KEY_METHOD = "METHOD";
-
     public static final String MEMBER_PREFIX = "%NOCTURNE+";
     public static final String MEMBER_DELIMITER = "-";
     public static final String MEMBER_SUFFIX = "%";

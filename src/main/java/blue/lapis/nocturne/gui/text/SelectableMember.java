@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.gui.text;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.MemberType;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -43,9 +44,9 @@ public class SelectableMember extends Text {
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
-    public SelectableMember(String type, String name) {
+    public SelectableMember(MemberType type, String name) {
         super(name);
-        this.typeProperty.set(type);
+        this.typeProperty.set(type.name());
         this.nameProperty.set(name);
 
         this.setFill(Color.web("orange"));
