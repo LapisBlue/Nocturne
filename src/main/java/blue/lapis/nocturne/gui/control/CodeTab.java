@@ -100,7 +100,7 @@ public class CodeTab extends Tab {
     public void setCode(String code) {
         this.code.getChildren().clear();
         this.code.getChildren().add(new Text(code));
-        this.code.getChildren().add(new SelectableMember("test"));
+        this.code.getChildren().add(new SelectableMember("CLASS", "test"));
     }
 
     public enum MemberType {
