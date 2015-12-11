@@ -109,24 +109,33 @@ public abstract class MappingsReader implements Closeable {
                 - name.split(" ")[1].replace(INNER_CLASS_SEPARATOR_CHAR + "", "").length();
     }
 
-    private static ClassMapping getClassMapping(MappingContext context, String qualifiedName, boolean create) {
+    private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
+                                                          boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);
         if (mapping == null) {
-            mapping = new TopLevelClassMapping(context, arr[0], arr[0]);
-            context.addMapping((TopLevelClassMapping) mapping);
+            if (create) {
+                mapping = new TopLevelClassMapping(context, arr[0], arr[0]);
+                context.addMapping((TopLevelClassMapping) mapping);
+            } else {
+                return Optional.empty();
+            }
         }
 
         for (int i = 1; i < arr.length; i++) {
             ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
             if (child == null) {
-                child = new InnerClassMapping(mapping, arr[i], arr[i]);
+                if (create) {
+                    child = new InnerClassMapping(mapping, arr[i], arr[i]);
+                } else {
+                    return Optional.empty();
+                }
             }
             mapping = child;
         }
 
-        return mapping;
+        return Optional.of(mapping);
     }
 
     /**
@@ -140,11 +149,11 @@ public abstract class MappingsReader implements Closeable {
      * @return The retrieved or created {@link ClassMapping}
      */
     public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
-        return getClassMapping(context, qualifiedName, true);
+        return getClassMapping(context, qualifiedName, true).get();
     }
 
     public static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName) {
-        return Optional.ofNullable(getClassMapping(context, qualifiedName, false));
+        return getClassMapping(context, qualifiedName, false);
     }
 
     @Override
