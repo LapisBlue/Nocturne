@@ -25,6 +25,8 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
@@ -32,6 +34,7 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.util.MemberType;
 
+import com.google.common.base.Preconditions;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ContextMenu;
@@ -42,6 +45,7 @@ import javafx.scene.text.Text;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 /**
  * Represents a selectable member in code.
@@ -54,9 +58,14 @@ public class SelectableMember extends Text {
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
     public SelectableMember(MemberType type, String name) {
+        this(type, name, null);
+    }
+
+    public SelectableMember(MemberType type, String name, String parentClass) {
         super(name);
         this.type = type;
         this.nameProperty.set(name);
+        this.parentClassProperty.set(parentClass);
 
         this.setFill(Color.web("orange"));
 
@@ -123,6 +132,22 @@ public class SelectableMember extends Text {
             setText(deobf);
         } else {
             throw new AssertionError();
+        }
+    }
+
+    public static SelectableMember fromMatch(Matcher matcher) {
+        MemberType type = MemberType.fromString(matcher.group(1));
+        String qualName = matcher.group(2);
+        if (type != MemberType.CLASS) {
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
+            String parentClass = "";
+            for (int i = 0; i < arr.length - 1; i++) {
+                parentClass += arr[i];
+            }
+            String simpleName = arr[arr.length - 1];
+            return new SelectableMember(type, simpleName, parentClass);
+        } else {
+            return new SelectableMember(type, qualName);
         }
     }
 

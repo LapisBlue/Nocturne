@@ -53,6 +53,8 @@ public final class Constants {
     public static final String MEMBER_PREFIX = "%NOCTURNE+";
     public static final String MEMBER_DELIMITER = "-";
     public static final String MEMBER_SUFFIX = "%";
+    public static final Pattern MEMBER_REGEX
+            = Pattern.compile("/" + MEMBER_PREFIX + "(.*)" + MEMBER_DELIMITER + "(.*)" + MEMBER_SUFFIX);
 
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
