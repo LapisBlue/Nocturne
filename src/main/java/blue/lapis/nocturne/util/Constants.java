@@ -28,6 +28,7 @@ import blue.lapis.nocturne.Main;
 
 import com.google.common.base.MoreObjects;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -53,10 +54,12 @@ public final class Constants {
     public static final String MEMBER_PREFIX = "%NOCTURNE+";
     public static final String MEMBER_DELIMITER = "-";
     public static final String MEMBER_SUFFIX = "%";
-    public static final Pattern MEMBER_REGEX
-            = Pattern.compile("/" + MEMBER_PREFIX + "(.*)" + MEMBER_DELIMITER + "(.*)" + MEMBER_SUFFIX);
+    public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.*)"
+            + Pattern.quote(MEMBER_DELIMITER) + "(.*)" + Pattern.quote(MEMBER_SUFFIX));
 
     static {
+        System.out.println(Pattern.quote(MEMBER_PREFIX) + "(.*)"
+                + Pattern.quote(MEMBER_DELIMITER) + "(.*)" + Pattern.quote(MEMBER_SUFFIX));
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }
 

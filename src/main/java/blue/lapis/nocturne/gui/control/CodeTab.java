@@ -24,17 +24,22 @@
  */
 package blue.lapis.nocturne.gui.control;
 
+import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
+
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.text.SelectableMember;
-import blue.lapis.nocturne.util.MemberType;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * The code-tab JavaFX component.
@@ -60,7 +65,9 @@ public class CodeTab extends Tab {
             e.printStackTrace();
         }
 
-        this.setCode("public static void main(String[] args) {\n    System.out.println(\"Hello World\");\n}\n");
+        this.setCode("public static void %NOCTURNE+METHOD-main%(String[] args) {\n" +
+                     "    System.out.println(\"Hello World\");\n" +
+                     "}\n");
     }
 
     /**
@@ -100,8 +107,22 @@ public class CodeTab extends Tab {
      */
     public void setCode(String code) {
         this.code.getChildren().clear();
-        this.code.getChildren().add(new Text(code));
-        this.code.getChildren().add(new SelectableMember(MemberType.CLASS, "test"));
+
+        List<Text> texts = new ArrayList<>();
+
+        Matcher matcher = MEMBER_REGEX.matcher(code);
+        int lastIndex = 0;
+        while (matcher.find()) {
+            texts.add(new Text(code.substring(lastIndex, matcher.start())));
+            texts.add(SelectableMember.fromMatcher(matcher));
+            lastIndex = matcher.end();
+        }
+        texts.add(new Text(code.substring(lastIndex)));
+
+        Node[] nodeArr = new Node[texts.size()];
+        texts.toArray(nodeArr);
+        TextFlow flow = new TextFlow(nodeArr);
+        this.code.getChildren().add(flow);
     }
 
     public enum SelectableMemberType {

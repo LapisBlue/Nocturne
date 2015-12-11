@@ -135,7 +135,7 @@ public class SelectableMember extends Text {
         }
     }
 
-    public static SelectableMember fromMatch(Matcher matcher) {
+    public static SelectableMember fromMatcher(Matcher matcher) {
         MemberType type = MemberType.fromString(matcher.group(1));
         String qualName = matcher.group(2);
         if (type != MemberType.CLASS) {

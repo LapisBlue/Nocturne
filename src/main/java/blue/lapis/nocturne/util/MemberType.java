@@ -15,6 +15,10 @@ public enum MemberType {
 
     private static HashMap<String, MemberType> index;
 
+    MemberType() {
+        addToIndex();
+    }
+
     private void addToIndex() {
         if (index == null) {
             index = new HashMap<>();
