@@ -43,6 +43,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -83,9 +84,12 @@ public class MainController implements Initializable {
         closeJarButton.setDisable(Main.getLoadedJar() == null)  ;
 
         final String langRadioPrefix = "langRadio-";
-        languageGroup.getToggles().stream()
-                .filter(toggle -> ((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.getCurrentLocale()))
-                .forEach(toggle -> toggle.setSelected(true));
+        for (Toggle toggle : languageGroup.getToggles()) {
+            if (((RadioMenuItem) toggle).getId().equals(langRadioPrefix + Main.getCurrentLocale())) {
+                toggle.setSelected(true);
+                break;
+            }
+        }
 
         setAccelerators();
         this.initSampleCodeTabs();
