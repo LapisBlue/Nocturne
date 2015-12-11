@@ -40,6 +40,7 @@ import blue.lapis.nocturne.util.Constants;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Superclass for all reader classes.
@@ -108,17 +109,7 @@ public abstract class MappingsReader implements Closeable {
                 - name.split(" ")[1].replace(INNER_CLASS_SEPARATOR_CHAR + "", "").length();
     }
 
-    /**
-     * Gets the {@link ClassMapping} for the given qualified name, iteratively
-     * creating mappings for both outer and inner classes as needed if they do
-     * not exist.
-     *
-     * @param context The {@link MappingContext} to use
-     * @param qualifiedName The fully-qualified name of the class to get a
-     *     mapping for
-     * @return The retrieved or created {@link ClassMapping}
-     */
-    public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
+    private static ClassMapping getClassMapping(MappingContext context, String qualifiedName, boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);
@@ -136,6 +127,24 @@ public abstract class MappingsReader implements Closeable {
         }
 
         return mapping;
+    }
+
+    /**
+     * Gets the {@link ClassMapping} for the given qualified name, iteratively
+     * creating mappings for both outer and inner classes as needed if they do
+     * not exist.
+     *
+     * @param context The {@link MappingContext} to use
+     * @param qualifiedName The fully-qualified name of the class to get a
+     *     mapping for
+     * @return The retrieved or created {@link ClassMapping}
+     */
+    public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
+        return getClassMapping(context, qualifiedName, true);
+    }
+
+    public static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName) {
+        return Optional.ofNullable(getClassMapping(context, qualifiedName, false));
     }
 
     @Override

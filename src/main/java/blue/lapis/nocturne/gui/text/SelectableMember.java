@@ -24,7 +24,12 @@
  */
 package blue.lapis.nocturne.gui.text;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.util.MemberType;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -35,18 +40,22 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.Map;
+import java.util.Optional;
+
 /**
  * Represents a selectable member in code.
  */
 public class SelectableMember extends Text {
 
-    private final StringProperty typeProperty = new SimpleStringProperty(this, "type");
+    private final MemberType type;
+
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
     public SelectableMember(MemberType type, String name) {
         super(name);
-        this.typeProperty.set(type.name());
+        this.type = type;
         this.nameProperty.set(name);
 
         this.setFill(Color.web("orange"));
@@ -67,10 +76,8 @@ public class SelectableMember extends Text {
 
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
-    }
 
-    public StringProperty getTypeProperty() {
-        return typeProperty;
+        updateText();
     }
 
     public StringProperty getNameProperty() {
@@ -81,8 +88,8 @@ public class SelectableMember extends Text {
         return parentClassProperty;
     }
 
-    public String getType() {
-        return getTypeProperty().get();
+    public MemberType getType() {
+        return type;
     }
 
     public String getName() {
@@ -93,10 +100,30 @@ public class SelectableMember extends Text {
         return getParentClassProperty().get();
     }
 
-    public void updateText() {
-        String newText = getText();
-        //TODO
-        setText(newText);
+    private void updateText() {
+        if (getType() == MemberType.CLASS) {
+            String deobf = ClassMapping.deobfuscate(Main.getMappings(), getName());
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(deobf);
+            deobf = arr[arr.length - 1];
+            setText(deobf);
+        } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
+            String deobf = getName();
+
+            Optional<ClassMapping> classMapping = MappingsReader.getClassMapping(Main.getMappings(), getParentClass());
+            if (classMapping.isPresent()) {
+                Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
+                        ? classMapping.get().getFieldMappings()
+                        : classMapping.get().getMethodMappings();
+                Mapping mapping = mappings.get(getName());
+                if (mapping != null) {
+                    deobf = mapping.getDeobfuscatedName();
+                }
+            }
+
+            setText(deobf);
+        } else {
+            throw new AssertionError();
+        }
     }
 
 }
