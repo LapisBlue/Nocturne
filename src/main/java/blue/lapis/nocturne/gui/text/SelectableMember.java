@@ -24,8 +24,17 @@
  */
 package blue.lapis.nocturne.gui.text;
 
-import blue.lapis.nocturne.Main;
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.util.MemberType;
+
+import com.google.common.base.Preconditions;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ContextMenu;
@@ -34,19 +43,29 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Matcher;
+
 /**
  * Represents a selectable member in code.
  */
 public class SelectableMember extends Text {
 
-    private final StringProperty typeProperty = new SimpleStringProperty(this, "type");
+    private final MemberType type;
+
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
-    public SelectableMember(String type, String name) {
+    public SelectableMember(MemberType type, String name) {
+        this(type, name, null);
+    }
+
+    public SelectableMember(MemberType type, String name, String parentClass) {
         super(name);
-        this.typeProperty.set(type);
+        this.type = type;
         this.nameProperty.set(name);
+        this.parentClassProperty.set(parentClass);
 
         this.setFill(Color.web("orange"));
 
@@ -66,10 +85,8 @@ public class SelectableMember extends Text {
 
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
-    }
 
-    public StringProperty getTypeProperty() {
-        return typeProperty;
+        updateText();
     }
 
     public StringProperty getNameProperty() {
@@ -80,8 +97,8 @@ public class SelectableMember extends Text {
         return parentClassProperty;
     }
 
-    public String getType() {
-        return getTypeProperty().get();
+    public MemberType getType() {
+        return type;
     }
 
     public String getName() {
@@ -92,10 +109,46 @@ public class SelectableMember extends Text {
         return getParentClassProperty().get();
     }
 
-    public void updateText() {
-        String newText = getText();
-        //TODO
-        setText(newText);
+    private void updateText() {
+        if (getType() == MemberType.CLASS) {
+            String deobf = ClassMapping.deobfuscate(Main.getMappings(), getName());
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(deobf);
+            deobf = arr[arr.length - 1];
+            setText(deobf);
+        } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
+            String deobf = getName();
+
+            Optional<ClassMapping> classMapping = MappingsReader.getClassMapping(Main.getMappings(), getParentClass());
+            if (classMapping.isPresent()) {
+                Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
+                        ? classMapping.get().getFieldMappings()
+                        : classMapping.get().getMethodMappings();
+                Mapping mapping = mappings.get(getName());
+                if (mapping != null) {
+                    deobf = mapping.getDeobfuscatedName();
+                }
+            }
+
+            setText(deobf);
+        } else {
+            throw new AssertionError();
+        }
+    }
+
+    public static SelectableMember fromMatch(Matcher matcher) {
+        MemberType type = MemberType.fromString(matcher.group(1));
+        String qualName = matcher.group(2);
+        if (type != MemberType.CLASS) {
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
+            String parentClass = "";
+            for (int i = 0; i < arr.length - 1; i++) {
+                parentClass += arr[i];
+            }
+            String simpleName = arr[arr.length - 1];
+            return new SelectableMember(type, simpleName, parentClass);
+        } else {
+            return new SelectableMember(type, qualName);
+        }
     }
 
 }

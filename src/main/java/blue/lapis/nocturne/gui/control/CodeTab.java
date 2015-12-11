@@ -26,6 +26,7 @@ package blue.lapis.nocturne.gui.control;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.util.MemberType;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -67,7 +68,7 @@ public class CodeTab extends Tab {
      *
      * @param type the member type.
      */
-    public void setMemberType(MemberType type) {
+    public void setMemberType(SelectableMemberType type) {
         this.memberIdentifierLabel.setText(String.format("%s: ", type.getIdentifierLabel()));
         if (type.isInfoEnabled()) {
             this.memberInfoLabel.setText(String.format("%s: ", type.getInfoLabel()));
@@ -100,10 +101,10 @@ public class CodeTab extends Tab {
     public void setCode(String code) {
         this.code.getChildren().clear();
         this.code.getChildren().add(new Text(code));
-        this.code.getChildren().add(new SelectableMember("CLASS", "test"));
+        this.code.getChildren().add(new SelectableMember(MemberType.CLASS, "test"));
     }
 
-    public enum MemberType {
+    public enum SelectableMemberType {
         FIELD("codetab.identifier.field", "codetab.identifier.type"),
         METHOD("codetab.identifier.method", "codetab.identifier.signature"),
         CLASS("codetab.identifier.class");
@@ -112,17 +113,17 @@ public class CodeTab extends Tab {
         private final String infoLabel;
         private final boolean infoEnabled;
 
-        MemberType(String identifierLabel, String infoLabel, boolean infoEnabled) {
+        SelectableMemberType(String identifierLabel, String infoLabel, boolean infoEnabled) {
             this.identifierLabel = identifierLabel;
             this.infoLabel = infoLabel;
             this.infoEnabled = infoEnabled;
         }
 
-        MemberType(String identifierLabel) {
+        SelectableMemberType(String identifierLabel) {
             this(identifierLabel, "", false);
         }
 
-        MemberType(String identifierLabel, String infoLabel) {
+        SelectableMemberType(String identifierLabel, String infoLabel) {
             this(identifierLabel, infoLabel, true);
         }
 
