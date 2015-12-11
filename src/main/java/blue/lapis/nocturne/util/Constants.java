@@ -58,8 +58,6 @@ public final class Constants {
             + Pattern.quote(MEMBER_DELIMITER) + "(.*)" + Pattern.quote(MEMBER_SUFFIX));
 
     static {
-        System.out.println(Pattern.quote(MEMBER_PREFIX) + "(.*)"
-                + Pattern.quote(MEMBER_DELIMITER) + "(.*)" + Pattern.quote(MEMBER_SUFFIX));
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }
 

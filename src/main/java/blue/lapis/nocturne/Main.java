@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne;
 
+import blue.lapis.nocturne.gui.control.WebLink;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
@@ -32,6 +33,7 @@ import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -39,6 +41,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -128,11 +131,14 @@ public class Main extends Application {
             alert.setTitle(resourceBundle.getString("exception.title"));
             alert.setHeaderText(resourceBundle.getString("exception.header"));
 
-            Text description = new Text();
-            description.setText(
-                    resourceBundle.getString("exception.dialog1") + "\n"
-                            + resourceBundle.getString("exception.dialog2") + "\n\n"
-                            + resourceBundle.getString("exception.dialog3")
+            TextFlow description = new TextFlow(
+                    new Text(resourceBundle.getString("exception.dialog1") + "\n"),
+                    new Text(resourceBundle.getString("exception.dialog2") + "\n\n"),
+                    new Text(resourceBundle.getString("exception.dialog3")),
+                    new Text(" "),
+                    new WebLink("https://github.com/LapisBlue/Nocturne/issues"),
+                    new Text("\n\n"),
+                    new Text(resourceBundle.getString("exception.dialog4"))
             );
             description.setLayoutX(20);
             description.setLayoutY(25);
@@ -142,7 +148,7 @@ public class Main extends Application {
             throwable.printStackTrace(new PrintWriter(exceptionWriter));
             exceptionText.setText(exceptionWriter.toString());
             exceptionText.setLayoutX(20);
-            exceptionText.setLayoutY(85);
+            exceptionText.setLayoutY(140);
 
             Pane contentPane = new Pane(description, exceptionText);
             alert.getDialogPane().setContent(contentPane);

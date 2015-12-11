@@ -44,6 +44,12 @@ public class WebLink extends Hyperlink {
 
     private final StringProperty addressProperty = new SimpleStringProperty(this, "url");
 
+    public WebLink(String address) {
+        this();
+        this.setText(address);
+        this.addressProperty.set(address);
+    }
+
     public WebLink() {
         setOnAction(event -> {
             String url = getAddress();
