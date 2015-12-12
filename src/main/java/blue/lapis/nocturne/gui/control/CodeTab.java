@@ -53,7 +53,7 @@ public class CodeTab extends Tab {
     public TextFlow code;
 
     public CodeTab() {
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/CodeTab.fxml"));
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/CodeTab.fxml"));
         loader.setResources(Main.getResourceBundle());
 
         loader.setRoot(this);

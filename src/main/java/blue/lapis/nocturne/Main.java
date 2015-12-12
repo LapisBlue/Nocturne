@@ -33,7 +33,6 @@ import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -170,7 +169,7 @@ public class Main extends Application {
     public void loadView(String lang) throws IOException {
         locale = lang;
         resourceBundle = ResourceBundle.getBundle("lang." + lang);
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/main.fxml"));
         loader.setResources(resourceBundle);
         Parent root = loader.load();
 

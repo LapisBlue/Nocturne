@@ -194,7 +194,7 @@ public class MainController implements Initializable {
         alert.getDialogPane().getStyleClass().add("about");
         alert.getDialogPane().getStylesheets().add("css/nocturne.css");
 
-        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fx/about.fxml"));
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/about.fxml"));
         loader.setResources(Main.getResourceBundle());
         Node content = loader.load();
         alert.getDialogPane().setContent(content);
