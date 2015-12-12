@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
 import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.transform.constpool.structure.ClassStructure;
 import blue.lapis.nocturne.transform.constpool.structure.ConstantStructure;
 import blue.lapis.nocturne.transform.constpool.structure.IrrelevantStructure;
@@ -136,6 +137,11 @@ public class ConstantPoolProcessor {
 
     private void handleClassMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
         String name = getString(((ClassStructure) cs).getNameIndex());
+
+        if (!Main.getLoadedJar().getClass(name).isPresent()) {
+            return;
+        }
+
         String newName = getProcessedName(name, MemberType.CLASS.name());
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
@@ -169,6 +175,11 @@ public class ConstantPoolProcessor {
             }
         }
         String className = getClassName((RefStructure) cs);
+
+        if (!Main.getLoadedJar().getClass(className).isPresent()) {
+            return;
+        }
+
         NameAndType nat = getNameAndType((RefStructure) cs);
 
         String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), typeStr);
