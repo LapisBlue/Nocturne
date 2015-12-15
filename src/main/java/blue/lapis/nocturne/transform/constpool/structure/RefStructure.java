@@ -24,7 +24,10 @@
  */
 package blue.lapis.nocturne.transform.constpool.structure;
 
+import blue.lapis.nocturne.util.helper.ByteHelper;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Represents a *ref structure.
@@ -36,8 +39,8 @@ public class RefStructure extends ConstantStructure {
 
     protected RefStructure(byte[] bytes) {
         super(bytes);
-        classIndex = ByteBuffer.allocate(2).put(bytes[1], bytes[2]).asShortBuffer().get() & 0xFFFF;
-        natIndex = ByteBuffer.allocate(2).put(bytes[3], bytes[4]).asShortBuffer().get() & 0xFFFF;
+        classIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+        natIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
     }
 
     public int getClassIndex() {

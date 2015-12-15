@@ -27,6 +27,7 @@ package blue.lapis.nocturne.jar.model;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.transform.constpool.ConstantPoolProcessor;
 
 import java.util.Objects;
 
@@ -50,6 +51,10 @@ public class JarClassEntry {
         this.name = name;
         this.content = new byte[content.length];
         System.arraycopy(content, 0, this.content, 0, content.length);
+    }
+
+    public void process() {
+        content = new ConstantPoolProcessor(content).process();
     }
 
     /**

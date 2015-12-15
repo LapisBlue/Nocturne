@@ -68,7 +68,6 @@ public final class JarDialogHelper {
         if (Files.exists(selectedFile.toPath())) {
             ClassSet classSet = JarLoader.loadJar(selectedFile);
             if (classSet != null) {
-                Main.setLoadedJar(classSet);
                 controller.closeJarButton.setDisable(false);
             }
         }

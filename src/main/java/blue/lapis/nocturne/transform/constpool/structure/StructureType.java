@@ -45,7 +45,8 @@ public enum StructureType {
     NAME_AND_TYPE(0x0C, 4),
     METHOD_HANDLE(0x0F, 3),
     METHOD_TYPE(0x10, 2),
-    INVOKE_DYNAMIC(0x12, 4);
+    INVOKE_DYNAMIC(0x12, 4),
+    DUMMY(0xFF, -1);
 
     private static Map<Byte, StructureType> types;
 

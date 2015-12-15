@@ -24,7 +24,10 @@
  */
 package blue.lapis.nocturne.transform.constpool.structure;
 
+import blue.lapis.nocturne.util.helper.ByteHelper;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Repressents a NameAndType structure.
@@ -36,8 +39,8 @@ public class NameAndTypeStructure extends ConstantStructure {
 
     public NameAndTypeStructure(byte[] bytes) {
         super(bytes);
-        this.nameIndex = ByteBuffer.allocate(2).put(bytes[1], bytes[2]).asShortBuffer().get() & 0xFFFF;
-        this.typeIndex = ByteBuffer.allocate(2).put(bytes[3], bytes[4]).asShortBuffer().get() & 0xFFFF;
+        this.nameIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+        this.typeIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
     }
 
     public int getNameIndex() {

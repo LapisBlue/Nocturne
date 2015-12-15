@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.transform.constpool.structure;
 
 import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.helper.ByteHelper;
 
 import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,7 @@ public class Utf8Structure extends ConstantStructure {
     public Utf8Structure(byte[] bytes) {
         super(bytes);
         assert bytes.length >= 3;
-        int length = ShortBuffer.allocate(Short.BYTES).put(bytes[1], bytes[2]).get() & Constants.SHORT_UNSIGNER;
+        int length = ByteHelper.asUshort(bytes[1], bytes[2]);
         assert bytes.length == length + 3;
         byte[] strBytes = new byte[bytes.length - 3];
         System.arraycopy(bytes, 3, strBytes, 0, strBytes.length);

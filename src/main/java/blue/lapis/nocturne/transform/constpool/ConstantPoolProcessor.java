@@ -33,6 +33,7 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.transform.constpool.structure.ClassStructure;
 import blue.lapis.nocturne.transform.constpool.structure.ConstantStructure;
+import blue.lapis.nocturne.transform.constpool.structure.DummyStructure;
 import blue.lapis.nocturne.transform.constpool.structure.IrrelevantStructure;
 import blue.lapis.nocturne.transform.constpool.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
@@ -40,11 +41,14 @@ import blue.lapis.nocturne.transform.constpool.structure.StructureType;
 import blue.lapis.nocturne.transform.constpool.structure.Utf8Structure;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.ByteHelper;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,17 +70,23 @@ public class ConstantPoolProcessor {
 
         List<ConstantStructure> tempPool = new ArrayList<>();
 
-        int constPoolCount = ByteBuffer.allocate(Short.BYTES)
-                .put(bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET], bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1])
-                .get() & Constants.SHORT_UNSIGNER;
+        int constPoolCount = ByteHelper.asUshort(bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET],
+                bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1]) - 1;
         int offset = CLASS_FORMAT_CONSTANT_POOL_OFFSET + 2;
         for (int i = 0; i < constPoolCount; i++) {
-            int length = StructureType.fromTag(bytes[offset]).getLength();
-            offset++;
+            StructureType sType = StructureType.fromTag(bytes[offset]);
+            int length = sType == StructureType.UTF_8
+                    ? ByteHelper.asUshort(bytes[offset + 1], bytes[offset + 2]) + 2
+                    : sType.getLength();
             byte[] structBytes = new byte[length + 1];
-            System.arraycopy(bytes, offset, structBytes, 0, length);
-            offset += length;
+            System.arraycopy(bytes, offset, structBytes, 0, length + 1);
+            offset += length + 1;
             tempPool.add(ConstantStructure.createConstantStructure(structBytes));
+
+            if (sType == StructureType.DOUBLE || sType == StructureType.LONG) {
+                tempPool.add(new DummyStructure());
+                i++;
+            }
         }
         constantPool = ImmutableList.copyOf(tempPool);
         constantPoolEnd = offset;
@@ -150,7 +160,7 @@ public class ConstantPoolProcessor {
         strBuffer.put(strBytes);
         pool.add(new Utf8Structure(strBuffer.array()));
 
-        ByteBuffer classBuffer = ByteBuffer.allocate(StructureType.CLASS.getLength());
+        ByteBuffer classBuffer = ByteBuffer.allocate(StructureType.CLASS.getLength() + 1);
         classBuffer.put(StructureType.CLASS.getTag());
         classBuffer.putShort((short) pool.size());
         pool.set(index, new ClassStructure(classBuffer.array()));
@@ -191,20 +201,20 @@ public class ConstantPoolProcessor {
         pool.add(new Utf8Structure(nameBuffer.array()));
         int nameIndex = pool.size();
 
-        ByteBuffer buffer = ByteBuffer.allocate(StructureType.NAME_AND_TYPE.getLength());
+        ByteBuffer buffer = ByteBuffer.allocate(StructureType.NAME_AND_TYPE.getLength() + 1);
         buffer.put(StructureType.NAME_AND_TYPE.getTag());
         buffer.putShort((short) nameIndex);
-        int natIndex = ((RefStructure) cs).getNameAndTypeIndex();
+        int natIndex = ((RefStructure) cs).getNameAndTypeIndex() - 1;
         NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
         buffer.putShort((short) natStruct.getTypeIndex());
-        pool.set(natIndex - 1, new NameAndTypeStructure(buffer.array()));
+        pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
     }
 
     private NameAndType getNameAndType(RefStructure rs) {
-        int natStructIndex = rs.getNameAndTypeIndex();
+        int natStructIndex = rs.getNameAndTypeIndex() - 1;
         assert natStructIndex <= constantPool.size();
 
-        ConstantStructure natStruct = constantPool.get(natStructIndex - 1);
+        ConstantStructure natStruct = constantPool.get(natStructIndex);
         assert natStruct instanceof NameAndTypeStructure;
 
         int nameIndex = ((NameAndTypeStructure) natStruct).getNameIndex();

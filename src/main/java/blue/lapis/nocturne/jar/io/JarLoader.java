@@ -32,6 +32,7 @@ import blue.lapis.nocturne.util.Constants;
 
 import javafx.scene.control.Alert;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,9 +74,10 @@ public class JarLoader {
             }
 
             try {
-                InputStream entryStream = jar.getInputStream(entry);
+                BufferedInputStream entryStream = new BufferedInputStream(jar.getInputStream(entry));
 
                 byte[] bytes = new byte[entryStream.available()];
+                int i = 0;
                 //noinspection ResultOfMethodCallIgnored
                 entryStream.read(bytes);
 
@@ -105,8 +107,11 @@ public class JarLoader {
             return null;
         }
 
-        jar.close(); // release the handle (TODO: is this right since we have the data in memory?)
-        return new ClassSet(classes);
+        jar.close(); // release the handle
+        ClassSet cs = new ClassSet(classes);
+        Main.setLoadedJar(cs);
+        cs.getClasses().stream().forEach(JarClassEntry::process);
+        return cs;
     }
 
 }
