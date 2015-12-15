@@ -28,7 +28,6 @@ import blue.lapis.nocturne.Main;
 
 import com.google.common.base.MoreObjects;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**

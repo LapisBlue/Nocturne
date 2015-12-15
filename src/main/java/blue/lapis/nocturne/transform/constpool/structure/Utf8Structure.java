@@ -24,10 +24,8 @@
  */
 package blue.lapis.nocturne.transform.constpool.structure;
 
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
-import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**

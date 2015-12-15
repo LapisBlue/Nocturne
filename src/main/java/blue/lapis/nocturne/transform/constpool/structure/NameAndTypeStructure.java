@@ -26,9 +26,6 @@ package blue.lapis.nocturne.transform.constpool.structure;
 
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 /**
  * Repressents a NameAndType structure.
  */

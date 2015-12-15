@@ -25,8 +25,6 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
-import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
-import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
@@ -34,7 +32,6 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.util.MemberType;
 
-import com.google.common.base.Preconditions;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ContextMenu;

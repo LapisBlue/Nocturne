@@ -39,7 +39,6 @@ import blue.lapis.nocturne.transform.constpool.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.StructureType;
 import blue.lapis.nocturne.transform.constpool.structure.Utf8Structure;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
@@ -47,8 +46,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
