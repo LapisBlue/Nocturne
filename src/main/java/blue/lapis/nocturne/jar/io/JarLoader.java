@@ -77,7 +77,6 @@ public class JarLoader {
                 BufferedInputStream entryStream = new BufferedInputStream(jar.getInputStream(entry));
 
                 byte[] bytes = new byte[entryStream.available()];
-                int i = 0;
                 //noinspection ResultOfMethodCallIgnored
                 entryStream.read(bytes);
 
