@@ -27,21 +27,21 @@ package blue.lapis.nocturne.test.mapping.model.attribute;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
-import blue.lapis.nocturne.mapping.model.attribute.Primitive;
-import blue.lapis.nocturne.mapping.model.attribute.Type;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Primitive;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 
 import org.junit.Test;
 
 /**
- * Unit tests related to the {@link MethodSignature} class.
+ * Unit tests related to the {@link MethodDescriptor} class.
  */
-public class MethodSignatureTest {
+public class MethodDescriptorTest {
 
     @Test
     public void testPrimitiveSignature() {
         String sig = "(IDZ)V";
-        MethodSignature ms = new MethodSignature(sig);
+        MethodDescriptor ms = new MethodDescriptor(sig);
         assertArrayEquals(
                 new Type[] {
                         new Type(Primitive.INT, 0),
@@ -55,7 +55,7 @@ public class MethodSignatureTest {
     @Test
     public void testArraySignature() {
         String sig = "(I[[D[Z)V";
-        MethodSignature ms = new MethodSignature(sig);
+        MethodDescriptor ms = new MethodDescriptor(sig);
         assertArrayEquals(
                 new Type[] {
                         new Type(Primitive.INT, 0),
@@ -71,7 +71,7 @@ public class MethodSignatureTest {
         String c1 = "java/util/List";
         String c2 = "java/lang/String";
         String sig = "(BL" + c1 + ";I)L" + c2 + ";";
-        MethodSignature ms = new MethodSignature(sig);
+        MethodDescriptor ms = new MethodDescriptor(sig);
         assertArrayEquals(new Type[] {new Type(Primitive.BYTE, 0), new Type(c1, 0), new Type(Primitive.INT, 0)},
                 ms.getParamTypes());
         assertEquals(new Type(c2, 0), ms.getReturnType());

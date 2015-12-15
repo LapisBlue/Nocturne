@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.mapping.model.attribute.Type;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 
 /**
  * Represents a {@link Mapping} for a field.

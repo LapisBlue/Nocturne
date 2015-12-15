@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.mapping.model.attribute;
+package blue.lapis.nocturne.jar.model.attribute;
 
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;

@@ -29,7 +29,7 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 
 import java.io.BufferedReader;
 import java.util.stream.Collectors;
@@ -103,7 +103,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    new MethodMapping(currentClass, obf, deobf, new MethodSignature(sig));
+                    new MethodMapping(currentClass, obf, deobf, new MethodDescriptor(sig));
                     break;
                 }
                 case "ARG": {

@@ -31,6 +31,8 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.transform.constpool.structure.ClassStructure;
 import blue.lapis.nocturne.transform.constpool.structure.ConstantStructure;
 import blue.lapis.nocturne.transform.constpool.structure.DummyStructure;
@@ -149,7 +151,7 @@ public class ConstantPoolProcessor {
             return;
         }
 
-        String newName = getProcessedName(name, MemberType.CLASS.name());
+        String newName = getProcessedName(name, MemberType.CLASS);
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -164,17 +166,15 @@ public class ConstantPoolProcessor {
     }
 
     private void handleNonClassMember(ConstantStructure cs, List<ConstantStructure> pool) {
-        String typeStr;
+        MemberType memberType;
         switch (cs.getType()) {
             case FIELDREF: {
-                typeStr = MemberType.FIELD.name();
+                memberType = MemberType.FIELD;
                 break;
             }
-            case INTERFACE_METHODREF: {
-                // fall through
-            }
+            case INTERFACE_METHODREF: // fall through
             case METHODREF: {
-                typeStr = MemberType.METHOD.name();
+                memberType = MemberType.METHOD;
                 break;
             }
             default: {
@@ -183,27 +183,75 @@ public class ConstantPoolProcessor {
         }
         String className = getClassName((RefStructure) cs);
 
+        NameAndType nat = getNameAndType((RefStructure) cs);
+        int natIndex = ((RefStructure) cs).getNameAndTypeIndex() - 1;
+        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
+        int nameIndex = natStruct.getNameIndex();
+        int typeIndex = natStruct.getTypeIndex();
+
         if (!Main.getLoadedJar().getClass(className).isPresent()) {
-            return;
+            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), memberType);
+            byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
+            nameBuffer.put(StructureType.UTF_8.getTag());
+            nameBuffer.putShort((short) newNameBytes.length);
+            nameBuffer.put(newNameBytes);
+            pool.add(new Utf8Structure(nameBuffer.array()));
+            nameIndex = pool.size();
         }
 
-        NameAndType nat = getNameAndType((RefStructure) cs);
+        String desc = nat.getType();
+        String newDesc = desc;
+        if (cs.getType() == StructureType.FIELDREF) {
+            if (desc.startsWith("L") && desc.endsWith(";")) {
+                String typeClass = desc.substring(1, desc.length());
+                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                    newDesc = "L" + getProcessedName(typeClass, MemberType.CLASS) + ";";
+                }
+            }
+        } else {
+            MethodDescriptor md = new MethodDescriptor(desc);
+            List<Type> newParams = new ArrayList<>();
+            for (Type param : md.getParamTypes()) {
+                if (!param.isPrimitive()) {
+                    String typeClass = param.getClassName();
+                    if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                        newParams.add(new Type(getProcessedName(typeClass, MemberType.CLASS),
+                                param.getArrayDimensions()));
+                    } else {
+                        newParams.add(param);
+                    }
+                }
+            }
+            Type returnType = md.getReturnType();
+            if (!returnType.isPrimitive()) {
+                String typeClass = returnType.getClassName();
+                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                    returnType = new Type(getProcessedName(typeClass, MemberType.CLASS),
+                            returnType.getArrayDimensions());
+                }
+            }
 
-        String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), typeStr);
-        byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
-        nameBuffer.put(StructureType.UTF_8.getTag());
-        nameBuffer.putShort((short) newName.length());
-        nameBuffer.put(newNameBytes);
-        pool.add(new Utf8Structure(nameBuffer.array()));
-        int nameIndex = pool.size();
+            Type[] newParamArr = new Type[newParams.size()];
+            newParams.toArray(newParamArr);
+            MethodDescriptor newMd = new MethodDescriptor(returnType, newParamArr);
+            newDesc = newMd.toString();
+        }
+
+        if (!newDesc.equals(desc)) {
+            byte[] newTypeBytes = newDesc.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer typeBuffer = ByteBuffer.allocate(newTypeBytes.length + 3);
+            typeBuffer.put(StructureType.UTF_8.getTag());
+            typeBuffer.putShort((short) newTypeBytes.length);
+            typeBuffer.put(newTypeBytes);
+            pool.add(new Utf8Structure(typeBuffer.array()));
+            typeIndex = pool.size();
+        }
 
         ByteBuffer buffer = ByteBuffer.allocate(StructureType.NAME_AND_TYPE.getLength() + 1);
         buffer.put(StructureType.NAME_AND_TYPE.getTag());
         buffer.putShort((short) nameIndex);
-        int natIndex = ((RefStructure) cs).getNameAndTypeIndex() - 1;
-        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
-        buffer.putShort((short) natStruct.getTypeIndex());
+        buffer.putShort((short) typeIndex);
         pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
     }
 
@@ -215,7 +263,7 @@ public class ConstantPoolProcessor {
         assert natStruct instanceof NameAndTypeStructure;
 
         int nameIndex = ((NameAndTypeStructure) natStruct).getNameIndex();
-        int typeIndex = ((NameAndTypeStructure) natStruct).getNameIndex();
+        int typeIndex = ((NameAndTypeStructure) natStruct).getTypeIndex();
 
         return new NameAndType(getString(nameIndex), getString(typeIndex));
     }
@@ -254,8 +302,8 @@ public class ConstantPoolProcessor {
 
     }
 
-    private static String getProcessedName(String memberName, String memberType) {
-        return MEMBER_PREFIX + memberType + MEMBER_DELIMITER + memberName + MEMBER_SUFFIX;
+    private static String getProcessedName(String memberName, MemberType memberType) {
+        return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + memberName + MEMBER_SUFFIX;
     }
 
 }

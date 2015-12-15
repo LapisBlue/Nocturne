@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 
 /**
  * Represents a {@link Mapping} for a method.
@@ -32,7 +32,7 @@ import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
 public class MethodMapping extends Mapping implements ClassComponent {
 
     private final ClassMapping parent;
-    private final MethodSignature sig;
+    private final MethodDescriptor sig;
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
@@ -40,9 +40,9 @@ public class MethodMapping extends Mapping implements ClassComponent {
      * @param parent The parent {@link ClassMapping}
      * @param obfName The obfuscated name of the method
      * @param deobfName The deobfuscated name of the method
-     * @param signature The (obfuscated) {@link MethodSignature} of the method
+     * @param signature The (obfuscated) {@link MethodDescriptor} of the method
      */
-    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodSignature signature) {
+    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor signature) {
         super(obfName, deobfName);
         this.parent = parent;
         this.sig = signature;
@@ -56,20 +56,20 @@ public class MethodMapping extends Mapping implements ClassComponent {
     }
 
     /**
-     * Returns the {@link MethodSignature} of this method.
+     * Returns the {@link MethodDescriptor} of this method.
      *
-     * @return The {@link MethodSignature} of this method
+     * @return The {@link MethodDescriptor} of this method
      */
-    public MethodSignature getSignature() {
+    public MethodDescriptor getSignature() {
         return sig;
     }
 
     /**
-     * Returns the deobfuscated {@link MethodSignature} of this method.
+     * Returns the deobfuscated {@link MethodDescriptor} of this method.
      *
-     * @return The deobfuscated {@link MethodSignature} of this method
+     * @return The deobfuscated {@link MethodDescriptor} of this method
      */
-    public MethodSignature getDeobfuscatedSignature() {
+    public MethodDescriptor getDeobfuscatedSignature() {
         return getSignature().deobfuscate(getParent().getContext());
     }
 

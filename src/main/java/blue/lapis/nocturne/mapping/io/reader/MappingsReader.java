@@ -34,7 +34,7 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
@@ -101,7 +101,7 @@ public abstract class MappingsReader implements Closeable {
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        new MethodMapping(parent, obfName, deobfName, new MethodSignature(obfSig));
+        new MethodMapping(parent, obfName, deobfName, new MethodDescriptor(obfSig));
     }
 
     protected int getClassNestingLevel(String name) {

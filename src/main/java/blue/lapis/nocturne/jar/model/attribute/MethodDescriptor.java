@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.mapping.model.attribute;
+package blue.lapis.nocturne.jar.model.attribute;
 
 import blue.lapis.nocturne.mapping.MappingContext;
 
@@ -32,24 +32,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a method signature consisting of parameter {@link Type}s and a
+ * Represents a method descriptor consisting of parameter {@link Type}s and a
  * return {@link Type}.
  */
-public class MethodSignature {
+public class MethodDescriptor {
 
     private final Type returnType;
     private final Type[] paramTypes;
 
     /**
-     * Constructs a new {@link MethodSignature} with the given return and
+     * Constructs a new {@link MethodDescriptor} with the given return and
      * parameter {@link Type}s.
      *
      * @param returnType The return {@link Type} of the new
-     *     {@link MethodSignature}
+     *     {@link MethodDescriptor}
      * @param paramTypes The parameter {@link Type}s of the new
-     *     {@link MethodSignature}
+     *     {@link MethodDescriptor}
      */
-    public MethodSignature(Type returnType, Type... paramTypes) {
+    public MethodDescriptor(Type returnType, Type... paramTypes) {
         this.returnType = returnType;
         this.paramTypes = paramTypes;
         for (Type type : paramTypes) {
@@ -60,23 +60,23 @@ public class MethodSignature {
     }
 
     /**
-     * Parses and constructs a new {@link MethodSignature} from the given
+     * Parses and constructs a new {@link MethodDescriptor} from the given
      * {@link CharSequence}.
      *
-     * @param signature The {@link CharSequence} representing the signature
+     * @param descriptor The {@link CharSequence} representing the signature
      * @throws IllegalArgumentException If the provided {@link CharSequence} is
      *     not a valid method signature
      */
-    public MethodSignature(String signature) throws IllegalArgumentException {
-        final String errMsg = "Not a valid method signature: " + signature;
-        Preconditions.checkArgument(signature.charAt(0) == '(', errMsg);
+    public MethodDescriptor(String descriptor) throws IllegalArgumentException {
+        final String errMsg = "Not a valid method descriptor: " + descriptor;
+        Preconditions.checkArgument(descriptor.charAt(0) == '(', errMsg);
 
         List<Type> paramTypeList = new ArrayList<>();
 
-        char[] chars = signature.toCharArray();
+        char[] chars = descriptor.toCharArray();
         int arrayDims = 0;
         outer:
-        for (int i = 1; i < signature.length(); i++) {
+        for (int i = 1; i < descriptor.length(); i++) {
             switch (chars[i]) {
                 case ')': {
                     break outer;
@@ -116,7 +116,7 @@ public class MethodSignature {
         this.paramTypes = new Type[paramTypeList.size()];
         paramTypeList.toArray(this.paramTypes);
 
-        String returnTypeStr = signature.substring(signature.indexOf(')') + 1);
+        String returnTypeStr = descriptor.substring(descriptor.indexOf(')') + 1);
 
         arrayDims = 0;
         if (returnTypeStr.startsWith("[")) {
@@ -138,37 +138,37 @@ public class MethodSignature {
     }
 
     /**
-     * Gets the return {@link Type} of this {@link MethodSignature}.
+     * Gets the return {@link Type} of this {@link MethodDescriptor}.
      *
-     * @return The return {@link Type} of this {@link MethodSignature}
+     * @return The return {@link Type} of this {@link MethodDescriptor}
      */
     public Type getReturnType() {
         return returnType;
     }
 
     /**
-     * Gets the parameter {@link Type}s of this {@link MethodSignature}.
+     * Gets the parameter {@link Type}s of this {@link MethodDescriptor}.
      *
-     * @return The parameter {@link Type}s of this {@link MethodSignature}
+     * @return The parameter {@link Type}s of this {@link MethodDescriptor}
      */
     public Type[] getParamTypes() {
         return paramTypes;
     }
 
     /**
-     * Attempts to deobfuscate this {@link MethodSignature}.
+     * Attempts to deobfuscate this {@link MethodDescriptor}.
      *
      * @param context The {@link MappingContext} to use for obtaining
      *     deobfuscation mappings
-     * @return The deobfuscated {@link MethodSignature}
+     * @return The deobfuscated {@link MethodDescriptor}
      */
-    public MethodSignature deobfuscate(MappingContext context) {
+    public MethodDescriptor deobfuscate(MappingContext context) {
         Type[] deobfParams = new Type[getParamTypes().length];
         for (int i = 0; i < getParamTypes().length; i++) {
             deobfParams[i] = getParamTypes()[i].deobfuscate(context);
         }
 
-        return new MethodSignature(getReturnType().deobfuscate(context), deobfParams);
+        return new MethodDescriptor(getReturnType().deobfuscate(context), deobfParams);
     }
 
     @Override

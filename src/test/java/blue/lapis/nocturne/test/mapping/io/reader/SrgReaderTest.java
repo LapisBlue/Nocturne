@@ -34,9 +34,9 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.attribute.MethodSignature;
-import blue.lapis.nocturne.mapping.model.attribute.Primitive;
-import blue.lapis.nocturne.mapping.model.attribute.Type;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Primitive;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
@@ -138,7 +138,7 @@ public class SrgReaderTest {
                 methodMapping.getSignature().getParamTypes());
         assertEquals(new Type("a", 0), methodMapping.getSignature().getReturnType());
 
-        MethodSignature deobfSig = methodMapping.getDeobfuscatedSignature();
+        MethodDescriptor deobfSig = methodMapping.getDeobfuscatedSignature();
         assertArrayEquals(
                 new Type[]{
                         new Type(Primitive.INT, 0),
