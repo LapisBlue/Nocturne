@@ -72,9 +72,10 @@ public class SelectableMember extends Text {
         renameItem.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog(this.getText());
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
-            textInputDialog.showAndWait();
-            if (textInputDialog.getResult() != null && !textInputDialog.getResult().equals("")) {
-                this.setText(textInputDialog.getResult());
+
+            Optional<String> result = textInputDialog.showAndWait();
+            if (result.isPresent() && !result.get().equals("")) {
+                this.setText(result.get());
             }
         });
 
