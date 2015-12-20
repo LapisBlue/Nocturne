@@ -27,7 +27,9 @@ package blue.lapis.nocturne.mapping.io.reader;
 import blue.lapis.nocturne.mapping.MappingContext;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -51,18 +53,24 @@ public class SrgReader extends MappingsReader {
     public MappingContext read() {
         MappingContext mappings = new MappingContext();
 
-        List<String> mappingList = reader.lines().collect(Collectors.toList());
+        Pattern spacePattern = Pattern.compile(" ", Pattern.LITERAL);
+        List<String> rawClassMappings = new ArrayList<>();
+        List<String> rawFieldMappings = new ArrayList<>();
+        List<String> rawMethodMappings = new ArrayList<>();
 
-        List<String> rawClassMappings = mappingList.stream()
-                .filter(s -> s.startsWith(CLASS_MAPPING_KEY) && s.split(" ").length == CLASS_MAPPING_ELEMENT_COUNT)
-                .sorted((s1, s2) -> getClassNestingLevel(s1) - getClassNestingLevel(s2))
-                .collect(Collectors.toList());
-        List<String> rawFieldMappings = mappingList.stream()
-                .filter(s -> s.startsWith(FIELD_MAPPING_KEY) && s.split(" ").length == FIELD_MAPPING_ELEMENT_COUNT)
-                .collect(Collectors.toList());
-        List<String> rawMethodMappings = mappingList.stream()
-                .filter(s -> s.startsWith(METHOD_MAPPING_KEY) && s.split(" ").length == METHOD_MAPPING_ELEMENT_COUNT)
-                .collect(Collectors.toList());
+        for (String line : reader.lines().collect(Collectors.toList())) {
+            int len = spacePattern.split(line).length;
+            if (line.startsWith(CLASS_MAPPING_KEY) && len == CLASS_MAPPING_ELEMENT_COUNT) {
+                rawClassMappings.add(line);
+            } else if (line.startsWith(FIELD_MAPPING_KEY) && len == FIELD_MAPPING_ELEMENT_COUNT) {
+                rawFieldMappings.add(line);
+            } else if (line.startsWith(METHOD_MAPPING_KEY) && len == METHOD_MAPPING_ELEMENT_COUNT) {
+                rawMethodMappings.add(line);
+            }
+        }
+
+        // we need to sort the class mappings in order of ascending nesting level
+        rawClassMappings.sort((s1, s2) -> getClassNestingLevel(s1) - getClassNestingLevel(s2));
 
         genClassMappings(mappings, rawClassMappings);
         genFieldMappings(mappings, rawFieldMappings);
