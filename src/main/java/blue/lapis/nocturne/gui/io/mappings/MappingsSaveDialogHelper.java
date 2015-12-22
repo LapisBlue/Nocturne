@@ -83,7 +83,7 @@ public final class MappingsSaveDialogHelper {
             Files.createFile(selectedPath);
         }
 
-        if (!Files.isSameFile(Main.getCurrentMappingsPath(), selectedPath)) {
+        if (Main.getCurrentMappingsPath() == null || !Files.isSameFile(Main.getCurrentMappingsPath(), selectedPath)) {
             Main.getMappings().setDirty(true);
         }
 
