@@ -65,9 +65,11 @@ public class CodeTab extends Tab {
             e.printStackTrace();
         }
 
-        this.setCode("public static void %NOCTURNE+METHOD-main%(String[] args) {\n" +
-                     "    System.out.println(\"Hello World\");\n" +
-                     "}\n");
+        this.setCode("public class %NOCTURNE+CLASS-SomeClass% {\n"
+                   + "    public static void %NOCTURNE+METHOD-main%(String[] args) {\n"
+                   + "        System.out.println(\"Hello World\");\n"
+                   + "    }\n"
+                   + "}\n");
     }
 
     /**

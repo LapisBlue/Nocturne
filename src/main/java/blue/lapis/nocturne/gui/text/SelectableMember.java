@@ -25,11 +25,16 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.MemberType;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -52,16 +57,18 @@ public class SelectableMember extends Text {
     private final MemberType type;
 
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
+    private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
     public SelectableMember(MemberType type, String name) {
-        this(type, name, null);
+        this(type, name, null, null);
     }
 
-    public SelectableMember(MemberType type, String name, String parentClass) {
+    public SelectableMember(MemberType type, String name, String descriptor, String parentClass) {
         super(name);
         this.type = type;
         this.nameProperty.set(name);
+        this.descriptorProperty.set(descriptor);
         this.parentClassProperty.set(parentClass);
 
         this.setFill(Color.web("orange"));
@@ -76,6 +83,31 @@ public class SelectableMember extends Text {
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("")) {
                 this.setText(result.get());
+                switch (type) {
+                    case CLASS: {
+                        Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
+                        if (matcher.find()) {
+                            String parent = getName().substring(0, matcher.end() - 1);
+                            ClassMapping parentMapping
+                                    = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
+                            new InnerClassMapping(parentMapping, getName(), result.get());
+                        } else {
+                            Main.getMappings()
+                                    .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), result.get()));
+                        }
+                        break;
+                    }
+                    case FIELD: {
+                        ClassMapping parentMapping
+                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
+                        new FieldMapping(parentMapping, getName(), result.get(), null);
+                        break;
+                    }
+                    case METHOD: {
+                        //TODO
+                        break;
+                    }
+                }
             }
         });
 
@@ -91,6 +123,10 @@ public class SelectableMember extends Text {
         return nameProperty;
     }
 
+    public StringProperty getDescriptorProperty() {
+        return descriptorProperty;
+    }
+
     public StringProperty getParentClassProperty() {
         return parentClassProperty;
     }
@@ -101,6 +137,10 @@ public class SelectableMember extends Text {
 
     public String getName() {
         return getNameProperty().get();
+    }
+
+    public String getDescriptor() {
+        return getDescriptorProperty().get();
     }
 
     public String getParentClass() {
@@ -143,7 +183,7 @@ public class SelectableMember extends Text {
                 parentClass += arr[i];
             }
             String simpleName = arr[arr.length - 1];
-            return new SelectableMember(type, simpleName, parentClass);
+            return new SelectableMember(type, simpleName, null, parentClass);
         } else {
             return new SelectableMember(type, qualName);
         }

@@ -302,6 +302,9 @@ public class ConstantPoolProcessor {
 
     }
 
+    // current format is %NOCTURNE+TYPE-name%
+    //TODO: change format to include descriptor if applicable
+    // new format should resemble %NOCTURNE+TYPE-name-descriptor%
     private static String getProcessedName(String memberName, MemberType memberType) {
         return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + memberName + MEMBER_SUFFIX;
     }
