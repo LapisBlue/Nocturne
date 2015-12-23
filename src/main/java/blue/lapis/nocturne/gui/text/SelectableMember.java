@@ -29,6 +29,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
@@ -45,6 +46,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
@@ -57,24 +59,36 @@ import java.util.regex.Matcher;
  */
 public class SelectableMember extends Text {
 
+    private final CodeTab codeTab;
     private final MemberType type;
 
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
-    public SelectableMember(MemberType type, String name) {
-        this(type, name, null, null);
+    public SelectableMember(CodeTab codeTab, MemberType type, String name) {
+        this(codeTab, type, name, null, null);
     }
 
-    public SelectableMember(MemberType type, String name, String descriptor, String parentClass) {
+    public SelectableMember(CodeTab codeTab, MemberType type, String name, String descriptor, String parentClass) {
         super(name);
+        this.codeTab = codeTab;
         this.type = type;
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
         this.parentClassProperty.set(parentClass);
 
         this.setFill(Color.web("orange"));
+
+        this.setOnMouseClicked(event1 -> {
+            if (event1.getButton() == MouseButton.PRIMARY) {
+                this.codeTab.setMemberType(CodeTab.SelectableMemberType.fromMemberType(this.type));
+                this.codeTab.setMemberIdentifier(this.nameProperty.get());
+                if (this.type != MemberType.CLASS) {
+                    this.codeTab.setMemberInfo(this.descriptorProperty.get());
+                }
+            }
+        });
 
         ContextMenu contextMenu = new ContextMenu();
 
@@ -179,7 +193,7 @@ public class SelectableMember extends Text {
         }
     }
 
-    public static SelectableMember fromMatcher(Matcher matcher) {
+    public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
         MemberType type = MemberType.fromString(matcher.group(1));
         String qualName = matcher.group(2);
         String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
@@ -190,9 +204,9 @@ public class SelectableMember extends Text {
                 parentClass += arr[i];
             }
             String simpleName = arr[arr.length - 1];
-            return new SelectableMember(type, simpleName, descriptor, parentClass);
+            return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
         } else {
-            return new SelectableMember(type, qualName);
+            return new SelectableMember(codeTab, type, qualName);
         }
     }
 

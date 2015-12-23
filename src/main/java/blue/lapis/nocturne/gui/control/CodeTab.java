@@ -28,6 +28,7 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.util.MemberType;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -81,6 +82,11 @@ public class CodeTab extends Tab {
         this.memberIdentifierLabel.setText(String.format("%s: ", type.getIdentifierLabel()));
         if (type.isInfoEnabled()) {
             this.memberInfoLabel.setText(String.format("%s: ", type.getInfoLabel()));
+            this.memberInfo.setVisible(true);
+            this.memberInfoLabel.setVisible(true);
+        } else {
+            this.memberInfo.setVisible(false);
+            this.memberInfoLabel.setVisible(false);
         }
     }
 
@@ -116,7 +122,7 @@ public class CodeTab extends Tab {
         int lastIndex = 0;
         while (matcher.find()) {
             texts.add(new Text(code.substring(lastIndex, matcher.start())));
-            texts.add(SelectableMember.fromMatcher(matcher));
+            texts.add(SelectableMember.fromMatcher(this, matcher));
             lastIndex = matcher.end();
         }
         texts.add(new Text(code.substring(lastIndex)));
@@ -175,6 +181,18 @@ public class CodeTab extends Tab {
          */
         public boolean isInfoEnabled() {
             return infoEnabled;
+        }
+
+        public static SelectableMemberType fromMemberType(MemberType type) {
+            switch (type) {
+                case CLASS:
+                    return SelectableMemberType.CLASS;
+                case FIELD:
+                    return SelectableMemberType.FIELD;
+                case METHOD:
+                    return SelectableMemberType.METHOD;
+            }
+            return null;
         }
     }
 }
