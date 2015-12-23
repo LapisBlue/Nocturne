@@ -34,6 +34,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -53,10 +54,11 @@ public class CodeTab extends Tab {
     public Label memberInfo;
     public TextFlow code;
 
-    public CodeTab() {
+    public CodeTab(TabPane pane) {
+        pane.getTabs().add(this);
+
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/CodeTab.fxml"));
         loader.setResources(Main.getResourceBundle());
-
         loader.setRoot(this);
         loader.setController(this);
 

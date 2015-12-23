@@ -29,6 +29,7 @@ import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -175,6 +176,7 @@ public class Main extends Application {
 
         if (scene == null) {
             scene = new Scene(root);
+            SceneHelper.addStdStylesheet(scene);
             mainStage.setTitle("Nocturne");
             mainStage.setScene(scene);
             mainStage.setOnCloseRequest(CLOSE_HANDLER);

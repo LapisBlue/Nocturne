@@ -34,6 +34,7 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -97,24 +98,22 @@ public class MainController implements Initializable {
 
     private void initSampleCodeTabs() {
         // The following is example code, for adding code-tabs
-        CodeTab fieldExample = new CodeTab();
+        CodeTab fieldExample = new CodeTab(tabs);
         fieldExample.setText("cG");
         fieldExample.setMemberType(CodeTab.SelectableMemberType.FIELD);
         fieldExample.setMemberIdentifier("logger");
         fieldExample.setMemberInfo("java.util.Logger");
 
-        CodeTab methodExample = new CodeTab();
+        CodeTab methodExample = new CodeTab(tabs);
         methodExample.setText("aQ");
         methodExample.setMemberType(CodeTab.SelectableMemberType.METHOD);
         methodExample.setMemberIdentifier("doSomething");
         methodExample.setMemberInfo("(Ljava/lang/String)V");
 
-        CodeTab classExample = new CodeTab();
+        CodeTab classExample = new CodeTab(tabs);
         classExample.setText("jH");
         classExample.setMemberType(CodeTab.SelectableMemberType.CLASS);
         classExample.setMemberIdentifier("jH");
-
-        this.tabs.getTabs().addAll(fieldExample, methodExample, classExample);
     }
 
     private void setAccelerators() {
@@ -192,7 +191,7 @@ public class MainController implements Initializable {
         alert.setHeaderText("Nocturne v" + Constants.VERSION);
 
         alert.getDialogPane().getStyleClass().add("about");
-        alert.getDialogPane().getStylesheets().add("css/nocturne.css");
+        SceneHelper.addStdStylesheet(alert.getDialogPane());
 
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/about.fxml"));
         loader.setResources(Main.getResourceBundle());
