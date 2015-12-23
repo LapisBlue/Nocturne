@@ -83,9 +83,9 @@ public class SelectableMember extends Text {
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
                 this.codeTab.setMemberType(CodeTab.SelectableMemberType.fromMemberType(this.type));
-                this.codeTab.setMemberIdentifier(this.nameProperty.get());
+                this.codeTab.setMemberIdentifier(this.getText());
                 if (this.type != MemberType.CLASS) {
-                    this.codeTab.setMemberInfo(this.descriptorProperty.get());
+                    this.codeTab.setMemberInfo(this.getDescriptor());
                 }
             }
         });
@@ -128,10 +128,46 @@ public class SelectableMember extends Text {
                         break;
                     }
                 }
+                this.codeTab.setMemberIdentifier(result.get());
             }
         });
 
+        MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
+        resetItem.setOnAction(event -> {
+            this.setText(getName());
+            switch (type) {
+                case CLASS: {
+                    Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
+                    if (matcher.matches()) {
+                        String parent = getName().substring(0, matcher.end() - 1);
+                        ClassMapping parentMapping
+                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
+                        new InnerClassMapping(parentMapping, getName(), getName());
+                    } else {
+                        Main.getMappings()
+                                .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), getName()));
+                    }
+                    break;
+                }
+                case FIELD: {
+                    ClassMapping parentMapping
+                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
+                    new FieldMapping(parentMapping, getName(), getName(), Type.fromString(descriptor));
+                    break;
+                }
+                case METHOD: {
+                    ClassMapping parentMapping
+                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
+                    new MethodMapping(parentMapping, getName(), getName(),
+                            MethodDescriptor.fromString(descriptor));
+                    break;
+                }
+            }
+            this.codeTab.setMemberIdentifier(getName());
+        });
+
         contextMenu.getItems().add(renameItem);
+        contextMenu.getItems().add(resetItem);
 
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
