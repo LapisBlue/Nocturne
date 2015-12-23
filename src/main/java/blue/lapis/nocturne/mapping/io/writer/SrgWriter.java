@@ -65,9 +65,9 @@ public class SrgWriter extends MappingsWriter {
                     mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
         }
 
+        classMapping.getInnerClassMappings().values().forEach(this::writeClassMapping);
         classMapping.getFieldMappings().values().forEach(this::writeFieldMapping);
         classMapping.getMethodMappings().values().forEach(this::writeMethodMapping);
-        classMapping.getInnerClassMappings().values().forEach(this::writeClassMapping);
     }
 
     @Override

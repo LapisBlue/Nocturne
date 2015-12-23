@@ -29,12 +29,14 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.MemberType;
 
@@ -87,7 +89,7 @@ public class SelectableMember extends Text {
                 switch (type) {
                     case CLASS: {
                         Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
-                        if (matcher.find()) {
+                        if (matcher.matches()) {
                             String parent = getName().substring(0, matcher.end() - 1);
                             ClassMapping parentMapping
                                     = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
@@ -105,7 +107,10 @@ public class SelectableMember extends Text {
                         break;
                     }
                     case METHOD: {
-                        //TODO
+                        ClassMapping parentMapping
+                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
+                        new MethodMapping(parentMapping, getName(), result.get(),
+                                MethodDescriptor.fromString(descriptor));
                         break;
                     }
                 }

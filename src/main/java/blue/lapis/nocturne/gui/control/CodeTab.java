@@ -66,7 +66,7 @@ public class CodeTab extends Tab {
         }
 
         this.setCode("public class %NOCTURNE+CLASS-SomeClass% {\n"
-                   + "    public static void %NOCTURNE+METHOD-main-([Ljava/lang/String;)V%(String[] args) {\n"
+                   + "    public static void %NOCTURNE+METHOD-SomeClass/main-([Ljava/lang/String;)V%(String[] args) {\n"
                    + "        System.out.println(\"Hello World\");\n"
                    + "    }\n"
                    + "}\n");

@@ -73,9 +73,9 @@ public class MethodDescriptor {
     public static MethodDescriptor fromString(String descriptor) throws IllegalArgumentException {
         Preconditions.checkArgument(descriptor.charAt(0) == '(', "Not a valid method descriptor: " + descriptor);
 
-        int returnTypeIndex = descriptor.indexOf(')') + 1;
+        int returnTypeIndex = descriptor.indexOf(')');
 
-        Matcher matcher = TYPE_SEQUENCE_REGEX.matcher(descriptor.substring(0, returnTypeIndex));
+        Matcher matcher = TYPE_SEQUENCE_REGEX.matcher(descriptor.substring(1, returnTypeIndex));
         List<Type> paramTypeList = new ArrayList<>();
         while (matcher.find()) {
             paramTypeList.add(Type.fromString(matcher.group()));
@@ -83,7 +83,7 @@ public class MethodDescriptor {
         Type[] paramTypes = new Type[paramTypeList.size()];
         paramTypeList.toArray(paramTypes);
 
-        String returnTypeStr = descriptor.substring(returnTypeIndex);
+        String returnTypeStr = descriptor.substring(returnTypeIndex + 1);
         Type returnType = Type.fromString(returnTypeStr);
 
         return new MethodDescriptor(returnType, paramTypes);
