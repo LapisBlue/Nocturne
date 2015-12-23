@@ -52,6 +52,19 @@ public enum OperatingSystem implements Predicate<String> {
         return false;
     }
 
+    public String getAppDataFolder() {
+        switch (this) {
+            case OSX:
+                return System.getProperty("user.home") + "/Library/Application Support";
+            case WINDOWS:
+                return System.getenv("APPDATA");
+            case LINUX:
+            case UNKNOWN:
+                return System.getProperty("user.home");
+        }
+        return System.getProperty("user.home");
+    }
+
     /**
      * Gets the operating system currently running on the user's system.
      *

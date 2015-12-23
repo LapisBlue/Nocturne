@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.util.helper;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.OperatingSystem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,11 +41,10 @@ import java.util.Properties;
  */
 public final class PropertiesHelper {
 
-    private final String appdataFolder = "Nocturne";
     private final String propertiesFileName = "global.properties";
 
     private final File globalPropertiesFile
-            = new File(getAppDataFolder(), appdataFolder + File.separator + propertiesFileName);
+            = new File(getNocturneDirectory(), propertiesFileName);
     private final Properties globalProperties = new Properties();
 
     public PropertiesHelper() {
@@ -87,14 +87,12 @@ public final class PropertiesHelper {
         globalProperties.store(new FileOutputStream(globalPropertiesFile), description);
     }
 
-    private String getAppDataFolder() {
-        String os = System.getProperty("os.name").toUpperCase();
-        if (os.contains("WIN")) {
-            return System.getenv("APPDATA");
-        } else if (os.contains("MAC")) {
-            return System.getProperty("user.home") + "/Library/Application Support";
-        } else { // probably Unix-based
-            return System.getProperty("user.home");
+    private File getNocturneDirectory() {
+        String appdata = OperatingSystem.getOs().getAppDataFolder();
+        if (OperatingSystem.getOs() == OperatingSystem.LINUX) {
+            return new File(appdata, ".nocturne");
+        } else {
+            return new File(appdata, "Nocturne");
         }
     }
 
