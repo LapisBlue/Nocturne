@@ -101,7 +101,7 @@ public abstract class MappingsReader implements Closeable {
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        new MethodMapping(parent, obfName, deobfName, new MethodDescriptor(obfSig));
+        new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(obfSig));
     }
 
     protected int getClassNestingLevel(String name) {

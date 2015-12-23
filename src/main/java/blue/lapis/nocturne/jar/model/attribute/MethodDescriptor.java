@@ -24,12 +24,15 @@
  */
 package blue.lapis.nocturne.jar.model.attribute;
 
+import static blue.lapis.nocturne.util.Constants.TYPE_SEQUENCE_REGEX;
+
 import blue.lapis.nocturne.mapping.MappingContext;
 
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Represents a method descriptor consisting of parameter {@link Type}s and a
@@ -67,74 +70,23 @@ public class MethodDescriptor {
      * @throws IllegalArgumentException If the provided {@link CharSequence} is
      *     not a valid method signature
      */
-    public MethodDescriptor(String descriptor) throws IllegalArgumentException {
-        final String errMsg = "Not a valid method descriptor: " + descriptor;
-        Preconditions.checkArgument(descriptor.charAt(0) == '(', errMsg);
+    public static MethodDescriptor fromString(String descriptor) throws IllegalArgumentException {
+        Preconditions.checkArgument(descriptor.charAt(0) == '(', "Not a valid method descriptor: " + descriptor);
 
+        int returnTypeIndex = descriptor.indexOf(')') + 1;
+
+        Matcher matcher = TYPE_SEQUENCE_REGEX.matcher(descriptor.substring(0, returnTypeIndex));
         List<Type> paramTypeList = new ArrayList<>();
-
-        char[] chars = descriptor.toCharArray();
-        int arrayDims = 0;
-        outer:
-        for (int i = 1; i < descriptor.length(); i++) {
-            switch (chars[i]) {
-                case ')': {
-                    break outer;
-                }
-                case '[': {
-                    arrayDims++;
-                    break;
-                }
-                case 'L': {
-                    i++;
-                    StringBuilder sb = new StringBuilder();
-                    try {
-                        while (chars[i] != ';') {
-                            sb.append(chars[i]);
-                            i++;
-                        }
-                    } catch (IndexOutOfBoundsException ex) {
-                        throw new IllegalArgumentException(errMsg);
-                    }
-                    paramTypeList.add(new Type(sb.toString(), arrayDims));
-                    arrayDims = 0;
-                    break;
-                }
-                case 'V': {
-                    throw new IllegalArgumentException("VOID cannot be used as a method parameter type");
-                }
-                default: {
-                    try {
-                        paramTypeList.add(new Type(Primitive.getFromKey(chars[i]), arrayDims));
-                        arrayDims = 0;
-                    } catch (IllegalArgumentException ex) {
-                        throw new IllegalArgumentException(errMsg, ex);
-                    }
-                }
-            }
+        while (matcher.find()) {
+            paramTypeList.add(Type.fromString(matcher.group()));
         }
-        this.paramTypes = new Type[paramTypeList.size()];
-        paramTypeList.toArray(this.paramTypes);
+        Type[] paramTypes = new Type[paramTypeList.size()];
+        paramTypeList.toArray(paramTypes);
 
-        String returnTypeStr = descriptor.substring(descriptor.indexOf(')') + 1);
+        String returnTypeStr = descriptor.substring(returnTypeIndex);
+        Type returnType = Type.fromString(returnTypeStr);
 
-        arrayDims = 0;
-        if (returnTypeStr.startsWith("[")) {
-            for (char c : returnTypeStr.toCharArray()) {
-                if (c == '[') {
-                    arrayDims++;
-                }
-            }
-            returnTypeStr = returnTypeStr.substring(arrayDims);
-        }
-
-        if (returnTypeStr.length() == 1) {
-            this.returnType = new Type(Primitive.getFromKey(returnTypeStr.charAt(0)), arrayDims);
-        } else if (returnTypeStr.startsWith("L") && returnTypeStr.endsWith(";")) {
-            this.returnType = new Type(returnTypeStr.substring(1, returnTypeStr.length() - 1), arrayDims);
-        } else {
-            throw new IllegalArgumentException(errMsg);
-        }
+        return new MethodDescriptor(returnType, paramTypes);
     }
 
     /**

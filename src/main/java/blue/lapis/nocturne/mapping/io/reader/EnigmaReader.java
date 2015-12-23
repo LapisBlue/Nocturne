@@ -103,7 +103,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    new MethodMapping(currentClass, obf, deobf, new MethodDescriptor(sig));
+                    new MethodMapping(currentClass, obf, deobf, MethodDescriptor.fromString(sig));
                     break;
                 }
                 case "ARG": {

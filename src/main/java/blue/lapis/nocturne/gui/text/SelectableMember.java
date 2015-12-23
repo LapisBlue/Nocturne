@@ -29,6 +29,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -100,7 +101,7 @@ public class SelectableMember extends Text {
                     case FIELD: {
                         ClassMapping parentMapping
                                 = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
-                        new FieldMapping(parentMapping, getName(), result.get(), null);
+                        new FieldMapping(parentMapping, getName(), result.get(), Type.fromString(descriptor));
                         break;
                     }
                     case METHOD: {
@@ -176,6 +177,7 @@ public class SelectableMember extends Text {
     public static SelectableMember fromMatcher(Matcher matcher) {
         MemberType type = MemberType.fromString(matcher.group(1));
         String qualName = matcher.group(2);
+        String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
         if (type != MemberType.CLASS) {
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
             String parentClass = "";
@@ -183,7 +185,7 @@ public class SelectableMember extends Text {
                 parentClass += arr[i];
             }
             String simpleName = arr[arr.length - 1];
-            return new SelectableMember(type, simpleName, null, parentClass);
+            return new SelectableMember(type, simpleName, descriptor, parentClass);
         } else {
             return new SelectableMember(type, qualName);
         }

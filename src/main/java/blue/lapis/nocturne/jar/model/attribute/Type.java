@@ -68,6 +68,34 @@ public class Type {
     }
 
     /**
+     * Constructs a new {@link Type} from the given textual representation.
+     *
+     * @param str The textual representation of the type
+     * @return The new {@link Type}
+     * @throws IllegalArgumentException If the given string is not a valid type
+     *     descriptor
+     */
+    public static Type fromString(String str) throws IllegalArgumentException {
+        int dims = 0;
+        if (str.startsWith("[")) {
+            for (char c : str.toCharArray()) {
+                if (c == '[') {
+                    dims++;
+                }
+            }
+            str = str.substring(dims);
+        }
+
+        if (str.length() == 1) {
+            return new Type(Primitive.getFromKey(str.charAt(0)), dims);
+        } else if (str.startsWith("L") && str.endsWith(";")) {
+            return new Type(str.substring(1, str.length() - 1), dims);
+        } else {
+            throw new IllegalArgumentException("Not a valid textual representation of a type: " + str);
+        }
+    }
+
+    /**
      * Returns the number of array dimensions of this {@link Type} (a returned
      * of {@code 0} indicates that this is not an array type).
      *

@@ -210,7 +210,7 @@ public class ConstantPoolProcessor {
                 }
             }
         } else {
-            MethodDescriptor md = new MethodDescriptor(desc);
+            MethodDescriptor md = MethodDescriptor.fromString(desc);
             List<Type> newParams = new ArrayList<>();
             for (Type param : md.getParamTypes()) {
                 if (!param.isPrimitive()) {

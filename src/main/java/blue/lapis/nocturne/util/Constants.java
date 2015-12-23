@@ -53,8 +53,15 @@ public final class Constants {
     public static final String MEMBER_PREFIX = "%NOCTURNE+";
     public static final String MEMBER_DELIMITER = "-";
     public static final String MEMBER_SUFFIX = "%";
-    public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.*)"
-            + Pattern.quote(MEMBER_DELIMITER) + "(.*)" + Pattern.quote(MEMBER_SUFFIX));
+    public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
+            + Pattern.quote(MEMBER_DELIMITER) + "(.+?)(?:" + Pattern.quote(MEMBER_DELIMITER) + "(.+))*"
+            + Pattern.quote(MEMBER_SUFFIX));
+
+    /**
+     * Regular expression to match the types contained by a method signature.
+     */
+    // side-note: I'm really proud of this thing. I wrote it in like 2 minutes and it works exactly how I want it to.
+    public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:L(?:.*);|.))");
 
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
