@@ -99,71 +99,13 @@ public class SelectableMember extends Text {
 
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("")) {
-                this.setText(result.get());
-                switch (type) {
-                    case CLASS: {
-                        Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
-                        if (matcher.matches()) {
-                            String parent = getName().substring(0, matcher.end() - 1);
-                            ClassMapping parentMapping
-                                    = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
-                            new InnerClassMapping(parentMapping, getName(), result.get());
-                        } else {
-                            Main.getMappings()
-                                    .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), result.get()));
-                        }
-                        break;
-                    }
-                    case FIELD: {
-                        ClassMapping parentMapping
-                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
-                        new FieldMapping(parentMapping, getName(), result.get(), Type.fromString(descriptor));
-                        break;
-                    }
-                    case METHOD: {
-                        ClassMapping parentMapping
-                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
-                        new MethodMapping(parentMapping, getName(), result.get(),
-                                MethodDescriptor.fromString(descriptor));
-                        break;
-                    }
-                }
-                this.codeTab.setMemberIdentifier(result.get());
+                this.setMapping(result.get());
             }
         });
 
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
-            this.setText(getName());
-            switch (type) {
-                case CLASS: {
-                    Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
-                    if (matcher.matches()) {
-                        String parent = getName().substring(0, matcher.end() - 1);
-                        ClassMapping parentMapping
-                                = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
-                        new InnerClassMapping(parentMapping, getName(), getName());
-                    } else {
-                        Main.getMappings()
-                                .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), getName()));
-                    }
-                    break;
-                }
-                case FIELD: {
-                    ClassMapping parentMapping
-                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
-                    new FieldMapping(parentMapping, getName(), getName(), Type.fromString(descriptor));
-                    break;
-                }
-                case METHOD: {
-                    ClassMapping parentMapping
-                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parentClass);
-                    new MethodMapping(parentMapping, getName(), getName(),
-                            MethodDescriptor.fromString(descriptor));
-                    break;
-                }
-            }
-            this.codeTab.setMemberIdentifier(getName());
+            this.setMapping(this.getName());
         });
 
         contextMenu.getItems().add(renameItem);
@@ -173,6 +115,39 @@ public class SelectableMember extends Text {
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
         updateText();
+    }
+
+    public void setMapping(String mapping) {
+        this.setText(mapping);
+        switch (type) {
+            case CLASS: {
+                Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
+                if (matcher.matches()) {
+                    String parent = getName().substring(0, matcher.end() - 1);
+                    ClassMapping parentMapping
+                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
+                    new InnerClassMapping(parentMapping, getName(), mapping);
+                } else {
+                    Main.getMappings()
+                            .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), mapping));
+                }
+                break;
+            }
+            case FIELD: {
+                ClassMapping parentMapping
+                        = MappingsReader.getOrCreateClassMapping(Main.getMappings(), getParentClass());
+                new FieldMapping(parentMapping, getName(), mapping, Type.fromString(getDescriptor()));
+                break;
+            }
+            case METHOD: {
+                ClassMapping parentMapping
+                        = MappingsReader.getOrCreateClassMapping(Main.getMappings(), getParentClass());
+                new MethodMapping(parentMapping, getName(), mapping,
+                        MethodDescriptor.fromString(getDescriptor()));
+                break;
+            }
+        }
+        this.codeTab.setMemberIdentifier(mapping);
     }
 
     public StringProperty getNameProperty() {
