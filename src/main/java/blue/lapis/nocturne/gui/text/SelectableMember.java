@@ -82,11 +82,7 @@ public class SelectableMember extends Text {
 
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
-                this.codeTab.setMemberType(CodeTab.SelectableMemberType.fromMemberType(this.type));
-                this.codeTab.setMemberIdentifier(this.getText());
-                if (this.type != MemberType.CLASS) {
-                    this.codeTab.setMemberInfo(this.getDescriptor());
-                }
+                this.updateCodeTab();
             }
         });
 
@@ -147,7 +143,15 @@ public class SelectableMember extends Text {
                 break;
             }
         }
-        this.codeTab.setMemberIdentifier(mapping);
+        this.updateCodeTab();
+    }
+
+    public void updateCodeTab() {
+        this.codeTab.setMemberType(CodeTab.SelectableMemberType.fromMemberType(this.type));
+        this.codeTab.setMemberIdentifier(this.getText());
+        if (this.type != MemberType.CLASS) {
+            this.codeTab.setMemberInfo(this.getDescriptor());
+        }
     }
 
     public StringProperty getNameProperty() {
