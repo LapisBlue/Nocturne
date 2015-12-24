@@ -109,15 +109,6 @@ public abstract class ClassMapping extends Mapping {
     void addInnerClassMapping(InnerClassMapping mapping) {
         innerClassMappings.put(mapping.getObfuscatedName(), mapping);
 
-        if (Main.getInstance() != null && Main.getLoadedJar() != null) { // the first check is to fix stupid unit tests
-            if (!mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) { // don't mark it if it's 1:1
-                Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(mapping.getFullObfuscatedName());
-                if (classEntry.isPresent()) {
-                    classEntry.get().setDeobfuscated(true); //TODO; why tf did I write this
-                }
-            }
-        }
-
         getContext().setDirty(true);
     }
 
@@ -159,6 +150,26 @@ public abstract class ClassMapping extends Mapping {
         }
 
         return deobfName;
+    }
+
+    @Override
+    public void setDeobfuscatedName(String name) {
+        super.setDeobfuscatedName(name);
+        markEntryDeobfuscated();
+    }
+
+    public void markEntryDeobfuscated() {
+        if (!getObfuscatedName().equals(getDeobfuscatedName())) {
+            if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
+                Optional<JarClassEntry> classEntry
+                        = Main.getLoadedJar().getClass(this instanceof InnerClassMapping
+                        ? ((InnerClassMapping) this).getFullObfuscatedName()
+                        : getObfuscatedName());
+                if (classEntry.isPresent()) {
+                    classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
+                }
+            }
+        }
     }
 
 }

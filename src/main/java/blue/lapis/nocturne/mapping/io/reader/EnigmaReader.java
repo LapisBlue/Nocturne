@@ -24,12 +24,12 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 
 import java.io.BufferedReader;
 import java.util.stream.Collectors;

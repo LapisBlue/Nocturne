@@ -30,7 +30,7 @@ package blue.lapis.nocturne.mapping.model;
 public abstract class Mapping {
 
     private final String obf;
-    private final String deobf;
+    private String deobf;
 
     /**
      * Constructs a new mapping with the given parameters.
@@ -40,7 +40,7 @@ public abstract class Mapping {
      */
     protected Mapping(String obfName, String deobfName) {
         this.obf = obfName;
-        this.deobf = deobfName;
+        setDeobfuscatedName(deobfName);
     }
 
     /**
@@ -59,6 +59,15 @@ public abstract class Mapping {
      */
     public String getDeobfuscatedName() {
         return deobf;
+    }
+
+    /**
+     * Sets the deobfuscated name of this {@link Mapping}.
+     *
+     * @param name The new deobfuscated name of this {@link Mapping}
+     */
+    public void setDeobfuscatedName(String name) {
+        this.deobf = name;
     }
 
 }

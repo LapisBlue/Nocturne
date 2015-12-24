@@ -38,6 +38,7 @@ import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -116,29 +117,20 @@ public class SelectableMember extends Text {
         this.setText(mapping);
         switch (type) {
             case CLASS: {
-                Matcher matcher = INNER_CLASS_SEPARATOR_PATTERN.matcher(getName());
-                if (matcher.matches()) {
-                    String parent = getName().substring(0, matcher.end() - 1);
-                    ClassMapping parentMapping
-                            = MappingsReader.getOrCreateClassMapping(Main.getMappings(), parent);
-                    new InnerClassMapping(parentMapping, getName(), mapping);
-                } else {
-                    Main.getMappings()
-                            .addMapping(new TopLevelClassMapping(Main.getMappings(), getName(), mapping));
-                }
+                MappingsReader.genClassMapping(Main.getMappings(),
+                        getName(), mapping);
                 break;
             }
             case FIELD: {
-                ClassMapping parentMapping
-                        = MappingsReader.getOrCreateClassMapping(Main.getMappings(), getParentClass());
-                new FieldMapping(parentMapping, getName(), mapping, Type.fromString(getDescriptor()));
+                MappingsReader.genFieldMapping(Main.getMappings(),
+                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping);
                 break;
             }
             case METHOD: {
-                ClassMapping parentMapping
-                        = MappingsReader.getOrCreateClassMapping(Main.getMappings(), getParentClass());
-                new MethodMapping(parentMapping, getName(), mapping,
-                        MethodDescriptor.fromString(getDescriptor()));
+                MappingsReader.genMethodMapping(Main.getMappings(),
+                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), getDescriptor(),
+                        mapping,
+                        MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappings()).toString());
                 break;
             }
         }

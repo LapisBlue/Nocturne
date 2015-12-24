@@ -28,13 +28,13 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
@@ -60,9 +60,8 @@ public abstract class MappingsReader implements Closeable {
      */
     public abstract MappingContext read();
 
-    protected void genClassMapping(MappingContext context, String obf, String deobf) {
+    public static void genClassMapping(MappingContext context, String obf, String deobf) {
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-            // escape the separator char so it doesn't get parsed as regex
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
@@ -70,18 +69,27 @@ public abstract class MappingsReader implements Closeable {
                 return; // ignore it
             }
 
-            // iteratively get the direct parent class to this inner class
+            // get the direct parent class to this inner class
             ClassMapping parent = getOrCreateClassMapping(context,
                     obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
 
-            new InnerClassMapping(parent, obfSplit[obfSplit.length - 1],
-                    deobfSplit[deobfSplit.length - 1]);
+            String baseObfName = obfSplit[obfSplit.length - 1];
+            String baseDeobfname = deobfSplit[deobfSplit.length - 1];
+            if (parent.getInnerClassMappings().containsKey(baseObfName)) {
+                parent.getInnerClassMappings().get(obf).setDeobfuscatedName(baseDeobfname);
+            } else {
+                new InnerClassMapping(parent, baseObfName, baseDeobfname);
+            }
         } else {
-            context.addMapping(new TopLevelClassMapping(context, obf, deobf));
+            if (context.getMappings().containsKey(obf)) {
+                context.getMappings().get(obf).setDeobfuscatedName(deobf);
+            } else {
+                context.addMapping(new TopLevelClassMapping(context, obf, deobf));
+            }
         }
     }
 
-    protected void genFieldMapping(MappingContext context, String obf, String deobf) {
+    public static void genFieldMapping(MappingContext context, String obf, String deobf) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
         String obfName = obf.substring(lastIndex + 1);
@@ -89,10 +97,14 @@ public abstract class MappingsReader implements Closeable {
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        new FieldMapping(parent, obfName, deobfName, null);
+        if (parent.getFieldMappings().containsKey(obfName)) {
+            parent.getFieldMappings().get(obf).setDeobfuscatedName(deobfName);
+        } else {
+            new FieldMapping(parent, obfName, deobfName, null);
+        }
     }
 
-    protected void genMethodMapping(MappingContext context, String obf, String obfSig, String deobf,
+    public static void genMethodMapping(MappingContext context, String obf, String obfSig, String deobf,
             String deobfSig) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
@@ -101,7 +113,11 @@ public abstract class MappingsReader implements Closeable {
         String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(obfSig));
+        if (parent.getMethodMappings().containsKey(obfName)) {
+            parent.getMethodMappings().get(obfName).setDeobfuscatedName(deobfName);
+        } else {
+            new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(obfSig));
+        }
     }
 
     protected int getClassNestingLevel(String name) {
