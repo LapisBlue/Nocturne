@@ -38,7 +38,7 @@ import java.util.List;
 public class MethodMapping extends Mapping implements ClassComponent {
 
     private final ClassMapping parent;
-    private final MethodDescriptor sig;
+    private final MethodDescriptor descriptor;
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
@@ -46,12 +46,13 @@ public class MethodMapping extends Mapping implements ClassComponent {
      * @param parent The parent {@link ClassMapping}
      * @param obfName The obfuscated name of the method
      * @param deobfName The deobfuscated name of the method
-     * @param signature The (obfuscated) {@link MethodDescriptor} of the method
+     * @param descriptor The (obfuscated) {@link MethodDescriptor descriptor} of
+     *     the method
      */
-    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor signature) {
+    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor) {
         super(obfName, deobfName);
         this.parent = parent;
-        this.sig = signature;
+        this.descriptor = descriptor;
 
         parent.addMethodMapping(this);
     }
@@ -66,8 +67,8 @@ public class MethodMapping extends Mapping implements ClassComponent {
      *
      * @return The {@link MethodDescriptor} of this method
      */
-    public MethodDescriptor getSignature() {
-        return sig;
+    public MethodDescriptor getObfuscatedDescriptor() {
+        return descriptor;
     }
 
     /**
@@ -75,8 +76,8 @@ public class MethodMapping extends Mapping implements ClassComponent {
      *
      * @return The deobfuscated {@link MethodDescriptor} of this method
      */
-    public MethodDescriptor getDeobfuscatedSignature() {
-        return getSignature().deobfuscate(getParent().getContext());
+    public MethodDescriptor getDeobfuscatedDescriptor() {
+        return getObfuscatedDescriptor().deobfuscate(getParent().getContext());
     }
 
     @Override
@@ -92,7 +93,7 @@ public class MethodMapping extends Mapping implements ClassComponent {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(), getSignature().toString());
+        return new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(), getObfuscatedDescriptor().toString());
     }
 
     private String getQualifiedName() {

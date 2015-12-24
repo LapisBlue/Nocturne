@@ -39,9 +39,9 @@ import org.junit.Test;
 public class MethodDescriptorTest {
 
     @Test
-    public void testPrimitiveSignature() {
-        String sig = "(IDZ)V";
-        MethodDescriptor ms = MethodDescriptor.fromString(sig);
+    public void testPrimitiveDescriptor() {
+        String desc = "(IDZ)V";
+        MethodDescriptor ms = MethodDescriptor.fromString(desc);
         assertArrayEquals(
                 new Type[] {
                         new Type(Primitive.INT, 0),
@@ -53,9 +53,9 @@ public class MethodDescriptorTest {
     }
 
     @Test
-    public void testArraySignature() {
-        String sig = "(I[[D[Z)V";
-        MethodDescriptor ms = MethodDescriptor.fromString(sig);
+    public void testArrayDescriptor() {
+        String desc = "(I[[D[Z)V";
+        MethodDescriptor ms = MethodDescriptor.fromString(desc);
         assertArrayEquals(
                 new Type[] {
                         new Type(Primitive.INT, 0),
@@ -67,11 +67,11 @@ public class MethodDescriptorTest {
     }
 
     @Test
-    public void testClassSignature() {
+    public void testClassDescriptor() {
         String c1 = "java/util/List";
         String c2 = "java/lang/String";
-        String sig = "(BL" + c1 + ";I)L" + c2 + ";";
-        MethodDescriptor ms = MethodDescriptor.fromString(sig);
+        String desc = "(BL" + c1 + ";I)L" + c2 + ";";
+        MethodDescriptor ms = MethodDescriptor.fromString(desc);
         assertArrayEquals(new Type[] {new Type(Primitive.BYTE, 0), new Type(c1, 0), new Type(Primitive.INT, 0)},
                 ms.getParamTypes());
         assertEquals(new Type(c2, 0), ms.getReturnType());

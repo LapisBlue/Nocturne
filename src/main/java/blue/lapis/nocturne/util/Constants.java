@@ -58,7 +58,7 @@ public final class Constants {
             + Pattern.quote(MEMBER_SUFFIX));
 
     /**
-     * Regular expression to match the types contained by a method signature.
+     * Regular expression to match the types contained by a method descriptor.
      */
     // side-note: I'm really proud of this thing. I wrote it in like 2 minutes and it works exactly how I want it to.
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:L(?:.*);|.))");

@@ -87,8 +87,8 @@ public class SrgWriter extends MappingsWriter {
     @Override
     protected void writeMethodMapping(MethodMapping mapping) {
         out.format("MD: %s/%s %s %s/%s %s\n",
-                mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getSignature(),
+                mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getObfuscatedDescriptor(),
                 mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
-                mapping.getDeobfuscatedSignature());
+                mapping.getDeobfuscatedDescriptor());
     }
 }

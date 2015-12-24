@@ -24,15 +24,12 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import com.google.common.collect.ImmutableMap;
@@ -114,7 +111,7 @@ public abstract class ClassMapping extends Mapping {
      * @param mapping The {@link MethodMapping} to add
      */
     void addMethodMapping(MethodMapping mapping) {
-        methodMappings.put(mapping.getObfuscatedName() + mapping.getSignature(), mapping);
+        methodMappings.put(mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor(), mapping);
     }
 
     /**

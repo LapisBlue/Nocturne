@@ -66,9 +66,9 @@ public class MethodDescriptor {
      * Parses and constructs a new {@link MethodDescriptor} from the given
      * {@link CharSequence}.
      *
-     * @param descriptor The {@link CharSequence} representing the signature
+     * @param descriptor The {@link CharSequence} representing the descriptor
      * @throws IllegalArgumentException If the provided {@link CharSequence} is
-     *     not a valid method signature
+     *     not a valid method descriptor
      */
     public static MethodDescriptor fromString(String descriptor) throws IllegalArgumentException {
         Preconditions.checkArgument(descriptor.charAt(0) == '(', "Not a valid method descriptor: " + descriptor);

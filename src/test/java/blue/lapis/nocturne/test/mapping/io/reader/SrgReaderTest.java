@@ -135,10 +135,10 @@ public class SrgReaderTest {
                         new Type("a", 0),
                         new Type(Primitive.INT, 0)
                 },
-                methodMapping.getSignature().getParamTypes());
-        assertEquals(new Type("a", 0), methodMapping.getSignature().getReturnType());
+                methodMapping.getObfuscatedDescriptor().getParamTypes());
+        assertEquals(new Type("a", 0), methodMapping.getObfuscatedDescriptor().getReturnType());
 
-        MethodDescriptor deobfSig = methodMapping.getDeobfuscatedSignature();
+        MethodDescriptor deobfSig = methodMapping.getDeobfuscatedDescriptor();
         assertArrayEquals(
                 new Type[]{
                         new Type(Primitive.INT, 0),

@@ -140,7 +140,7 @@ public class CodeTab extends Tab {
 
     public enum SelectableMemberType {
         FIELD("codetab.identifier.field", "codetab.identifier.type"),
-        METHOD("codetab.identifier.method", "codetab.identifier.signature"),
+        METHOD("codetab.identifier.method", "codetab.identifier.descriptor"),
         CLASS("codetab.identifier.class");
 
         private final String identifierLabel;
