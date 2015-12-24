@@ -247,9 +247,9 @@ public class SelectableMember extends Text {
         String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
 
         if (type != MemberType.CLASS) {
-            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
-            String simpleName = arr[arr.length - 1];
-            String parentClass = qualName.substring(0, qualName.length() - simpleName.length());
+            int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+            String simpleName = qualName.substring(offset + 1);
+            String parentClass = qualName.substring(0, offset);
             return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
         } else {
             return new SelectableMember(codeTab, type, qualName);
