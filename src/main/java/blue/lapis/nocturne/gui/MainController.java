@@ -29,6 +29,7 @@ import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
@@ -149,6 +150,8 @@ public class MainController implements Initializable {
             throw new RuntimeException(ex);
         }
         Main.getMappingContext().clear();
+        SelectableMember.MEMBERS.values()
+                .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
         updateClassViews();
     }
 

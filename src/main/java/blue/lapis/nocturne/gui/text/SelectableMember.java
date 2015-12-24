@@ -238,7 +238,7 @@ public class SelectableMember extends Text {
             throw new AssertionError();
         }
 
-        setText(MappingsHelper.unqualify(deobf));
+        setAndProcessText(deobf);
     }
 
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
@@ -254,6 +254,10 @@ public class SelectableMember extends Text {
         } else {
             return new SelectableMember(codeTab, type, qualName);
         }
+    }
+
+    public void setAndProcessText(String text) {
+        setText(getType() == MemberType.CLASS ? MappingsHelper.unqualify(text) : text);
     }
 
     public static final class MemberKey {
