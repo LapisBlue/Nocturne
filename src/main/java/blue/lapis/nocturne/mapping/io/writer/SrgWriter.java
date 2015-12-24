@@ -28,15 +28,20 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
+import java.util.function.Predicate;
 
 /**
  * The mappings writer, for the SRG format.
  */
 public class SrgWriter extends MappingsWriter {
+
+    private static final Predicate<Mapping> NOT_USELESS
+            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
 
     /**
      * Constructs a new {@link SrgWriter} which outputs to the given
@@ -56,18 +61,20 @@ public class SrgWriter extends MappingsWriter {
 
     @Override
     protected void writeClassMapping(ClassMapping classMapping) {
-        if (classMapping instanceof TopLevelClassMapping) {
-            out.format("CL: %s %s\n",
-                    classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
-        } else if (classMapping instanceof InnerClassMapping) {
-            InnerClassMapping mapping = (InnerClassMapping) classMapping;
-            out.format("CL: %s %s\n",
-                    mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
+        if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
+            if (classMapping instanceof TopLevelClassMapping) {
+                out.format("CL: %s %s\n",
+                        classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
+            } else if (classMapping instanceof InnerClassMapping) {
+                InnerClassMapping mapping = (InnerClassMapping) classMapping;
+                out.format("CL: %s %s\n",
+                        mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
+            }
         }
 
-        classMapping.getInnerClassMappings().values().forEach(this::writeClassMapping);
-        classMapping.getFieldMappings().values().forEach(this::writeFieldMapping);
-        classMapping.getMethodMappings().values().forEach(this::writeMethodMapping);
+        classMapping.getInnerClassMappings().values().stream().filter(NOT_USELESS).forEach(this::writeClassMapping);
+        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).forEach(this::writeFieldMapping);
+        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).forEach(this::writeMethodMapping);
     }
 
     @Override
