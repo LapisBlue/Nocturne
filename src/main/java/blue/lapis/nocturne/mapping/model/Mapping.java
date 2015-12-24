@@ -24,6 +24,10 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.gui.text.SelectableMember;
+
+import javafx.application.Platform;
+
 /**
  * Represents a single obfuscation mapping for a particular member.
  */
@@ -40,7 +44,7 @@ public abstract class Mapping {
      */
     protected Mapping(String obfName, String deobfName) {
         this.obf = obfName;
-        setDeobfuscatedName(deobfName);
+        Platform.runLater(() -> setDeobfuscatedName(deobfName));
     }
 
     /**
@@ -69,5 +73,7 @@ public abstract class Mapping {
     public void setDeobfuscatedName(String name) {
         this.deobf = name;
     }
+
+    protected abstract SelectableMember.MemberKey getMemberKey();
 
 }

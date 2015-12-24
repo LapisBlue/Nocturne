@@ -99,21 +99,7 @@ public class MainController implements Initializable {
     private void initSampleCodeTabs() {
         // The following is example code, for adding code-tabs
         CodeTab fieldExample = new CodeTab(tabs);
-        fieldExample.setText("cG");
-        fieldExample.setMemberType(CodeTab.SelectableMemberType.FIELD);
-        fieldExample.setMemberIdentifier("logger");
-        fieldExample.setMemberInfo("java.util.Logger");
-
-        CodeTab methodExample = new CodeTab(tabs);
-        methodExample.setText("aQ");
-        methodExample.setMemberType(CodeTab.SelectableMemberType.METHOD);
-        methodExample.setMemberIdentifier("doSomething");
-        methodExample.setMemberInfo("(Ljava/lang/String)V");
-
-        CodeTab classExample = new CodeTab(tabs);
-        classExample.setText("jH");
-        classExample.setMemberType(CodeTab.SelectableMemberType.CLASS);
-        classExample.setMemberIdentifier("jH");
+        fieldExample.setText("SomeClass");
     }
 
     private void setAccelerators() {

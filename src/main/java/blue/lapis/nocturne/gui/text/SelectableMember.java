@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.gui.text;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
@@ -44,7 +45,11 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -52,6 +57,8 @@ import java.util.regex.Matcher;
  * Represents a selectable member in code.
  */
 public class SelectableMember extends Text {
+
+    public static final Map<MemberKey, List<SelectableMember>> MEMBERS = new HashMap<>();
 
     private final CodeTab codeTab;
     private final MemberType type;
@@ -130,6 +137,13 @@ public class SelectableMember extends Text {
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
         updateText();
+
+        String qualifiedName = type == MemberType.CLASS ? name : parentClass + CLASS_PATH_SEPARATOR_CHAR + name;
+        MemberKey key = new MemberKey(type, qualifiedName, descriptor);
+        if (!MEMBERS.containsKey(key)) {
+            MEMBERS.put(key, new ArrayList<>());
+        }
+        MEMBERS.get(key).add(this);
     }
 
     public void setMapping(String mapping) {
@@ -226,6 +240,7 @@ public class SelectableMember extends Text {
         MemberType type = MemberType.fromString(matcher.group(1));
         String qualName = matcher.group(2);
         String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
+
         if (type != MemberType.CLASS) {
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
             String parentClass = "";
@@ -237,6 +252,36 @@ public class SelectableMember extends Text {
         } else {
             return new SelectableMember(codeTab, type, qualName);
         }
+    }
+
+    public static final class MemberKey {
+
+        private MemberType type;
+        private String qualName;
+        private String descriptor;
+
+        public MemberKey(MemberType type, String qualifiedName, String descriptor) {
+            this.type = type;
+            this.qualName = qualifiedName;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof MemberKey)) {
+                return false;
+            }
+            MemberKey key = (MemberKey) obj;
+            return     Objects.equals(type, key.type)
+                    && Objects.equals(qualName, key.qualName)
+                    && Objects.equals(descriptor, key.descriptor);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, qualName, descriptor);
+        }
+
     }
 
 }

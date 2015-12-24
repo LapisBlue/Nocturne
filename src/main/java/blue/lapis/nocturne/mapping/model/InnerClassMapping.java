@@ -26,7 +26,9 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.MemberType;
 
 /**
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
@@ -85,6 +87,11 @@ public class InnerClassMapping extends ClassMapping implements ClassComponent {
     @Override
     public MappingContext getContext() {
         return getParent().getContext();
+    }
+
+    @Override
+    protected SelectableMember.MemberKey getMemberKey() {
+        return new SelectableMember.MemberKey(MemberType.CLASS, getFullObfuscatedName(), null);
     }
 
 }

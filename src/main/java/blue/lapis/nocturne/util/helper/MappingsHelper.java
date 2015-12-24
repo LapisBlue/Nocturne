@@ -82,7 +82,7 @@ public class MappingsHelper {
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         if (parent.getFieldMappings().containsKey(obfName)) {
-            parent.getFieldMappings().get(obf).setDeobfuscatedName(deobfName);
+            parent.getFieldMappings().get(obfName).setDeobfuscatedName(deobfName);
         } else {
             new FieldMapping(parent, obfName, deobfName, null);
         }
@@ -150,5 +150,7 @@ public class MappingsHelper {
     public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
         return getClassMapping(context, qualifiedName, true).get();
     }
+
+
 
 }

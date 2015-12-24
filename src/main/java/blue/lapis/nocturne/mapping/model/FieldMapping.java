@@ -24,7 +24,13 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+
+import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.util.MemberType;
+
+import java.util.List;
 
 /**
  * Represents a {@link Mapping} for a field.
@@ -71,6 +77,29 @@ public class FieldMapping extends Mapping implements ClassComponent {
      */
     public Type getDeobfuscatedType() {
         return getType().deobfuscate(getParent().getContext());
+    }
+
+    @Override
+    public void setDeobfuscatedName(String name) {
+        super.setDeobfuscatedName(name);
+
+        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
+        if (memberList == null) {
+            return;
+        }
+        memberList.forEach(member -> member.setText(name));
+    }
+
+    @Override
+    protected SelectableMember.MemberKey getMemberKey() {
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), null);
+    }
+
+    private String getQualifiedName() {
+        return (getParent() instanceof InnerClassMapping
+                ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
+                : getParent().getObfuscatedName())
+        + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }
 
 }

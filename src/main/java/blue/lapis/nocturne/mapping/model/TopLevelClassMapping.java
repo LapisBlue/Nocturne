@@ -24,7 +24,9 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.MemberType;
 
 /**
  * Represents a top-level {@link ClassMapping} (i.e. not an inner class).
@@ -49,6 +51,11 @@ public class TopLevelClassMapping extends ClassMapping {
     @Override
     public MappingContext getContext() {
         return parent;
+    }
+
+    @Override
+    protected SelectableMember.MemberKey getMemberKey() {
+        return new SelectableMember.MemberKey(MemberType.CLASS, getObfuscatedName(), null);
     }
 
 }

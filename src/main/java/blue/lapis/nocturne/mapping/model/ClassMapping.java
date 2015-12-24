@@ -24,15 +24,20 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -176,6 +181,14 @@ public abstract class ClassMapping extends Mapping {
     public void setDeobfuscatedName(String name) {
         super.setDeobfuscatedName(name);
         markEntryDeobfuscated();
+
+        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
+        if (memberList == null) {
+            return;
+        }
+
+        String unqualName = getUnqualifiedName();
+        memberList.forEach(member -> member.setText(unqualName));
     }
 
     public void markEntryDeobfuscated() {
@@ -190,6 +203,13 @@ public abstract class ClassMapping extends Mapping {
                 }
             }
         }
+    }
+
+    protected String getUnqualifiedName() {
+        String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(getObfuscatedName());
+        return  getObfuscatedName().contains(CLASS_PATH_SEPARATOR_CHAR + "")
+                ? arr[arr.length - 1]
+                : getObfuscatedName();
     }
 
 }
