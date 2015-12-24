@@ -133,6 +133,10 @@ public class MappingsHelper {
         return Optional.of(mapping);
     }
 
+    public static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName) {
+        return getClassMapping(context, qualifiedName, false);
+    }
+
     /**
      * Gets the {@link ClassMapping} for the given qualified name, iteratively
      * creating mappings for both outer and inner classes as needed if they do
@@ -145,10 +149,6 @@ public class MappingsHelper {
      */
     public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
         return getClassMapping(context, qualifiedName, true).get();
-    }
-
-    public static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName) {
-        return getClassMapping(context, qualifiedName, false);
     }
 
 }

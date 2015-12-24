@@ -60,9 +60,9 @@ public enum OperatingSystem implements Predicate<String> {
                 return System.getenv("APPDATA");
             case LINUX:
             case UNKNOWN:
+            default:
                 return System.getProperty("user.home");
         }
-        return System.getProperty("user.home");
     }
 
     /**

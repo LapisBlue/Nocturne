@@ -103,6 +103,7 @@ public class SelectableMember extends Text {
                     if (mapping.isPresent()) {
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                     }
+                    break;
                 }
                 case FIELD: {
                     ClassMapping parent
@@ -115,6 +116,9 @@ public class SelectableMember extends Text {
                             = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass()).get();
                     parent.removeMethodMapping(getName());
                     break;
+                }
+                default: {
+                    throw new AssertionError();
                 }
             }
         });
@@ -147,6 +151,9 @@ public class SelectableMember extends Text {
                         mapping,
                         MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappingContext()).toString());
                 break;
+            }
+            default: {
+                throw new AssertionError();
             }
         }
         this.updateCodeTab();

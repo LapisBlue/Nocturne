@@ -193,8 +193,9 @@ public class CodeTab extends Tab {
                     return SelectableMemberType.FIELD;
                 case METHOD:
                     return SelectableMemberType.METHOD;
+                default:
+                    throw new AssertionError();
             }
-            return null;
         }
     }
 }
