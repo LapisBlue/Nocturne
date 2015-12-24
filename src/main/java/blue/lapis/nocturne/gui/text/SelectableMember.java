@@ -25,21 +25,15 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -117,17 +111,17 @@ public class SelectableMember extends Text {
         this.setText(mapping);
         switch (type) {
             case CLASS: {
-                MappingsReader.genClassMapping(Main.getMappings(),
+                MappingsHelper.genClassMapping(Main.getMappings(),
                         getName(), mapping);
                 break;
             }
             case FIELD: {
-                MappingsReader.genFieldMapping(Main.getMappings(),
+                MappingsHelper.genFieldMapping(Main.getMappings(),
                         getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping);
                 break;
             }
             case METHOD: {
-                MappingsReader.genMethodMapping(Main.getMappings(),
+                MappingsHelper.genMethodMapping(Main.getMappings(),
                         getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), getDescriptor(),
                         mapping,
                         MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappings()).toString());
@@ -182,7 +176,7 @@ public class SelectableMember extends Text {
         } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
             String deobf = getName();
 
-            Optional<ClassMapping> classMapping = MappingsReader.getClassMapping(Main.getMappings(), getParentClass());
+            Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass());
             if (classMapping.isPresent()) {
                 Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
                         ? classMapping.get().getFieldMappings()

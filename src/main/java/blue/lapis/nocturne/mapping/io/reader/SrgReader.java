@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class SrgReader extends MappingsReader {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            genClassMapping(context, obf, deobf);
+            MappingsHelper.genClassMapping(context, obf, deobf);
         }
     }
 
@@ -93,7 +94,7 @@ public class SrgReader extends MappingsReader {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            genFieldMapping(context, obf, deobf);
+            MappingsHelper.genFieldMapping(context, obf, deobf);
         }
     }
 
@@ -104,7 +105,7 @@ public class SrgReader extends MappingsReader {
             String obfSig = arr[2];
             String deobf = arr[3];
             String deobfSig = arr[4];
-            genMethodMapping(context, obf, obfSig, deobf, deobfSig);
+            MappingsHelper.genMethodMapping(context, obf, obfSig, deobf, deobfSig);
         }
     }
 

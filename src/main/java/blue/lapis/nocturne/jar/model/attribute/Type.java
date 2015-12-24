@@ -25,8 +25,8 @@
 package blue.lapis.nocturne.jar.model.attribute;
 
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import com.google.common.base.Preconditions;
 
@@ -149,7 +149,7 @@ public class Type {
     private String getDeobfuscatedClassName(MappingContext context) throws IllegalStateException {
         Preconditions.checkState(!isPrimitive(), "Cannot get primitive type as class");
 
-        Optional<ClassMapping> mapping = MappingsReader.getClassMapping(context, getClassName());
+        Optional<ClassMapping> mapping = MappingsHelper.getClassMapping(context, getClassName());
         return mapping.isPresent() ? mapping.get().getDeobfuscatedName() : getClassName();
     }
 
