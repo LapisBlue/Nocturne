@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.util.helper;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
@@ -151,6 +153,17 @@ public class MappingsHelper {
         return getClassMapping(context, qualifiedName, true).get();
     }
 
-
+    public static String unqualify(String qualified) {
+        String unqual = qualified;
+        if (unqual.contains(CLASS_PATH_SEPARATOR_CHAR + "")) {
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(unqual);
+            unqual = arr[arr.length - 1];
+        }
+        if (unqual.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+            String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(unqual);
+            unqual = arr[arr.length - 1];
+        }
+        return unqual;
+    }
 
 }

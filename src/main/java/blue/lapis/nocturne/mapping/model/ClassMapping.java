@@ -33,6 +33,7 @@ import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -101,7 +102,7 @@ public abstract class ClassMapping extends Mapping {
      * Removes the {@link FieldMapping} by the given name from this
      * {@link ClassMapping}.
      *
-     * @param name The name of the field to remove the mapping of
+     * @param fieldName The name of the field to remove the mapping of
      */
     public void removeFieldMapping(String fieldName) {
         fieldMappings.remove(fieldName);
@@ -120,7 +121,7 @@ public abstract class ClassMapping extends Mapping {
      * Removes the {@link MethodMapping} by the given name from this
      * {@link ClassMapping}.
      *
-     * @param name The name of the method to remove the mapping of
+     * @param methodName The name of the method to remove the mapping of
      */
     public void removeMethodMapping(String methodName) {
         fieldMappings.remove(methodName);
@@ -187,7 +188,7 @@ public abstract class ClassMapping extends Mapping {
             return;
         }
 
-        String unqualName = getUnqualifiedName();
+        String unqualName = this instanceof InnerClassMapping ? name : MappingsHelper.unqualify(name);
         memberList.forEach(member -> member.setText(unqualName));
     }
 
@@ -203,13 +204,6 @@ public abstract class ClassMapping extends Mapping {
                 }
             }
         }
-    }
-
-    protected String getUnqualifiedName() {
-        String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(getObfuscatedName());
-        return  getObfuscatedName().contains(CLASS_PATH_SEPARATOR_CHAR + "")
-                ? arr[arr.length - 1]
-                : getObfuscatedName();
     }
 
 }

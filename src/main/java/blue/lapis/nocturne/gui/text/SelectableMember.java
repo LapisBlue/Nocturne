@@ -46,6 +46,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,8 @@ public class SelectableMember extends Text {
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
+    private String fullName = null; // only used for classes
+
     public SelectableMember(CodeTab codeTab, MemberType type, String name) {
         this(codeTab, type, name, null, null);
     }
@@ -78,6 +81,10 @@ public class SelectableMember extends Text {
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
         this.parentClassProperty.set(parentClass);
+
+        if (type == MemberType.CLASS) {
+            fullName = getName();
+        }
 
         this.setFill(Color.web("orange"));
 
@@ -91,7 +98,7 @@ public class SelectableMember extends Text {
 
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
-            TextInputDialog textInputDialog = new TextInputDialog(this.getText());
+            TextInputDialog textInputDialog = new TextInputDialog(fullName != null ? fullName : this.getText());
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
 
             Optional<String> result = textInputDialog.showAndWait();
@@ -102,7 +109,6 @@ public class SelectableMember extends Text {
 
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
-            this.setMapping(this.getName());
             switch (getType()) {
                 case CLASS: {
                     Optional<ClassMapping> mapping
@@ -110,6 +116,7 @@ public class SelectableMember extends Text {
                     if (mapping.isPresent()) {
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                     }
+                    fullName = getName();
                     break;
                 }
                 case FIELD: {
@@ -128,6 +135,8 @@ public class SelectableMember extends Text {
                     throw new AssertionError();
                 }
             }
+
+            this.updateCodeTab();
         });
 
         contextMenu.getItems().add(renameItem);
@@ -147,11 +156,10 @@ public class SelectableMember extends Text {
     }
 
     public void setMapping(String mapping) {
-        this.setText(mapping);
         switch (type) {
             case CLASS: {
-                MappingsHelper.genClassMapping(Main.getMappingContext(),
-                        getName(), mapping);
+                MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping);
+                fullName = mapping;
                 break;
             }
             case FIELD: {
@@ -170,7 +178,6 @@ public class SelectableMember extends Text {
                 throw new AssertionError();
             }
         }
-        this.updateCodeTab();
     }
 
     public void updateCodeTab() {
@@ -210,13 +217,11 @@ public class SelectableMember extends Text {
     }
 
     private void updateText() {
+        String deobf;
         if (getType() == MemberType.CLASS) {
-            String deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
-            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(deobf);
-            deobf = arr[arr.length - 1];
-            setText(deobf);
+            deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
         } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
-            String deobf = getName();
+            deobf = getName();
 
             Optional<ClassMapping> classMapping
                     = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
@@ -229,11 +234,11 @@ public class SelectableMember extends Text {
                     deobf = mapping.getDeobfuscatedName();
                 }
             }
-
-            setText(deobf);
         } else {
             throw new AssertionError();
         }
+
+        setText(MappingsHelper.unqualify(deobf));
     }
 
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
@@ -243,11 +248,8 @@ public class SelectableMember extends Text {
 
         if (type != MemberType.CLASS) {
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(qualName);
-            String parentClass = "";
-            for (int i = 0; i < arr.length - 1; i++) {
-                parentClass += arr[i];
-            }
             String simpleName = arr[arr.length - 1];
+            String parentClass = qualName.substring(0, qualName.length() - simpleName.length());
             return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
         } else {
             return new SelectableMember(codeTab, type, qualName);
