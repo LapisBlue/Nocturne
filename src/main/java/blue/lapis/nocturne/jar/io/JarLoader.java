@@ -87,7 +87,7 @@ public class JarLoader {
                 JarClassEntry classEntry = new JarClassEntry(className, bytes);
 
                 //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
-                ClassMapping mapping = Main.getMappings().getMappings().get(className);
+                ClassMapping mapping = Main.getMappingContext().getMappings().get(className);
                 if (mapping != null && !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) {
                     classEntry.setDeobfuscated(true);
                 }

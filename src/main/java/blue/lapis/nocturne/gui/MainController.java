@@ -130,7 +130,7 @@ public class MainController implements Initializable {
             if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
                 return;
             }
-            Main.getMappings().clear();
+            Main.getMappingContext().clear();
             Main.setLoadedJar(null);
         }
 
@@ -143,7 +143,7 @@ public class MainController implements Initializable {
             return;
         }
 
-        Main.getMappings().clear();
+        Main.getMappingContext().clear();
         Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
         updateClassViews();
@@ -162,7 +162,7 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        Main.getMappings().clear();
+        Main.getMappingContext().clear();
         updateClassViews();
     }
 

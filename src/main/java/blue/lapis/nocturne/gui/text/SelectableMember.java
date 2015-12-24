@@ -98,18 +98,21 @@ public class SelectableMember extends Text {
             this.setMapping(this.getName());
             switch (getType()) {
                 case CLASS: {
-                    Optional<ClassMapping> mapping = MappingsHelper.getClassMapping(Main.getMappings(), getName());
+                    Optional<ClassMapping> mapping
+                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getName());
                     if (mapping.isPresent()) {
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                     }
                 }
                 case FIELD: {
-                    ClassMapping parent = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass()).get();
+                    ClassMapping parent
+                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass()).get();
                     parent.removeFieldMapping(getName());
                     break;
                 }
                 case METHOD: {
-                    ClassMapping parent = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass()).get();
+                    ClassMapping parent
+                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass()).get();
                     parent.removeMethodMapping(getName());
                     break;
                 }
@@ -129,20 +132,20 @@ public class SelectableMember extends Text {
         this.setText(mapping);
         switch (type) {
             case CLASS: {
-                MappingsHelper.genClassMapping(Main.getMappings(),
+                MappingsHelper.genClassMapping(Main.getMappingContext(),
                         getName(), mapping);
                 break;
             }
             case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappings(),
+                MappingsHelper.genFieldMapping(Main.getMappingContext(),
                         getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping);
                 break;
             }
             case METHOD: {
-                MappingsHelper.genMethodMapping(Main.getMappings(),
+                MappingsHelper.genMethodMapping(Main.getMappingContext(),
                         getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), getDescriptor(),
                         mapping,
-                        MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappings()).toString());
+                        MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappingContext()).toString());
                 break;
             }
         }
@@ -187,14 +190,15 @@ public class SelectableMember extends Text {
 
     private void updateText() {
         if (getType() == MemberType.CLASS) {
-            String deobf = ClassMapping.deobfuscate(Main.getMappings(), getName());
+            String deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(deobf);
             deobf = arr[arr.length - 1];
             setText(deobf);
         } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
             String deobf = getName();
 
-            Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass());
+            Optional<ClassMapping> classMapping
+                    = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
             if (classMapping.isPresent()) {
                 Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
                         ? classMapping.get().getFieldMappings()

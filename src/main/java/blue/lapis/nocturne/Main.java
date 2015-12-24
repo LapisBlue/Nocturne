@@ -78,7 +78,7 @@ public class Main extends Application {
     private Stage mainStage;
     private Scene scene;
 
-    private MappingContext mappings = new MappingContext();
+    private MappingContext mappingContext = new MappingContext();
     private Path currentMappingsPath;
     private ClassSet loadedJar;
 
@@ -202,8 +202,8 @@ public class Main extends Application {
         return getInstance().mainStage;
     }
 
-    public static MappingContext getMappings() {
-        return getInstance().mappings;
+    public static MappingContext getMappingContext() {
+        return getInstance().mappingContext;
     }
 
     public static Path getCurrentMappingsPath() {

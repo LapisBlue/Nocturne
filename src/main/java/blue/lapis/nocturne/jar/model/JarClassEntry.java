@@ -67,7 +67,7 @@ public class JarClassEntry {
 
     public String getDeobfuscatedName() {
         checkArgument(isDeobfuscated(), "Cannot get deobfuscated name from non-deobfuscated class entry");
-        return Main.getMappings().getMappings().get(name).getDeobfuscatedName();
+        return Main.getMappingContext().getMappings().get(name).getDeobfuscatedName();
     }
 
     /**

@@ -73,8 +73,8 @@ public final class MappingsOpenDialogHelper {
         if (Files.exists(selectedPath)) { //TODO: isn't this redundant?
             try (SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)))) {
                 MappingContext context = reader.read();
-                Main.getMappings().merge(context);
-                Main.getMappings().setDirty(false);
+                Main.getMappingContext().merge(context);
+                Main.getMappingContext().setDirty(false);
             }
 
             Main.setCurrentMappingsPath(selectedPath);

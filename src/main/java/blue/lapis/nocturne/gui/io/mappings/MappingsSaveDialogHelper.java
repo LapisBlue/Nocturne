@@ -84,7 +84,7 @@ public final class MappingsSaveDialogHelper {
         }
 
         if (Main.getCurrentMappingsPath() == null || !Files.isSameFile(Main.getCurrentMappingsPath(), selectedPath)) {
-            Main.getMappings().setDirty(true);
+            Main.getMappingContext().setDirty(true);
         }
 
         Main.setCurrentMappingsPath(selectedFile.toPath());
@@ -93,12 +93,12 @@ public final class MappingsSaveDialogHelper {
     }
 
     private static void saveMappings0() throws IOException {
-        if (Main.getMappings().isDirty()) {
+        if (Main.getMappingContext().isDirty()) {
             try (SrgWriter writer = new SrgWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
-                writer.write(Main.getMappings());
+                writer.write(Main.getMappingContext());
             }
 
-            Main.getMappings().setDirty(false);
+            Main.getMappingContext().setDirty(false);
         }
     }
 
@@ -110,7 +110,7 @@ public final class MappingsSaveDialogHelper {
      * @throws IOException If an exception occurs while saving the mappings
      */
     public static boolean doDirtyConfirmation() throws IOException {
-        if (Main.getMappings().isDirty()) {
+        if (Main.getMappingContext().isDirty()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(Main.getResourceBundle().getString("filechooser.dirty.title"));
             alert.setHeaderText(null);
