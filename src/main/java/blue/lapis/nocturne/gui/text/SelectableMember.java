@@ -96,6 +96,24 @@ public class SelectableMember extends Text {
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
             this.setMapping(this.getName());
+            switch (getType()) {
+                case CLASS: {
+                    Optional<ClassMapping> mapping = MappingsHelper.getClassMapping(Main.getMappings(), getName());
+                    if (mapping.isPresent()) {
+                        mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
+                    }
+                }
+                case FIELD: {
+                    ClassMapping parent = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass()).get();
+                    parent.removeFieldMapping(getName());
+                    break;
+                }
+                case METHOD: {
+                    ClassMapping parent = MappingsHelper.getClassMapping(Main.getMappings(), getParentClass()).get();
+                    parent.removeMethodMapping(getName());
+                    break;
+                }
+            }
         });
 
         contextMenu.getItems().add(renameItem);

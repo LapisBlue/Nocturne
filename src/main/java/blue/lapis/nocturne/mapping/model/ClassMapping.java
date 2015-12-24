@@ -93,12 +93,32 @@ public abstract class ClassMapping extends Mapping {
     }
 
     /**
+     * Removes the {@link FieldMapping} by the given name from this
+     * {@link ClassMapping}.
+     *
+     * @param name The name of the field to remove the mapping of
+     */
+    public void removeFieldMapping(String fieldName) {
+        fieldMappings.remove(fieldName);
+    }
+
+    /**
      * Adds the given {@link MethodMapping} to this {@link ClassMapping}.
      *
      * @param mapping The {@link MethodMapping} to add
      */
     void addMethodMapping(MethodMapping mapping) {
         methodMappings.put(mapping.getObfuscatedName() + mapping.getSignature(), mapping);
+    }
+
+    /**
+     * Removes the {@link MethodMapping} by the given name from this
+     * {@link ClassMapping}.
+     *
+     * @param name The name of the method to remove the mapping of
+     */
+    public void removeMethodMapping(String methodName) {
+        fieldMappings.remove(methodName);
     }
 
     /**
