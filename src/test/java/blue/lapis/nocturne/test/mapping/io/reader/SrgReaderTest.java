@@ -28,6 +28,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Primitive;
 import blue.lapis.nocturne.jar.model.attribute.Type;
@@ -38,6 +39,8 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
+import javafx.application.Application;
+import javafx.stage.Stage;
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,8 +56,21 @@ public class SrgReaderTest {
 
     private static MappingContext mappings;
 
+    public static class NonApp extends Application {
+        @Override
+        public void start(Stage primaryStage) throws Exception {
+        }
+    }
+
     @BeforeClass
-    public static void initialize() {
+    public static void initialize() throws InterruptedException {
+        Thread t = new Thread(() -> Application.launch(NonApp.class)); // allows us to use concurrency features
+        t.setDaemon(true);
+        t.start();
+        Thread.sleep(500); // allow everything to initialize before we proceed
+
+        new Main(false);
+
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         mappings = reader.read();

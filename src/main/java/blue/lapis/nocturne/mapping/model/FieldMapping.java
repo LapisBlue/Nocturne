@@ -99,7 +99,7 @@ public class FieldMapping extends Mapping implements ClassComponent {
         return (getParent() instanceof InnerClassMapping
                 ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
                 : getParent().getObfuscatedName())
-        + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
+                + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }
 
 }

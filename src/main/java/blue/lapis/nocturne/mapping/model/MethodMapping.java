@@ -93,7 +93,8 @@ public class MethodMapping extends Mapping implements ClassComponent {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(), getObfuscatedDescriptor().toString());
+        return new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
+                getObfuscatedDescriptor().toString());
     }
 
     private String getQualifiedName() {

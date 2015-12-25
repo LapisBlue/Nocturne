@@ -97,9 +97,15 @@ public class Main extends Application {
     }
 
     public Main() {
+        this(true);
+    }
+
+    public Main(boolean initialize) {
         super();
         instance = this;
-        initialize();
+        if (initialize) {
+            initialize();
+        }
     }
 
     public static Logger getLogger() {

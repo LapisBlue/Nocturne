@@ -45,6 +45,7 @@ public abstract class Mapping {
      */
     protected Mapping(String obfName, String deobfName) {
         this.obf = obfName;
+        this.deobf = deobfName;
         Platform.runLater(() -> setDeobfuscatedName(deobfName));
     }
 
