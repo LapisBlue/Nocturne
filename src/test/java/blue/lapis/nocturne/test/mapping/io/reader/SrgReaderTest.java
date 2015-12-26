@@ -28,7 +28,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Primitive;
 import blue.lapis.nocturne.jar.model.attribute.Type;
@@ -44,17 +43,12 @@ import javafx.stage.Stage;
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.BufferedReader;
 
 /**
  * Unit tests related to the {@link SrgReader}.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Main.class)
 public class SrgReaderTest {
 
     private static final String EXAMPLE_PACKAGE = "com/example/project";
