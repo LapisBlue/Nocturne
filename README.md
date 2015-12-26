@@ -1,7 +1,9 @@
+<img src="https://raw.githubusercontent.com/LapisBlue/Nocturne/master/logo.png" align="right" width="180px">
 # Nocturne [![Build Status](https://travis-ci.org/LapisBlue/Nocturne.svg?branch=master)](https://travis-ci.org/LapisBlue/Nocturne)
 
 Nocturne is a graphical utility designed to ease the process of creating deobfuscation mappings for Java applications.
-Please note that this software is *very* early in development and is not yet usable or stable.
+
+Please note that this software is still early in development and is not yet usable or stable.
 
 ## Requirements
 
