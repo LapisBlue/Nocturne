@@ -186,10 +186,6 @@ public class SelectableMember extends Text {
         }
     }
 
-    public CodeTab getCodeTab() {
-        return codeTab;
-    }
-
     public StringProperty getNameProperty() {
         return nameProperty;
     }

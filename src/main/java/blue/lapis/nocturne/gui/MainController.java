@@ -99,8 +99,9 @@ public class MainController implements Initializable {
 
     private void initSampleCodeTabs() {
         // The following is example code, for adding code-tabs
-        CodeTab fieldExample = new CodeTab(tabs);
-        fieldExample.setText("com/example/SomeClass");
+        String className = "com/example/SomeClass";
+        CodeTab exampleTab = new CodeTab(tabs, className);
+        CodeTab.CODE_TABS.put(className, exampleTab);
     }
 
     private void setAccelerators() {
@@ -150,6 +151,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(ex);
         }
         Main.getMappingContext().clear();
+        CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
         SelectableMember.MEMBERS.values()
                 .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
         updateClassViews();

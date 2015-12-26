@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
@@ -51,6 +52,14 @@ public class TopLevelClassMapping extends ClassMapping {
     @Override
     public MappingContext getContext() {
         return parent;
+    }
+
+    @Override
+    public void setDeobfuscatedName(String deobfuscatedName) {
+        super.setDeobfuscatedName(deobfuscatedName);
+        if (CodeTab.CODE_TABS.containsKey(getObfuscatedName())) {
+            CodeTab.CODE_TABS.get(getObfuscatedName()).setText(deobfuscatedName);
+        }
     }
 
     @Override

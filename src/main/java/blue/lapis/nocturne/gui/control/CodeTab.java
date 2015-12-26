@@ -40,7 +40,9 @@ import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -48,13 +50,20 @@ import java.util.regex.Matcher;
  */
 public class CodeTab extends Tab {
 
+    public static final Map<String, CodeTab> CODE_TABS = new HashMap<>();
+
+    private String className;
+
     public Label memberIdentifierLabel;
     public Label memberInfoLabel;
     public Label memberIdentifier;
     public Label memberInfo;
     public TextFlow code;
 
-    public CodeTab(TabPane pane) {
+    public CodeTab(TabPane pane, String className) {
+        this.className = className;
+        this.setText(className);
+
         pane.getTabs().add(this);
 
         FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/CodeTab.fxml"));
@@ -76,6 +85,14 @@ public class CodeTab extends Tab {
                 + "        System.out.println(%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD%);\n"
                 + "    }\n\n"
                 + "}\n");
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void resetClassName() {
+        this.setText(className);
     }
 
     /**
