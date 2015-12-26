@@ -63,15 +63,6 @@ public class SrgReaderTest {
 
     @BeforeClass
     public static void initialize() throws InterruptedException {
-        Thread t = new Thread(() -> Application.launch(NonApp.class)); // allows us to use concurrency features
-        t.setDaemon(true);
-        t.start();
-        Thread.sleep(500); // allow everything to initialize before we proceed
-
-        /*Main mockMain = mock(Main.class);
-        PowerMockito.mockStatic(Main.class);
-        when(Main.getInstance()).thenReturn(mockMain);*/
-
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         mappings = reader.read();

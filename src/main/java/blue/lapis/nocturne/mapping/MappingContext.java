@@ -61,6 +61,7 @@ public class MappingContext {
      * @param mapping The {@link TopLevelClassMapping} to add
      */
     public void addMapping(TopLevelClassMapping mapping) {
+        mapping.initialize();
         mappings.put(mapping.getObfuscatedName(), mapping);
 
         //TODO: this whole block is wrong - entries aren't created for inner classes (I'll fix it later) ~ caseif

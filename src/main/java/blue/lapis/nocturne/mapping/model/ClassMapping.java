@@ -91,6 +91,7 @@ public abstract class ClassMapping extends Mapping {
      * @param mapping The {@link FieldMapping} to add
      */
     void addFieldMapping(FieldMapping mapping) {
+        mapping.initialize();
         fieldMappings.put(mapping.getObfuscatedName(), mapping);
         getContext().setDirty(true);
     }
@@ -111,6 +112,7 @@ public abstract class ClassMapping extends Mapping {
      * @param mapping The {@link MethodMapping} to add
      */
     void addMethodMapping(MethodMapping mapping) {
+        mapping.initialize();
         methodMappings.put(mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor(), mapping);
     }
 
@@ -130,6 +132,7 @@ public abstract class ClassMapping extends Mapping {
      * @param mapping The {@link InnerClassMapping} to add
      */
     void addInnerClassMapping(InnerClassMapping mapping) {
+        mapping.initialize();
         innerClassMappings.put(mapping.getObfuscatedName(), mapping);
 
         getContext().setDirty(true);
