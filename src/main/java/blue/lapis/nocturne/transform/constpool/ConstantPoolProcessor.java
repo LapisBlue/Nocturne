@@ -41,6 +41,7 @@ import blue.lapis.nocturne.transform.constpool.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
 import blue.lapis.nocturne.transform.constpool.structure.StructureType;
 import blue.lapis.nocturne.transform.constpool.structure.Utf8Structure;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
@@ -151,7 +152,7 @@ public class ConstantPoolProcessor {
             return;
         }
 
-        String newName = getProcessedName(name, MemberType.CLASS);
+        String newName = getProcessedName(name, null, MemberType.CLASS);
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -189,8 +190,24 @@ public class ConstantPoolProcessor {
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
 
-        if (!Main.getLoadedJar().getClass(className).isPresent()) {
-            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), memberType);
+
+
+        String desc = nat.getType();
+        String processedDesc = getProcessedDescriptor(cs, desc);
+
+        if (!processedDesc.equals(desc)) {
+            byte[] newTypeBytes = processedDesc.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer typeBuffer = ByteBuffer.allocate(newTypeBytes.length + 3);
+            typeBuffer.put(StructureType.UTF_8.getTag());
+            typeBuffer.putShort((short) newTypeBytes.length);
+            typeBuffer.put(newTypeBytes);
+            pool.add(new Utf8Structure(typeBuffer.array()));
+            typeIndex = pool.size();
+        }
+
+        if (Main.getLoadedJar().getClass(className).isPresent()) {
+            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), processedDesc,
+                    memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
             ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
             nameBuffer.put(StructureType.UTF_8.getTag());
@@ -198,54 +215,6 @@ public class ConstantPoolProcessor {
             nameBuffer.put(newNameBytes);
             pool.add(new Utf8Structure(nameBuffer.array()));
             nameIndex = pool.size();
-        }
-
-        String desc = nat.getType();
-        String newDesc = desc;
-        if (cs.getType() == StructureType.FIELDREF) {
-            if (desc.startsWith("L") && desc.endsWith(";")) {
-                String typeClass = desc.substring(1, desc.length());
-                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                    newDesc = "L" + getProcessedName(typeClass, MemberType.CLASS) + ";";
-                }
-            }
-        } else {
-            MethodDescriptor md = MethodDescriptor.fromString(desc);
-            List<Type> newParams = new ArrayList<>();
-            for (Type param : md.getParamTypes()) {
-                if (!param.isPrimitive()) {
-                    String typeClass = param.getClassName();
-                    if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                        newParams.add(new Type(getProcessedName(typeClass, MemberType.CLASS),
-                                param.getArrayDimensions()));
-                    } else {
-                        newParams.add(param);
-                    }
-                }
-            }
-            Type returnType = md.getReturnType();
-            if (!returnType.isPrimitive()) {
-                String typeClass = returnType.getClassName();
-                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                    returnType = new Type(getProcessedName(typeClass, MemberType.CLASS),
-                            returnType.getArrayDimensions());
-                }
-            }
-
-            Type[] newParamArr = new Type[newParams.size()];
-            newParams.toArray(newParamArr);
-            MethodDescriptor newMd = new MethodDescriptor(returnType, newParamArr);
-            newDesc = newMd.toString();
-        }
-
-        if (!newDesc.equals(desc)) {
-            byte[] newTypeBytes = newDesc.getBytes(StandardCharsets.UTF_8);
-            ByteBuffer typeBuffer = ByteBuffer.allocate(newTypeBytes.length + 3);
-            typeBuffer.put(StructureType.UTF_8.getTag());
-            typeBuffer.putShort((short) newTypeBytes.length);
-            typeBuffer.put(newTypeBytes);
-            pool.add(new Utf8Structure(typeBuffer.array()));
-            typeIndex = pool.size();
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(StructureType.NAME_AND_TYPE.getLength() + 1);
@@ -303,8 +272,48 @@ public class ConstantPoolProcessor {
     }
 
     // current format is %NOCTURNE+TYPE-name-descriptor% (descriptor is optional)
-    private static String getProcessedName(String qualifiedMemberName, MemberType memberType) {
-        return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + qualifiedMemberName + MEMBER_SUFFIX;
+    private static String getProcessedName(String qualifiedMemberName, String descriptor, MemberType memberType) {
+        return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + qualifiedMemberName
+                + (descriptor != null ? MEMBER_DELIMITER + descriptor : "") + MEMBER_SUFFIX;
+    }
+
+    private static String getProcessedDescriptor(ConstantStructure cs, String desc) {
+        if (cs.getType() == StructureType.FIELDREF) {
+            if (desc.startsWith("L") && desc.endsWith(";")) {
+                String typeClass = desc.substring(1, desc.length());
+                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                    return "L" + getProcessedName(typeClass, null, MemberType.CLASS) + ";";
+                }
+            }
+        } else if (!desc.contains(MEMBER_PREFIX)) { // if this condition is true then it's already been processed
+            MethodDescriptor md = MethodDescriptor.fromString(desc);
+            List<Type> newParams = new ArrayList<>();
+            for (Type param : md.getParamTypes()) {
+                if (!param.isPrimitive()) {
+                    String typeClass = param.getClassName();
+                    if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                        newParams.add(new Type(getProcessedName(typeClass, null, MemberType.CLASS),
+                                param.getArrayDimensions()));
+                    } else {
+                        newParams.add(param);
+                    }
+                }
+            }
+            Type returnType = md.getReturnType();
+            if (!returnType.isPrimitive()) {
+                String typeClass = returnType.getClassName();
+                if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                    returnType = new Type(getProcessedName(typeClass, null, MemberType.CLASS),
+                            returnType.getArrayDimensions());
+                }
+            }
+
+            Type[] newParamArr = new Type[newParams.size()];
+            newParams.toArray(newParamArr);
+            MethodDescriptor newMd = new MethodDescriptor(returnType, newParamArr);
+            return newMd.toString();
+        }
+        return desc;
     }
 
 }

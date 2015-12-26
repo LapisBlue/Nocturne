@@ -78,11 +78,11 @@ public class CodeTab extends Tab {
         }
 
         this.setCode("public class %NOCTURNE+CLASS-com/example/SomeClass% {\n\n"
-                + "    private static final String %NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD% "
-                + "= \"Hello World!\";\n\n"
+                + "    private static final String "
+                + "%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;% = \"Hello World!\";\n\n"
                 + "    public static void %NOCTURNE+METHOD-com/example/SomeClass/main-([Ljava/lang/String;)V%"
                 + "(String[] args) {\n"
-                + "        System.out.println(%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD%);\n"
+                + "        System.out.println(%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;%);\n"
                 + "    }\n\n"
                 + "}\n");
     }

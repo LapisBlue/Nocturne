@@ -179,9 +179,10 @@ public class SelectableMember extends Text {
     }
 
     public void updateCodeTab() {
-        this.codeTab.setMemberType(CodeTab.SelectableMemberType.fromMemberType(this.type));
+        CodeTab.SelectableMemberType sType = CodeTab.SelectableMemberType.fromMemberType(this.type);
+        this.codeTab.setMemberType(sType);
         this.codeTab.setMemberIdentifier(this.getText());
-        if (this.type != MemberType.CLASS) {
+        if (sType.isInfoEnabled()) {
             this.codeTab.setMemberInfo(this.getDescriptor());
         }
     }
@@ -244,13 +245,13 @@ public class SelectableMember extends Text {
         String qualName = matcher.group(2);
         String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
 
-        if (type != MemberType.CLASS) {
+        if (type == MemberType.CLASS) {
+            return new SelectableMember(codeTab, type, qualName);
+        } else {
             int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
             String simpleName = qualName.substring(offset + 1);
             String parentClass = qualName.substring(0, offset);
             return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
-        } else {
-            return new SelectableMember(codeTab, type, qualName);
         }
     }
 
