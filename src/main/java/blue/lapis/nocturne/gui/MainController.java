@@ -25,11 +25,13 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.control.ClassTreeItem;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
@@ -38,6 +40,7 @@ import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -52,10 +55,15 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
+import org.jetbrains.java.decompiler.main.Fernflower;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -95,13 +103,42 @@ public class MainController implements Initializable {
 
         setAccelerators();
         this.initSampleCodeTabs();
+
+        this.initTreeViews();
     }
 
     private void initSampleCodeTabs() {
         // The following is example code, for adding code-tabs
         String className = "com/example/SomeClass";
         CodeTab exampleTab = new CodeTab(tabs, className);
-        CodeTab.CODE_TABS.put(className, exampleTab);
+        exampleTab.setCode("public class %NOCTURNE+CLASS-com/example/SomeClass% {\n\n"
+                + "    private static final String "
+                + "%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;% = \"Hello World!\";\n\n"
+                + "    public static void %NOCTURNE+METHOD-com/example/SomeClass/main-([Ljava/lang/String;)V%"
+                + "(String[] args) {\n"
+                + "        System.out.println(%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;%);\n"
+                + "    }\n\n"
+                + "}\n");
+    }
+
+    private void initTreeViews() {
+        BiConsumer<MouseEvent, TreeView<String>> clickHandler = (event, treeView) -> {
+            if (event.getClickCount() == 2) {
+                TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
+                if (selected instanceof ClassTreeItem) {
+                    String className = ((ClassTreeItem) selected).getQualifiedName();
+                    if (Main.getLoadedJar() != null) {
+                        Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
+                        if (clazz.isPresent()) {
+                            CodeTab tab = new CodeTab(tabs, className);
+                            //TODO: set code
+                        }
+                    }
+                }
+            }
+        };
+        obfTree.setOnMouseClicked(event -> clickHandler.accept(event, obfTree));
+        deobfTree.setOnMouseClicked(event -> clickHandler.accept(event, deobfTree));
     }
 
     private void setAccelerators() {
@@ -227,11 +264,17 @@ public class MainController implements Initializable {
     }
 
     public TreeItem<String> generateTreeItem(HierarchyElement element) {
-        String name = "(root)";
+        TreeItem<String> treeItem;
         if (element instanceof HierarchyNode) {
-            name = ((HierarchyNode) element).getName();
+            HierarchyNode node = (HierarchyNode) element;
+            if (node.isTerminal()) {
+                treeItem = new ClassTreeItem(node.getQualifiedName(), node.getName());
+            } else {
+                treeItem = new TreeItem<>(node.getName());
+            }
+        } else {
+            treeItem = new TreeItem<>("(root)");
         }
-        TreeItem<String> treeItem = new TreeItem<>(name);
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
             treeItem.getChildren().addAll(

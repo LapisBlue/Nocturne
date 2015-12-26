@@ -77,6 +77,12 @@ public class HierarchyNode extends HierarchyElement {
         return name;
     }
 
+    public String getQualifiedName() {
+        return getParent().isPresent() && getParent().get() instanceof HierarchyNode
+                ? ((HierarchyNode) getParent().get()).getQualifiedName() + "/" + getName()
+                : getName();
+    }
+
     /**
      * Returns whether this {@link HierarchyNode} is terminal. A terminal
      * element marks the end of its respective branch, and may not be assigned
