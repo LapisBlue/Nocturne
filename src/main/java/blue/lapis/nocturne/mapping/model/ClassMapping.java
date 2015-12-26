@@ -136,13 +136,6 @@ public abstract class ClassMapping extends Mapping {
     }
 
     /**
-     * Gets the {@link MappingContext} which owns this {@link ClassMapping}.
-     *
-     * @return The {@link MappingContext} which owns this {@link ClassMapping}
-     */
-    public abstract MappingContext getContext();
-
-    /**
      * Deobfuscates the given class name to the best of the given
      * {@link MappingContext}'s ability.
      *

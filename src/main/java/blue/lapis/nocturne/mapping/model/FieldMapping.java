@@ -28,6 +28,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
 
 import java.util.List;
@@ -88,6 +89,11 @@ public class FieldMapping extends Mapping implements ClassComponent {
             return;
         }
         memberList.forEach(member -> member.setText(name));
+    }
+
+    @Override
+    public MappingContext getContext() {
+        return getParent().getContext();
     }
 
     @Override

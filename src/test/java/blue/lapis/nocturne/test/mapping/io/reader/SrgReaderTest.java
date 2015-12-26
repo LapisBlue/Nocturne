@@ -44,12 +44,17 @@ import javafx.stage.Stage;
 import jdk.nashorn.api.scripting.URLReader;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.BufferedReader;
 
 /**
  * Unit tests related to the {@link SrgReader}.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Main.class)
 public class SrgReaderTest {
 
     private static final String EXAMPLE_PACKAGE = "com/example/project";
@@ -69,7 +74,9 @@ public class SrgReaderTest {
         t.start();
         Thread.sleep(500); // allow everything to initialize before we proceed
 
-        new Main(false);
+        /*Main mockMain = mock(Main.class);
+        PowerMockito.mockStatic(Main.class);
+        when(Main.getInstance()).thenReturn(mockMain);*/
 
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));

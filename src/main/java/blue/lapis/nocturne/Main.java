@@ -97,15 +97,17 @@ public class Main extends Application {
     }
 
     public Main() {
-        this(true);
-    }
-
-    public Main(boolean initialize) {
         super();
         instance = this;
-        if (initialize) {
-            initialize();
-        }
+        initialize();
+    }
+
+    private Main(boolean skipInitialization) {
+        instance = this;
+    }
+
+    public static void initInstance() {
+        new Main(true);
     }
 
     public static Logger getLogger() {

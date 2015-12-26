@@ -24,8 +24,8 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.mapping.MappingContext;
 
 import javafx.application.Platform;
 
@@ -74,8 +74,15 @@ public abstract class Mapping {
      */
     public void setDeobfuscatedName(String name) {
         this.deobf = name;
-        Main.getMappingContext().setDirty(true);
+        getContext().setDirty(true);
     }
+
+    /**
+     * Gets the {@link MappingContext} which owns this {@link Mapping}.
+     *
+     * @return The {@link MappingContext} which owns this {@link Mapping}
+     */
+    public abstract MappingContext getContext();
 
     protected abstract SelectableMember.MemberKey getMemberKey();
 
