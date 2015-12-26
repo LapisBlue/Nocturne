@@ -25,22 +25,12 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
-import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
-import blue.lapis.nocturne.util.Constants;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * Superclass for all reader classes.

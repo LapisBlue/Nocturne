@@ -25,7 +25,6 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
@@ -46,7 +45,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
