@@ -1,0 +1,22 @@
+From c4f6f59ead33c517c71a8b296c7cbd760d9b42ee Mon Sep 17 00:00:00 2001
+From: caseif <me@caseif.net>
+Date: Sun, 27 Dec 2015 15:45:06 -0500
+Subject: [PATCH] Disable class name validation
+
+
+diff --git a/src/org/jetbrains/java/decompiler/main/ClassWriter.java b/src/org/jetbrains/java/decompiler/main/ClassWriter.java
+index b90f2ec..44f3dbb 100644
+--- a/src/org/jetbrains/java/decompiler/main/ClassWriter.java
++++ b/src/org/jetbrains/java/decompiler/main/ClassWriter.java
+@@ -673,7 +673,7 @@ public class ClassWriter {
+           buffer.append(' ');
+         }
+ 
+-        buffer.append(toValidJavaIdentifier(name));
++        buffer.append(name); // Nocturne: removed name validation
+         buffer.append('(');
+ 
+         // parameters
+-- 
+2.5.3.windows.1
+
