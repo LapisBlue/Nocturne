@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.jar.model;
 
+import static blue.lapis.nocturne.util.Constants.FF_OPTIONS;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
@@ -31,6 +32,7 @@ import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.transform.constpool.ConstantPoolProcessor;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.Maps;
@@ -126,7 +128,7 @@ public class JarClassEntry {
         Fernflower ff = new Fernflower(
                 SimpleBytecodeProvider.getInstance(),
                 NoopResultSaver.getInstance(),
-                Maps.newHashMap(),
+                FF_OPTIONS,
                 SimpleFernflowerLogger.getInstance()
         );
         try {

@@ -27,6 +27,7 @@ package blue.lapis.nocturne.util;
 import blue.lapis.nocturne.Main;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.regex.Pattern;
 
@@ -62,6 +63,10 @@ public final class Constants {
      */
     // side-note: I'm really proud of this thing. I wrote it in like 2 minutes and it works exactly how I want it to.
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
+
+    public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
+            .put("rsy", 1) // hide synthetic class members
+            .build();
 
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
