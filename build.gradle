@@ -24,7 +24,7 @@ allprojects {
 
 patches {
     submodule = 'lib/FernFlower'
-    target = file('FernFlower-Nocturne')
+    target = file('FernFlower')
     patches = file('patches')
 }
 
@@ -34,7 +34,7 @@ subprojects {
     apply plugin: 'idea'
 }
 
-project('FernFlower-Nocturne') {
+project('FernFlower') {
     apply from: rootProject.file('fernflower.gradle')
     compileJava.dependsOn rootProject.tasks.applyPatches
 }
@@ -47,7 +47,7 @@ repositories {
 // Project dependencies
 dependencies {
     compile 'com.google.guava:guava:18.0'
-    compile project('FernFlower-Nocturne')
+    compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'
 }
