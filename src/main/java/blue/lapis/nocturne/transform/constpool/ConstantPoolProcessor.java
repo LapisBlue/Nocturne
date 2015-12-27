@@ -144,8 +144,7 @@ public class ConstantPoolProcessor {
         if (!(cs instanceof IrrelevantStructure)) {
             if (cs.getType() == StructureType.CLASS) {
                 handleClassMember(cs, index, pool);
-            }
-            else if (  cs.getType() == StructureType.FIELDREF
+            } else if (  cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
                 handleNonClassMember(cs, pool);

@@ -1,0 +1,26 @@
+defaultTasks 'clean', 'build'
+
+version = '2.0-SNAPSHOT' // TODO: Keep up to date
+
+// Project dependencies
+dependencies {
+    // TODO: Keep up to date
+}
+
+// disable compiler warnings
+tasks.withType(JavaCompile) {
+    options.compilerArgs += '-Xlint:-unchecked'
+}
+
+// disable tests and checkstyle
+afterEvaluate {
+    configure([assemble, build, check, compileTestJava, javadoc, processTestResources, testClasses]) {
+        enabled = false
+    }
+    tasks.withType(VerificationTask) {
+        enabled = false
+    }
+    tasks.withType(Checkstyle) {
+        enabled = false
+    }
+}

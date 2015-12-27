@@ -1,0 +1,3 @@
+[submodule "lib/FernFlower"]
+	path = lib/FernFlower
+	url = https://github.com/MinecraftForge/FernFlower

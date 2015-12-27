@@ -5,6 +5,8 @@ plugins {
     id 'idea'
     id 'checkstyle'
 
+    id 'net.minecrell.gitpatcher' version '0.7.1'
+
     id 'com.github.hierynomus.license' version '0.11.0'
     id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
@@ -12,25 +14,40 @@ plugins {
 defaultTasks 'clean', 'licenseFormat', 'build'
 
 // Project information
-group = 'blue.lapis.nocturne'
-version = '1.0.0-SNAPSHOT'
+allprojects {
+    group = 'blue.lapis.nocturne'
+    version = '1.0.0-SNAPSHOT'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+patches {
+    submodule = 'lib/FernFlower'
+    target = file('FernFlower-Nocturne')
+    patches = file('patches')
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+}
+
+project('FernFlower-Nocturne') {
+    apply from: rootProject.file('fernflower.gradle')
+    compileJava.dependsOn rootProject.tasks.applyPatches
+}
 
 // Project repositories
 repositories {
     mavenCentral()
-    maven {
-        name = 'forge'
-        url = 'http://files.minecraftforge.net/maven'
-    }
 }
 
 // Project dependencies
 dependencies {
     compile 'com.google.guava:guava:18.0'
-    compile 'net.minecraftforge:fernflower:2.0-SNAPSHOT'
+    compile project('FernFlower-Nocturne')
 
     testCompile 'junit:junit:4.12'
 }
