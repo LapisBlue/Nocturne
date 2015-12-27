@@ -27,7 +27,16 @@ package blue.lapis.nocturne.jar.model;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.decompile.NoopResultSaver;
+import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
+import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.transform.constpool.ConstantPoolProcessor;
+import blue.lapis.nocturne.util.MemberType;
+
+import com.google.common.collect.Maps;
+import org.jetbrains.java.decompiler.main.Fernflower;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -59,7 +68,16 @@ public class JarClassEntry {
     }
 
     public void process() {
-        //content = new ConstantPoolProcessor(content).process();
+        content = new ConstantPoolProcessor(content).process();
+        if (getName().equals("Test")) {
+            try {
+                FileOutputStream os = new FileOutputStream(new File("D:/Libraries/Desktop/Test.transformed.class"));
+                os.write(content);
+                os.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -102,6 +120,32 @@ public class JarClassEntry {
      */
     public void setDeobfuscated(boolean deobfuscated) {
         this.deobfuscated = deobfuscated;
+    }
+
+    public String decompile() {
+        Fernflower ff = new Fernflower(
+                SimpleBytecodeProvider.getInstance(),
+                NoopResultSaver.getInstance(),
+                Maps.newHashMap(),
+                SimpleFernflowerLogger.getInstance()
+        );
+        try {
+            LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
+            String procName = ConstantPoolProcessor.getProcessedName(getName(), null, MemberType.CLASS);
+            ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
+            StructClass sc = new StructClass(
+                    SimpleBytecodeProvider.getInstance().getBytecode(null, procName),
+                    true,
+                    ll
+            );
+            ff.getStructContext().getClasses().put(procName, sc);
+            ff.decompileContext();
+            return ff.getClassContent(sc);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            ff.clearContext();
+        }
     }
 
     @Override

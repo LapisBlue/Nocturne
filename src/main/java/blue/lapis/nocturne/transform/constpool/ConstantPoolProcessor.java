@@ -129,7 +129,7 @@ public class ConstantPoolProcessor {
 
     @SuppressWarnings("fallthrough")
     private List<ConstantStructure> getProcessedPool() {
-        List<ConstantStructure> newPool = Lists.newArrayList();
+        List<ConstantStructure> newPool = Lists.newArrayList(constantPool);
 
         for (int i = 0; i < constantPool.size(); i++) {
             handleMember(constantPool.get(i), i, newPool);
@@ -142,13 +142,12 @@ public class ConstantPoolProcessor {
             if (cs.getType() == StructureType.CLASS) {
                 handleClassMember(cs, index, pool);
             }
-            if (       cs.getType() == StructureType.FIELDREF
+            else if (  cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
                 handleNonClassMember(cs, pool);
             }
         }
-        pool.add(cs);
     }
 
     private void handleClassMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
@@ -195,8 +194,6 @@ public class ConstantPoolProcessor {
         NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
-
-
 
         String desc = nat.getType();
         String processedDesc = getProcessedDescriptor(cs, desc);
@@ -278,7 +275,7 @@ public class ConstantPoolProcessor {
     }
 
     // current format is %NOCTURNE+TYPE-name-descriptor% (descriptor is optional)
-    private static String getProcessedName(String qualifiedMemberName, String descriptor, MemberType memberType) {
+    public static String getProcessedName(String qualifiedMemberName, String descriptor, MemberType memberType) {
         return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + qualifiedMemberName
                 + (descriptor != null ? MEMBER_DELIMITER + descriptor : "") + MEMBER_SUFFIX;
     }

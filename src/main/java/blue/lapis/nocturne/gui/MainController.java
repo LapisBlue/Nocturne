@@ -65,8 +65,13 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -140,29 +145,7 @@ public class MainController implements Initializable {
                         if (clazz.isPresent()) {
                             CodeTab tab = new CodeTab(tabs, className);
 
-                            Fernflower ff = new Fernflower(
-                                    SimpleBytecodeProvider.getInstance(),
-                                    NoopResultSaver.getInstance(),
-                                    Maps.newHashMap(),
-                                    SimpleFernflowerLogger.getInstance()
-                            );
-                            try {
-                                LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-                                ll.addClassLink(className, new LazyLoader.Link(LazyLoader.Link.CLASS, null, className));
-                                StructClass sc = new StructClass(
-                                        SimpleBytecodeProvider.getInstance().getBytecode(null, className),
-                                        true,
-                                        ll
-                                );
-                                ff.getStructContext().getClasses().put(className, sc);
-                                ff.decompileContext();
-                                String code = ff.getClassContent(sc);
-                                tab.setCode(code);
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            } finally {
-                                ff.clearContext();
-                            }
+                            tab.setCode(clazz.get().decompile());
                         }
                     }
                 }
