@@ -1,6 +1,6 @@
-From c4f6f59ead33c517c71a8b296c7cbd760d9b42ee Mon Sep 17 00:00:00 2001
-From: caseif <me@caseif.net>
-Date: Sun, 27 Dec 2015 15:45:06 -0500
+From 6d3a6909b1cf7b6423a762d52b182fb01a279c2b Mon Sep 17 00:00:00 2001
+From: Max Roncace <me@caseif.net>
+Date: Sun, 27 Dec 2015 18:00:23 -0500
 Subject: [PATCH] Disable class name validation
 
 
