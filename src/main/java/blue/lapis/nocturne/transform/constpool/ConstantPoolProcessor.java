@@ -65,6 +65,9 @@ public class ConstantPoolProcessor {
 
     private final int constantPoolEnd;
 
+    private static final ImmutableList<String> IGNORED_METHODS = new ImmutableList.Builder<String>()
+            .add("<init>").add("<clinit>").build();
+
     public ConstantPoolProcessor(byte[] bytes) {
         this.bytes = bytes;
 
@@ -194,6 +197,10 @@ public class ConstantPoolProcessor {
         NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
+
+        if (IGNORED_METHODS.contains(nat.getName())) { // don't process ignored methods
+            return;
+        }
 
         String desc = nat.getType();
         String processedDesc = getProcessedDescriptor(cs, desc);
