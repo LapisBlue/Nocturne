@@ -29,6 +29,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.transform.constpool.ConstantPoolProcessor;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -54,11 +59,12 @@ public class JarClassEntry {
     }
 
     public void process() {
-        content = new ConstantPoolProcessor(content).process();
+        //content = new ConstantPoolProcessor(content).process();
     }
 
     /**
      * Returns the name of this {@link JarClassEntry}.
+     *
      * @return The name of this {@link JarClassEntry}
      */
     public String getName() {

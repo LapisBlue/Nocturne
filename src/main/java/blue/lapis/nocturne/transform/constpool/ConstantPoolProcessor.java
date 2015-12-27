@@ -104,7 +104,8 @@ public class ConstantPoolProcessor {
             byteList.add(bytes[i]);
         }
 
-        for (ConstantStructure cs : getProcessedPool()) {
+        List<ConstantStructure> constPool = getProcessedPool();
+        for (ConstantStructure cs : constPool) {
             for (byte b : cs.getBytes()) {
                 byteList.add(b);
             }
@@ -113,6 +114,11 @@ public class ConstantPoolProcessor {
         for (int i = constantPoolEnd; i < bytes.length; i++) {
             byteList.add(bytes[i]);
         }
+
+        ByteBuffer bb = ByteBuffer.allocate(2).putShort((short) (constPool.size() + 1));
+        bb.rewind();
+        byteList.add(CLASS_FORMAT_CONSTANT_POOL_OFFSET, bb.get());
+        byteList.add(CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1, bb.get());
 
         byte[] newBytes = new byte[byteList.size()];
         for (int i = 0; i < byteList.size(); i++) {
@@ -123,7 +129,7 @@ public class ConstantPoolProcessor {
 
     @SuppressWarnings("fallthrough")
     private List<ConstantStructure> getProcessedPool() {
-        List<ConstantStructure> newPool = Lists.newArrayList(constantPool);
+        List<ConstantStructure> newPool = Lists.newArrayList();
 
         for (int i = 0; i < constantPool.size(); i++) {
             handleMember(constantPool.get(i), i, newPool);

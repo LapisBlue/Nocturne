@@ -25,6 +25,9 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.decompile.NoopResultSaver;
+import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
+import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.gui.control.ClassTreeItem;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
@@ -39,6 +42,7 @@ import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
+import com.google.common.collect.Maps;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -57,9 +61,13 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import org.jetbrains.java.decompiler.main.Fernflower;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructContext;
+import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
@@ -131,7 +139,30 @@ public class MainController implements Initializable {
                         Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
                         if (clazz.isPresent()) {
                             CodeTab tab = new CodeTab(tabs, className);
-                            //TODO: set code
+
+                            Fernflower ff = new Fernflower(
+                                    SimpleBytecodeProvider.getInstance(),
+                                    NoopResultSaver.getInstance(),
+                                    Maps.newHashMap(),
+                                    SimpleFernflowerLogger.getInstance()
+                            );
+                            try {
+                                LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
+                                ll.addClassLink(className, new LazyLoader.Link(LazyLoader.Link.CLASS, null, className));
+                                StructClass sc = new StructClass(
+                                        SimpleBytecodeProvider.getInstance().getBytecode(null, className),
+                                        true,
+                                        ll
+                                );
+                                ff.getStructContext().getClasses().put(className, sc);
+                                ff.decompileContext();
+                                String code = ff.getClassContent(sc);
+                                tab.setCode(code);
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } finally {
+                                ff.clearContext();
+                            }
                         }
                     }
                 }
