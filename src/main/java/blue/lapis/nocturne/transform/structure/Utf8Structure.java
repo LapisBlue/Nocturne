@@ -26,6 +26,7 @@ package blue.lapis.nocturne.transform.structure;
 
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -45,8 +46,22 @@ public class Utf8Structure extends ConstantStructure {
         str = new String(strBytes, StandardCharsets.UTF_8);
     }
 
+    public Utf8Structure(String str) {
+        super(bytesFromStr(str));
+        this.str = str;
+    }
+
     public String asString() {
         return str;
+    }
+
+    private static byte[] bytesFromStr(String str) {
+        byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer bb = ByteBuffer.allocate(strBytes.length + 3);
+        bb.put(StructureType.UTF_8.getTag());
+        bb.putShort((short) strBytes.length);
+        bb.put(strBytes);
+        return bb.array();
     }
 
 }

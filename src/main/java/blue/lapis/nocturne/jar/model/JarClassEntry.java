@@ -66,7 +66,7 @@ public class JarClassEntry {
     }
 
     public void process() {
-        content = new ClassTransformer(content).process();
+        content = new ClassTransformer(getName(), getContent()).process();
     }
 
     /**
@@ -159,7 +159,7 @@ public class JarClassEntry {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getContent());
+        return Objects.hash(getName());
     }
 
 }

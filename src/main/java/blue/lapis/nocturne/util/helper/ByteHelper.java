@@ -34,10 +34,15 @@ import java.nio.ByteBuffer;
 public final class ByteHelper {
 
     public static int asUshort(byte b1, byte b2) {
-        ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
-        buffer.put(b1).put(b2);
-        //noinspection PointlessBitwiseExpression (IDEA is wrong - omitting the bitmask produces a difference result)
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+        buffer.put(new byte[] {b1, b2});
         return (int) buffer.getShort(0) & Constants.SHORT_UNSIGNER;
+    }
+
+    public static long asUint(byte b1, byte b2, byte b3, byte b4) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(new byte[] {b1, b2, b3, b4});
+        return (int) buffer.getInt(0) & Constants.SHORT_UNSIGNER;
     }
 
 }

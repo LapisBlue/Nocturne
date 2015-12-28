@@ -102,10 +102,9 @@ public class SrgReader extends MappingsReader {
         for (String mapping : methodMappings) {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
-            String obfSig = arr[2];
+            String descriptor = arr[2];
             String deobf = arr[3];
-            String deobfSig = arr[4];
-            MappingsHelper.genMethodMapping(context, obf, obfSig, deobf, deobfSig);
+            MappingsHelper.genMethodMapping(context, obf, deobf, descriptor);
         }
     }
 

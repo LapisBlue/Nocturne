@@ -90,8 +90,7 @@ public class MappingsHelper {
         }
     }
 
-    public static void genMethodMapping(MappingContext context, String obf, String obfSig, String deobf,
-                                        String deobfSig) {
+    public static void genMethodMapping(MappingContext context, String obf, String deobf, String descriptor) {
         int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
         String owningClass = obf.substring(0, lastIndex);
         String obfName = obf.substring(lastIndex + 1);
@@ -102,7 +101,7 @@ public class MappingsHelper {
         if (parent.getMethodMappings().containsKey(obfName)) {
             parent.getMethodMappings().get(obfName).setDeobfuscatedName(deobfName);
         } else {
-            new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(obfSig));
+            new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(descriptor));
         }
     }
 

@@ -146,7 +146,8 @@ public class SelectableMember extends Text {
         updateText();
 
         String qualifiedName = type == MemberType.CLASS ? name : parentClass + CLASS_PATH_SEPARATOR_CHAR + name;
-        MemberKey key = new MemberKey(type, qualifiedName, descriptor);
+        //TODO: we're ignoring field descriptors for now since SRG doesn't support them
+        MemberKey key = new MemberKey(type, qualifiedName, type == MemberType.METHOD ? descriptor : null);
         if (!MEMBERS.containsKey(key)) {
             MEMBERS.put(key, new ArrayList<>());
         }
@@ -167,9 +168,7 @@ public class SelectableMember extends Text {
             }
             case METHOD: {
                 MappingsHelper.genMethodMapping(Main.getMappingContext(),
-                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), getDescriptor(),
-                        mapping,
-                        MethodDescriptor.fromString(getDescriptor()).deobfuscate(Main.getMappingContext()).toString());
+                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping, getDescriptor());
                 break;
             }
             default: {
