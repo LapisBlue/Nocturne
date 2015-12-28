@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.jar.model;
 
 import static blue.lapis.nocturne.util.Constants.FF_OPTIONS;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
@@ -40,6 +41,7 @@ import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represents an class entry within a JAR file.
@@ -126,6 +128,21 @@ public class JarClassEntry {
                     ll
             );
             ff.getStructContext().getClasses().put(procName, sc);
+
+            // provide inner classes
+            for (JarClassEntry jce : Main.getLoadedJar().getClasses().stream()
+                    .filter(entry -> entry.getName().startsWith(getName() + INNER_CLASS_SEPARATOR_CHAR))
+                    .collect(Collectors.toList())) {
+                 String innerProcName = ClassTransformer.getProcessedName(jce.getName(), null, MemberType.CLASS);
+                ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
+                StructClass innerSc = new StructClass(
+                        SimpleBytecodeProvider.getInstance().getBytecode(null, innerProcName),
+                        true,
+                        ll
+                );
+                ff.getStructContext().getClasses().put(innerProcName, innerSc);
+            }
+
             ff.decompileContext();
             return ff.getClassContent(sc);
         } catch (IOException ex) {
