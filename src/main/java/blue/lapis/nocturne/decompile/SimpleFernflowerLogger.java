@@ -55,12 +55,12 @@ public class SimpleFernflowerLogger extends IFernflowerLogger {
 
     @Override
     public void writeMessage(String message, Severity severity) {
-        Main.getLogger().log(LEVEL_MAP.get(severity), message);
+        Main.getFernFlowerLogger().log(LEVEL_MAP.get(severity), message);
     }
 
     @Override
     public void writeMessage(String message, Throwable throwable) {
-        Main.getLogger().log(Level.SEVERE, message, throwable);
+        Main.getFernFlowerLogger().log(Level.SEVERE, message, throwable);
     }
 
 }

@@ -70,6 +70,7 @@ public class Main extends Application {
     };
 
     private static final Logger LOGGER = Logger.getLogger("Nocturne");
+    private static final Logger FERNFLOWER_LOGGER = Logger.getLogger("FernFlower");
 
     private PropertiesHelper propertiesHelper;
 
@@ -113,6 +114,10 @@ public class Main extends Application {
 
     public static Logger getLogger() {
         return LOGGER;
+    }
+
+    public static Logger getFernFlowerLogger() {
+        return FERNFLOWER_LOGGER;
     }
 
     public void initialize() {
