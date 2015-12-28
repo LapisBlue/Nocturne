@@ -31,19 +31,13 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
-import blue.lapis.nocturne.transform.constpool.ConstantPoolProcessor;
-import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 
-import com.google.common.collect.Maps;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -70,7 +64,7 @@ public class JarClassEntry {
     }
 
     public void process() {
-        content = new ConstantPoolProcessor(content).process();
+        content = new ClassTransformer(content).process();
     }
 
     /**
@@ -124,7 +118,7 @@ public class JarClassEntry {
         );
         try {
             LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-            String procName = ConstantPoolProcessor.getProcessedName(getName(), null, MemberType.CLASS);
+            String procName = ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
             ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
             StructClass sc = new StructClass(
                     SimpleBytecodeProvider.getInstance().getBytecode(null, procName),

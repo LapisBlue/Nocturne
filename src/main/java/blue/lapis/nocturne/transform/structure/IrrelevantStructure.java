@@ -22,14 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform.constpool.structure;
+package blue.lapis.nocturne.transform.structure;
 
 /**
- * Represents an InterfaceMethodref structure.
+ * Represents a constant pool structure irrelevant to the transformer.
  */
-public class InterfaceMethodrefStructure extends RefStructure {
+public class IrrelevantStructure extends ConstantStructure {
 
-    public InterfaceMethodrefStructure(byte[] bytes) {
+    public IrrelevantStructure(byte[] bytes) {
         super(bytes);
     }
 

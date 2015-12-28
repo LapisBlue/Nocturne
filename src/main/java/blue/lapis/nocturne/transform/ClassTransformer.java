@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform.constpool;
+package blue.lapis.nocturne.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
@@ -33,15 +33,14 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.transform.constpool.structure.ClassStructure;
-import blue.lapis.nocturne.transform.constpool.structure.ConstantStructure;
-import blue.lapis.nocturne.transform.constpool.structure.DummyStructure;
-import blue.lapis.nocturne.transform.constpool.structure.IrrelevantStructure;
-import blue.lapis.nocturne.transform.constpool.structure.NameAndTypeStructure;
-import blue.lapis.nocturne.transform.constpool.structure.RefStructure;
-import blue.lapis.nocturne.transform.constpool.structure.StructureType;
-import blue.lapis.nocturne.transform.constpool.structure.Utf8Structure;
-import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.transform.structure.ClassStructure;
+import blue.lapis.nocturne.transform.structure.ConstantStructure;
+import blue.lapis.nocturne.transform.structure.DummyStructure;
+import blue.lapis.nocturne.transform.structure.IrrelevantStructure;
+import blue.lapis.nocturne.transform.structure.NameAndTypeStructure;
+import blue.lapis.nocturne.transform.structure.RefStructure;
+import blue.lapis.nocturne.transform.structure.StructureType;
+import blue.lapis.nocturne.transform.structure.Utf8Structure;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
@@ -51,26 +50,30 @@ import com.google.common.collect.Lists;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Manages interpretation and transformation of constant pool, given the raw
  * bytecode of a class.
  */
-public class ConstantPoolProcessor {
+public class ClassTransformer {
 
     private final byte[] bytes;
 
-    private final ImmutableList<ConstantStructure> constantPool;
+    private ImmutableList<ConstantStructure> constantPool;
 
-    private final int constantPoolEnd;
+    private int constantPoolLength;
 
     private static final ImmutableList<String> IGNORED_METHODS = new ImmutableList.Builder<String>()
             .add("<init>").add("<clinit>").build();
 
-    public ConstantPoolProcessor(byte[] bytes) {
+    public ClassTransformer(byte[] bytes) {
         this.bytes = bytes;
+        loadConstantPool();
+    }
 
+    private void loadConstantPool() {
         List<ConstantStructure> tempPool = new ArrayList<>();
 
         int constPoolCount = ByteHelper.asUshort(bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET],
@@ -92,20 +95,50 @@ public class ConstantPoolProcessor {
             }
         }
         constantPool = ImmutableList.copyOf(tempPool);
-        constantPoolEnd = offset;
+        constantPoolLength = offset - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
     }
 
     /**
-     * Processes the class loaded by this {@link ConstantPoolProcessor} for
-     * further parsing within the program.
+     * Processes the class and returns the new bytecode.
      *
-     * @return The processed bytecode of the class
+     * @return The processed bytecode
      */
     public byte[] process() {
+        byte[] header = processClassHeader();
+        byte[] constantPool = processConstantPool();
+        byte[] remainder = processRemainder();
+
+        ByteBuffer bb = ByteBuffer.allocate(header.length + constantPool.length + remainder.length);
+        bb.put(header);
+        bb.put(constantPool);
+        bb.put(remainder);
+        return bb.array();
+    }
+
+    /**
+     * Processes the header of the class (the first 8 bytes)
+     *
+     * @return The processed class header
+     */
+    public byte[] processClassHeader() {
         List<Byte> byteList = new ArrayList<>();
         for (int i = 0; i < CLASS_FORMAT_CONSTANT_POOL_OFFSET; i++) {
             byteList.add(bytes[i]);
         }
+
+        ByteBuffer bb = ByteBuffer.allocate(CLASS_FORMAT_CONSTANT_POOL_OFFSET);
+        byteList.forEach(bb::put);
+        return bb.array();
+    }
+
+    /**
+     * Processes the class loaded by this {@link ClassTransformer} for
+     * further parsing within the program.
+     *
+     * @return The processed bytecode of the class
+     */
+    public byte[] processConstantPool() {
+        List<Byte> byteList = new ArrayList<>();
 
         List<ConstantStructure> constPool = getProcessedPool();
         for (ConstantStructure cs : constPool) {
@@ -114,20 +147,23 @@ public class ConstantPoolProcessor {
             }
         }
 
-        for (int i = constantPoolEnd; i < bytes.length; i++) {
-            byteList.add(bytes[i]);
-        }
+        ByteBuffer bb = ByteBuffer.allocate(byteList.size() + Short.BYTES);
+        bb.putShort((short) (constPool.size() + 1)); // set the size
+        byteList.forEach(bb::put);// set the actual bytes
 
-        ByteBuffer bb = ByteBuffer.allocate(2).putShort((short) (constPool.size() + 1));
-        bb.rewind();
-        byteList.add(CLASS_FORMAT_CONSTANT_POOL_OFFSET, bb.get());
-        byteList.add(CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1, bb.get());
+        return bb.array();
+    }
 
-        byte[] newBytes = new byte[byteList.size()];
-        for (int i = 0; i < byteList.size(); i++) {
-            newBytes[i] = byteList.get(i);
-        }
-        return newBytes;
+    /**
+     * Temporary method.
+     *
+     * @return The remainder of the class file
+     */
+    public byte[] processRemainder() {
+        byte[] remainderBytes = new byte[bytes.length - constantPoolLength - CLASS_FORMAT_CONSTANT_POOL_OFFSET];
+        System.arraycopy(bytes, CLASS_FORMAT_CONSTANT_POOL_OFFSET + constantPoolLength, remainderBytes, 0,
+                remainderBytes.length);
+        return remainderBytes;
     }
 
     @SuppressWarnings("fallthrough")
