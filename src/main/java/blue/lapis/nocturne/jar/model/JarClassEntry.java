@@ -71,15 +71,6 @@ public class JarClassEntry {
 
     public void process() {
         content = new ConstantPoolProcessor(content).process();
-        if (getName().equals("Test")) {
-            try {
-                FileOutputStream os = new FileOutputStream(new File("D:/Libraries/Desktop/Test.transformed.class"));
-                os.write(content);
-                os.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
     }
 
     /**

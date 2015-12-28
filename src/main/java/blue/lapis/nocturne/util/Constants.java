@@ -65,7 +65,7 @@ public final class Constants {
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
 
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
-            .put("rsy", 1) // hide synthetic class members
+            .put("rsy", "1") // hide synthetic class members
             .build();
 
     static {
