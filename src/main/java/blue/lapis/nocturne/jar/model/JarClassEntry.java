@@ -123,7 +123,7 @@ public class JarClassEntry {
         );
         try {
             LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-            String procName = getName();//ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
+            String procName = ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
             ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
             StructClass sc = new StructClass(
                     SimpleBytecodeProvider.getInstance().getBytecode(null, procName),
