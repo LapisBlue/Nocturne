@@ -67,6 +67,7 @@ public final class Constants {
 
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
             .put("rsy", "1") // hide synthetic class members
+            .put("ind", "    ")
             .build();
 
     static {

@@ -35,6 +35,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -142,6 +143,10 @@ public class CodeTab extends Tab {
             lastIndex = matcher.end();
         }
         texts.add(new Text(code.substring(lastIndex)));
+
+        for (Text text : texts) {
+            text.setFont(Font.font("monospace", 12));
+        }
 
         Node[] nodeArr = new Node[texts.size()];
         texts.toArray(nodeArr);
