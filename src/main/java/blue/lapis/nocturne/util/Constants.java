@@ -56,7 +56,7 @@ public final class Constants {
     public static final String MEMBER_DELIMITER = "-";
     public static final String MEMBER_SUFFIX = "%";
     public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
-            + Pattern.quote(MEMBER_DELIMITER) + "(.+?)(?:" + Pattern.quote(MEMBER_DELIMITER) + "(.+))*"
+            + Pattern.quote(MEMBER_DELIMITER) + "(.+?)(?:" + Pattern.quote(MEMBER_DELIMITER) + "(.+?))*"
             + Pattern.quote(MEMBER_SUFFIX));
 
     /**

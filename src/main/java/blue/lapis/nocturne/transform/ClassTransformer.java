@@ -435,26 +435,9 @@ public class ClassTransformer {
         }
 
         String desc = nat.getType();
-        String processedDesc = getProcessedDescriptor(
-                cs.getType() == StructureType.FIELDREF ? MemberType.FIELD : MemberType.METHOD,
-                desc
-        );
-
-        if (!processedDesc.equals(desc)) {
-            byte[] newTypeBytes = processedDesc.getBytes(StandardCharsets.UTF_8);
-            ByteBuffer typeBuffer = ByteBuffer.allocate(newTypeBytes.length + 3);
-            typeBuffer.put(StructureType.UTF_8.getTag());
-            typeBuffer.putShort((short) newTypeBytes.length);
-            typeBuffer.put(newTypeBytes);
-            pool.add(new Utf8Structure(typeBuffer.array()));
-            Map<Integer, Integer> map = memberType == MemberType.FIELD
-                    ? processedFieldDescriptorMap : processedMethodDescriptorMap;
-            map.put(typeIndex, pool.size());
-            typeIndex = pool.size();
-        }
 
         if (Main.getLoadedJar().getClass(className).isPresent()) {
-            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), processedDesc,
+            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
             ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
@@ -466,6 +449,23 @@ public class ClassTransformer {
                     ? processedFieldNameMap : processedMethodNameMap;
             map.put(nameIndex, pool.size());
             nameIndex = pool.size();
+        }
+
+        String processedDesc = getProcessedDescriptor(
+                cs.getType() == StructureType.FIELDREF ? MemberType.FIELD : MemberType.METHOD,
+                desc
+        );
+        if (!processedDesc.equals(desc)) {
+            byte[] newTypeBytes = processedDesc.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer typeBuffer = ByteBuffer.allocate(newTypeBytes.length + 3);
+            typeBuffer.put(StructureType.UTF_8.getTag());
+            typeBuffer.putShort((short) newTypeBytes.length);
+            typeBuffer.put(newTypeBytes);
+            pool.add(new Utf8Structure(typeBuffer.array()));
+            Map<Integer, Integer> map = memberType == MemberType.FIELD
+                    ? processedFieldDescriptorMap : processedMethodDescriptorMap;
+            map.put(typeIndex, pool.size());
+            typeIndex = pool.size();
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(StructureType.NAME_AND_TYPE.getLength() + 1);

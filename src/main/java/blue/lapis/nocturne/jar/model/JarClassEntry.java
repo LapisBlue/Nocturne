@@ -39,7 +39,10 @@ import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -120,7 +123,7 @@ public class JarClassEntry {
         );
         try {
             LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-            String procName = ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
+            String procName = getName();//ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
             ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
             StructClass sc = new StructClass(
                     SimpleBytecodeProvider.getInstance().getBytecode(null, procName),
@@ -133,8 +136,8 @@ public class JarClassEntry {
             for (JarClassEntry jce : Main.getLoadedJar().getClasses().stream()
                     .filter(entry -> entry.getName().startsWith(getName() + INNER_CLASS_SEPARATOR_CHAR))
                     .collect(Collectors.toList())) {
-                 String innerProcName = ClassTransformer.getProcessedName(jce.getName(), null, MemberType.CLASS);
-                ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
+                String innerProcName = ClassTransformer.getProcessedName(jce.getName(), null, MemberType.CLASS);
+                        ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
                 StructClass innerSc = new StructClass(
                         SimpleBytecodeProvider.getInstance().getBytecode(null, innerProcName),
                         true,
