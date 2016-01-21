@@ -48,9 +48,6 @@ import blue.lapis.nocturne.util.MemberType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
