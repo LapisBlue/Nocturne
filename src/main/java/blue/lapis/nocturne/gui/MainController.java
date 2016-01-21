@@ -128,9 +128,13 @@ public class MainController implements Initializable {
                     if (Main.getLoadedJar() != null) {
                         Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
                         if (clazz.isPresent()) {
-                            CodeTab tab = new CodeTab(tabs, className);
+                            if (CodeTab.CODE_TABS.containsKey(className)) {
+                                tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
+                            } else {
+                                CodeTab tab = new CodeTab(tabs, className);
 
-                            tab.setCode(clazz.get().decompile());
+                                tab.setCode(clazz.get().decompile());
+                            }
                         }
                     }
                 }
