@@ -62,7 +62,7 @@ public class MappingsHelper {
             String baseObfName = obfSplit[obfSplit.length - 1];
             String baseDeobfname = deobfSplit[deobfSplit.length - 1];
             if (parent.getInnerClassMappings().containsKey(baseObfName)) {
-                parent.getInnerClassMappings().get(obf).setDeobfuscatedName(baseDeobfname);
+                parent.getInnerClassMappings().get(baseObfName).setDeobfuscatedName(baseDeobfname);
             } else {
                 new InnerClassMapping(parent, baseObfName, baseDeobfname);
             }

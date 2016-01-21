@@ -25,6 +25,8 @@
 package blue.lapis.nocturne.gui.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.control.CodeTab;
@@ -95,7 +97,13 @@ public class SelectableMember extends Text {
 
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
-            TextInputDialog textInputDialog = new TextInputDialog(fullName != null ? fullName : this.getText());
+            String dispText;
+            if (fullName != null && !fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+                dispText = fullName;
+            } else {
+                dispText = this.getText();
+            }
+            TextInputDialog textInputDialog = new TextInputDialog(dispText);
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
 
             Optional<String> result = textInputDialog.showAndWait();
@@ -156,6 +164,9 @@ public class SelectableMember extends Text {
     public void setMapping(String mapping) {
         switch (type) {
             case CLASS: {
+                if (fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+                    mapping = fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1) + mapping;
+                }
                 MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping);
                 fullName = mapping;
                 break;
