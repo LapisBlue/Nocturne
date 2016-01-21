@@ -1,0 +1,82 @@
+From ad79d3c84fe8c15f215523b677d7b7586a9d47f9 Mon Sep 17 00:00:00 2001
+From: Max Roncace <me@caseif.net>
+Date: Wed, 20 Jan 2016 22:31:36 -0500
+Subject: [PATCH] Disable class name parsing on pre-processed class names
+
+
+diff --git a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
+index b9a30a5..7299bda 100644
+--- a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
++++ b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
+@@ -479,4 +479,12 @@ public class ConstantsUtil {
+     GOTO_W.class,                        //    "goto_w",
+     JSR_W.class                                //    "jsr_w"
+   };
++
++  /**
++   * Constant values specific to Nocturne
++   */
++  public class Nocturne {
++    public static final String CLASS_PREFIX = "%NOCTURNE+CLASS-";
++    public static final String CLASS_SUFFIX = "%";
++  }
+ }
+diff --git a/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java b/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java
+index e0fdaac..be5af07 100644
+--- a/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java
++++ b/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java
+@@ -16,6 +16,7 @@
+ package org.jetbrains.java.decompiler.main;
+ 
+ import org.jetbrains.java.decompiler.code.CodeConstants;
++import org.jetbrains.java.decompiler.code.ConstantsUtil;
+ import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
+ import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+ import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+@@ -288,6 +289,9 @@ public class ClassesProcessor {
+       int index = cl.qualifiedName.lastIndexOf("/");
+       if (index >= 0) {
+         String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
++        if (packageName.startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX)) {
++          packageName = packageName.substring(ConstantsUtil.Nocturne.CLASS_PREFIX.length());
++        }
+ 
+         buffer.append("package ");
+         buffer.append(packageName);
+@@ -433,7 +437,9 @@ public class ClassesProcessor {
+       this.type = type;
+       this.classStruct = classStruct;
+ 
+-      simpleName = classStruct.qualifiedName.substring(classStruct.qualifiedName.lastIndexOf('/') + 1);
++      simpleName = classStruct.qualifiedName.startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX)
++          ? classStruct.qualifiedName
++          : classStruct.qualifiedName.substring(classStruct.qualifiedName.lastIndexOf('/') + 1);
+     }
+ 
+     public ClassNode getClassNode(String qualifiedName) {
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java b/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
+index c832772..537c470 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
+@@ -16,6 +16,7 @@
+ package org.jetbrains.java.decompiler.modules.decompiler;
+ 
+ import org.jetbrains.java.decompiler.code.CodeConstants;
++import org.jetbrains.java.decompiler.code.ConstantsUtil;
+ import org.jetbrains.java.decompiler.code.Instruction;
+ import org.jetbrains.java.decompiler.code.InstructionSequence;
+ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
+@@ -831,6 +832,10 @@ public class ExprProcessor implements CodeConstants {
+   }
+ 
+   public static String buildJavaClassName(String name) {
++    if (name.startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX)) {
++      return name;
++    }
++
+     String res = name.replace('/', '.');
+ 
+     if (res.contains("$")) { // attempt to invoke foreign member
+-- 
+2.5.3.windows.1
+
