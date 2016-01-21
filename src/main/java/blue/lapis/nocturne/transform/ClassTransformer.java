@@ -48,6 +48,9 @@ import blue.lapis.nocturne.util.MemberType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -429,8 +432,9 @@ public class ClassTransformer {
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
 
+        boolean ignored = false;
         if (IGNORED_METHODS.contains(nat.getName())) { // don't process ignored methods
-            return;
+            ignored = true;
         }
 
         String desc = nat.getType();
@@ -438,7 +442,7 @@ public class ClassTransformer {
         boolean isSynthetic
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
-        if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic) {
+        if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
