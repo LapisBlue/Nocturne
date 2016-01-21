@@ -30,7 +30,7 @@ package blue.lapis.nocturne.transform.structure;
 public class DummyStructure extends ConstantStructure {
 
     public DummyStructure() {
-        super(new byte[] {(byte) 0xFF});
+        super(new byte[0]);
     }
 
 }
