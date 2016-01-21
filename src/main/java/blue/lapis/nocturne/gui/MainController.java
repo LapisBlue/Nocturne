@@ -115,23 +115,8 @@ public class MainController implements Initializable {
         }
 
         setAccelerators();
-        this.initSampleCodeTabs();
 
         this.initTreeViews();
-    }
-
-    private void initSampleCodeTabs() {
-        // The following is example code, for adding code-tabs
-        String className = "com/example/SomeClass";
-        CodeTab exampleTab = new CodeTab(tabs, className);
-        exampleTab.setCode("public class %NOCTURNE+CLASS-com/example/SomeClass% {\n\n"
-                + "    private static final String "
-                + "%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;% = \"Hello World!\";\n\n"
-                + "    public static void %NOCTURNE+METHOD-com/example/SomeClass/main-([Ljava/lang/String;)V%"
-                + "(String[] args) {\n"
-                + "        System.out.println(%NOCTURNE+FIELD-com/example/SomeClass/HELLO_WORLD-Ljava/lang/String;%);\n"
-                + "    }\n\n"
-                + "}\n");
     }
 
     private void initTreeViews() {
