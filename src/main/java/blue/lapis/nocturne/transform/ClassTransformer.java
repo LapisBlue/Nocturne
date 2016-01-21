@@ -66,10 +66,10 @@ public class ClassTransformer {
     private final String className;
     private final byte[] bytes;
 
-    private ImmutableList<ConstantStructure> constantPool;
+    private List<ConstantStructure> constantPool;
     private List<ConstantStructure> processedPool;
 
-    private int constantPoolLength;
+    private int initialConstantPoolLength;
 
     private List<String> syntheticFields = new ArrayList<>();
     private List<String> syntheticMethods = new ArrayList<>();
@@ -85,7 +85,6 @@ public class ClassTransformer {
     public ClassTransformer(String className, byte[] bytes) {
         this.className = className;
         this.bytes = bytes;
-        loadConstantPool();
     }
 
     public String getClassName() {
@@ -121,8 +120,8 @@ public class ClassTransformer {
                 i++;
             }
         }
-        constantPool = ImmutableList.copyOf(tempPool);
-        constantPoolLength = offset - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
+        constantPool = Lists.newArrayList(tempPool);
+        initialConstantPoolLength = offset - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
     }
 
     /**
@@ -131,10 +130,12 @@ public class ClassTransformer {
      * @return The processed bytecode
      */
     public byte[] process() {
+        loadConstantPool();
+
         int offset = 0;
 
         byte[] header = processClassHeader();
-        offset += header.length + constantPoolLength;
+        offset += header.length + initialConstantPoolLength;
 
         byte[] intermediate = processIntermediateBytes(offset);
         offset += intermediate.length;
@@ -151,7 +152,7 @@ public class ClassTransformer {
         // next call MUST come after field and method processing
         byte[] constantPool = getProcessedConstantPoolBytes();
 
-        ByteBuffer bb = ByteBuffer.allocate(offset + (constantPool.length - constantPoolLength));
+        ByteBuffer bb = ByteBuffer.allocate(offset + (constantPool.length - initialConstantPoolLength));
         bb.put(header);
         bb.put(constantPool);
         bb.put(intermediate);
@@ -309,8 +310,9 @@ public class ClassTransformer {
                                 getString(descriptorIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
-                        getProcessedPool().add(new Utf8Structure(procName));
-                        nameIndex = getProcessedPool().size();
+                        Utf8Structure nameStruct = new Utf8Structure(procName);
+                        constantPool.add(nameStruct);
+                        nameIndex = constantPool.size();
                     }
                 }
             }
@@ -319,19 +321,18 @@ public class ClassTransformer {
             byteList.add(nameBytes[1]);
             current += 2;
 
-            if (!isSynthetic) {
-                Map<Integer, Integer> map = isMethod ? processedMethodDescriptorMap : processedFieldDescriptorMap;
-                if (map.containsKey(nameIndex)) {
-                    descriptorIndex = map.get(nameIndex);
-                } else {
-                    String procDesc = getProcessedDescriptor(
-                            isMethod ? MemberType.METHOD : MemberType.FIELD,
-                            getString(descriptorIndex)
-                    );
-                    if (!procDesc.equals(getString(descriptorIndex))) {
-                        getProcessedPool().add(new Utf8Structure(procDesc));
-                        descriptorIndex = getProcessedPool().size();
-                    }
+            Map<Integer, Integer> map = isMethod ? processedMethodDescriptorMap : processedFieldDescriptorMap;
+            if (map.containsKey(nameIndex)) {
+                descriptorIndex = map.get(nameIndex);
+            } else {
+                String procDesc = getProcessedDescriptor(
+                        isMethod ? MemberType.METHOD : MemberType.FIELD,
+                        getString(descriptorIndex)
+                );
+                if (!procDesc.equals(getString(descriptorIndex))) {
+                    Utf8Structure descStruct = new Utf8Structure(procDesc);
+                    constantPool.add(descStruct);
+                    descriptorIndex = constantPool.size();
                 }
             }
             byte[] descBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) descriptorIndex).array();
@@ -436,7 +437,10 @@ public class ClassTransformer {
 
         String desc = nat.getType();
 
-        if (Main.getLoadedJar().getClass(className).isPresent()) {
+        boolean isSynthetic
+                = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
+
+        if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic) {
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
