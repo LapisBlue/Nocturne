@@ -78,8 +78,10 @@ public class CodeTab extends Tab {
             e.printStackTrace();
         }
 
-        CodeTab.CODE_TABS.put(className, this);
+        CODE_TABS.put(className, this);
         getTabPane().getSelectionModel().select(this);
+
+        this.setOnClosed(event -> CODE_TABS.remove(this.getClassName()));
     }
 
     public String getClassName() {
