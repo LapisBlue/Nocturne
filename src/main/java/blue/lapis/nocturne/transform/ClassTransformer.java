@@ -44,7 +44,6 @@ import blue.lapis.nocturne.transform.structure.RefStructure;
 import blue.lapis.nocturne.transform.structure.StructureType;
 import blue.lapis.nocturne.transform.structure.Utf8Structure;
 import blue.lapis.nocturne.util.MemberType;
-import blue.lapis.nocturne.util.helper.ByteHelper;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -52,7 +51,6 @@ import com.google.common.collect.Lists;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
