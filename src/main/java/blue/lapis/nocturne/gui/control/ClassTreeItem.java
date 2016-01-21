@@ -28,15 +28,15 @@ import javafx.scene.control.TreeItem;
 
 public class ClassTreeItem extends TreeItem<String> {
 
-    private String qualName;
+    private String id;
 
-    public ClassTreeItem(String qualifiedName, String label) {
-        this.setValue(label);
-        this.qualName = qualifiedName;
+    public ClassTreeItem(String id, String displayName) {
+        this.setValue(displayName);
+        this.id = id;
     }
 
-    public String getQualifiedName() {
-        return qualName;
+    public String getId() {
+        return id;
     }
 
 }

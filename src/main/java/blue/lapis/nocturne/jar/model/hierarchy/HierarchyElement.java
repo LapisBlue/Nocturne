@@ -78,10 +78,10 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      *     a child of the current one
      */
     protected void addChild(HierarchyNode element) throws IllegalArgumentException, IllegalStateException {
-        checkArgument(!getChild(element.getName()).isPresent(),
-                "Element by name " + element.getName() + " already present in hierarchy");
+        checkArgument(!getChild(element.getDisplayName()).isPresent(),
+                "Element by name " + element.getDisplayName() + " already present in hierarchy");
 
-        children.put(element.getName(), element);
+        children.put(element.getDisplayName(), element);
     }
 
     @Override

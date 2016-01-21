@@ -108,14 +108,14 @@ public class MainController implements Initializable {
             if (event.getClickCount() == 2) {
                 TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
                 if (selected instanceof ClassTreeItem) {
-                    String className = ((ClassTreeItem) selected).getQualifiedName();
+                    String className = ((ClassTreeItem) selected).getId();
                     if (Main.getLoadedJar() != null) {
                         Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
                         if (clazz.isPresent()) {
                             if (CodeTab.CODE_TABS.containsKey(className)) {
                                 tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
                             } else {
-                                CodeTab tab = new CodeTab(tabs, className);
+                                CodeTab tab = new CodeTab(tabs, className, selected.getValue());
 
                                 tab.setCode(clazz.get().decompile());
                             }
@@ -256,9 +256,9 @@ public class MainController implements Initializable {
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
             if (node.isTerminal()) {
-                treeItem = new ClassTreeItem(node.getQualifiedName(), node.getName());
+                treeItem = new ClassTreeItem(node.getId(), node.getDisplayName());
             } else {
-                treeItem = new TreeItem<>(node.getName());
+                treeItem = new TreeItem<>(node.getDisplayName());
             }
         } else {
             treeItem = new TreeItem<>("(root)");

@@ -39,7 +39,8 @@ import java.util.Optional;
  */
 public class HierarchyNode extends HierarchyElement {
 
-    private String name;
+    private String id;
+    private String displayName;
     private boolean terminal;
 
     private HierarchyElement parent;
@@ -47,13 +48,15 @@ public class HierarchyNode extends HierarchyElement {
     /**
      * Constructs a new {@link HierarchyNode} with the given parameters.
      *
-     * @param name The name of the {@link HierarchyNode}
+     * @param id The internal id of the {@link HierarchyNode}
+     * @param displayName The display name of the {@link HierarchyNode}
      * @param terminal Whether this element is terminal (terminal elements
      *     may not contain children)
      * @param parent The {@link HierarchyElement} parenting the new one
      */
-    public HierarchyNode(String name, boolean terminal, HierarchyElement parent) {
-        this.name = name;
+    public HierarchyNode(String id, String displayName, boolean terminal, HierarchyElement parent) {
+        this.id = id;
+        this.displayName = displayName;
         this.terminal = terminal;
 
         if (!isTerminal()) {
@@ -69,18 +72,27 @@ public class HierarchyNode extends HierarchyElement {
     }
 
     /**
+     * Returns the internal ID of this {@link HierarchyNode}.
+     *
+     * @return the internal ID of this {@link HierarchyNode}
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
      * Returns the name of this {@link HierarchyNode}.
      *
      * @return The name of this {@link HierarchyNode}
      */
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public String getQualifiedName() {
         return getParent().isPresent() && getParent().get() instanceof HierarchyNode
-                ? ((HierarchyNode) getParent().get()).getQualifiedName() + "/" + getName()
-                : getName();
+                ? ((HierarchyNode) getParent().get()).getQualifiedName() + "/" + getDisplayName()
+                : getDisplayName();
     }
 
     /**
@@ -127,7 +139,7 @@ public class HierarchyNode extends HierarchyElement {
     public String toString() {
         return (getParent().isPresent() && getParent().get() instanceof HierarchyNode
                 ? getParent().get().toString() + Constants.CLASS_PATH_SEPARATOR_CHAR
-                : "") + getName();
+                : "") + getDisplayName();
     }
 
 }

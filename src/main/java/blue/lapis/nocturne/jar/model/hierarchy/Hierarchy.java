@@ -24,6 +24,10 @@
  */
 package blue.lapis.nocturne.jar.model.hierarchy;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.util.Constants;
 
 import java.util.Set;
@@ -39,21 +43,23 @@ public class Hierarchy extends HierarchyElement {
      * @param strings The strings to generate a hierarchy from
      * @return The generated entry {@link HierarchyNode}
      */
-    public static Hierarchy fromSet(Set<String> strings) {
+    public static Hierarchy fromSet(Set<JarClassEntry> entries, boolean deobfuscated) {
         Hierarchy root = new Hierarchy();
 
-        for (String str : strings) {
-            String[] arr = Constants.CLASS_PATH_SEPARATOR_PATTERN.split(str);
+        for (JarClassEntry jce : entries) {
+            String id = jce.getName();
+            String fullName = (deobfuscated ? jce.getDeobfuscatedName() : id);
+            String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(fullName);
 
             HierarchyElement parent = root;
             for (int i = 0; i < arr.length - 1; i++) {
                 if (parent != null && parent.getChild(arr[i]).isPresent()) {
                     parent = parent.getChild(arr[i]).get();
                 } else {
-                    parent = new HierarchyNode(arr[i], false, parent);
+                    parent = new HierarchyNode(id, arr[i], false, parent);
                 }
             }
-            new HierarchyNode(arr[arr.length - 1], true, parent);
+            new HierarchyNode(id, arr[arr.length - 1], true, parent);
         }
 
         return root;

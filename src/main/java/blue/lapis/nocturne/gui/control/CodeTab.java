@@ -61,9 +61,9 @@ public class CodeTab extends Tab {
     public Label memberInfo;
     public TextFlow code;
 
-    public CodeTab(TabPane pane, String className) {
+    public CodeTab(TabPane pane, String className, String displayName) {
         this.className = className;
-        this.setText(className);
+        this.setText(displayName);
 
         pane.getTabs().add(this);
 

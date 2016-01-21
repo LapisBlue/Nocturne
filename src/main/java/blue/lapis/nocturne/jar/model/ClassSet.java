@@ -133,8 +133,8 @@ public class ClassSet {
     private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet, boolean deobfuscate) {
         return Hierarchy.fromSet(entrySet.stream()
                 .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
-                .map(deobfuscate ? JarClassEntry::getDeobfuscatedName : JarClassEntry::getName)
-                .collect(Collectors.toSet()));
+                //.map(deobfuscate ? JarClassEntry::getDeobfuscatedName : JarClassEntry::getName)
+                .collect(Collectors.toSet()), deobfuscate);
     }
 
 }
