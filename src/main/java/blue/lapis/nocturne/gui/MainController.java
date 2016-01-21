@@ -172,6 +172,7 @@ public class MainController implements Initializable {
         }
 
         Main.getMappingContext().clear();
+        tabs.getTabs().clear();
         Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
         updateClassViews();
