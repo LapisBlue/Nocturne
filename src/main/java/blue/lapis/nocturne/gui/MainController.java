@@ -156,7 +156,11 @@ public class MainController implements Initializable {
         }
 
         Main.getMappingContext().clear();
+
+        tabs.getTabs().forEach(tab -> tab.getOnClosed().handle(null));
         tabs.getTabs().clear();
+        CodeTab.CODE_TABS.clear();
+
         Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
         updateClassViews();
