@@ -548,7 +548,9 @@ public class ClassTransformer {
                     MethodDescriptor md = MethodDescriptor.fromString(desc);
                     List<Type> newParams = new ArrayList<>();
                     for (Type param : md.getParamTypes()) {
-                        if (!param.isPrimitive()) {
+                        if (param.isPrimitive()) {
+                            newParams.add(param);
+                        } else {
                             String typeClass = param.getClassName();
                             if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
                                 newParams.add(new Type(getProcessedName(typeClass, null, MemberType.CLASS),
