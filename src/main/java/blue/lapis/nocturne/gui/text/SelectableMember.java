@@ -28,6 +28,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.control.CodeTab;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
@@ -96,11 +97,9 @@ public class SelectableMember extends Text {
 
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
-            String dispText;
-            if (fullName != null && !fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+            String dispText = this.getText();
+            if (getType() == MemberType.CLASS && !fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
                 dispText = fullName;
-            } else {
-                dispText = this.getText();
             }
             TextInputDialog textInputDialog = new TextInputDialog(dispText);
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));

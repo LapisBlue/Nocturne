@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.model;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
@@ -174,7 +175,7 @@ public abstract class ClassMapping extends Mapping {
     @Override
     public void setDeobfuscatedName(String name) {
         super.setDeobfuscatedName(name);
-        markEntryDeobfuscated();
+        updateEntryDeobfuscation();
 
         List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
         if (memberList == null) {
@@ -183,18 +184,18 @@ public abstract class ClassMapping extends Mapping {
 
         String unqualName = this instanceof InnerClassMapping ? name : MappingsHelper.unqualify(name);
         memberList.forEach(member -> member.setText(unqualName));
+
+        MainController.INSTANCE.updateClassViews();
     }
 
-    public void markEntryDeobfuscated() {
-        if (!getObfuscatedName().equals(getDeobfuscatedName())) {
-            if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
-                Optional<JarClassEntry> classEntry
-                        = Main.getLoadedJar().getClass(this instanceof InnerClassMapping
-                        ? ((InnerClassMapping) this).getFullObfuscatedName()
-                        : getObfuscatedName());
-                if (classEntry.isPresent()) {
-                    classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
-                }
+    public void updateEntryDeobfuscation() {
+        if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
+            Optional<JarClassEntry> classEntry
+                    = Main.getLoadedJar().getClass(this instanceof InnerClassMapping
+                    ? ((InnerClassMapping) this).getFullObfuscatedName()
+                    : getObfuscatedName());
+            if (classEntry.isPresent()) {
+                classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
             }
         }
     }

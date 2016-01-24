@@ -68,6 +68,8 @@ import java.util.stream.Collectors;
  */
 public class MainController implements Initializable {
 
+    public static MainController INSTANCE;
+
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
@@ -85,6 +87,10 @@ public class MainController implements Initializable {
 
     public TreeView<String> obfTree;
     public TreeView<String> deobfTree;
+
+    public MainController() {
+        INSTANCE = this;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
