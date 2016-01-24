@@ -3,7 +3,8 @@ package blue.lapis.nocturne.jar.model.hierarchy;
 import java.util.Objects;
 
 /**
- * Created by Max on 1/24/2016.
+ * Represents a hash of a particular {@link HierarchyElement}, considering name
+ * and terminal-ness.
  */
 public class NodeKey {
 

@@ -138,30 +138,17 @@ public class MainController implements Initializable {
     }
 
     public void openJar(ActionEvent actionEvent) throws IOException {
-        if (Main.getLoadedJar() != null) {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-            Main.getMappingContext().clear();
-            Main.setLoadedJar(null);
+        if (Main.getLoadedJar() != null && !deinitializeCurrentJar()) {
+            return;
         }
-
         JarDialogHelper.openJar(this);
         updateClassViews();
     }
 
     public void closeJar(ActionEvent actionEvent) throws IOException {
-        if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+        if (!deinitializeCurrentJar()) {
             return;
         }
-
-        Main.getMappingContext().clear();
-
-        tabs.getTabs().forEach(tab -> tab.getOnClosed().handle(null));
-        tabs.getTabs().clear();
-        CodeTab.CODE_TABS.clear();
-
-        Main.setLoadedJar(null);
         closeJarButton.setDisable(true);
         updateClassViews();
     }
@@ -280,6 +267,25 @@ public class MainController implements Initializable {
     public void updateClassViews() {
         updateObfuscatedClassListView();
         updateDeobfuscatedClassListView();
+    }
+
+    private boolean deinitializeCurrentJar() throws IOException {
+        if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+            return false;
+        }
+        Main.getMappingContext().clear();
+        closeAllTabs();
+        Main.setLoadedJar(null);
+        return true;
+    }
+
+    /**
+     * Closes all currently opened tabs.
+     */
+    private void closeAllTabs() {
+        tabs.getTabs().forEach(tab -> tab.getOnClosed().handle(null));
+        tabs.getTabs().clear();
+        CodeTab.CODE_TABS.clear();
     }
 
 }

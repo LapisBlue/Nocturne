@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.util.helper;
 
+import blue.lapis.nocturne.gui.control.CodeTab;
+
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
