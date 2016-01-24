@@ -73,20 +73,5 @@
 
         <TabPane fx:id="tabs" id="tabs">
         </TabPane>
-
-        <Accordion SplitPane.resizableWithParent="false">
-            <panes>
-                <TitledPane text="%side.call_graph">
-                    <ScrollPane fitToHeight="true" fitToWidth="true">
-                        <TreeView id="callGraphTree"/>
-                    </ScrollPane>
-                </TitledPane>
-                <TitledPane text="%side.inheritance">
-                    <ScrollPane fitToHeight="true" fitToWidth="true">
-                        <TreeView id="inheritanceTree"/>
-                    </ScrollPane>
-                </TitledPane>
-            </panes>
-        </Accordion>
     </SplitPane>
 </VBox>
