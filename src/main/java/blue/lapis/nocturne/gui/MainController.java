@@ -260,7 +260,17 @@ public class MainController implements Initializable {
                     element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
             );
         }
-        treeItem.getChildren().setAll(treeItem.getChildren().sorted());
+        treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
+            boolean c1 = t1.getChildren().size() > 0;
+            boolean c2 = t2.getChildren().size() > 0;
+            if (c1 == c2) { // both either terminal or non-terminal
+                return t1.getValue().compareTo(t2.getValue());
+            } else if (c1) { // first is non-terminal, second is terminal
+                return -1;
+            } else { // first is terminal, second is non-terminal
+                return 1;
+            }
+        }));
         return treeItem;
     }
 
