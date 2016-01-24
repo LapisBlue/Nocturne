@@ -39,7 +39,7 @@ import java.util.Optional;
  */
 public abstract class HierarchyElement implements Iterable<HierarchyNode> {
 
-    protected Map<String, HierarchyNode> children = new HashMap<>();
+    protected Map<NodeKey, HierarchyNode> children = new HashMap<>();
 
     /**
      * Attempts to get the child element by the given name from the current one.
@@ -48,9 +48,10 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      * @return The child element if it exists, or {@link Optional#empty()}
      *     otherwise
      */
-    public Optional<HierarchyNode> getChild(String name) {
-        if (children.containsKey(name)) {
-            return Optional.of(children.get(name));
+    public Optional<HierarchyNode> getChild(String name, boolean terminal) {
+        NodeKey nk = new NodeKey(name, terminal);
+        if (children.containsKey(nk)) {
+            return Optional.of(children.get(nk));
         }
         return Optional.empty();
     }
@@ -78,10 +79,10 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      *     a child of the current one
      */
     protected void addChild(HierarchyNode element) throws IllegalArgumentException, IllegalStateException {
-        checkArgument(!getChild(element.getDisplayName()).isPresent(),
-                "Element by name " + element.getDisplayName() + " already present in hierarchy");
-
-        children.put(element.getDisplayName(), element);
+        checkArgument(!getChild(element.getDisplayName(), element.isTerminal()).isPresent(),
+                "Element by name " + element.getDisplayName()
+                        + " (" + (!element.isTerminal() ? "non-" : "") + "terminal) already present in hierarchy");
+        children.put(new NodeKey(element.getDisplayName(), element.isTerminal()), element);
     }
 
     @Override

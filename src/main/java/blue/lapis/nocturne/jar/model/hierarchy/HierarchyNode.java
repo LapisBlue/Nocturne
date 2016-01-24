@@ -118,9 +118,9 @@ public class HierarchyNode extends HierarchyElement {
     }
 
     @Override
-    public Optional<HierarchyNode> getChild(String name) {
+    public Optional<HierarchyNode> getChild(String name, boolean terminal) {
         checkState(!isTerminal(), "getChild called on terminal HierarchyNode");
-        return super.getChild(name);
+        return super.getChild(name, terminal);
     }
 
     @Override

@@ -40,7 +40,9 @@ public class Hierarchy extends HierarchyElement {
     /**
      * Generates a hierarchy from the given string {@link Set}.
      *
-     * @param strings The strings to generate a hierarchy from
+     * @param entries The {@link JarClassEntry entries} to generate a hierarchy
+     *     from
+     * @param deobfuscated Whether the entries are deobfuscated
      * @return The generated entry {@link HierarchyNode}
      */
     public static Hierarchy fromSet(Set<JarClassEntry> entries, boolean deobfuscated) {
@@ -53,8 +55,8 @@ public class Hierarchy extends HierarchyElement {
 
             HierarchyElement parent = root;
             for (int i = 0; i < arr.length - 1; i++) {
-                if (parent != null && parent.getChild(arr[i]).isPresent()) {
-                    parent = parent.getChild(arr[i]).get();
+                if (parent != null && parent.getChild(arr[i], false).isPresent()) {
+                    parent = parent.getChild(arr[i], false).get();
                 } else {
                     parent = new HierarchyNode(id, arr[i], false, parent);
                 }
