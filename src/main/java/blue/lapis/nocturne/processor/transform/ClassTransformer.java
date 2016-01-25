@@ -408,12 +408,12 @@ public class ClassTransformer {
     private void handleNonClassMember(ConstantStructure cs, List<ConstantStructure> pool) {
         MemberType memberType;
         switch (cs.getType()) {
-            case StructureType.FIELDREF: {
+            case FIELDREF: {
                 memberType = MemberType.FIELD;
                 break;
             }
-            case StructureType.INTERFACE_METHODREF: // fall through
-            case StructureType.METHODREF: {
+            case INTERFACE_METHODREF: // fall through
+            case METHODREF: {
                 memberType = MemberType.METHOD;
                 break;
             }
