@@ -66,7 +66,12 @@ public class JarClassEntry {
     }
 
     public void process() {
-        content = new ClassTransformer(getName(), getContent()).process();
+        try {
+            content = new ClassTransformer(getName(), getContent()).process();
+        } catch (IOException ex) {
+            Main.getLogger().severe("Failed to process class " + getName());
+            ex.printStackTrace();
+        }
     }
 
     /**

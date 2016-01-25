@@ -26,11 +26,14 @@ package blue.lapis.nocturne.processor.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.INT_UNSIGNER;
 import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
 import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
+import static blue.lapis.nocturne.util.Constants.SHORT_UNSIGNER;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
+import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -49,6 +52,10 @@ import blue.lapis.nocturne.util.MemberType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -93,17 +100,19 @@ public class ClassTransformer extends ClassProcessor {
     private void loadConstantPool() {
         List<ConstantStructure> tempPool = new ArrayList<>();
 
-        int constPoolCount = asUshort(bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET],
-                bytes[CLASS_FORMAT_CONSTANT_POOL_OFFSET + 1]) - 1;
-        int offset = CLASS_FORMAT_CONSTANT_POOL_OFFSET + 2;
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.get(new byte[CLASS_FORMAT_CONSTANT_POOL_OFFSET]);
+        int constPoolCount = asUshort(buffer.getShort()) - 1;
         for (int i = 0; i < constPoolCount; i++) {
-            StructureType sType = StructureType.fromTag(bytes[offset]);
-            int length = sType == StructureType.UTF_8
-                    ? asUshort(bytes[offset + 1], bytes[offset + 2]) + 2
-                    : sType.getLength();
+            StructureType sType = StructureType.fromTag(buffer.get());
+            int length = sType.getLength();
+            if (sType == StructureType.UTF_8) {
+                length = asUshort(buffer.getShort()) + 2;
+                buffer.position(buffer.position() - 2);
+            }
             byte[] structBytes = new byte[length + 1];
-            System.arraycopy(bytes, offset, structBytes, 0, length + 1);
-            offset += length + 1;
+            structBytes[0] = sType.getTag();
+            buffer.get(structBytes, 1, length);
             tempPool.add(ConstantStructure.createConstantStructure(structBytes));
 
             if (sType == StructureType.DOUBLE || sType == StructureType.LONG) {
@@ -112,7 +121,7 @@ public class ClassTransformer extends ClassProcessor {
             }
         }
         constantPool = Lists.newArrayList(tempPool);
-        initialConstantPoolLength = offset - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
+        initialConstantPoolLength = buffer.position() - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
     }
 
     /**
@@ -120,30 +129,21 @@ public class ClassTransformer extends ClassProcessor {
      *
      * @return The processed bytecode
      */
-    public byte[] process() {
+    public byte[] process() throws IOException {
         loadConstantPool();
 
-        int offset = 0;
-
-        byte[] header = processClassHeader();
-        offset += header.length + initialConstantPoolLength;
-
-        byte[] intermediate = processIntermediateBytes(offset);
-        offset += intermediate.length;
-
-        byte[] fields = processFieldBytes(offset);
-        offset += fields.length;
-
-        byte[] methods = processMethodBytes(offset);
-        offset += methods.length;
-
-        byte[] remainder = processRemainder(offset);
-        offset += remainder.length;
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        byte[] header = processClassHeader(buffer);
+        buffer.get(new byte[initialConstantPoolLength]); // skip constant pool
+        byte[] intermediate = processIntermediateBytes(buffer);
+        byte[] fields = processFieldBytes(buffer);
+        byte[] methods = processMethodBytes(buffer);
+        byte[] remainder = processRemainder(buffer);
 
         // next call MUST come after field and method processing
         byte[] constantPool = getProcessedConstantPoolBytes();
 
-        ByteBuffer bb = ByteBuffer.allocate(offset + (constantPool.length - initialConstantPoolLength));
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length + (constantPool.length - initialConstantPoolLength));
         bb.put(header);
         bb.put(constantPool);
         bb.put(intermediate);
@@ -156,17 +156,13 @@ public class ClassTransformer extends ClassProcessor {
     /**
      * Processes the header of the class (the first 8 bytes).
      *
+     * @param buffer The {@link ByteBuffer} to read from
      * @return The processed class header
      */
-    public byte[] processClassHeader() {
-        List<Byte> byteList = new ArrayList<>();
-        for (int i = 0; i < CLASS_FORMAT_CONSTANT_POOL_OFFSET; i++) {
-            byteList.add(bytes[i]);
-        }
-
-        ByteBuffer bb = ByteBuffer.allocate(CLASS_FORMAT_CONSTANT_POOL_OFFSET);
-        byteList.forEach(bb::put);
-        return bb.array();
+    public byte[] processClassHeader(ByteBuffer buffer) {
+        byte[] value = new byte[CLASS_FORMAT_CONSTANT_POOL_OFFSET];
+        buffer.get(value);
+        return value;
     }
 
     /**
@@ -174,20 +170,17 @@ public class ClassTransformer extends ClassProcessor {
      *
      * @return The bytecode of the processed constant pool
      */
-    public byte[] getProcessedConstantPoolBytes() {
-        List<Byte> byteList = new ArrayList<>();
+    public byte[] getProcessedConstantPoolBytes() throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         List<ConstantStructure> constPool = getProcessedPool();
         for (ConstantStructure cs : constPool) {
-            for (byte b : cs.getBytes()) {
-                byteList.add(b);
-            }
+            os.write(cs.getBytes());
         }
 
-        ByteBuffer bb = ByteBuffer.allocate(byteList.size() + Short.BYTES);
+        ByteBuffer bb = ByteBuffer.allocate(os.size() + Short.BYTES);
         bb.putShort((short) (constPool.size() + 1)); // set the size
-        byteList.forEach(bb::put);// set the actual bytes
-
+        bb.put(os.toByteArray());
         return bb.array();
     }
 
@@ -195,96 +188,97 @@ public class ClassTransformer extends ClassProcessor {
      * Processes the intermediate bytes between the constant pool and the member
      * definitions.
      *
-     * @param offset The offset to begin from
+     * @param buffer The buffer to read from
      * @return The intermediate bytes
      */
-    public byte[] processIntermediateBytes(int offset) {
-        List<Byte> byteList = new ArrayList<>();
+    public byte[] processIntermediateBytes(ByteBuffer buffer) {
+        int initialPos = buffer.position(); // mark the initial position of the buffer
 
         // Okay, so here's what's happening here:
         //     - The first 6 bytes aren't relevant at all
         //     - The next 2 bytes are the number of interfaces the class implements
         //     - The remaining bytes are pointers to class structures, one for each interface, each being 2 bytes
         // So, we need to process 8 bytes plus [2 times the interface count]. Hopefully this comment makes sense.
-        int interfacesCount = asUshort(bytes[offset + 6], bytes[offset + 7]);
-        for (int i = 0; i < 8 + (interfacesCount * 2); i++) {
-            byteList.add(bytes[offset + i]);
-        }
-
-        ByteBuffer bb = ByteBuffer.allocate(byteList.size());
-        byteList.forEach(bb::put);
-        return bb.array();
+        final int irrelevantBytes = 6; // magic number
+        buffer.get(new byte[irrelevantBytes]); // skip the header
+        int interfaceCount = asUshort(buffer.getShort()); // read the interface count
+        byte[] finalArray = new byte[irrelevantBytes + 2 + interfaceCount * 2]; // allocate an appropriately-sized array
+        buffer.position(initialPos); // rewind the buffer to the initial position
+        buffer.get(finalArray); // put the bytes into the allocated array
+        return finalArray;
     }
 
     /**
      * Processes field definitions.
      *
-     * @param offset The offset to begin from
+     * @param buffer The buffer to read from
      * @return The new field definition bytes
      */
-    public byte[] processFieldBytes(int offset) {
-        return processMemberBytes(offset, false);
+    public byte[] processFieldBytes(ByteBuffer buffer) throws IOException {
+        return processMemberBytes(buffer, false);
     }
 
     /**
      * Processes method definitions.
      *
-     * @param offset The offset to begin from
+     * @param buffer The buffer to read from
      * @return The new method definition bytes
      */
-    public byte[] processMethodBytes(int offset) {
-        return processMemberBytes(offset, true);
+    public byte[] processMethodBytes(ByteBuffer buffer) throws IOException {
+        return processMemberBytes(buffer, true);
     }
 
     /**
      * Processes member definitions.
      *
-     * @param offset The offset to begin from
+     * @param buffer The buffer to read from
      * @param isMethod Whether the member is a method (a value of {@link false}
      *     for this parameter is taken to mean the member is a field)
      * @return The new member definition bytes
      */
-    public byte[] processMemberBytes(int offset, boolean isMethod) {
-        List<Byte> byteList = new ArrayList<>();
+    public byte[] processMemberBytes(ByteBuffer buffer, boolean isMethod) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int count = asUshort(bytes[offset], bytes[offset + 1]);
-        byteList.add(bytes[offset]);
-        byteList.add(bytes[offset + 1]);
+        int count = asUshort(buffer.getShort());
+        os.write(getBytes((short) count));
 
-        int current = offset + 2;
         for (int m = 0; m < count; m++) {
-            int access = asUshort(bytes[current], bytes[current + 1]);
+            int memberStart = buffer.position();
+
+            short access = buffer.getShort();
+            os.write(getBytes(access));
             boolean isSynthetic = (access & 0x1000) != 0;
-            byteList.add(bytes[current]);
-            byteList.add(bytes[current + 1]);
-            current += 2;
 
-            List<Byte> attrBytes = new ArrayList<>();
-            int attrOffset = current + 4;
-            attrBytes.add(bytes[attrOffset]);
-            attrBytes.add(bytes[attrOffset + 1]);
-            int attrCount = asUshort(bytes[attrOffset], bytes[attrOffset + 1]);
-            attrOffset += 2;
-
+            buffer.get(new byte[4]);
+            ByteArrayOutputStream attrOs = new ByteArrayOutputStream();
+            int attrCount = asUshort(buffer.getShort());
+            attrOs.write(getBytes((short) attrCount));
             for (int i = 0; i < attrCount; i++) {
+                int attrNameIndex = asUshort(buffer.getShort());
+                attrOs.write(getBytes((short) attrNameIndex));
                 if (!isSynthetic) {
-                    String attrName = getString(asUshort(bytes[attrOffset], bytes[attrOffset + 1]));
+                    String attrName = getString(attrNameIndex);
                     if (attrName.equals("Synthetic")) {
                         isSynthetic = true;
                     }
                 }
 
-                long attrLength = asUint(bytes[attrOffset + 2], bytes[attrOffset + 3], bytes[attrOffset + 4],
-                        bytes[attrOffset + 5]);
-                // loop twice to get through the name, 4 times for the length, then n times for the content
-                for (int j = 0; j < 6 + attrLength; j++) {
-                    attrBytes.add(bytes[attrOffset]);
-                    attrOffset++;
+                long attrLength = asUint(buffer.getInt());
+                attrOs.write(getBytes((int) attrLength));
+                for (int j = 0; j < attrLength; j++) {
+                    try {
+                        attrOs.write(buffer.get());
+                    } catch (BufferUnderflowException ex) {
+                        System.err.println("Class: " + getClassName() + " - m: " + m);
+                        throw ex;
+                    }
                 }
             }
 
-            int nameIndex = asUshort(bytes[current], bytes[current + 1]);
-            int descriptorIndex = asUshort(bytes[current + 2], bytes[current + 3]);
+            buffer.position(memberStart + 2);
+
+            int nameIndex = asUshort(buffer.getShort());
+            int descriptorIndex = asUshort(buffer.getShort());
 
             if (isSynthetic) {
                 (isMethod ? syntheticMethods : syntheticFields).add(getString(nameIndex));
@@ -307,10 +301,7 @@ public class ClassTransformer extends ClassProcessor {
                     }
                 }
             }
-            byte[] nameBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) nameIndex).array();
-            byteList.add(nameBytes[0]);
-            byteList.add(nameBytes[1]);
-            current += 2;
+            os.write(getBytes((short) nameIndex));
 
             Map<Integer, Integer> map = isMethod ? processedMethodDescriptorMap : processedFieldDescriptorMap;
             if (map.containsKey(nameIndex)) {
@@ -326,29 +317,24 @@ public class ClassTransformer extends ClassProcessor {
                     descriptorIndex = constantPool.size();
                 }
             }
-            byte[] descBytes = ByteBuffer.allocate(Short.BYTES).putShort((short) descriptorIndex).array();
-            byteList.add(descBytes[0]);
-            byteList.add(descBytes[1]);
+            os.write(getBytes((short) descriptorIndex));
 
-            byteList.addAll(attrBytes);
-            current = attrOffset;
-
+            byte[] attrArr = attrOs.toByteArray();
+            os.write(attrArr);
+            buffer.position(buffer.position() + attrArr.length);
         }
 
-        ByteBuffer bb = ByteBuffer.allocate(byteList.size());
-        byteList.forEach(bb::put);
-        return bb.array();
+        return os.toByteArray();
     }
 
     /**
      * Returns any bytes remaining in the class file after the given offset.
      *
+     * @param buffer The buffer to read
      * @return The remainder of the class file
      */
-    public byte[] processRemainder(int offset) {
-        byte[] remainderBytes = new byte[bytes.length - offset];
-        System.arraycopy(bytes, offset, remainderBytes, 0, remainderBytes.length);
-        return remainderBytes;
+    public byte[] processRemainder(ByteBuffer buffer) {
+        return ByteBuffer.allocate(buffer.capacity() - buffer.position()).put(buffer).array();
     }
 
     @SuppressWarnings("fallthrough")

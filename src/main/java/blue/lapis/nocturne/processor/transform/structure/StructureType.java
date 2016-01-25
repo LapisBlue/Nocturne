@@ -96,6 +96,9 @@ public enum StructureType {
      * @return The {@link StructureType} associated with the given byte tag
      */
     public static StructureType fromTag(byte tag) {
+        if (!types.containsKey(tag)) {
+            throw new IllegalArgumentException("No such constant structure with tag " + tag);
+        }
         return types.get(tag);
     }
 

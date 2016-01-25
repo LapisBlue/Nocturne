@@ -24,6 +24,9 @@
  */
 package blue.lapis.nocturne.util.helper;
 
+import static blue.lapis.nocturne.util.Constants.INT_UNSIGNER;
+import static blue.lapis.nocturne.util.Constants.SHORT_UNSIGNER;
+
 import blue.lapis.nocturne.util.Constants;
 
 import java.nio.ByteBuffer;
@@ -34,17 +37,31 @@ import java.nio.ByteBuffer;
 public final class ByteHelper {
 
     public static int asUshort(byte b1, byte b2) {
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+        ByteBuffer buffer = ByteBuffer.allocate(Short.BYTES);
         buffer.put(new byte[] {b1, b2});
-        //noinspection PointlessBitwiseExpression - IntellIJ is wrong
-        return ((int) buffer.getShort(0)) & Constants.SHORT_UNSIGNER;
+        return ((int) buffer.getShort(0)) & SHORT_UNSIGNER;
+    }
+
+    public static int asUshort(short signed) {
+        return ((int) signed) & SHORT_UNSIGNER;
     }
 
     public static long asUint(byte b1, byte b2, byte b3, byte b4) {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
         buffer.put(new byte[] {b1, b2, b3, b4});
-        //noinspection PointlessBitwiseExpression - IntellIJ is wrong
-        return ((long) buffer.getInt(0)) & Constants.INT_UNSIGNER;
+        return ((long) buffer.getInt(0)) & INT_UNSIGNER;
+    }
+
+    public static long asUint(int signed) {
+        return ((long) signed) & INT_UNSIGNER;
+    }
+
+    public static byte[] getBytes(short s) {
+        return ByteBuffer.allocate(Short.BYTES).putShort(s).array();
+    }
+
+    public static byte[] getBytes(int i) {
+        return ByteBuffer.allocate(Integer.BYTES).putInt(i).array();
     }
 
 }

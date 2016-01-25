@@ -49,8 +49,8 @@ public final class Constants {
     public static final String CLASS_FILE_NAME_TAIL = ".class";
 
     public static final int CLASS_FORMAT_CONSTANT_POOL_OFFSET = 8; // byte offset of the CP per the class file format
-    public static final int SHORT_UNSIGNER = 0xFFFF;
-    public static final int INT_UNSIGNER = 0xFFFFFFFF;
+    public static final int SHORT_UNSIGNER = (int) Math.pow(2, Short.BYTES * 8) - 1;
+    public static final long INT_UNSIGNER = (long) Math.pow(2, Integer.BYTES * 8) - 1;
 
     public static final String MEMBER_PREFIX = "%NOCTURNE+";
     public static final String MEMBER_DELIMITER = "-";
