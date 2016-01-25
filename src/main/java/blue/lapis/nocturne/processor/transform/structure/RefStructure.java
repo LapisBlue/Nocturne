@@ -22,46 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.structure;
+package blue.lapis.nocturne.processor.transform.structure;
 
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-
 /**
- * Represents a Utf8 structure.
+ * Represents a *ref structure.
  */
-public class Utf8Structure extends ConstantStructure {
+public class RefStructure extends ConstantStructure {
 
-    private String str;
+    private int classIndex;
+    private int natIndex;
 
-    public Utf8Structure(byte[] bytes) {
+    protected RefStructure(byte[] bytes) {
         super(bytes);
-        assert bytes.length >= 3;
-        int length = ByteHelper.asUshort(bytes[1], bytes[2]);
-        assert bytes.length == length + 3;
-        byte[] strBytes = new byte[bytes.length - 3];
-        System.arraycopy(bytes, 3, strBytes, 0, strBytes.length);
-        str = new String(strBytes, StandardCharsets.UTF_8);
+        classIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+        natIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
     }
 
-    public Utf8Structure(String str) {
-        super(bytesFromStr(str));
-        this.str = str;
+    public int getClassIndex() {
+        return classIndex;
     }
 
-    public String asString() {
-        return str;
-    }
-
-    private static byte[] bytesFromStr(String str) {
-        byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer bb = ByteBuffer.allocate(strBytes.length + 3);
-        bb.put(StructureType.UTF_8.getTag());
-        bb.putShort((short) strBytes.length);
-        bb.put(strBytes);
-        return bb.array();
+    public int getNameAndTypeIndex() {
+        return natIndex;
     }
 
 }

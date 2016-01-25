@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.structure;
+package blue.lapis.nocturne.processor.transform.structure;
 
 /**
  * Represents a structure in the constant pool.
@@ -74,7 +74,7 @@ public abstract class ConstantStructure {
                 return new Utf8Structure(bytes);
             }
             default: {
-                return new IrrelevantStructure(bytes);
+                return new IgnoredStructure(bytes);
             }
         }
     }

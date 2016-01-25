@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.structure;
+package blue.lapis.nocturne.processor.transform.structure;
 
 import blue.lapis.nocturne.util.helper.ByteHelper;
 

@@ -22,14 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.structure;
+package blue.lapis.nocturne.processor.transform.structure;
 
 /**
- * Represents a constant pool structure irrelevant to the transformer.
+ * Represents a Methodref structure.
  */
-public class IrrelevantStructure extends ConstantStructure {
+public class MethodrefStructure extends RefStructure {
 
-    public IrrelevantStructure(byte[] bytes) {
+    public MethodrefStructure(byte[] bytes) {
         super(bytes);
     }
 

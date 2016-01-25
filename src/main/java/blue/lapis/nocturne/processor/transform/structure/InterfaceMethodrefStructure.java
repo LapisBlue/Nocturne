@@ -22,14 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.structure;
+package blue.lapis.nocturne.processor.transform.structure;
 
 /**
- * Represents a Fieldref structure.
+ * Represents an InterfaceMethodref structure.
  */
-public class FieldrefStructure extends RefStructure {
+public class InterfaceMethodrefStructure extends RefStructure {
 
-    public FieldrefStructure(byte[] bytes) {
+    public InterfaceMethodrefStructure(byte[] bytes) {
         super(bytes);
     }
 

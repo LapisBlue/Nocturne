@@ -32,7 +32,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
-import blue.lapis.nocturne.processor.ClassTransformer;
+import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 
 import org.jetbrains.java.decompiler.main.Fernflower;

@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor;
+package blue.lapis.nocturne.processor.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
@@ -35,14 +35,14 @@ import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.processor.structure.ClassStructure;
-import blue.lapis.nocturne.processor.structure.ConstantStructure;
-import blue.lapis.nocturne.processor.structure.DummyStructure;
-import blue.lapis.nocturne.processor.structure.IrrelevantStructure;
-import blue.lapis.nocturne.processor.structure.NameAndTypeStructure;
-import blue.lapis.nocturne.processor.structure.RefStructure;
-import blue.lapis.nocturne.processor.structure.StructureType;
-import blue.lapis.nocturne.processor.structure.Utf8Structure;
+import blue.lapis.nocturne.processor.transform.structure.ClassStructure;
+import blue.lapis.nocturne.processor.transform.structure.ConstantStructure;
+import blue.lapis.nocturne.processor.transform.structure.DummyStructure;
+import blue.lapis.nocturne.processor.transform.structure.IgnoredStructure;
+import blue.lapis.nocturne.processor.transform.structure.NameAndTypeStructure;
+import blue.lapis.nocturne.processor.transform.structure.RefStructure;
+import blue.lapis.nocturne.processor.transform.structure.StructureType;
+import blue.lapis.nocturne.processor.transform.structure.Utf8Structure;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;
@@ -373,7 +373,7 @@ public class ClassTransformer {
     }
 
     private void handleMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
-        if (!(cs instanceof IrrelevantStructure)) {
+        if (!(cs instanceof IgnoredStructure)) {
             if (cs.getType() == StructureType.CLASS) {
                 handleClassMember(cs, index, pool);
             } else if (  cs.getType() == StructureType.FIELDREF
@@ -408,12 +408,12 @@ public class ClassTransformer {
     private void handleNonClassMember(ConstantStructure cs, List<ConstantStructure> pool) {
         MemberType memberType;
         switch (cs.getType()) {
-            case FIELDREF: {
+            case StructureType.FIELDREF: {
                 memberType = MemberType.FIELD;
                 break;
             }
-            case INTERFACE_METHODREF: // fall through
-            case METHODREF: {
+            case StructureType.INTERFACE_METHODREF: // fall through
+            case StructureType.METHODREF: {
                 memberType = MemberType.METHOD;
                 break;
             }
