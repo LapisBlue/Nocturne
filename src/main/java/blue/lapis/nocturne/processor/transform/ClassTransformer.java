@@ -35,6 +35,7 @@ import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.transform.structure.ClassStructure;
 import blue.lapis.nocturne.processor.transform.structure.ConstantStructure;
 import blue.lapis.nocturne.processor.transform.structure.DummyStructure;
@@ -59,10 +60,7 @@ import java.util.Map;
  * Manages interpretation and transformation of constant pool, given the raw
  * bytecode of a class.
  */
-public class ClassTransformer {
-
-    private final String className;
-    private final byte[] bytes;
+public class ClassTransformer extends ClassProcessor {
 
     private List<ConstantStructure> constantPool;
     private List<ConstantStructure> processedPool;
@@ -81,12 +79,7 @@ public class ClassTransformer {
             .add("<init>").add("<clinit>").build();
 
     public ClassTransformer(String className, byte[] bytes) {
-        this.className = className;
-        this.bytes = bytes;
-    }
-
-    public String getClassName() {
-        return className;
+        super(className, bytes);
     }
 
     public List<String> getSyntheticFields() {
