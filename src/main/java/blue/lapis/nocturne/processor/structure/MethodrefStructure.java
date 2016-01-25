@@ -22,46 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform.structure;
-
-import blue.lapis.nocturne.util.helper.ByteHelper;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+package blue.lapis.nocturne.processor.structure;
 
 /**
- * Represents a Utf8 structure.
+ * Represents a Methodref structure.
  */
-public class Utf8Structure extends ConstantStructure {
+public class MethodrefStructure extends RefStructure {
 
-    private String str;
-
-    public Utf8Structure(byte[] bytes) {
+    public MethodrefStructure(byte[] bytes) {
         super(bytes);
-        assert bytes.length >= 3;
-        int length = ByteHelper.asUshort(bytes[1], bytes[2]);
-        assert bytes.length == length + 3;
-        byte[] strBytes = new byte[bytes.length - 3];
-        System.arraycopy(bytes, 3, strBytes, 0, strBytes.length);
-        str = new String(strBytes, StandardCharsets.UTF_8);
-    }
-
-    public Utf8Structure(String str) {
-        super(bytesFromStr(str));
-        this.str = str;
-    }
-
-    public String asString() {
-        return str;
-    }
-
-    private static byte[] bytesFromStr(String str) {
-        byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer bb = ByteBuffer.allocate(strBytes.length + 3);
-        bb.put(StructureType.UTF_8.getTag());
-        bb.putShort((short) strBytes.length);
-        bb.put(strBytes);
-        return bb.array();
     }
 
 }

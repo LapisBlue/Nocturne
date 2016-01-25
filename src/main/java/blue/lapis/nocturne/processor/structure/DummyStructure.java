@@ -22,15 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform.structure;
+package blue.lapis.nocturne.processor.structure;
 
 /**
- * Represents a constant pool structure irrelevant to the transformer.
+ * Dummy structure used to fill gaps caused by double-width structures.
  */
-public class IrrelevantStructure extends ConstantStructure {
+public class DummyStructure extends ConstantStructure {
 
-    public IrrelevantStructure(byte[] bytes) {
-        super(bytes);
+    public DummyStructure() {
+        super(new byte[0]);
     }
 
 }

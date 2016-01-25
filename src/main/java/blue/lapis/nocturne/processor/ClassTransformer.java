@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform;
+package blue.lapis.nocturne.processor;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
@@ -35,14 +35,14 @@ import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.transform.structure.ClassStructure;
-import blue.lapis.nocturne.transform.structure.ConstantStructure;
-import blue.lapis.nocturne.transform.structure.DummyStructure;
-import blue.lapis.nocturne.transform.structure.IrrelevantStructure;
-import blue.lapis.nocturne.transform.structure.NameAndTypeStructure;
-import blue.lapis.nocturne.transform.structure.RefStructure;
-import blue.lapis.nocturne.transform.structure.StructureType;
-import blue.lapis.nocturne.transform.structure.Utf8Structure;
+import blue.lapis.nocturne.processor.structure.ClassStructure;
+import blue.lapis.nocturne.processor.structure.ConstantStructure;
+import blue.lapis.nocturne.processor.structure.DummyStructure;
+import blue.lapis.nocturne.processor.structure.IrrelevantStructure;
+import blue.lapis.nocturne.processor.structure.NameAndTypeStructure;
+import blue.lapis.nocturne.processor.structure.RefStructure;
+import blue.lapis.nocturne.processor.structure.StructureType;
+import blue.lapis.nocturne.processor.structure.Utf8Structure;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;

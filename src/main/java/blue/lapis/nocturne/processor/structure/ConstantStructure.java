@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.transform.structure;
+package blue.lapis.nocturne.processor.structure;
 
 /**
  * Represents a structure in the constant pool.
