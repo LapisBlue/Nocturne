@@ -134,7 +134,7 @@ public class JarClassEntry {
                     .filter(entry -> entry.getName().startsWith(getName() + INNER_CLASS_SEPARATOR_CHAR))
                     .collect(Collectors.toList())) {
                 String innerProcName = ClassTransformer.getProcessedName(jce.getName(), null, MemberType.CLASS);
-                        ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
+                ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
                 StructClass innerSc = new StructClass(
                         SimpleBytecodeProvider.getInstance().getBytecode(null, innerProcName),
                         true,

@@ -161,7 +161,7 @@ public class ClassTransformer {
     }
 
     /**
-     * Processes the header of the class (the first 8 bytes)
+     * Processes the header of the class (the first 8 bytes).
      *
      * @return The processed class header
      */
@@ -268,9 +268,9 @@ public class ClassTransformer {
 
             List<Byte> attrBytes = new ArrayList<>();
             int attrOffset = current + 4;
-            int attrCount = asUshort(bytes[attrOffset], bytes[attrOffset + 1]);
             attrBytes.add(bytes[attrOffset]);
             attrBytes.add(bytes[attrOffset + 1]);
+            int attrCount = asUshort(bytes[attrOffset], bytes[attrOffset + 1]);
             attrOffset += 2;
 
             for (int i = 0; i < attrCount; i++) {
@@ -421,7 +421,7 @@ public class ClassTransformer {
                 throw new AssertionError();
             }
         }
-        String className = getClassName((RefStructure) cs);
+        String className = getClassNameFromStruct((RefStructure) cs);
 
         NameAndType nat = getNameAndType((RefStructure) cs);
         int natIndex = ((RefStructure) cs).getNameAndTypeIndex() - 1;
@@ -498,7 +498,7 @@ public class ClassTransformer {
         return ((Utf8Structure) cs).asString();
     }
 
-    private String getClassName(RefStructure rs) {
+    private String getClassNameFromStruct(RefStructure rs) {
         int classIndex = rs.getClassIndex();
         ConstantStructure classStruct = constantPool.get(classIndex - 1);
         assert classStruct instanceof ClassStructure;
