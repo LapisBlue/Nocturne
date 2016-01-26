@@ -22,15 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.transform.structure;
+package blue.lapis.nocturne.processor.constantpool.model.structure;
+
+import blue.lapis.nocturne.util.helper.ByteHelper;
 
 /**
- * Dummy structure used to fill gaps caused by double-width structures.
+ * Represents a Class structure.
  */
-public class DummyStructure extends ConstantStructure {
+public class ClassStructure extends ConstantStructure {
 
-    public DummyStructure() {
-        super(new byte[0]);
+    private int nameIndex;
+
+    public ClassStructure(byte[] bytes) {
+        super(bytes);
+        nameIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+    }
+
+    public int getNameIndex() {
+        return nameIndex;
     }
 
 }

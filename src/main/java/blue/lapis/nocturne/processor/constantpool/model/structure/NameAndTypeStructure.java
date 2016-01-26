@@ -22,15 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.transform.structure;
+package blue.lapis.nocturne.processor.constantpool.model.structure;
+
+import blue.lapis.nocturne.util.helper.ByteHelper;
 
 /**
- * Represents a Fieldref structure.
+ * Repressents a NameAndType structure.
  */
-public class FieldrefStructure extends RefStructure {
+public class NameAndTypeStructure extends ConstantStructure {
 
-    public FieldrefStructure(byte[] bytes) {
+    private final int nameIndex;
+    private final int typeIndex;
+
+    public NameAndTypeStructure(byte[] bytes) {
         super(bytes);
+        this.nameIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+        this.typeIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
+    }
+
+    public int getNameIndex() {
+        return nameIndex;
+    }
+
+    public int getTypeIndex() {
+        return typeIndex;
     }
 
 }

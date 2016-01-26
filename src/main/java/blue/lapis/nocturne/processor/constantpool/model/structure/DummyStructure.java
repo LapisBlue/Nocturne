@@ -22,15 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.transform.structure;
+package blue.lapis.nocturne.processor.constantpool.model.structure;
 
 /**
- * Represents an InterfaceMethodref structure.
+ * Dummy structure used to fill gaps caused by double-width structures.
  */
-public class InterfaceMethodrefStructure extends RefStructure {
+public class DummyStructure extends ConstantStructure {
 
-    public InterfaceMethodrefStructure(byte[] bytes) {
-        super(bytes);
+    public DummyStructure() {
+        super(new byte[0]);
     }
 
 }

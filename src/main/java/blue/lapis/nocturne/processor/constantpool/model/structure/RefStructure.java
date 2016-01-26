@@ -22,30 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.transform.structure;
+package blue.lapis.nocturne.processor.constantpool.model.structure;
 
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
 /**
- * Repressents a NameAndType structure.
+ * Represents a *ref structure.
  */
-public class NameAndTypeStructure extends ConstantStructure {
+public class RefStructure extends ConstantStructure {
 
-    private final int nameIndex;
-    private final int typeIndex;
+    private int classIndex;
+    private int natIndex;
 
-    public NameAndTypeStructure(byte[] bytes) {
+    protected RefStructure(byte[] bytes) {
         super(bytes);
-        this.nameIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
-        this.typeIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
+        classIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
+        natIndex = ByteHelper.asUshort(bytes[3], bytes[4]);
     }
 
-    public int getNameIndex() {
-        return nameIndex;
+    public int getClassIndex() {
+        return classIndex;
     }
 
-    public int getTypeIndex() {
-        return typeIndex;
+    public int getNameAndTypeIndex() {
+        return natIndex;
     }
 
 }

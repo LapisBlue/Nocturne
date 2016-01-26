@@ -22,24 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.processor.transform.structure;
-
-import blue.lapis.nocturne.util.helper.ByteHelper;
+package blue.lapis.nocturne.processor.constantpool.model.structure;
 
 /**
- * Represents a Class structure.
+ * Represents a Methodref structure.
  */
-public class ClassStructure extends ConstantStructure {
+public class MethodrefStructure extends RefStructure {
 
-    private int nameIndex;
-
-    public ClassStructure(byte[] bytes) {
+    public MethodrefStructure(byte[] bytes) {
         super(bytes);
-        nameIndex = ByteHelper.asUshort(bytes[1], bytes[2]);
-    }
-
-    public int getNameIndex() {
-        return nameIndex;
     }
 
 }
