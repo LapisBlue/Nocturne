@@ -108,7 +108,9 @@ public class JarLoader {
         jar.close(); // release the handle
         ClassSet cs = new ClassSet(classes);
         Main.setLoadedJar(cs);
+        cs.getClasses().stream().forEach(JarClassEntry::index);
         cs.getClasses().stream().forEach(JarClassEntry::process);
+        JarClassEntry.INDEXED_CLASSES.clear();
         return cs;
     }
 

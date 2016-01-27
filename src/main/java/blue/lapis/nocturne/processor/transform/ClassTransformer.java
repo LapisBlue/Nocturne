@@ -34,12 +34,14 @@ import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.ClassProcessor;
+import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
+import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.structure.ClassStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
-import blue.lapis.nocturne.processor.constantpool.model.structure.DummyStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.IgnoredStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
@@ -51,6 +53,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -59,6 +63,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Manages interpretation and transformation of constant pool, given the raw
@@ -66,10 +71,9 @@ import java.util.Map;
  */
 public class ClassTransformer extends ClassProcessor {
 
-    private List<ConstantStructure> constantPool;
-    private List<ConstantStructure> processedPool;
-
-    private int initialConstantPoolLength;
+    private ImmutableConstantPool constantPool;
+    private boolean isPoolProcessed;
+    private ConstantPool processedPool;
 
     private List<String> syntheticFields = new ArrayList<>();
     private List<String> syntheticMethods = new ArrayList<>();
@@ -84,6 +88,9 @@ public class ClassTransformer extends ClassProcessor {
 
     public ClassTransformer(String className, byte[] bytes) {
         super(className, bytes);
+        assert JarClassEntry.INDEXED_CLASSES.containsKey(getClassName());
+        constantPool = JarClassEntry.INDEXED_CLASSES.get(getClassName()).getConstantPool();
+        processedPool = new ConstantPool(constantPool.getContents(), constantPool.length());
     }
 
     public List<String> getSyntheticFields() {
@@ -94,55 +101,26 @@ public class ClassTransformer extends ClassProcessor {
         return syntheticMethods;
     }
 
-    private void loadConstantPool() {
-        List<ConstantStructure> tempPool = new ArrayList<>();
-
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        buffer.get(new byte[CLASS_FORMAT_CONSTANT_POOL_OFFSET]);
-        int constPoolCount = asUshort(buffer.getShort()) - 1;
-        for (int i = 0; i < constPoolCount; i++) {
-            StructureType sType = StructureType.fromTag(buffer.get());
-            int length = sType.getLength();
-            if (sType == StructureType.UTF_8) {
-                length = asUshort(buffer.getShort()) + 2;
-                buffer.position(buffer.position() - 2);
-            }
-            byte[] structBytes = new byte[length + 1];
-            structBytes[0] = sType.getTag();
-            buffer.get(structBytes, 1, length);
-            tempPool.add(ConstantStructure.createConstantStructure(structBytes));
-
-            if (sType == StructureType.DOUBLE || sType == StructureType.LONG) {
-                tempPool.add(new DummyStructure());
-                i++;
-            }
-        }
-        constantPool = Lists.newArrayList(tempPool);
-        initialConstantPoolLength = buffer.position() - CLASS_FORMAT_CONSTANT_POOL_OFFSET;
-    }
-
     /**
      * Processes the class and returns the new bytecode.
      *
      * @return The processed bytecode
      */
     public byte[] process() throws IOException {
-        loadConstantPool();
-
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         byte[] header = processClassHeader(buffer);
-        buffer.get(new byte[initialConstantPoolLength]); // skip constant pool
+        buffer.get(new byte[constantPool.length()]); // skip constant pool
         byte[] intermediate = processIntermediateBytes(buffer);
         byte[] fields = processFieldBytes(buffer);
         byte[] methods = processMethodBytes(buffer);
         byte[] remainder = processRemainder(buffer);
 
         // next call MUST come after field and method processing
-        byte[] constantPool = getProcessedConstantPoolBytes();
+        byte[] poolBytes = getProcessedPool().getBytes();
 
-        ByteBuffer bb = ByteBuffer.allocate(bytes.length + (constantPool.length - initialConstantPoolLength));
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length + (poolBytes.length - constantPool.length()));
         bb.put(header);
-        bb.put(constantPool);
+        bb.put(poolBytes);
         bb.put(intermediate);
         bb.put(fields);
         bb.put(methods);
@@ -160,25 +138,6 @@ public class ClassTransformer extends ClassProcessor {
         byte[] value = new byte[CLASS_FORMAT_CONSTANT_POOL_OFFSET];
         buffer.get(value);
         return value;
-    }
-
-    /**
-     * Gets the bytecode of the processed constant pool.
-     *
-     * @return The bytecode of the processed constant pool
-     */
-    public byte[] getProcessedConstantPoolBytes() throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        List<ConstantStructure> constPool = getProcessedPool();
-        for (ConstantStructure cs : constPool) {
-            os.write(cs.getBytes());
-        }
-
-        ByteBuffer bb = ByteBuffer.allocate(os.size() + Short.BYTES);
-        bb.putShort((short) (constPool.size() + 1)); // set the size
-        bb.put(os.toByteArray());
-        return bb.array();
     }
 
     /**
@@ -293,16 +252,16 @@ public class ClassTransformer extends ClassProcessor {
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
                         Utf8Structure nameStruct = new Utf8Structure(procName);
-                        constantPool.add(nameStruct);
-                        nameIndex = constantPool.size();
+                        processedPool.addStr(nameStruct);
+                        nameIndex = processedPool.size();
                     }
                 }
             }
             os.write(getBytes((short) nameIndex));
 
             Map<Integer, Integer> map = isMethod ? processedMethodDescriptorMap : processedFieldDescriptorMap;
-            if (map.containsKey(nameIndex)) {
-                descriptorIndex = map.get(nameIndex);
+            if (map.containsKey(descriptorIndex)) {
+                descriptorIndex = map.get(descriptorIndex);
             } else {
                 String procDesc = getProcessedDescriptor(
                         isMethod ? MemberType.METHOD : MemberType.FIELD,
@@ -310,8 +269,8 @@ public class ClassTransformer extends ClassProcessor {
                 );
                 if (!procDesc.equals(getString(descriptorIndex))) {
                     Utf8Structure descStruct = new Utf8Structure(procDesc);
-                    constantPool.add(descStruct);
-                    descriptorIndex = constantPool.size();
+                    processedPool.addStr(descStruct);
+                    descriptorIndex = processedPool.size();
                 }
             }
             os.write(getBytes((short) descriptorIndex));
@@ -334,33 +293,28 @@ public class ClassTransformer extends ClassProcessor {
         return ByteBuffer.allocate(buffer.capacity() - buffer.position()).put(buffer).array();
     }
 
-    @SuppressWarnings("fallthrough")
-    private List<ConstantStructure> getProcessedPool() {
-        if (processedPool == null) {
-            List<ConstantStructure> newPool = Lists.newArrayList(constantPool);
-
-            for (int i = 0; i < constantPool.size(); i++) {
-                handleMember(constantPool.get(i), i, newPool);
-            }
-
-            processedPool = newPool;
+    private ConstantPool getProcessedPool() {
+        if (!isPoolProcessed) {
+            IntStream.range(1, processedPool.size() + 1).forEach(this::handleMember);
+            isPoolProcessed = true;
         }
         return processedPool;
     }
 
-    private void handleMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
+    private void handleMember(int index) {
+        ConstantStructure cs = processedPool.getStr(index);
         if (!(cs instanceof IgnoredStructure)) {
             if (cs.getType() == StructureType.CLASS) {
-                handleClassMember(cs, index, pool);
+                handleClassMember(cs, index, processedPool);
             } else if (  cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
-                handleNonClassMember(cs, pool);
+                handleNonClassMember(cs, processedPool);
             }
         }
     }
 
-    private void handleClassMember(ConstantStructure cs, int index, List<ConstantStructure> pool) {
+    private void handleClassMember(ConstantStructure cs, int index, ConstantPool pool) {
         String name = getString(((ClassStructure) cs).getNameIndex());
 
         if (!Main.getLoadedJar().getClass(name).isPresent()) {
@@ -373,15 +327,15 @@ public class ClassTransformer extends ClassProcessor {
         strBuffer.put(StructureType.UTF_8.getTag());
         strBuffer.putShort((short) strBytes.length);
         strBuffer.put(strBytes);
-        pool.add(new Utf8Structure(strBuffer.array()));
+        pool.addStr(new Utf8Structure(strBuffer.array()));
 
         ByteBuffer classBuffer = ByteBuffer.allocate(StructureType.CLASS.getLength() + 1);
         classBuffer.put(StructureType.CLASS.getTag());
         classBuffer.putShort((short) pool.size());
-        pool.set(index, new ClassStructure(classBuffer.array()));
+        pool.setStr(index, new ClassStructure(classBuffer.array()));
     }
 
-    private void handleNonClassMember(ConstantStructure cs, List<ConstantStructure> pool) {
+    private void handleNonClassMember(ConstantStructure cs, ConstantPool pool) {
         MemberType memberType;
         switch (cs.getType()) {
             case FIELDREF: {
@@ -400,8 +354,8 @@ public class ClassTransformer extends ClassProcessor {
         String className = getClassNameFromStruct((RefStructure) cs);
 
         NameAndType nat = getNameAndType((RefStructure) cs);
-        int natIndex = ((RefStructure) cs).getNameAndTypeIndex() - 1;
-        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
+        int natIndex = ((RefStructure) cs).getNameAndTypeIndex();
+        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.getStr(natIndex);
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
 
@@ -423,7 +377,7 @@ public class ClassTransformer extends ClassProcessor {
             nameBuffer.put(StructureType.UTF_8.getTag());
             nameBuffer.putShort((short) newNameBytes.length);
             nameBuffer.put(newNameBytes);
-            pool.add(new Utf8Structure(nameBuffer.array()));
+            pool.addStr(new Utf8Structure(nameBuffer.array()));
             Map<Integer, Integer> map = memberType == MemberType.FIELD
                     ? processedFieldNameMap : processedMethodNameMap;
             map.put(nameIndex, pool.size());
@@ -440,7 +394,7 @@ public class ClassTransformer extends ClassProcessor {
             typeBuffer.put(StructureType.UTF_8.getTag());
             typeBuffer.putShort((short) newTypeBytes.length);
             typeBuffer.put(newTypeBytes);
-            pool.add(new Utf8Structure(typeBuffer.array()));
+            pool.addStr(new Utf8Structure(typeBuffer.array()));
             Map<Integer, Integer> map = memberType == MemberType.FIELD
                     ? processedFieldDescriptorMap : processedMethodDescriptorMap;
             map.put(typeIndex, pool.size());
@@ -451,14 +405,14 @@ public class ClassTransformer extends ClassProcessor {
         buffer.put(StructureType.NAME_AND_TYPE.getTag());
         buffer.putShort((short) nameIndex);
         buffer.putShort((short) typeIndex);
-        pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
+        pool.setStr(natIndex, new NameAndTypeStructure(buffer.array()));
     }
 
     private NameAndType getNameAndType(RefStructure rs) {
-        int natStructIndex = rs.getNameAndTypeIndex() - 1;
+        int natStructIndex = rs.getNameAndTypeIndex();
         assert natStructIndex <= constantPool.size();
 
-        ConstantStructure natStruct = constantPool.get(natStructIndex);
+        ConstantStructure natStruct = constantPool.getStr(natStructIndex);
         assert natStruct instanceof NameAndTypeStructure;
 
         int nameIndex = ((NameAndTypeStructure) natStruct).getNameIndex();
@@ -468,15 +422,15 @@ public class ClassTransformer extends ClassProcessor {
     }
 
     private String getString(int strIndex) {
-        assert strIndex <= constantPool.size();
-        ConstantStructure cs = constantPool.get(strIndex - 1);
+        assert strIndex <= processedPool.size();
+        ConstantStructure cs = processedPool.getStr(strIndex);
         assert cs instanceof Utf8Structure;
         return ((Utf8Structure) cs).asString();
     }
 
     private String getClassNameFromStruct(RefStructure rs) {
         int classIndex = rs.getClassIndex();
-        ConstantStructure classStruct = constantPool.get(classIndex - 1);
+        ConstantStructure classStruct = processedPool.getStr(classIndex);
         assert classStruct instanceof ClassStructure;
         return getString(((ClassStructure) classStruct).getNameIndex());
     }

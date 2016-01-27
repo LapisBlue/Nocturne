@@ -32,6 +32,8 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
+import blue.lapis.nocturne.processor.index.ClassIndexer;
+import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 
@@ -40,6 +42,8 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -47,6 +51,8 @@ import java.util.stream.Collectors;
  * Represents an class entry within a JAR file.
  */
 public class JarClassEntry {
+
+    public static final Map<String, IndexedClass> INDEXED_CLASSES = new HashMap<>();
 
     private String name;
     private byte[] content;
@@ -63,6 +69,10 @@ public class JarClassEntry {
         this.name = name;
         this.content = new byte[content.length];
         System.arraycopy(content, 0, this.content, 0, content.length);
+    }
+
+    public void index() {
+        INDEXED_CLASSES.put(getName(), new ClassIndexer(getName(), getContent()).index());
     }
 
     public void process() {
