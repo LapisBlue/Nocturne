@@ -26,6 +26,8 @@ package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
+import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
@@ -37,6 +39,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * Static utility class for dialogs for opening mappings.
@@ -49,10 +52,8 @@ public final class MappingsOpenDialogHelper {
     public static void openMappings() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
-                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_all"), "*.*")
-        );
+        Arrays.asList(MappingReaderType.values())
+                .forEach(t -> fileChooser.getExtensionFilters().add(t.getExtensionFilter()));
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
@@ -71,7 +72,8 @@ public final class MappingsOpenDialogHelper {
         Path selectedPath = selectedFile.toPath();
 
         if (Files.exists(selectedPath)) { //TODO: isn't this redundant?
-            try (SrgReader reader = new SrgReader(new BufferedReader(new FileReader(selectedFile)))) {
+            try (MappingsReader reader = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter())
+                    .constructReader(new BufferedReader(new FileReader(selectedFile)))) {
                 MappingContext context = reader.read();
                 Main.getMappingContext().merge(context);
                 Main.getMappingContext().setDirty(false);
