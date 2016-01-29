@@ -35,11 +35,11 @@ import java.io.BufferedReader;
 import java.util.stream.Collectors;
 
 /**
- * The mappings reader, for the SRG format.
+ * The mappings reader for the Enigma format.
  */
 public class EnigmaReader extends MappingsReader {
 
-    protected EnigmaReader(BufferedReader reader) {
+    public EnigmaReader(BufferedReader reader) {
         super(reader);
     }
 

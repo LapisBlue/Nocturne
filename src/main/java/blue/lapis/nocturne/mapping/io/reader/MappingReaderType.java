@@ -30,6 +30,8 @@ import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -47,11 +49,15 @@ public enum MappingReaderType {
     }
 
     private final FileChooser.ExtensionFilter extensionFilter;
-    private final Class readerClass;
+    private final Constructor<? extends MappingsReader> readerCtor;
 
-    MappingReaderType(FileChooser.ExtensionFilter extensionFilter, Class readerClass) {
+    MappingReaderType(FileChooser.ExtensionFilter extensionFilter, Class<? extends MappingsReader> readerClass) {
         this.extensionFilter = extensionFilter;
-        this.readerClass = readerClass;
+        try {
+            this.readerCtor = readerClass.getConstructor(BufferedReader.class);
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException("Failed to initialize reader type for class " + readerClass.getName(), ex);
+        }
     }
 
     public FileChooser.ExtensionFilter getExtensionFilter() {
@@ -60,11 +66,11 @@ public enum MappingReaderType {
 
     public MappingsReader constructReader(BufferedReader reader) {
         try {
-            return (MappingsReader) this.readerClass.getConstructor(BufferedReader.class).newInstance(reader);
-        } catch (Exception e) {
-            e.printStackTrace();
+            return readerCtor.newInstance(reader);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException ex) {
+            throw new RuntimeException("Failed to construct reader with class "
+                    + readerCtor.getDeclaringClass().getName(), ex);
         }
-        return null;
     }
 
     public static MappingReaderType fromExtensionFilter(FileChooser.ExtensionFilter filter) {
