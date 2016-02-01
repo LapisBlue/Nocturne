@@ -249,7 +249,7 @@ public class ClassTransformer extends ClassProcessor {
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
                         Utf8Structure nameStruct = new Utf8Structure(procName);
-                        processedPool.addStr(nameStruct);
+                        processedPool.add(nameStruct);
                         nameIndex = processedPool.size();
                     }
                 }
@@ -266,7 +266,7 @@ public class ClassTransformer extends ClassProcessor {
                 );
                 if (!procDesc.equals(getString(descriptorIndex))) {
                     Utf8Structure descStruct = new Utf8Structure(procDesc);
-                    processedPool.addStr(descStruct);
+                    processedPool.add(descStruct);
                     descriptorIndex = processedPool.size();
                 }
             }
@@ -299,7 +299,7 @@ public class ClassTransformer extends ClassProcessor {
     }
 
     private void handleMember(int index) {
-        ConstantStructure cs = processedPool.getStr(index);
+        ConstantStructure cs = processedPool.get(index);
         if (!(cs instanceof IgnoredStructure)) {
             if (cs.getType() == StructureType.CLASS) {
                 handleClassMember(cs, index, processedPool);
@@ -324,12 +324,12 @@ public class ClassTransformer extends ClassProcessor {
         strBuffer.put(StructureType.UTF_8.getTag());
         strBuffer.putShort((short) strBytes.length);
         strBuffer.put(strBytes);
-        pool.addStr(new Utf8Structure(strBuffer.array()));
+        pool.add(new Utf8Structure(strBuffer.array()));
 
         ByteBuffer classBuffer = ByteBuffer.allocate(StructureType.CLASS.getLength() + 1);
         classBuffer.put(StructureType.CLASS.getTag());
         classBuffer.putShort((short) pool.size());
-        pool.setStr(index, new ClassStructure(classBuffer.array()));
+        pool.set(index, new ClassStructure(classBuffer.array()));
     }
 
     private void handleNonClassMember(ConstantStructure cs, ConstantPool pool) {
@@ -352,7 +352,7 @@ public class ClassTransformer extends ClassProcessor {
 
         NameAndType nat = getNameAndType((RefStructure) cs);
         int natIndex = ((RefStructure) cs).getNameAndTypeIndex();
-        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.getStr(natIndex);
+        NameAndTypeStructure natStruct = (NameAndTypeStructure) constantPool.get(natIndex);
         int nameIndex = natStruct.getNameIndex();
         int typeIndex = natStruct.getTypeIndex();
 
@@ -374,7 +374,7 @@ public class ClassTransformer extends ClassProcessor {
             nameBuffer.put(StructureType.UTF_8.getTag());
             nameBuffer.putShort((short) newNameBytes.length);
             nameBuffer.put(newNameBytes);
-            pool.addStr(new Utf8Structure(nameBuffer.array()));
+            pool.add(new Utf8Structure(nameBuffer.array()));
             Map<Integer, Integer> map = memberType == MemberType.FIELD
                     ? processedFieldNameMap : processedMethodNameMap;
             map.put(nameIndex, pool.size());
@@ -391,7 +391,7 @@ public class ClassTransformer extends ClassProcessor {
             typeBuffer.put(StructureType.UTF_8.getTag());
             typeBuffer.putShort((short) newTypeBytes.length);
             typeBuffer.put(newTypeBytes);
-            pool.addStr(new Utf8Structure(typeBuffer.array()));
+            pool.add(new Utf8Structure(typeBuffer.array()));
             Map<Integer, Integer> map = memberType == MemberType.FIELD
                     ? processedFieldDescriptorMap : processedMethodDescriptorMap;
             map.put(typeIndex, pool.size());
@@ -402,14 +402,14 @@ public class ClassTransformer extends ClassProcessor {
         buffer.put(StructureType.NAME_AND_TYPE.getTag());
         buffer.putShort((short) nameIndex);
         buffer.putShort((short) typeIndex);
-        pool.setStr(natIndex, new NameAndTypeStructure(buffer.array()));
+        pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
     }
 
     private NameAndType getNameAndType(RefStructure rs) {
         int natStructIndex = rs.getNameAndTypeIndex();
         assert natStructIndex <= constantPool.size();
 
-        ConstantStructure natStruct = constantPool.getStr(natStructIndex);
+        ConstantStructure natStruct = constantPool.get(natStructIndex);
         assert natStruct instanceof NameAndTypeStructure;
 
         int nameIndex = ((NameAndTypeStructure) natStruct).getNameIndex();
@@ -420,14 +420,14 @@ public class ClassTransformer extends ClassProcessor {
 
     private String getString(int strIndex) {
         assert strIndex <= processedPool.size();
-        ConstantStructure cs = processedPool.getStr(strIndex);
+        ConstantStructure cs = processedPool.get(strIndex);
         assert cs instanceof Utf8Structure;
         return ((Utf8Structure) cs).asString();
     }
 
     private String getClassNameFromStruct(RefStructure rs) {
         int classIndex = rs.getClassIndex();
-        ConstantStructure classStruct = processedPool.getStr(classIndex);
+        ConstantStructure classStruct = processedPool.get(classIndex);
         assert classStruct instanceof ClassStructure;
         return getString(((ClassStructure) classStruct).getNameIndex());
     }

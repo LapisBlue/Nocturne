@@ -57,7 +57,7 @@ public class ImmutableConstantPool extends ConstantPool {
      *     greater than the value returned by {@link ConstantPool#size()}
      */
     @Override
-    public void setStr(int index, ConstantStructure structure)
+    public void set(int index, ConstantStructure structure)
             throws UnsupportedOperationException, IndexOutOfBoundsException {
         throw new UnsupportedOperationException();
     }
@@ -71,7 +71,7 @@ public class ImmutableConstantPool extends ConstantPool {
      *     greater than the value returned by {@link ConstantPool#size()}
      */
     @Override
-    public void addStr(ConstantStructure structure) throws IndexOutOfBoundsException {
+    public void add(ConstantStructure structure) throws IndexOutOfBoundsException {
         throw new UnsupportedOperationException();
     }
 

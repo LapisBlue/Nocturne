@@ -85,7 +85,7 @@ public class ConstantPool {
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
      *     greater than the value returned by {@link ConstantPool#size()}
      */
-    public ConstantStructure getStr(int index) throws IndexOutOfBoundsException {
+    public ConstantStructure get(int index) throws IndexOutOfBoundsException {
         if (index < 1 || index > size()) {
             throw new IndexOutOfBoundsException("Constant pool index " + index + " out-of-bounds");
         }
@@ -101,7 +101,7 @@ public class ConstantPool {
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
      *     greater than the value returned by {@link ConstantPool#size()}
      */
-    public void setStr(int index, ConstantStructure structure) throws IndexOutOfBoundsException {
+    public void set(int index, ConstantStructure structure) throws IndexOutOfBoundsException {
         if (index < 1 || index > size()) {
             throw new IndexOutOfBoundsException("Constant pool index " + index + " out-of-bounds");
         }
@@ -116,7 +116,7 @@ public class ConstantPool {
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
      *     greater than the value returned by {@link ConstantPool#size()}
      */
-    public void addStr(ConstantStructure structure) throws IndexOutOfBoundsException {
+    public void add(ConstantStructure structure) throws IndexOutOfBoundsException {
         length += structure.getBytes().length;
         contents.add(structure);
     }
