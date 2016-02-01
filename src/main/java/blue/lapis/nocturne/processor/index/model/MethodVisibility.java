@@ -24,40 +24,38 @@
  */
 package blue.lapis.nocturne.processor.index.model;
 
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.Objects;
+public enum MethodVisibility {
 
-/**
- * Represents the unique signature of a particular method.
- */
-public class MethodSignature {
+    ACC_PACKAGE((byte) 0x00),
+    ACC_PUBLIC((byte) 0x01),
+    ACC_PRIVATE((byte) 0x02),
+    ACC_PROTECTED((byte) 0x04);
 
-    private final String name;
-    private final MethodDescriptor descriptor;
-    private final MethodVisibility visibility;
+    private static Map<Byte, MethodVisibility> visMap;
 
-    public MethodSignature(String name, MethodDescriptor descriptor, MethodVisibility visibility) {
-        this.name = name;
-        this.descriptor = descriptor;
-        this.visibility = visibility;
+    private byte tag;
+
+    MethodVisibility(byte tag) {
+        this.tag = tag;
+        register();
     }
 
-    public String getName() {
-        return name;
+    public byte getTag() {
+        return tag;
     }
 
-    public MethodDescriptor getDescriptor() {
-        return descriptor;
+    private void register() {
+        if (visMap == null) {
+            visMap = new HashMap<>();
+        }
+        visMap.put(getTag(), this);
     }
 
-    public MethodVisibility getVisibility() {
-        return visibility;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getDescriptor());
+    public static MethodVisibility fromAccessFlags(short flags) {
+        return visMap.get((byte) (flags & 0b111)); // we're only interested in the last 3 bytes
     }
 
 }
