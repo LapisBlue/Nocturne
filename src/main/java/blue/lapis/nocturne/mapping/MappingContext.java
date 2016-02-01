@@ -24,8 +24,6 @@
  */
 package blue.lapis.nocturne.mapping;
 
-import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
@@ -33,7 +31,6 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Represents a set of {@link ClassMapping}s.

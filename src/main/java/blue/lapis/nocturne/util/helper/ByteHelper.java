@@ -27,8 +27,6 @@ package blue.lapis.nocturne.util.helper;
 import static blue.lapis.nocturne.util.Constants.INT_UNSIGNER;
 import static blue.lapis.nocturne.util.Constants.SHORT_UNSIGNER;
 
-import blue.lapis.nocturne.util.Constants;
-
 import java.nio.ByteBuffer;
 
 /**

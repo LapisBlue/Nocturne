@@ -24,7 +24,6 @@
  */
 package blue.lapis.nocturne.processor.index.model;
 
-import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 
 import com.google.common.collect.ImmutableList;

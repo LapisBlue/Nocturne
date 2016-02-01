@@ -26,7 +26,6 @@ package blue.lapis.nocturne.processor.index;
 
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.ConstantPoolReader;
-import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 

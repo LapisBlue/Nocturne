@@ -28,7 +28,6 @@ import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFS
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 
 import blue.lapis.nocturne.processor.ClassProcessor;
-import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.DummyStructure;

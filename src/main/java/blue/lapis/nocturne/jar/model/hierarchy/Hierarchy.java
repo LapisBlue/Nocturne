@@ -24,11 +24,9 @@
  */
 package blue.lapis.nocturne.jar.model.hierarchy;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.util.Constants;
 
 import java.util.Set;
 
