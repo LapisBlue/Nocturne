@@ -37,8 +37,7 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.ClassStructure
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.MethodSignature;
-import blue.lapis.nocturne.processor.index.model.MethodVisibility;
+import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class ClassIndexer extends ClassProcessor {
 
         skipFields(buffer);
 
-        List<MethodSignature> methods = readMethods(buffer, pool);
+        List<IndexedMethod> methods = readMethods(buffer, pool);
 
         return new IndexedClass(getClassName(), pool, superClass, interfaces, methods);
     }
@@ -100,17 +99,17 @@ public class ClassIndexer extends ClassProcessor {
      *
      * @param buffer The buffer to read from
      * @param pool The constant pool to read strings from
-     * @return A {@link List} of read {@link MethodSignature}s
+     * @return A {@link List} of read {@link IndexedMethod}s
      */
-    private List<MethodSignature> readMethods(ByteBuffer buffer, ConstantPool pool) {
-        List<MethodSignature> methods = new ArrayList<>();
+    private List<IndexedMethod> readMethods(ByteBuffer buffer, ConstantPool pool) {
+        List<IndexedMethod> methods = new ArrayList<>();
 
         int methodCount = asUshort(buffer.getShort());
         for (int i = 0; i < methodCount; i++) {
-            MethodVisibility vis = MethodVisibility.fromAccessFlags(buffer.getShort());
+            IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
             MethodDescriptor desc = MethodDescriptor.fromString(getString(pool, buffer.getShort()));
-            methods.add(new MethodSignature(name, desc, vis));
+            methods.add(new IndexedMethod(new IndexedMethod.Signature(name, desc), vis));
 
             skipAttributes(buffer);
         }

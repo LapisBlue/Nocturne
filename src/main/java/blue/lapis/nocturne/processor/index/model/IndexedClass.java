@@ -27,8 +27,10 @@ package blue.lapis.nocturne.processor.index.model;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A summary of select info from a processed class file.
@@ -39,15 +41,17 @@ public class IndexedClass {
     private final ImmutableConstantPool constantPool;
     private final String superClass;
     private final ImmutableList<String> interfaces;
-    private final ImmutableList<MethodSignature> methods;
+    private final ImmutableMap<IndexedMethod.Signature, IndexedMethod> methods;
 
     public IndexedClass(String name, ImmutableConstantPool constantPool, String superClass, List<String> interfaces,
-            List<MethodSignature> methods) {
+            List<IndexedMethod> methods) {
         this.name = name;
         this.constantPool = constantPool;
         this.superClass = superClass;
         this.interfaces = ImmutableList.copyOf(interfaces);
-        this.methods = ImmutableList.copyOf(methods);
+        this.methods = ImmutableMap.copyOf(
+                methods.stream().collect(Collectors.toMap(IndexedMethod::getSignature, m -> m))
+        );
     }
 
     public String getName() {
@@ -66,7 +70,7 @@ public class IndexedClass {
         return interfaces;
     }
 
-    public ImmutableList<MethodSignature> getMethods() {
+    public ImmutableMap<IndexedMethod.Signature, IndexedMethod> getMethods() {
         return methods;
     }
 
