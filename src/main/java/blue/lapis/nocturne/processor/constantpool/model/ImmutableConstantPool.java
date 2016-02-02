@@ -47,8 +47,8 @@ public class ImmutableConstantPool extends ConstantPool {
      * <strong>This method is not supported for {@link ImmutableConstantPool}s.
      * </strong>
      *
-     * Returns the structure at the given index of this
-     * <strong>1-indexed</strong> constant pool.
+     * <p>Returns the structure at the given index of this
+     * <strong>1-indexed</strong> constant pool.</p>
      *
      * @param index The index of the structure to retrieve
      * @param structure The replacement structure

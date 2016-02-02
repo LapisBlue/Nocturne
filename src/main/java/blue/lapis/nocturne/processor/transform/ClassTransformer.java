@@ -196,7 +196,7 @@ public class ClassTransformer extends ClassProcessor {
         os.write(getBytes((short) count));
 
         for (int m = 0; m < count; m++) {
-            int memberStart = buffer.position();
+            final int memberStart = buffer.position();
 
             short access = buffer.getShort();
             os.write(getBytes(access));
