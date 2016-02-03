@@ -30,7 +30,7 @@ import javafx.scene.Scene;
 /**
  * Static utility class for convenience methods regarding {@link Scene}s.
  */
-public class SceneHelper {
+public final class SceneHelper {
 
     private static final String STYLESHEET_PATH = "css/nocturne.css";
 

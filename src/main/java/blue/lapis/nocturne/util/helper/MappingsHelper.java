@@ -44,7 +44,7 @@ import java.util.Optional;
 /**
  * Static utility class for assisting with mapping retrieval and creation.
  */
-public class MappingsHelper {
+public final class MappingsHelper {
 
     public static void genClassMapping(MappingContext context, String obf, String deobf) {
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
