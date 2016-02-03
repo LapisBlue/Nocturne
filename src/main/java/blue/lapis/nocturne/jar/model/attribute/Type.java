@@ -30,6 +30,7 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import com.google.common.base.Preconditions;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -185,7 +186,7 @@ public class Type {
         }
 
         Type type = (Type) otherObject;
-        if (this.isPrimitive() != type.isPrimitive()) {
+        if (this.isPrimitive() != type.isPrimitive() || this.getArrayDimensions() != type.getArrayDimensions()) {
             return false;
         }
 
@@ -194,6 +195,11 @@ public class Type {
         } else {
             return this.getClassName().equals(type.getClassName());
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isPrimitive() ? asPrimitive() : getClassName(), getArrayDimensions());
     }
 
 }

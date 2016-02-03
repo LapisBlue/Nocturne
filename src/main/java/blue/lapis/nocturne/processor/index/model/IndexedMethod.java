@@ -29,6 +29,7 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -82,6 +83,20 @@ public class IndexedMethod {
 
         public MethodDescriptor getDescriptor() {
             return descriptor;
+        }
+
+        @Override
+        public boolean equals(Object otherObj) {
+            if (!(otherObj instanceof Signature)) {
+                return false;
+            }
+            Signature sig = (Signature) otherObj;
+            return sig.getName().equals(getName()) && sig.getDescriptor().equals(getDescriptor());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, descriptor);
         }
 
     }

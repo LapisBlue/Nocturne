@@ -31,7 +31,9 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 /**
@@ -133,6 +135,20 @@ public class MethodDescriptor {
         sb.append(")");
         sb.append(getReturnType().toString());
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof MethodDescriptor)) {
+            return false;
+        }
+        MethodDescriptor md = (MethodDescriptor) otherObj;
+        return md.getReturnType().equals(getReturnType()) && Arrays.equals(md.getParamTypes(), getParamTypes());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(returnType, Arrays.hashCode(paramTypes));
     }
 
 }

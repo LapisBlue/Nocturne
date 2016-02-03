@@ -24,12 +24,16 @@
  */
 package blue.lapis.nocturne.jar.io;
 
+import static blue.lapis.nocturne.jar.model.JarClassEntry.INDEXED_CLASSES;
+
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.processor.index.HierarchyBuilder;
 import blue.lapis.nocturne.util.Constants;
 
+import com.google.common.collect.Sets;
 import javafx.scene.control.Alert;
 
 import java.io.BufferedInputStream;
@@ -105,12 +109,13 @@ public class JarLoader {
             return null;
         }
 
-        jar.close(); // release the handle
+        jar.close(); // release the resource
         ClassSet cs = new ClassSet(classes);
         Main.setLoadedJar(cs);
         cs.getClasses().stream().forEach(JarClassEntry::index);
+        new HierarchyBuilder(Sets.newHashSet(INDEXED_CLASSES.values())).apply();
         cs.getClasses().stream().forEach(JarClassEntry::process);
-        JarClassEntry.INDEXED_CLASSES.clear();
+        INDEXED_CLASSES.clear();
         return cs;
     }
 
