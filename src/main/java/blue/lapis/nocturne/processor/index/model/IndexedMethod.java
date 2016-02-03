@@ -106,10 +106,10 @@ public class IndexedMethod {
      */
     public enum Visibility {
 
-        ACC_PACKAGE((byte) 0x00),
-        ACC_PUBLIC((byte) 0x01),
-        ACC_PRIVATE((byte) 0x02),
-        ACC_PROTECTED((byte) 0x04);
+        PACKAGE((byte) 0x00),
+        PUBLIC((byte) 0x01),
+        PRIVATE((byte) 0x02),
+        PROTECTED((byte) 0x04);
 
         private static Map<Byte, Visibility> visMap;
 

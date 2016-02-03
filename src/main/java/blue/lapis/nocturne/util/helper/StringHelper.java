@@ -76,7 +76,9 @@ public final class StringHelper {
     }
 
     public static String resolvePackageName(String qualifiedClassName) {
-        return qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR));
+        return qualifiedClassName.indexOf(CLASS_PATH_SEPARATOR_CHAR) != -1
+                ? qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR))
+                : "";
     }
 
 }

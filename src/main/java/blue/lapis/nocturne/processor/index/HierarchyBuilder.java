@@ -1,5 +1,8 @@
 package blue.lapis.nocturne.processor.index;
 
+import static blue.lapis.nocturne.processor.index.model.IndexedMethod.Visibility;
+import static blue.lapis.nocturne.util.helper.StringHelper.resolvePackageName;
+
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
@@ -45,7 +48,9 @@ public class HierarchyBuilder {
         if (classes.containsKey(clazz.getSuperclass())) {
             IndexedClass superClass = classes.get(clazz.getSuperclass());
             if (superClass.getMethods().containsKey(sig)) {
-                bases.addAll(getBaseDefinitionClasses(sig, superClass, false));
+                if (isVisible(superClass.getMethods().get(sig), clazz.getName(), clazz.getSuperclass())) {
+                    bases.addAll(getBaseDefinitionClasses(sig, superClass, false));
+                }
             }
         }
 
@@ -54,11 +59,25 @@ public class HierarchyBuilder {
                 .forEach(interfaceName -> {
                     IndexedClass interfaceClass = classes.get(interfaceName);
                     if (interfaceClass.getMethods().containsKey(sig)) {
-                        bases.addAll(getBaseDefinitionClasses(sig, interfaceClass, false));
+                        if (isVisible(interfaceClass.getMethods().get(sig), clazz.getName(), interfaceName)) {
+                            bases.addAll(getBaseDefinitionClasses(sig, interfaceClass, false));
+                        }
                     }
                 });
 
         return !bases.isEmpty() ? bases : returnEmpty ? Collections.EMPTY_SET : Collections.singleton(clazz.getName());
+    }
+
+    private static boolean isVisible(IndexedMethod method, String class1, String class2) {
+        switch (method.getVisibility()) {
+            case PUBLIC:
+            case PROTECTED:
+                return true;
+            case PACKAGE:
+                return resolvePackageName(class1).equals(resolvePackageName(class2));
+            default:
+                return false;
+        }
     }
 
 }
