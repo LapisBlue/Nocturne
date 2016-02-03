@@ -28,7 +28,6 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
-import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
 import javafx.stage.FileChooser;
