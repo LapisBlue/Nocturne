@@ -29,6 +29,8 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
+import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedDescriptor;
+import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
@@ -239,7 +241,7 @@ public class ClassTransformer extends ClassProcessor {
                     if (map.containsKey(nameIndex)) {
                         nameIndex = map.get(nameIndex);
                     } else {
-                        String procName = StringHelper.getProcessedName(
+                        String procName = getProcessedName(
                                 getClassName() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
                                 getString(descriptorIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
@@ -256,7 +258,7 @@ public class ClassTransformer extends ClassProcessor {
             if (map.containsKey(descriptorIndex)) {
                 descriptorIndex = map.get(descriptorIndex);
             } else {
-                String procDesc = StringHelper.getProcessedDescriptor(
+                String procDesc = getProcessedDescriptor(
                         isMethod ? MemberType.METHOD : MemberType.FIELD,
                         getString(descriptorIndex)
                 );
@@ -314,7 +316,7 @@ public class ClassTransformer extends ClassProcessor {
             return;
         }
 
-        String newName = StringHelper.getProcessedName(name, null, MemberType.CLASS);
+        String newName = getProcessedName(name, null, MemberType.CLASS);
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -363,7 +365,7 @@ public class ClassTransformer extends ClassProcessor {
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
         if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
-            String newName = StringHelper.getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
+            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
             ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
@@ -377,7 +379,7 @@ public class ClassTransformer extends ClassProcessor {
             nameIndex = pool.size();
         }
 
-        String processedDesc = StringHelper.getProcessedDescriptor(
+        String processedDesc = getProcessedDescriptor(
                 cs.getType() == StructureType.FIELDREF ? MemberType.FIELD : MemberType.METHOD,
                 desc
         );

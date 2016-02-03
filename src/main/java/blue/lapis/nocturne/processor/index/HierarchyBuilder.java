@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
  */
 public class HierarchyBuilder {
 
+    private static 
+
     private final ImmutableMap<String, IndexedClass> classes;
 
     public HierarchyBuilder(Set<IndexedClass> classes) {
