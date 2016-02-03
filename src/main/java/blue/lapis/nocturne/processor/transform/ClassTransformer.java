@@ -26,17 +26,12 @@ package blue.lapis.nocturne.processor.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
-import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
-import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
@@ -48,6 +43,7 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.ImmutableList;
 
@@ -243,7 +239,7 @@ public class ClassTransformer extends ClassProcessor {
                     if (map.containsKey(nameIndex)) {
                         nameIndex = map.get(nameIndex);
                     } else {
-                        String procName = getProcessedName(
+                        String procName = StringHelper.getProcessedName(
                                 getClassName() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
                                 getString(descriptorIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
@@ -260,7 +256,7 @@ public class ClassTransformer extends ClassProcessor {
             if (map.containsKey(descriptorIndex)) {
                 descriptorIndex = map.get(descriptorIndex);
             } else {
-                String procDesc = getProcessedDescriptor(
+                String procDesc = StringHelper.getProcessedDescriptor(
                         isMethod ? MemberType.METHOD : MemberType.FIELD,
                         getString(descriptorIndex)
                 );
@@ -318,7 +314,7 @@ public class ClassTransformer extends ClassProcessor {
             return;
         }
 
-        String newName = getProcessedName(name, null, MemberType.CLASS);
+        String newName = StringHelper.getProcessedName(name, null, MemberType.CLASS);
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -367,7 +363,7 @@ public class ClassTransformer extends ClassProcessor {
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
         if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
-            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
+            String newName = StringHelper.getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
             ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
@@ -381,7 +377,7 @@ public class ClassTransformer extends ClassProcessor {
             nameIndex = pool.size();
         }
 
-        String processedDesc = getProcessedDescriptor(
+        String processedDesc = StringHelper.getProcessedDescriptor(
                 cs.getType() == StructureType.FIELDREF ? MemberType.FIELD : MemberType.METHOD,
                 desc
         );
@@ -450,63 +446,6 @@ public class ClassTransformer extends ClassProcessor {
             return type;
         }
 
-    }
-
-    // current format is %NOCTURNE+TYPE-name-descriptor% (descriptor is optional)
-    public static String getProcessedName(String qualifiedMemberName, String descriptor, MemberType memberType) {
-        return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + qualifiedMemberName
-                + (descriptor != null ? MEMBER_DELIMITER + descriptor : "") + MEMBER_SUFFIX;
-    }
-
-    private static String getProcessedDescriptor(MemberType memberType, String desc) {
-        switch (memberType) {
-            case FIELD: {
-                if (desc.startsWith("L") && desc.endsWith(";")) {
-                    String typeClass = desc.substring(1, desc.length());
-                    if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                        return "L" + getProcessedName(typeClass, null, MemberType.CLASS) + ";";
-                    }
-                }
-                break;
-            }
-            case METHOD: {
-                if (!desc.contains(MEMBER_PREFIX)) { // if this condition is true then it's already been processed
-                    MethodDescriptor md = MethodDescriptor.fromString(desc);
-                    List<Type> newParams = new ArrayList<>();
-                    for (Type param : md.getParamTypes()) {
-                        if (param.isPrimitive()) {
-                            newParams.add(param);
-                        } else {
-                            String typeClass = param.getClassName();
-                            if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                                newParams.add(new Type(getProcessedName(typeClass, null, MemberType.CLASS),
-                                        param.getArrayDimensions()));
-                            } else {
-                                newParams.add(param);
-                            }
-                        }
-                    }
-                    Type returnType = md.getReturnType();
-                    if (!returnType.isPrimitive()) {
-                        String typeClass = returnType.getClassName();
-                        if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                            returnType = new Type(getProcessedName(typeClass, null, MemberType.CLASS),
-                                    returnType.getArrayDimensions());
-                        }
-                    }
-
-                    Type[] newParamArr = new Type[newParams.size()];
-                    newParams.toArray(newParamArr);
-                    MethodDescriptor newMd = new MethodDescriptor(returnType, newParamArr);
-                    return newMd.toString();
-                }
-                break;
-            }
-            default: {
-                throw new AssertionError();
-            }
-        }
-        return desc;
     }
 
 }

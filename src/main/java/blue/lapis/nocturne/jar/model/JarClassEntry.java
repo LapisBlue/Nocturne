@@ -33,12 +33,11 @@ import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
-import blue.lapis.nocturne.processor.index.HierarchyBuilder;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
-import com.google.common.collect.Sets;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
@@ -137,7 +136,7 @@ public class JarClassEntry {
         );
         try {
             LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-            String procName = ClassTransformer.getProcessedName(getName(), null, MemberType.CLASS);
+            String procName = StringHelper.getProcessedName(getName(), null, MemberType.CLASS);
             ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
             StructClass sc = new StructClass(
                     SimpleBytecodeProvider.getInstance().getBytecode(null, procName),
@@ -150,7 +149,7 @@ public class JarClassEntry {
             for (JarClassEntry jce : Main.getLoadedJar().getClasses().stream()
                     .filter(entry -> entry.getName().startsWith(getName() + INNER_CLASS_SEPARATOR_CHAR))
                     .collect(Collectors.toList())) {
-                String innerProcName = ClassTransformer.getProcessedName(jce.getName(), null, MemberType.CLASS);
+                String innerProcName = StringHelper.getProcessedName(jce.getName(), null, MemberType.CLASS);
                 ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
                 StructClass innerSc = new StructClass(
                         SimpleBytecodeProvider.getInstance().getBytecode(null, innerProcName),
