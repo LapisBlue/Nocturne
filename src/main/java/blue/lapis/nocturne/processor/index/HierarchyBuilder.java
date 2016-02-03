@@ -50,9 +50,9 @@ public class HierarchyBuilder {
         }
 
         clazz.getInterfaces().stream()
-                .filter(interfaceName -> classes.containsKey(clazz.getSuperclass()))
+                .filter(classes::containsKey)
                 .forEach(interfaceName -> {
-                    IndexedClass interfaceClass = classes.get(clazz.getSuperclass());
+                    IndexedClass interfaceClass = classes.get(interfaceName);
                     if (interfaceClass.getMethods().containsKey(sig)) {
                         bases.addAll(getBaseDefinitionClasses(sig, interfaceClass, false));
                     }
