@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Represents a {@link Mapping} for a field.
  */
-public class FieldMapping extends Mapping implements ClassComponent {
+public class FieldMapping extends MemberMapping {
 
     private final ClassMapping parent;
     private final Type type; //TODO: not necessary (or possible) for SRG mappings so we won't enforce it
@@ -50,16 +50,11 @@ public class FieldMapping extends Mapping implements ClassComponent {
      * @param type The (obfuscated) {@link Type} of the field
      */
     public FieldMapping(ClassMapping parent, String obfName, String deobfName, Type type) {
-        super(obfName, deobfName);
+        super(parent, obfName, deobfName);
         this.parent = parent;
         this.type = type;
 
         parent.addFieldMapping(this);
-    }
-
-    @Override
-    public ClassMapping getParent() {
-        return parent;
     }
 
     /**
@@ -78,22 +73,6 @@ public class FieldMapping extends Mapping implements ClassComponent {
      */
     public Type getDeobfuscatedType() {
         return getType().deobfuscate(getParent().getContext());
-    }
-
-    @Override
-    public void setDeobfuscatedName(String name) {
-        super.setDeobfuscatedName(name);
-
-        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
-        if (memberList == null) {
-            return;
-        }
-        memberList.forEach(member -> member.setText(name));
-    }
-
-    @Override
-    public MappingContext getContext() {
-        return getParent().getContext();
     }
 
     @Override

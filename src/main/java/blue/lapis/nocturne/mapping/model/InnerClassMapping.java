@@ -34,7 +34,7 @@ import blue.lapis.nocturne.util.MemberType;
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
  * another class.
  */
-public class InnerClassMapping extends ClassMapping implements ClassComponent {
+public class InnerClassMapping extends ClassMapping implements IMemberMapping {
 
     private final ClassMapping parent;
 

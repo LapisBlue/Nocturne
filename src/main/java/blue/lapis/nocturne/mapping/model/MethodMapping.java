@@ -36,9 +36,8 @@ import java.util.List;
 /**
  * Represents a {@link Mapping} for a method.
  */
-public class MethodMapping extends Mapping implements ClassComponent {
+public class MethodMapping extends MemberMapping {
 
-    private final ClassMapping parent;
     private final MethodDescriptor descriptor;
 
     /**
@@ -51,16 +50,10 @@ public class MethodMapping extends Mapping implements ClassComponent {
      *     the method
      */
     public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor) {
-        super(obfName, deobfName);
-        this.parent = parent;
+        super(parent, obfName, deobfName);
         this.descriptor = descriptor;
 
         parent.addMethodMapping(this);
-    }
-
-    @Override
-    public ClassMapping getParent() {
-        return parent;
     }
 
     /**
@@ -79,22 +72,6 @@ public class MethodMapping extends Mapping implements ClassComponent {
      */
     public MethodDescriptor getDeobfuscatedDescriptor() {
         return getObfuscatedDescriptor().deobfuscate(getParent().getContext());
-    }
-
-    @Override
-    public void setDeobfuscatedName(String name) {
-        super.setDeobfuscatedName(name);
-
-        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
-        if (memberList == null) {
-            return;
-        }
-        memberList.forEach(member -> member.setText(name));
-    }
-
-    @Override
-    public MappingContext getContext() {
-        return getParent().getContext();
     }
 
     @Override

@@ -24,16 +24,22 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
+import blue.lapis.nocturne.mapping.MappingContext;
+
 /**
  * Represents a mapping which is parented by a class.
  */
-public interface ClassComponent {
+public interface IMemberMapping {
 
     /**
-     * Gets the parent {@link ClassMapping} of this {@link ClassComponent}.
+     * Gets the parent {@link ClassMapping} of this {@link IMemberMapping}.
      *
-     * @return The parent {@link ClassMapping} of this {@link ClassComponent}
+     * @return The parent {@link ClassMapping} of this {@link IMemberMapping}
      */
     ClassMapping getParent();
+
+    void setDeobfuscatedName(String name);
+
+    MappingContext getContext();
 
 }
