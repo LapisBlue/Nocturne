@@ -75,38 +75,27 @@ public final class MappingsHelper {
         }
     }
 
-    public static void genFieldMapping(MappingContext context, String obf, String deobf) {
-        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
-        String owningClass = obf.substring(0, lastIndex);
-        String obfName = obf.substring(lastIndex + 1);
-
-        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
-
+    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf) {
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getFieldMappings().containsKey(obfName)) {
-            parent.getFieldMappings().get(obfName).setDeobfuscatedName(deobfName);
+        if (parent.getFieldMappings().containsKey(obf)) {
+            parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            new FieldMapping(parent, obfName, deobfName, null);
+            new FieldMapping(parent, obf, deobf, null);
         }
     }
 
-    public static void genMethodMapping(MappingContext context, String obf, String deobf, String descriptor) {
-        int lastIndex = obf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR);
-        String owningClass = obf.substring(0, lastIndex);
-        String obfName = obf.substring(lastIndex + 1);
-
-        String deobfName = deobf.substring(deobf.lastIndexOf(Constants.CLASS_PATH_SEPARATOR_CHAR) + 1);
-
+    public static void genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
+                String descriptor) {
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getMethodMappings().containsKey(obfName)) {
-            parent.getMethodMappings().get(obfName).setDeobfuscatedName(deobfName);
+        if (parent.getMethodMappings().containsKey(obf)) {
+            parent.getMethodMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            new MethodMapping(parent, obfName, deobfName, MethodDescriptor.fromString(descriptor));
+            new MethodMapping(parent, obf, deobf, MethodDescriptor.fromString(descriptor));
         }
     }
 
     private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
-                                                          boolean create) {
+            boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);

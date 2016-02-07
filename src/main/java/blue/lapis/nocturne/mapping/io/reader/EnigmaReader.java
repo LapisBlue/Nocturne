@@ -24,12 +24,14 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ public class EnigmaReader extends MappingsReader {
     public MappingContext read() {
         MappingContext mappings = new MappingContext();
 
-        ClassMapping currentClass = null;
+        String currentClass = null;
         int lineNum = 0;
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
@@ -64,7 +66,8 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1].replace("none/", "");
                     String deobf = arr.length == 3 ? arr[2] : obf;
-                    currentClass = new TopLevelClassMapping(mappings, obf, deobf); // TODO: Handle inner-classes
+                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf); // TODO: Handle inner-classes
+                    currentClass = obf;
                     break;
                 }
                 case "FIELD": {
@@ -74,15 +77,14 @@ public class EnigmaReader extends MappingsReader {
                     }
 
                     if (currentClass == null) {
-                        System.err.println("Cannot parse file: found field mapping before initial class mapping "
-                                + "on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
+                                + "class mapping on line " + lineNum);
                     }
 
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    new FieldMapping(currentClass, obf, deobf, null); // TODO: Read Type
+                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf); // TODO: type
                     break;
                 }
                 case "METHOD": {
@@ -91,26 +93,26 @@ public class EnigmaReader extends MappingsReader {
                     }
 
                     if (arr.length != 4) {
-                        System.err.println("Cannot parse file: malformed method mapping on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
+                                + lineNum);
                     }
 
                     if (currentClass == null) {
-                        System.err.println("Cannot parse file: found method mapping before initial class mapping "
-                                + "on line " + lineNum);
+                        throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
+                                + "class mapping on line " + lineNum);
                     }
 
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    new MethodMapping(currentClass, obf, deobf, MethodDescriptor.fromString(sig));
+                    MappingsHelper.genMethodMapping(Main.getMappingContext(), currentClass, obf, deobf, sig);
                     break;
                 }
                 case "ARG": {
                     break;
                 }
                 default: {
-                    System.err.println("Warning: Unrecognized mapping on line " + lineNum);
+                    Main.getLogger().warning("Unrecognized mapping on line " + lineNum);
                 }
             }
         }

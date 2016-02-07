@@ -24,7 +24,10 @@
  */
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -92,19 +95,23 @@ public class SrgReader extends MappingsReader {
     private void genFieldMappings(MappingContext context, List<String> fieldMappings) {
         for (String mapping : fieldMappings) {
             String[] arr = mapping.split(" ");
-            String obf = arr[1];
-            String deobf = arr[2];
-            MappingsHelper.genFieldMapping(context, obf, deobf);
+            int lastIndex = arr[1].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+            String owningClass = arr[1].substring(0, lastIndex);
+            String obf = arr[1].substring(lastIndex + 1);
+            String deobf = arr[2].substring(arr[2].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
+            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf);
         }
     }
 
     private void genMethodMappings(MappingContext context, List<String> methodMappings) {
         for (String mapping : methodMappings) {
             String[] arr = mapping.split(" ");
-            String obf = arr[1];
+            int lastIndex = arr[1].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+            String owningClass = arr[1].substring(0, lastIndex);
+            String obf = arr[1].substring(lastIndex + 1);
             String descriptor = arr[2];
-            String deobf = arr[3];
-            MappingsHelper.genMethodMapping(context, obf, deobf, descriptor);
+            String deobf = arr[3].substring(arr[3].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
+            MappingsHelper.genMethodMapping(context, owningClass, obf, deobf, descriptor);
         }
     }
 

@@ -169,13 +169,12 @@ public class SelectableMember extends Text {
                 break;
             }
             case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappingContext(),
-                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping);
+                MappingsHelper.genFieldMapping(Main.getMappingContext(), getParentClass(), getName(), mapping);
                 break;
             }
             case METHOD: {
-                MappingsHelper.genMethodMapping(Main.getMappingContext(),
-                        getParentClass() + Constants.CLASS_PATH_SEPARATOR_CHAR + getName(), mapping, getDescriptor());
+                MappingsHelper.genMethodMapping(Main.getMappingContext(), getParentClass(), getName(), mapping,
+                        getDescriptor());
                 break;
             }
             default: {
