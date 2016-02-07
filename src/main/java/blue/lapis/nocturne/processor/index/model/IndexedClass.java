@@ -29,7 +29,9 @@ import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,8 +39,10 @@ import java.util.stream.Collectors;
  */
 public class IndexedClass {
 
+    public static final Map<String, IndexedClass> INDEXED_CLASSES = new HashMap<>();
+
     private final String name;
-    private final ImmutableConstantPool constantPool;
+    private ImmutableConstantPool constantPool;
     private final String superClass;
     private final ImmutableList<String> interfaces;
     private final ImmutableMap<IndexedMethod.Signature, IndexedMethod> methods;
@@ -72,6 +76,10 @@ public class IndexedClass {
 
     public ImmutableMap<IndexedMethod.Signature, IndexedMethod> getMethods() {
         return methods;
+    }
+
+    public void clearPool() {
+        this.constantPool = null;
     }
 
 }

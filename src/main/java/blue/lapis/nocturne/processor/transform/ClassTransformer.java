@@ -33,7 +33,6 @@ import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedDescripto
 import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
@@ -44,6 +43,7 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.NameAndTypeStr
 import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
+import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;
@@ -82,8 +82,8 @@ public class ClassTransformer extends ClassProcessor {
 
     public ClassTransformer(String className, byte[] bytes) {
         super(className, bytes);
-        assert JarClassEntry.INDEXED_CLASSES.containsKey(getClassName());
-        constantPool = JarClassEntry.INDEXED_CLASSES.get(getClassName()).getConstantPool();
+        assert IndexedClass.INDEXED_CLASSES.containsKey(getClassName());
+        constantPool = IndexedClass.INDEXED_CLASSES.get(getClassName()).getConstantPool();
         processedPool = new ConstantPool(constantPool.getContents(), constantPool.length());
     }
 

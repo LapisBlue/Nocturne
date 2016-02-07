@@ -24,6 +24,7 @@
  */
 package blue.lapis.nocturne.jar.model;
 
+import static blue.lapis.nocturne.processor.index.model.IndexedClass.INDEXED_CLASSES;
 import static blue.lapis.nocturne.util.Constants.FF_OPTIONS;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -43,8 +44,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -52,8 +51,6 @@ import java.util.stream.Collectors;
  * Represents an class entry within a JAR file.
  */
 public class JarClassEntry {
-
-    public static final Map<String, IndexedClass> INDEXED_CLASSES = new HashMap<>();
 
     private String name;
     private byte[] content;
