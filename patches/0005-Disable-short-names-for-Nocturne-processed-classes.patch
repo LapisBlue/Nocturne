@@ -1,0 +1,57 @@
+From a722c30bc477128a9813be31791e630b8fb47967 Mon Sep 17 00:00:00 2001
+From: Max Roncace <me@caseif.net>
+Date: Thu, 11 Feb 2016 15:58:22 -0500
+Subject: [PATCH] Disable short names for Nocturne-processed classes
+
+
+diff --git a/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java b/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
+index 05dc835..2433f97 100644
+--- a/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
++++ b/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
+@@ -15,6 +15,7 @@
+  */
+ package org.jetbrains.java.decompiler.main.collectors;
+ 
++import org.jetbrains.java.decompiler.code.ConstantsUtil;
+ import org.jetbrains.java.decompiler.main.ClassesProcessor;
+ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+ import org.jetbrains.java.decompiler.main.DecompilerContext;
+@@ -50,6 +51,8 @@ public class ImportCollector {
+   }
+ 
+   public String getShortName(String fullname, boolean imported) {
++    String origName = fullname;
++    boolean nocturneClass = fullname.startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX);
+ 
+     ClassesProcessor clproc = DecompilerContext.getClassProcessor();
+     ClassNode node = clproc.getMapRootClasses().get(fullname.replace('.', '/'));
+@@ -70,7 +73,7 @@ public class ImportCollector {
+         fullname = fullname.replace('/', '.');
+       }
+       else {
+-        return retname;
++        return nocturneClass ? origName : retname;
+       }
+     }
+     else {
+@@ -99,7 +102,7 @@ public class ImportCollector {
+ 
+     if (existsDefaultClass ||
+         (mapSimpleNames.containsKey(nshort) && !npackage.equals(mapSimpleNames.get(nshort)))) {
+-      return fullname;
++      return nocturneClass ? origName : fullname;
+     }
+     else if (!mapSimpleNames.containsKey(nshort)) {
+       mapSimpleNames.put(nshort, npackage);
+@@ -109,7 +112,7 @@ public class ImportCollector {
+       }
+     }
+ 
+-    return retname == null ? nshort : retname;
++    return nocturneClass ? origName : (retname == null ? nshort : retname);
+   }
+ 
+   public int writeImports(TextBuffer buffer) {
+-- 
+2.5.3.windows.1
+
