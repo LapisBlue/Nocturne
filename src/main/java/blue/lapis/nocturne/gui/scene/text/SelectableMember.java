@@ -96,7 +96,7 @@ public class SelectableMember extends Text {
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
             String dispText = this.getText();
-            if (getType() == MemberType.CLASS && !fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+            if (!isInnerClass()) {
                 dispText = fullName;
             }
             TextInputDialog textInputDialog = new TextInputDialog(dispText);
@@ -143,6 +143,10 @@ public class SelectableMember extends Text {
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
         jumpToDefItem.setOnAction(event -> {
             String className = getType() == MemberType.CLASS ? getName() : getParentClass();
+            if (className.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+                className = className.substring(0, className.indexOf(INNER_CLASS_SEPARATOR_CHAR));
+            }
+
             Optional<ClassMapping> cm = MappingsHelper.getClassMapping(Main.getMappingContext(), className);
             MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
         });
@@ -300,6 +304,10 @@ public class SelectableMember extends Text {
             return Objects.hash(type, qualName, descriptor);
         }
 
+    }
+
+    public boolean isInnerClass() {
+        return getType() == MemberType.CLASS && getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
     }
 
 }
