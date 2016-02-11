@@ -37,7 +37,7 @@ import java.io.IOException;
  */
 public abstract class MappingsReader implements Closeable {
 
-    protected BufferedReader reader;
+    protected final BufferedReader reader;
 
     protected MappingsReader(BufferedReader reader) {
         this.reader = reader;

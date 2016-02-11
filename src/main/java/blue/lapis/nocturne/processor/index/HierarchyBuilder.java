@@ -94,7 +94,11 @@ public class HierarchyBuilder {
             }
         });
 
-        return !bases.isEmpty() ? bases : returnEmpty ? Collections.EMPTY_SET : Collections.singleton(clazz.getName());
+        @SuppressWarnings("unchecked")
+        Set<String> finalSet = !bases.isEmpty()
+                ? bases
+                : returnEmpty ? Collections.EMPTY_SET : Collections.singleton(clazz.getName());
+        return finalSet;
     }
 
     private static boolean isVisible(IndexedMethod method, String class1, String class2) {

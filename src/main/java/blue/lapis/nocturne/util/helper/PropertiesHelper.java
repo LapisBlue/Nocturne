@@ -104,8 +104,8 @@ public final class PropertiesHelper {
         public static final Key LAST_JAR_DIRECTORY = new Key("lastJarDir", "");
         public static final Key LAST_MAPPINGS_DIRECTORY = new Key("lastMappingsDir", "");
 
-        private String key;
-        private String defaultValue;
+        private final String key;
+        private final String defaultValue;
 
         private Key(String key, String defaultValue) {
             this.key = key;

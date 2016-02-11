@@ -31,8 +31,8 @@ import blue.lapis.nocturne.util.helper.ByteHelper;
  */
 public class RefStructure extends ConstantStructure {
 
-    private int classIndex;
-    private int natIndex;
+    private final int classIndex;
+    private final int natIndex;
 
     protected RefStructure(byte[] bytes) {
         super(bytes);

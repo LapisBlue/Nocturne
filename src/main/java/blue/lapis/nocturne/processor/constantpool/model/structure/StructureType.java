@@ -50,8 +50,8 @@ public enum StructureType {
 
     private static Map<Byte, StructureType> types;
 
-    private byte tag;
-    private int length;
+    private final byte tag;
+    private final int length;
 
     StructureType(int tag, int length) {
         this.tag = (byte)tag;

@@ -38,7 +38,7 @@ import java.io.PrintWriter;
  */
 public abstract class MappingsWriter implements Closeable {
 
-    protected PrintWriter out;
+    protected final PrintWriter out;
 
     /**
      * Constructs a new {@link MappingsWriter} which outputs to the given

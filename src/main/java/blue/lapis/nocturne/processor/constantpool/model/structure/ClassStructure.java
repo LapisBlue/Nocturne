@@ -31,7 +31,7 @@ import blue.lapis.nocturne.util.helper.ByteHelper;
  */
 public class ClassStructure extends ConstantStructure {
 
-    private int nameIndex;
+    private final int nameIndex;
 
     public ClassStructure(byte[] bytes) {
         super(bytes);

@@ -28,7 +28,7 @@ import javafx.scene.control.TreeItem;
 
 public class ClassTreeItem extends TreeItem<String> {
 
-    private String id;
+    private final String id;
 
     public ClassTreeItem(String id, String displayName) {
         this.setValue(displayName);

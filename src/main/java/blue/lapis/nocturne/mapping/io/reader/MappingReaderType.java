@@ -42,7 +42,7 @@ public enum MappingReaderType {
     /*ENIGMA(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_enigma"), "*.*"),
             EnigmaReader.class);*/
 
-    private static Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
+    private static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
 
     static {
         Arrays.asList(values()).forEach(t -> filterToType.put(t.getExtensionFilter(), t));

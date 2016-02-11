@@ -40,7 +40,7 @@ public class IndexedMethod {
     private final Signature signature;
     private final Visibility visibility;
 
-    private Set<String> bases = new HashSet<>();
+    private final Set<String> bases = new HashSet<>();
     private final Set<String> overrides = new HashSet<>();
 
     public IndexedMethod(Signature signature, Visibility visibility) {
@@ -113,7 +113,7 @@ public class IndexedMethod {
 
         private static Map<Byte, Visibility> visMap;
 
-        private byte tag;
+        private final byte tag;
 
         Visibility(byte tag) {
             this.tag = tag;

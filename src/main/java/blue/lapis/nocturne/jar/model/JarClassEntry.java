@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class JarClassEntry {
 
-    private String name;
+    private final String name;
     private byte[] content;
     private boolean deobfuscated;
 

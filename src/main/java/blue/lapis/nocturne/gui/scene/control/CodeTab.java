@@ -53,7 +53,7 @@ public class CodeTab extends Tab {
 
     public static final Map<String, CodeTab> CODE_TABS = Maps.newHashMap();
 
-    private String className;
+    private final String className;
 
     public Label memberIdentifierLabel;
     public Label memberInfoLabel;

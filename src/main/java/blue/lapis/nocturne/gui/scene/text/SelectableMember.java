@@ -274,9 +274,9 @@ public class SelectableMember extends Text {
 
     public static final class MemberKey {
 
-        private MemberType type;
-        private String qualName;
-        private String descriptor;
+        private final MemberType type;
+        private final String qualName;
+        private final String descriptor;
 
         public MemberKey(MemberType type, String qualifiedName, String descriptor) {
             this.type = type;

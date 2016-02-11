@@ -69,13 +69,13 @@ public class ClassTransformer extends ClassProcessor {
     private boolean isPoolProcessed;
     private ConstantPool processedPool;
 
-    private List<String> syntheticFields = new ArrayList<>();
-    private List<String> syntheticMethods = new ArrayList<>();
+    private final List<String> syntheticFields = new ArrayList<>();
+    private final List<String> syntheticMethods = new ArrayList<>();
 
-    private Map<Integer, Integer> processedFieldNameMap = new HashMap<>();
-    private Map<Integer, Integer> processedFieldDescriptorMap = new HashMap<>();
-    private Map<Integer, Integer> processedMethodNameMap = new HashMap<>();
-    private Map<Integer, Integer> processedMethodDescriptorMap = new HashMap<>();
+    private final Map<Integer, Integer> processedFieldNameMap = new HashMap<>();
+    private final Map<Integer, Integer> processedFieldDescriptorMap = new HashMap<>();
+    private final Map<Integer, Integer> processedMethodNameMap = new HashMap<>();
+    private final Map<Integer, Integer> processedMethodDescriptorMap = new HashMap<>();
 
     private static final ImmutableList<String> IGNORED_METHODS = new ImmutableList.Builder<String>()
             .add("<init>").add("<clinit>").build();

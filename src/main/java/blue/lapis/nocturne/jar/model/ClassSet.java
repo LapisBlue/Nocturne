@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  */
 public class ClassSet {
 
-    private Map<String, JarClassEntry> classMap = new HashMap<>();
+    private final Map<String, JarClassEntry> classMap = new HashMap<>();
 
     /**
      * Constructs a new {@link ClassSet} from the given {@link JarClassEntry}

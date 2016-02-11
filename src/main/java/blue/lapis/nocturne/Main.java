@@ -80,7 +80,7 @@ public class Main extends Application {
     private Stage mainStage;
     private Scene scene;
 
-    private MappingContext mappingContext = new MappingContext();
+    private final MappingContext mappingContext = new MappingContext();
     private Path currentMappingsPath;
     private ClassSet loadedJar;
 
@@ -102,14 +102,6 @@ public class Main extends Application {
         super();
         instance = this;
         initialize();
-    }
-
-    private Main(boolean skipInitialization) {
-        instance = this;
-    }
-
-    public static void initInstance() {
-        new Main(true);
     }
 
     public static Logger getLogger() {

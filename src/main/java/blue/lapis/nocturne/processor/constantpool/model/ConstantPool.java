@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class ConstantPool {
 
-    private List<ConstantStructure> contents;
+    private final List<ConstantStructure> contents;
     private int length;
 
     /**

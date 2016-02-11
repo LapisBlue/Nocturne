@@ -39,9 +39,9 @@ import java.util.Optional;
  */
 public class HierarchyNode extends HierarchyElement {
 
-    private String id;
-    private String displayName;
-    private boolean terminal;
+    private final String id;
+    private final String displayName;
+    private final boolean terminal;
 
     private HierarchyElement parent;
 

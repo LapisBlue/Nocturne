@@ -55,13 +55,15 @@ dependencies {
 // Read source files using UTF-8
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+
+    options.compilerArgs += [
+            '-Xlint:unchecked',
+    ]
 }
 
-test {
-    testLogging {
-        showStandardStreams = true
-        exceptionFormat = 'full'
-    }
+test.testLogging {
+    showStandardStreams = true
+    exceptionFormat = 'full'
 }
 
 processResources {
