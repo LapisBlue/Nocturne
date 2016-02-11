@@ -126,7 +126,7 @@ public abstract class ClassMapping extends Mapping {
      * @param methodName The name of the method to remove the mapping of
      */
     public void removeMethodMapping(String methodName) {
-        fieldMappings.remove(methodName);
+        methodMappings.remove(methodName);
     }
 
     /**

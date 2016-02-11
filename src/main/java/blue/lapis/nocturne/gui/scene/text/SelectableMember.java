@@ -31,6 +31,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -120,16 +121,16 @@ public class SelectableMember extends Text {
                     fullName = getName();
                     break;
                 }
-                case FIELD: {
-                    ClassMapping parent
-                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass()).get();
-                    parent.removeFieldMapping(getName());
-                    break;
-                }
+                case FIELD:
                 case METHOD: {
-                    ClassMapping parent
-                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass()).get();
-                    parent.removeMethodMapping(getName());
+                    Optional<ClassMapping> parent
+                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+                    if (parent.isPresent()) {
+                        MemberMapping mapping = getType() == MemberType.FIELD
+                                ? parent.get().getFieldMappings().get(getName())
+                                : parent.get().getMethodMappings().get(getName() + getDescriptor());
+                        mapping.setDeobfuscatedName(mapping.getObfuscatedName());
+                    }
                     break;
                 }
                 default: {
