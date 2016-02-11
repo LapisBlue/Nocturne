@@ -29,9 +29,17 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import blue.lapis.nocturne.gui.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a {@link Mapping} for a method.
@@ -48,12 +56,32 @@ public class MethodMapping extends MemberMapping {
      * @param deobfName The deobfuscated name of the method
      * @param descriptor The (obfuscated) {@link MethodDescriptor descriptor} of
      *     the method
+     * @param propagate Whether to propagate this mapping to super- and
+     *     sub-classes
      */
-    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor) {
+    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor,
+            boolean propagate) {
         super(parent, obfName, deobfName);
         this.descriptor = descriptor;
 
-        parent.addMethodMapping(this);
+        parent.addMethodMapping(this, propagate);
+    }
+
+    /**
+     * Constructs a new {@link MethodMapping} with the given parameters.
+     *
+     * @param parent The parent {@link ClassMapping}
+     * @param obfName The obfuscated name of the method
+     * @param deobfName The deobfuscated name of the method
+     * @param descriptor The (obfuscated) {@link MethodDescriptor descriptor} of
+     *     the method
+     */
+    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor) {
+        this(parent, obfName, deobfName, descriptor, true);
+    }
+
+    public void initialize(boolean propagate) {
+        this.setDeobfuscatedName(getDeobfuscatedName(), propagate);
     }
 
     /**
@@ -85,6 +113,45 @@ public class MethodMapping extends MemberMapping {
                 ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
                 : getParent().getObfuscatedName())
                 + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
+    }
+
+    @Override
+    public void setDeobfuscatedName(String name) {
+        setDeobfuscatedName(name, true);
+    }
+
+    public void setDeobfuscatedName(String name, boolean propagate) {
+        super.setDeobfuscatedName(name);
+
+        if (propagate) {
+            IndexedMethod.Signature sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
+            IndexedMethod method = IndexedClass.INDEXED_CLASSES.get(getParent().getObfuscatedName())
+                    .getMethods().get(sig);
+
+            Set<String> bases = method.getBaseDefinitions();
+            if (bases.isEmpty()) {
+                bases = Sets.newHashSet(getParent().getObfuscatedName());
+            }
+
+            for (String base : bases) {
+                IndexedClass index = IndexedClass.INDEXED_CLASSES.get(base);
+                List<String> classes = Lists.newArrayList(index.getMethods().get(sig).getOverrides());
+                classes.add(base);
+
+                for (String clazz : classes) {
+                    if (base.equals(getParent().getObfuscatedName())) {
+                        continue;
+                    }
+
+                    ClassMapping cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
+                    if (cm.getMethodMappings().containsKey(getObfuscatedName())) {
+                        cm.getMethodMappings().get(getObfuscatedName()).setDeobfuscatedName(name, false);
+                    } else {
+                        new MethodMapping(cm, getObfuscatedName(), name, getObfuscatedDescriptor(), false);
+                    }
+                }
+            }
+        }
     }
 
 }

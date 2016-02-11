@@ -111,9 +111,11 @@ public abstract class ClassMapping extends Mapping {
      * Adds the given {@link MethodMapping} to this {@link ClassMapping}.
      *
      * @param mapping The {@link MethodMapping} to add
+     * @param propagate Whether to propagate this mapping to super- and
+     *     sub-classes
      */
-    void addMethodMapping(MethodMapping mapping) {
-        mapping.initialize();
+    void addMethodMapping(MethodMapping mapping, boolean propagate) {
+        mapping.initialize(propagate);
         methodMappings.put(mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor(), mapping);
     }
 

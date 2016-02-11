@@ -35,6 +35,7 @@ import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,7 +65,7 @@ public class HierarchyBuilder {
     public void apply() {
         for (IndexedClass clazz : classes.values()) {
             clazz.getMethods().values().stream()
-                    .filter(IGNORED_METHODS::contains)
+                    .filter(m -> !IGNORED_METHODS.contains(m.getSignature()))
                     .forEach(method -> {
                         Set<String> bases = getBaseDefinitionClasses(method.getSignature(), clazz);
                         method.getBaseDefinitions().addAll(bases);
@@ -81,25 +82,17 @@ public class HierarchyBuilder {
     private Set<String> getBaseDefinitionClasses(IndexedMethod.Signature sig, IndexedClass clazz, boolean returnEmpty) {
         Set<String> bases = new HashSet<>();
 
-        if (classes.containsKey(clazz.getSuperclass())) {
-            IndexedClass superClass = classes.get(clazz.getSuperclass());
-            if (superClass.getMethods().containsKey(sig)) {
-                if (isVisible(superClass.getMethods().get(sig), clazz.getName(), clazz.getSuperclass())) {
-                    bases.addAll(getBaseDefinitionClasses(sig, superClass, false));
+        Set<String> parents = Sets.newHashSet(clazz.getInterfaces());
+        parents.add(clazz.getSuperclass());
+
+        parents.stream().filter(classes::containsKey).forEach(className -> {
+            IndexedClass interfaceClass = classes.get(className);
+            if (interfaceClass.getMethods().containsKey(sig)) {
+                if (isVisible(interfaceClass.getMethods().get(sig), clazz.getName(), className)) {
+                    bases.addAll(getBaseDefinitionClasses(sig, interfaceClass, false));
                 }
             }
-        }
-
-        clazz.getInterfaces().stream()
-                .filter(classes::containsKey)
-                .forEach(interfaceName -> {
-                    IndexedClass interfaceClass = classes.get(interfaceName);
-                    if (interfaceClass.getMethods().containsKey(sig)) {
-                        if (isVisible(interfaceClass.getMethods().get(sig), clazz.getName(), interfaceName)) {
-                            bases.addAll(getBaseDefinitionClasses(sig, interfaceClass, false));
-                        }
-                    }
-                });
+        });
 
         return !bases.isEmpty() ? bases : returnEmpty ? Collections.EMPTY_SET : Collections.singleton(clazz.getName());
     }
