@@ -24,7 +24,7 @@
  */
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 
 /**

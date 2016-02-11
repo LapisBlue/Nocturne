@@ -28,7 +28,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;

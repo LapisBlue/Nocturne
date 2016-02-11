@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import blue.lapis.nocturne.gui.control.WebLink?>
+<?import blue.lapis.nocturne.gui.scene.control.WebLink?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 <TextFlow xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40">

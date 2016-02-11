@@ -26,7 +26,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
 

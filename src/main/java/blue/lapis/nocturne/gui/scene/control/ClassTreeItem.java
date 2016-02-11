@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.gui.control;
+package blue.lapis.nocturne.gui.scene.control;
 
 import javafx.scene.control.TreeItem;
 

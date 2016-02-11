@@ -22,16 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.gui.text;
+package blue.lapis.nocturne.gui.scene.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.control.CodeTab;
+import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 

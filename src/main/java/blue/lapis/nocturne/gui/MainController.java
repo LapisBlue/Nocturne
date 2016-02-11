@@ -25,12 +25,12 @@
 package blue.lapis.nocturne.gui;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.control.ClassTreeItem;
-import blue.lapis.nocturne.gui.control.CodeTab;
+import blue.lapis.nocturne.gui.scene.control.ClassTreeItem;
+import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;

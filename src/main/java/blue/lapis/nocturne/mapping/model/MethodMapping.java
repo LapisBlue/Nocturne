@@ -26,9 +26,8 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
@@ -37,7 +36,6 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 

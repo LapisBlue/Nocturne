@@ -22,12 +22,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package blue.lapis.nocturne.gui.control;
+package blue.lapis.nocturne.gui.scene.control;
 
 import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.Lists;
