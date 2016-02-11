@@ -146,8 +146,6 @@ public class SelectableMember extends Text {
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
-        updateText();
-
         String qualifiedName = type == MemberType.CLASS ? name : parentClass + CLASS_PATH_SEPARATOR_CHAR + name;
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
         MemberKey key = new MemberKey(type, qualifiedName, type == MemberType.METHOD ? descriptor : null);
@@ -155,6 +153,8 @@ public class SelectableMember extends Text {
             MEMBERS.put(key, new ArrayList<>());
         }
         MEMBERS.get(key).add(this);
+
+        updateText();
     }
 
     public void setMapping(String mapping) {
@@ -232,7 +232,7 @@ public class SelectableMember extends Text {
                 Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
                         ? classMapping.get().getFieldMappings()
                         : classMapping.get().getMethodMappings();
-                Mapping mapping = mappings.get(getName());
+                Mapping mapping = mappings.get(getName() + (getType() == MemberType.METHOD ? getDescriptor() : ""));
                 if (mapping != null) {
                     deobf = mapping.getDeobfuscatedName();
                 }
