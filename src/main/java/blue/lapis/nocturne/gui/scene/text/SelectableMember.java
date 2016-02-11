@@ -28,6 +28,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
@@ -141,8 +142,16 @@ public class SelectableMember extends Text {
             this.updateCodeTab();
         });
 
+        MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
+        jumpToDefItem.setOnAction(event -> {
+            String className = getType() == MemberType.CLASS ? getName() : getParentClass();
+            Optional<ClassMapping> cm = MappingsHelper.getClassMapping(Main.getMappingContext(), className);
+            MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
+        });
+
         contextMenu.getItems().add(renameItem);
         contextMenu.getItems().add(resetItem);
+        contextMenu.getItems().add(jumpToDefItem);
 
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));

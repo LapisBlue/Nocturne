@@ -24,6 +24,8 @@
  */
 package blue.lapis.nocturne.gui;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.control.ClassTreeItem;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
@@ -39,6 +41,7 @@ import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
+import com.google.common.base.Preconditions;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -116,16 +119,7 @@ public class MainController implements Initializable {
                 if (selected instanceof ClassTreeItem) {
                     String className = ((ClassTreeItem) selected).getId();
                     if (Main.getLoadedJar() != null) {
-                        Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
-                        if (clazz.isPresent()) {
-                            if (CodeTab.CODE_TABS.containsKey(className)) {
-                                tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
-                            } else {
-                                CodeTab tab = new CodeTab(tabs, className, selected.getValue());
-
-                                tab.setCode(clazz.get().decompile());
-                            }
-                        }
+                        openTab(className, selected.getValue());
                     }
                 }
             }
@@ -302,6 +296,18 @@ public class MainController implements Initializable {
         tabs.getTabs().forEach(tab -> tab.getOnClosed().handle(null));
         tabs.getTabs().clear();
         CodeTab.CODE_TABS.clear();
+    }
+
+    public void openTab(String className, String displayName) {
+        if (CodeTab.CODE_TABS.containsKey(className)) {
+            tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
+        } else {
+            CodeTab tab = new CodeTab(tabs, className, displayName);
+
+            Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
+            checkArgument(clazz.isPresent(), "Cannot find class entry for " + className);
+            tab.setCode(clazz.get().decompile());
+        }
     }
 
 }
