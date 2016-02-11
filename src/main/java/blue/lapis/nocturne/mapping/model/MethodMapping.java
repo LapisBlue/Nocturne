@@ -139,7 +139,7 @@ public class MethodMapping extends MemberMapping {
                 classes.add(base);
 
                 for (String clazz : classes) {
-                    if (base.equals(getParent().getObfuscatedName())) {
+                    if (clazz.equals(getParent().getObfuscatedName())) {
                         continue;
                     }
 
