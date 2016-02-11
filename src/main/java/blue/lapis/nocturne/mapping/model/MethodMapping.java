@@ -121,7 +121,7 @@ public class MethodMapping extends MemberMapping {
     public void setDeobfuscatedName(String name, boolean propagate) {
         super.setDeobfuscatedName(name);
 
-        if (propagate) {
+        if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
             IndexedMethod.Signature sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
             IndexedMethod method = IndexedClass.INDEXED_CLASSES.get(getParent().getObfuscatedName())
                     .getMethods().get(sig);
