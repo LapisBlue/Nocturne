@@ -93,8 +93,6 @@ public class SelectableMember extends Text {
             }
         });
 
-        ContextMenu contextMenu = new ContextMenu();
-
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
             String dispText = this.getText();
@@ -149,6 +147,7 @@ public class SelectableMember extends Text {
             MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
         });
 
+        ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().add(renameItem);
         contextMenu.getItems().add(resetItem);
         contextMenu.getItems().add(jumpToDefItem);
