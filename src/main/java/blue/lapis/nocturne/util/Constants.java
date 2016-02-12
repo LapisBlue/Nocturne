@@ -59,6 +59,15 @@ public final class Constants {
             + Pattern.quote(MEMBER_DELIMITER) + "(.+?)(?:" + Pattern.quote(MEMBER_DELIMITER) + "(.+?))*"
             + Pattern.quote(MEMBER_SUFFIX));
 
+    public static final Pattern STRING_LITERAL_REGEX = Pattern.compile("(?:^|[^\\\\])(\".+?[^\\\\]\")");
+    public static final Pattern CHAR_LITERAL_REGEX = Pattern.compile("'.'");
+    public static final Pattern KEYWORD_REGEX = Pattern.compile("(?:^|[^0-z\\\\$_])"
+            + "(abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|double|do|else|enum|"
+            + "extends|false|final|finally|float|for|goto|if|implements|import|instanceof|interface|int|long|native|"
+            + "new|null|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|"
+            + "throws|throw|transient|true|try|void|volatile|while)"
+            + "(?=$|[^0-z\\\\$_])");
+
     /**
      * Regular expression to match the types contained by a method descriptor.
      */
@@ -67,7 +76,7 @@ public final class Constants {
 
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
             .put("rsy", "1") // hide synthetic class members
-            .put("ind", "    ")
+            .put("ind", "    ") // set indentation string
             .build();
 
     static {

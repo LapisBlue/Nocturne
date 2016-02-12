@@ -24,10 +24,15 @@
  */
 package blue.lapis.nocturne.gui.scene.control;
 
+import static blue.lapis.nocturne.util.Constants.CHAR_LITERAL_REGEX;
+import static blue.lapis.nocturne.util.Constants.KEYWORD_REGEX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
+import static blue.lapis.nocturne.util.Constants.STRING_LITERAL_REGEX;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.scene.text.syntax.Keyword;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.gui.scene.text.syntax.StringLiteral;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.Lists;
@@ -42,9 +47,13 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The code-tab JavaFX component.
@@ -135,25 +144,65 @@ public class CodeTab extends Tab {
     public void setCode(String code) {
         this.code.getChildren().clear();
 
-        List<Text> texts = Lists.newArrayList();
+        List<Node> nodes = Lists.newArrayList();
 
         Matcher matcher = MEMBER_REGEX.matcher(code);
         int lastIndex = 0;
         while (matcher.find()) {
-            texts.add(new Text(code.substring(lastIndex, matcher.start())));
-            texts.add(SelectableMember.fromMatcher(this, matcher));
+            nodes.add(new Text(code.substring(lastIndex, matcher.start())));
+            nodes.add(SelectableMember.fromMatcher(this, matcher));
             lastIndex = matcher.end();
         }
-        texts.add(new Text(code.substring(lastIndex)));
+        nodes.add(new Text(code.substring(lastIndex)));
 
-        for (Text text : texts) {
-            text.setFont(Font.font("monospace", 12));
-        }
+        nodes = applyAllSyntaxHighlighting(nodes);
 
-        Node[] nodeArr = new Node[texts.size()];
-        texts.toArray(nodeArr);
+        nodes.forEach(node -> ((Text) node).setFont(Font.font("monospace", 12)));
+
+        Node[] nodeArr = new Node[nodes.size()];
+        nodes.toArray(nodeArr);
         TextFlow flow = new TextFlow(nodeArr);
+
         this.code.getChildren().add(flow);
+    }
+
+    private List<Node> applyAllSyntaxHighlighting(List<Node> nodes) {
+        try {
+            nodes = applySyntaxHighlighting(nodes, STRING_LITERAL_REGEX,
+                    StringLiteral.class.getConstructor(String.class));
+            nodes = applySyntaxHighlighting(nodes, CHAR_LITERAL_REGEX,
+                    StringLiteral.class.getConstructor(String.class));
+            nodes = applySyntaxHighlighting(nodes, KEYWORD_REGEX, Keyword.class.getConstructor(String.class));
+            return nodes;
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private List<Node> applySyntaxHighlighting(List<Node> nodes, Pattern regex, Constructor<? extends Text> ctor) {
+        List<Node> newNodes = new ArrayList<Node>();
+        nodes.stream()
+                .forEach(node -> {
+                    if (node.getClass() != Text.class) {
+                        newNodes.add(node);
+                        return;
+                    }
+                    String text = ((Text) node).getText();
+                    Matcher matcher = regex.matcher(text);
+                    int lastIndex = 0;
+                    while (matcher.find()) {
+                        newNodes.add(new Text(text.substring(lastIndex, matcher.start())));
+                        try {
+                            newNodes.add(ctor.newInstance(matcher.group(0)));
+                        } catch ( IllegalAccessException | IllegalArgumentException | InstantiationException
+                                | InvocationTargetException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        lastIndex = matcher.end();
+                    }
+                    newNodes.add(new Text(text.substring(lastIndex)));
+                });
+        return newNodes;
     }
 
     public enum SelectableMemberType {
