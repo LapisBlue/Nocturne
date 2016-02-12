@@ -32,6 +32,10 @@ import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.function.Predicate;
 
@@ -42,6 +46,14 @@ public class SrgWriter extends MappingsWriter {
 
     private static final Predicate<Mapping> NOT_USELESS
             = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
+
+    private final ByteArrayOutputStream clOut = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream fdOut = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream mdOut = new ByteArrayOutputStream();
+
+    private final PrintWriter clWriter = new PrintWriter(clOut, true);
+    private final PrintWriter fdWriter = new PrintWriter(fdOut, true);
+    private final PrintWriter mdWriter = new PrintWriter(mdOut, true);
 
     /**
      * Constructs a new {@link SrgWriter} which outputs to the given
@@ -56,6 +68,9 @@ public class SrgWriter extends MappingsWriter {
     @Override
     public void write(MappingContext mappingContext) {
         mappingContext.getMappings().values().forEach(this::writeClassMapping);
+        out.write(clOut.toString());
+        out.write(fdOut.toString());
+        out.write(mdOut.toString());
         out.flush();
     }
 
@@ -63,11 +78,11 @@ public class SrgWriter extends MappingsWriter {
     protected void writeClassMapping(ClassMapping classMapping) {
         if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
             if (classMapping instanceof TopLevelClassMapping) {
-                out.format("CL: %s %s\n",
+                clWriter.format("CL: %s %s\n",
                         classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
             } else if (classMapping instanceof InnerClassMapping) {
                 InnerClassMapping mapping = (InnerClassMapping) classMapping;
-                out.format("CL: %s %s\n",
+                clWriter.format("CL: %s %s\n",
                         mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
             }
         }
@@ -79,14 +94,14 @@ public class SrgWriter extends MappingsWriter {
 
     @Override
     protected void writeFieldMapping(FieldMapping fieldMapping) {
-        out.format("FD: %s/%s %s/%s\n",
+        fdWriter.format("FD: %s/%s %s/%s\n",
                 fieldMapping.getParent().getObfuscatedName(), fieldMapping.getObfuscatedName(),
                 fieldMapping.getParent().getDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
     }
 
     @Override
     protected void writeMethodMapping(MethodMapping mapping) {
-        out.format("MD: %s/%s %s %s/%s %s\n",
+        mdWriter.format("MD: %s/%s %s %s/%s %s\n",
                 mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getObfuscatedDescriptor(),
                 mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
                 mapping.getDeobfuscatedDescriptor());
