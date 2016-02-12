@@ -105,7 +105,7 @@ public class ConstantPool {
         if (index < 1 || index > size()) {
             throw new IndexOutOfBoundsException("Constant pool index " + index + " out-of-bounds");
         }
-        length = length - contents.get(index - 1).getBytes().length + structure.getBytes().length;
+        length += structure.getBytes().length - contents.get(index - 1).getBytes().length;
         contents.set(index - 1, structure);
     }
 

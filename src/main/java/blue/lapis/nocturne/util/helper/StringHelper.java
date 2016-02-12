@@ -27,6 +27,7 @@ package blue.lapis.nocturne.util.helper;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
 import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
@@ -36,6 +37,7 @@ import blue.lapis.nocturne.util.MemberType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Static utility class for certain string manipulator functions.
@@ -97,6 +99,14 @@ public final class StringHelper {
             }
         }
         return desc;
+    }
+
+    public static String getUnprocessedName(String processed) {
+        Matcher matcher = MEMBER_REGEX.matcher(processed);
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("String " + processed + " is not a processed member name");
+        }
+        return matcher.group(2);
     }
 
     public static String resolvePackageName(String qualifiedClassName) {

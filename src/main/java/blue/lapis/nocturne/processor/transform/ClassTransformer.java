@@ -26,11 +26,13 @@ package blue.lapis.nocturne.processor.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedDescriptor;
 import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
+import static blue.lapis.nocturne.util.helper.StringHelper.getUnprocessedName;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.processor.ClassProcessor;
@@ -44,6 +46,7 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;
@@ -85,14 +88,6 @@ public class ClassTransformer extends ClassProcessor {
         assert IndexedClass.INDEXED_CLASSES.containsKey(getClassName());
         constantPool = IndexedClass.INDEXED_CLASSES.get(getClassName()).getConstantPool();
         processedPool = new ConstantPool(constantPool.getContents(), constantPool.length());
-    }
-
-    public List<String> getSyntheticFields() {
-        return syntheticFields;
-    }
-
-    public List<String> getSyntheticMethods() {
-        return syntheticMethods;
     }
 
     /**
@@ -346,6 +341,9 @@ public class ClassTransformer extends ClassProcessor {
             }
         }
         String className = getClassNameFromStruct((RefStructure) cs);
+        if (className.startsWith(MEMBER_PREFIX)) {
+            className = getUnprocessedName(className);
+        }
 
         NameAndType nat = getNameAndType((RefStructure) cs);
         int natIndex = ((RefStructure) cs).getNameAndTypeIndex();
