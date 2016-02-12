@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -87,7 +88,7 @@ public class SrgReader extends MappingsReader {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            MappingsHelper.genClassMapping(context, obf, deobf);
+            MappingsHelper.genClassMapping(context, obf, deobf, false);
         }
     }
 

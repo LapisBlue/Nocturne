@@ -49,6 +49,10 @@ public class TopLevelClassMapping extends ClassMapping {
         this.parent = parent;
     }
 
+    public void initialize(boolean updateClassViews) {
+        this.setDeobfuscatedName(getDeobfuscatedName(), updateClassViews);
+    }
+
     @Override
     public MappingContext getContext() {
         return parent;
@@ -56,7 +60,12 @@ public class TopLevelClassMapping extends ClassMapping {
 
     @Override
     public void setDeobfuscatedName(String deobfuscatedName) {
-        super.setDeobfuscatedName(deobfuscatedName);
+        setDeobfuscatedName(deobfuscatedName, true);
+    }
+
+    @Override
+    public void setDeobfuscatedName(String deobfuscatedName, boolean updateClassViews) {
+        super.setDeobfuscatedName(deobfuscatedName, updateClassViews);
         if (CodeTab.CODE_TABS.containsKey(getObfuscatedName())) {
             CodeTab.CODE_TABS.get(getObfuscatedName()).setText(deobfuscatedName);
         }

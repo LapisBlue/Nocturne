@@ -56,10 +56,11 @@ public class MappingContext {
      * Adds the given {@link TopLevelClassMapping} to this {@link MappingContext}.
      *
      * @param mapping The {@link TopLevelClassMapping} to add
+     * @param updateClassViews Whether to update the class views
      */
-    public void addMapping(TopLevelClassMapping mapping) {
+    public void addMapping(TopLevelClassMapping mapping, boolean updateClassViews) {
         mappings.put(mapping.getObfuscatedName(), mapping);
-        mapping.initialize();
+        mapping.initialize(updateClassViews);
 
         setDirty(true);
     }

@@ -45,7 +45,7 @@ import java.util.Optional;
  */
 public final class MappingsHelper {
 
-    public static void genClassMapping(MappingContext context, String obf, String deobf) {
+    public static void genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
@@ -69,7 +69,7 @@ public final class MappingsHelper {
             if (context.getMappings().containsKey(obf)) {
                 context.getMappings().get(obf).setDeobfuscatedName(deobf);
             } else {
-                context.addMapping(new TopLevelClassMapping(context, obf, deobf));
+                context.addMapping(new TopLevelClassMapping(context, obf, deobf), updateClassViews);
             }
         }
     }
@@ -101,7 +101,7 @@ public final class MappingsHelper {
         if (mapping == null) {
             if (create) {
                 mapping = new TopLevelClassMapping(context, arr[0], arr[0]);
-                context.addMapping((TopLevelClassMapping) mapping);
+                context.addMapping((TopLevelClassMapping) mapping, false);
             } else {
                 return Optional.empty();
             }

@@ -61,7 +61,8 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1].replace("none/", "");
                     String deobf = arr.length == 3 ? arr[2] : obf;
-                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf); // TODO: Handle inner-classes
+                    //TODO: handle inner classes
+                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf, false);
                     currentClass = obf;
                     break;
                 }

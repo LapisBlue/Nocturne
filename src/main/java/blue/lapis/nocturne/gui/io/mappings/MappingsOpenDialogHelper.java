@@ -25,6 +25,7 @@
 package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
@@ -75,6 +76,7 @@ public final class MappingsOpenDialogHelper {
                     .constructReader(new BufferedReader(new FileReader(selectedFile)))) {
                 MappingContext context = reader.read();
                 Main.getMappingContext().merge(context);
+                MainController.INSTANCE.updateClassViews();
                 Main.getMappingContext().setDirty(false);
             }
 

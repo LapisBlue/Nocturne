@@ -176,6 +176,10 @@ public abstract class ClassMapping extends Mapping {
 
     @Override
     public void setDeobfuscatedName(String name) {
+        setDeobfuscatedName(name, true);
+    }
+
+    public void setDeobfuscatedName(String name, boolean updateClassViews) {
         super.setDeobfuscatedName(name);
         updateEntryDeobfuscation();
 
@@ -187,7 +191,9 @@ public abstract class ClassMapping extends Mapping {
         String unqualName = this instanceof InnerClassMapping ? name : MappingsHelper.unqualify(name);
         memberList.forEach(member -> member.setText(unqualName));
 
-        MainController.INSTANCE.updateClassViews();
+        if (updateClassViews) {
+            MainController.INSTANCE.updateClassViews();
+        }
     }
 
     public void updateEntryDeobfuscation() {

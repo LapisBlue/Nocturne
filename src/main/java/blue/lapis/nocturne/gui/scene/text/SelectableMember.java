@@ -176,7 +176,7 @@ public class SelectableMember extends Text {
                 if (fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
                     mapping = fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1) + mapping;
                 }
-                MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping);
+                MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping, true);
                 fullName = mapping;
                 break;
             }

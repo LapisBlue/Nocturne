@@ -166,6 +166,7 @@ public class MainController implements Initializable {
             throw new RuntimeException(ex);
         }
         Main.getMappingContext().clear();
+        Main.getLoadedJar().getClasses().forEach(jce -> jce.setDeobfuscated(false));
         CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
         SelectableMember.MEMBERS.values()
                 .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
