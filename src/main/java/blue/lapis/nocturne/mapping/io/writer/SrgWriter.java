@@ -35,8 +35,10 @@ import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.function.Predicate;
 
 /**
@@ -51,9 +53,9 @@ public class SrgWriter extends MappingsWriter {
     private final ByteArrayOutputStream fdOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream mdOut = new ByteArrayOutputStream();
 
-    private final PrintWriter clWriter = new PrintWriter(clOut, true);
-    private final PrintWriter fdWriter = new PrintWriter(fdOut, true);
-    private final PrintWriter mdWriter = new PrintWriter(mdOut, true);
+    private final PrintWriter clWriter = new PrintWriter(clOut);
+    private final PrintWriter fdWriter = new PrintWriter(fdOut);
+    private final PrintWriter mdWriter = new PrintWriter(mdOut);
 
     /**
      * Constructs a new {@link SrgWriter} which outputs to the given
@@ -68,10 +70,20 @@ public class SrgWriter extends MappingsWriter {
     @Override
     public void write(MappingContext mappingContext) {
         mappingContext.getMappings().values().forEach(this::writeClassMapping);
+        clWriter.close();
+        fdWriter.close();
+        mdWriter.close();
         out.write(clOut.toString());
         out.write(fdOut.toString());
         out.write(mdOut.toString());
-        out.flush();
+        out.close();
+        try {
+            clOut.close();
+            fdOut.close();
+            mdOut.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
