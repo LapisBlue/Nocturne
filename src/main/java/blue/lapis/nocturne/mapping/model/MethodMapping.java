@@ -58,7 +58,7 @@ public class MethodMapping extends MemberMapping {
      *     sub-classes
      */
     public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor,
-            boolean propagate) {
+                         boolean propagate) {
         super(parent, obfName, deobfName);
         this.descriptor = descriptor;
 
@@ -123,12 +123,17 @@ public class MethodMapping extends MemberMapping {
 
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
             IndexedMethod.Signature sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
-            IndexedMethod method = IndexedClass.INDEXED_CLASSES.get(getParent().getObfuscatedName())
+            IndexedMethod method = IndexedClass.INDEXED_CLASSES
+                    .get(getParent() instanceof InnerClassMapping
+                            ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
+                            : getParent().getObfuscatedName())
                     .getMethods().get(sig);
 
             Set<String> bases = method.getBaseDefinitions();
             if (bases.isEmpty()) {
-                bases = Sets.newHashSet(getParent().getObfuscatedName());
+                bases = Sets.newHashSet(getParent() instanceof InnerClassMapping
+                        ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
+                        : getParent().getObfuscatedName());
             }
 
             for (String base : bases) {
