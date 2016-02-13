@@ -33,6 +33,7 @@ import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -66,7 +67,7 @@ public final class JarDialogHelper {
         Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_JAR_DIRECTORY, selectedFile.getParent());
 
         if (Files.exists(selectedFile.toPath())) {
-            ClassSet classSet = JarLoader.loadJar(selectedFile);
+            ClassSet classSet = JarLoader.loadJar(new FileInputStream(selectedFile));
             if (classSet != null) {
                 controller.closeJarButton.setDisable(false);
                 controller.loadMappingsButton.setDisable(false);

@@ -257,6 +257,9 @@ gradle-app.setting
 # Allow the Gradle wrapper
 !gradle-wrapper.jar
 
+# Allow unit test resources
+!test.jar
+
 #################
 ## Git submodules
 #################

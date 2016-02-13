@@ -28,6 +28,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.io.JarLoader;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Primitive;
 import blue.lapis.nocturne.jar.model.attribute.Type;
@@ -45,6 +47,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URL;
 
 /**
  * Unit tests related to the {@link SrgReader}.
@@ -62,7 +67,9 @@ public class SrgReaderTest {
     }
 
     @BeforeClass
-    public static void initialize() throws InterruptedException {
+    public static void initialize() throws InterruptedException, IOException {
+        new Main(true);
+        Main.setLoadedJar(JarLoader.loadJar(SrgReaderTest.class.getResourceAsStream("/test.jar")));
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         mappings = reader.read();

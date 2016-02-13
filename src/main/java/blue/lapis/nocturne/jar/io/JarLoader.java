@@ -37,12 +37,14 @@ import blue.lapis.nocturne.util.Constants;
 import com.google.common.collect.Sets;
 import javafx.scene.control.Alert;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.zip.ZipException;
 
 /**
@@ -51,17 +53,17 @@ import java.util.zip.ZipException;
 public class JarLoader {
 
     /**
-     * Loads the given JAR {@link File} for use with Nocturne.
+     * Loads a JAR from the given {@link InputStream} for use with Nocturne.
      *
-     * @param jarFile The {@link File} handle to the JAR file to load
+     * @param jarFile The {@link InputStream} containing the JAR file to load
      * @return A {@link ClassSet} representing the JAR file
      * @throws IOException If an exception occurs while loading the provided
      *     {@link File}
      */
-    public static ClassSet loadJar(File jarFile) throws IOException {
-        JarFile jar;
+    public static ClassSet loadJar(InputStream jarFile) throws IOException {
+        JarInputStream jar;
         try {
-            jar = new JarFile(jarFile);
+            jar = new JarInputStream(jarFile);
         } catch (ZipException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText(null);
@@ -72,17 +74,19 @@ public class JarLoader {
 
         Set<JarClassEntry> classes = new HashSet<>();
 
-        jar.stream().forEach(entry -> {
+        JarEntry entry;
+        while ((entry = jar.getNextJarEntry()) != null) {
             if (!entry.getName().endsWith(".class")) {
-                return; // not a class so we can ignore it
+                continue; // not a class so we can ignore it
             }
 
             try {
-                BufferedInputStream entryStream = new BufferedInputStream(jar.getInputStream(entry));
-
-                byte[] bytes = new byte[entryStream.available()];
-                //noinspection ResultOfMethodCallIgnored
-                entryStream.read(bytes);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                int b;
+                while ((b = jar.read()) != -1) {
+                    baos.write(b);
+                }
+                byte[] bytes = baos.toByteArray();
 
                 String className = entry.getName();
                 if (className.endsWith(Constants.CLASS_FILE_NAME_TAIL)) {
@@ -100,7 +104,7 @@ public class JarLoader {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-        });
+        }
 
         if (classes.size() == 0) {
             Alert alert = new Alert(Alert.AlertType.WARNING);

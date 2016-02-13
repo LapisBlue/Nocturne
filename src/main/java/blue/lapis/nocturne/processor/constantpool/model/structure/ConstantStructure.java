@@ -37,7 +37,7 @@ public abstract class ConstantStructure {
         this.bytes = bytes;
         if (!(this instanceof DummyStructure)) {
             this.type = StructureType.fromTag(bytes[0]);
-            assert bytes.length == type.getLength() + 1;
+            assert type.getLength() == -1 || bytes.length == type.getLength() + 1;
         } else {
             this.type = null;
         }

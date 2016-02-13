@@ -117,6 +117,14 @@ task sourceJar(type: Jar) {
     from tasks.processResources
 }
 
+sourceSets {
+    test {
+        resources {
+            srcDir "test"
+        }
+    }
+}
+
 artifacts {
     archives shadowJar
     archives sourceJar

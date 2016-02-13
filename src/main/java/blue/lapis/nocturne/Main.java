@@ -98,10 +98,16 @@ public class Main extends Application {
         launch(args);
     }
 
-    public Main() {
+    public Main(boolean skipInit) {
         super();
         instance = this;
-        initialize();
+        if (!skipInit) {
+            initialize();
+        }
+    }
+
+    public Main() {
+        this(false);
     }
 
     public static Logger getLogger() {
