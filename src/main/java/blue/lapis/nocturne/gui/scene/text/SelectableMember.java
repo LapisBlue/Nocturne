@@ -33,11 +33,13 @@ import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
@@ -104,7 +106,9 @@ public class SelectableMember extends Text {
 
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("")) {
-                this.setMapping(result.get());
+                if (isInnerClass() || checkClassDupe(result.get())) {
+                    this.setMapping(result.get());
+                }
             }
         });
 
@@ -114,7 +118,11 @@ public class SelectableMember extends Text {
                 case CLASS: {
                     Optional<ClassMapping> mapping
                             = MappingsHelper.getClassMapping(Main.getMappingContext(), getName());
-                    if (mapping.isPresent()) {
+                    if (mapping.isPresent()
+                            && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName())) {
+                        if (!isInnerClass() && !checkClassDupe(mapping.get().getObfuscatedName())) {
+                            break;
+                        }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                     }
                     fullName = getName();
@@ -128,7 +136,9 @@ public class SelectableMember extends Text {
                         MemberMapping mapping = getType() == MemberType.FIELD
                                 ? parent.get().getFieldMappings().get(getName())
                                 : parent.get().getMethodMappings().get(getName() + getDescriptor());
-                        mapping.setDeobfuscatedName(mapping.getObfuscatedName());
+                        if (mapping != null) {
+                            mapping.setDeobfuscatedName(mapping.getObfuscatedName());
+                        }
                     }
                     break;
                 }
@@ -168,6 +178,17 @@ public class SelectableMember extends Text {
         MEMBERS.get(key).add(this);
 
         updateText();
+    }
+
+    private boolean checkClassDupe(String newName) {
+        if (Main.getLoadedJar().getCurrentNames().containsValue(newName)) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
+            alert.setContentText(Main.getResourceBundle().getString("rename.dupe.content"));
+            alert.showAndWait();
+            return false;
+        }
+        return true;
     }
 
     public void setMapping(String mapping) {

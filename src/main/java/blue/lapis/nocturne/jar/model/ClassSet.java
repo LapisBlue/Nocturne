@@ -28,6 +28,8 @@ import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
 public class ClassSet {
 
     private final Map<String, JarClassEntry> classMap = new HashMap<>();
+    private final BiMap<String, String> names = HashBiMap.create();
 
     /**
      * Constructs a new {@link ClassSet} from the given {@link JarClassEntry}
@@ -52,7 +55,10 @@ public class ClassSet {
      *     new {@link ClassSet} with
      */
     public ClassSet(Set<JarClassEntry> classes) {
-        classes.forEach(cl -> classMap.put(cl.getName(), cl));
+        classes.forEach(cl -> {
+            classMap.put(cl.getName(), cl);
+            getCurrentNames().put(cl.getName(), cl.getName());
+        });
     }
 
     /**
@@ -135,6 +141,10 @@ public class ClassSet {
                 .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
                 //.map(deobfuscate ? JarClassEntry::getDeobfuscatedName : JarClassEntry::getName)
                 .collect(Collectors.toSet()), deobfuscate);
+    }
+
+    public BiMap<String, String> getCurrentNames() {
+        return names;
     }
 
 }
