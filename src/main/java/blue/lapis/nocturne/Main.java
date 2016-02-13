@@ -51,6 +51,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -134,7 +136,13 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mainStage = primaryStage;
 
-        mainStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/icon.png")));
+        String[] icons = new String[] {
+                "icon-16", "icon-24", "icon-32", "icon-48",
+                "icon-64", "icon-128", "icon-256", "icon-512"
+        };
+        for (String icon : icons) {
+            mainStage.getIcons().add(new Image(getClass().getResourceAsStream("/img/icons/" + icon + ".png")));
+        }
 
         loadView(locale);
 
