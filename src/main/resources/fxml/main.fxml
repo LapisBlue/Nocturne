@@ -36,8 +36,8 @@
                       text="%menu.file.close"/>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.edit">
-            <MenuItem mnemonicParsing="true" fx:id="clearMappingsButton" onAction="#clearMappings"
-                      text="%menu.file.clear_mappings"/>
+            <MenuItem mnemonicParsing="true" fx:id="resetMappingsButton" onAction="#resetMappings"
+                      text="%menu.file.reset_mappings"/>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"

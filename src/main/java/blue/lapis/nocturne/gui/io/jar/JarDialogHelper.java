@@ -69,6 +69,10 @@ public final class JarDialogHelper {
             ClassSet classSet = JarLoader.loadJar(selectedFile);
             if (classSet != null) {
                 controller.closeJarButton.setDisable(false);
+                controller.loadMappingsButton.setDisable(false);
+                controller.saveMappingsButton.setDisable(false);
+                controller.saveMappingsAsButton.setDisable(false);
+                controller.resetMappingsButton.setDisable(false);
             }
         }
     }

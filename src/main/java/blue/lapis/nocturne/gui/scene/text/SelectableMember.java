@@ -98,14 +98,14 @@ public class SelectableMember extends Text {
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
             String dispText = this.getText();
-            if (!isInnerClass()) {
+            if (getType() == MemberType.CLASS && !isInnerClass()) {
                 dispText = fullName;
             }
             TextInputDialog textInputDialog = new TextInputDialog(dispText);
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
 
             Optional<String> result = textInputDialog.showAndWait();
-            if (result.isPresent() && !result.get().equals("")) {
+            if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
                 if (isInnerClass() || checkClassDupe(result.get())) {
                     this.setMapping(result.get());
                 }
@@ -184,6 +184,7 @@ public class SelectableMember extends Text {
         if (Main.getLoadedJar().getCurrentNames().containsValue(newName)) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
+            alert.setHeaderText(null);
             alert.setContentText(Main.getResourceBundle().getString("rename.dupe.content"));
             alert.showAndWait();
             return false;

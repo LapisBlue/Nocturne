@@ -79,7 +79,7 @@ public class MainController implements Initializable {
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
 
-    public MenuItem clearMappingsButton;
+    public MenuItem resetMappingsButton;
 
     public ToggleGroup languageGroup;
 
@@ -96,7 +96,11 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        closeJarButton.setDisable(Main.getLoadedJar() == null)  ;
+        closeJarButton.setDisable(Main.getLoadedJar() == null);
+        loadMappingsButton.setDisable(Main.getLoadedJar() == null);
+        saveMappingsButton.setDisable(Main.getLoadedJar() == null);
+        saveMappingsAsButton.setDisable(Main.getLoadedJar() == null);
+        resetMappingsButton.setDisable(Main.getLoadedJar() == null);
 
         final String langRadioPrefix = "langRadio-";
         for (Toggle toggle : languageGroup.getToggles()) {
@@ -142,6 +146,7 @@ public class MainController implements Initializable {
         }
         JarDialogHelper.openJar(this);
         updateClassViews();
+
     }
 
     public void closeJar(ActionEvent actionEvent) throws IOException {
@@ -149,6 +154,10 @@ public class MainController implements Initializable {
             return;
         }
         closeJarButton.setDisable(true);
+        loadMappingsButton.setDisable(true);
+        saveMappingsButton.setDisable(true);
+        saveMappingsAsButton.setDisable(true);
+        resetMappingsButton.setDisable(true);
         updateClassViews();
     }
 
@@ -157,7 +166,7 @@ public class MainController implements Initializable {
         updateClassViews();
     }
 
-    public void clearMappings(ActionEvent actionEvent) {
+    public void resetMappings(ActionEvent actionEvent) {
         try {
             if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
                 return;
