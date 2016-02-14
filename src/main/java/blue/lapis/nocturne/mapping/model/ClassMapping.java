@@ -193,7 +193,10 @@ public abstract class ClassMapping extends Mapping {
         }
 
         String unqualName = this instanceof InnerClassMapping ? name : MappingsHelper.unqualify(name);
-        memberList.forEach(member -> member.setText(unqualName));
+        memberList.forEach(member -> {
+            member.setText(unqualName);
+            member.setDeobfuscated(!unqualName.equals(member.getName()));
+        });
 
         if (updateClassViews) {
             MainController.INSTANCE.updateClassViews();

@@ -2,23 +2,31 @@
     -fx-font-weight: bold;
 }
 
-.keyword {
+.syntax {
     -fx-font-family: monospace;
+}
+
+.keyword {
     -fx-fill: purple;
     -fx-font-weight: bold;
 }
 
 .semicolon {
-    -fx-font-family: monospace;
     -fx-font-weight: bold;
 }
 
 .string {
-    -fx-font-family: monospace;
     -fx-fill: blue;
 }
 
 .number {
-    -fx-font-family: monospace;
-    -fx-fill: orangered;
+    -fx-fill: darkorange;
+}
+
+.obfuscated {
+    -fx-fill: red;
+}
+
+.deobfuscated {
+    -fx-fill: green;
 }

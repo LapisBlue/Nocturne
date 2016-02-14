@@ -110,6 +110,7 @@ public final class JavaSyntaxHighlighter {
                         }
                         newNodes.add(new Text(text.substring(lastIndex, start)));
                         Text syntaxItem = new Text(text.substring(start, end));
+                        syntaxItem.getStyleClass().add("syntax");
                         syntaxItem.getStyleClass().add(group.toLowerCase());
                         newNodes.add(syntaxItem);
                         lastIndex = matcher.end();

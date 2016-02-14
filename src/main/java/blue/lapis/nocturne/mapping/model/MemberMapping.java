@@ -60,7 +60,10 @@ public abstract class MemberMapping extends Mapping implements IMemberMapping {
         if (memberList == null) {
             return;
         }
-        memberList.forEach(member -> member.setText(name));
+        memberList.forEach(member -> {
+            member.setText(name);
+            member.setDeobfuscated(!name.equals(member.getName()));
+        });
     }
 
     @Override

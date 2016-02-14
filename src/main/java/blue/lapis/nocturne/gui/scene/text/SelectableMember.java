@@ -96,7 +96,7 @@ public class SelectableMember extends Text {
             fullName = getName();
         }
 
-        this.setFill(Color.web("orange"));
+        setDeobfuscated(false);
 
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
@@ -116,7 +116,7 @@ public class SelectableMember extends Text {
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
                 if ((getType() == MemberType.CLASS && !isInnerClass() && !checkClassDupe(result.get()))
-                    || ((getType() != MemberType.CLASS || isInnerClass()) && !checkMemberDupe(result.get()))) {
+                        || ((getType() != MemberType.CLASS || isInnerClass()) && !checkMemberDupe(result.get()))) {
                     return;
                 }
                 this.setMapping(result.get());
@@ -125,6 +125,9 @@ public class SelectableMember extends Text {
 
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
+            if (getText().equals(getName())) {
+                return;
+            }
             switch (getType()) {
                 case CLASS: {
                     Optional<ClassMapping> mapping
@@ -395,6 +398,16 @@ public class SelectableMember extends Text {
 
     public boolean isInnerClass() {
         return getType() == MemberType.CLASS && getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
+    }
+
+    public void setDeobfuscated(boolean deobfuscated) {
+        if (deobfuscated) {
+            getStyleClass().remove("obfuscated");
+            getStyleClass().add("deobfuscated");
+        } else {
+            getStyleClass().remove("deobfuscated");
+            getStyleClass().add("obfuscated");
+        }
     }
 
 }
