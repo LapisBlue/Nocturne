@@ -61,11 +61,15 @@ public final class JavaSyntaxHighlighter {
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
     private static final String SEMICOLON_PATTERN = ";";
     private static final String STRING_PATTERN = "(\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)')";
+    private static final String NUMBER_PATTERN = "[^\\w]((?:\\d+(?:\\.\\d+)?)+[DdFfLl]?)";
+
+    private static final String[] PATTERN_NAMES = {"KEYWORD", "SEMICOLON", "STRING", "NUMBER"};
 
     private static final Pattern PATTERN = Pattern.compile(
             "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
                     + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
                     + "|(?<STRING>" + STRING_PATTERN + ")"
+                    + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
     );
 
     /**
@@ -89,15 +93,24 @@ public final class JavaSyntaxHighlighter {
                     int lastIndex = 0;
 
                     while (matcher.find()) {
-                        String styleClass = matcher.group("KEYWORD") != null ? "keyword"
-                                : matcher.group("SEMICOLON") != null ? "semicolon"
-                                : matcher.group("STRING") != null ? "string"
-                                : null; /* never happens */
-                        assert styleClass != null;
+                        String group = null;
+                        for (String pattern : PATTERN_NAMES) {
+                            if (matcher.group(pattern) != null) {
+                                group = pattern;
+                                break;
+                            }
+                        }
+                        assert group != null;
 
-                        newNodes.add(new Text(text.substring(lastIndex, matcher.start())));
-                        Text syntaxItem = new Text(text.substring(matcher.start(), matcher.end()));
-                        syntaxItem.getStyleClass().add(styleClass);
+                        int start = matcher.start(group);
+                        int end = matcher.end(group);
+                        if (group.equals("NUMBER") && !Character.isDigit(matcher.group(group).charAt(0))) {
+                            //TODO: I am a horrible person
+                            start += 1;
+                        }
+                        newNodes.add(new Text(text.substring(lastIndex, start)));
+                        Text syntaxItem = new Text(text.substring(start, end));
+                        syntaxItem.getStyleClass().add(group.toLowerCase());
                         newNodes.add(syntaxItem);
                         lastIndex = matcher.end();
                     }

@@ -17,3 +17,8 @@
     -fx-font-family: monospace;
     -fx-fill: blue;
 }
+
+.number {
+    -fx-font-family: monospace;
+    -fx-fill: orangered;
+}
