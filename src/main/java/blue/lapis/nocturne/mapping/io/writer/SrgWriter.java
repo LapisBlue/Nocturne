@@ -89,14 +89,8 @@ public class SrgWriter extends MappingsWriter {
     @Override
     protected void writeClassMapping(ClassMapping classMapping) {
         if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
-            if (classMapping instanceof TopLevelClassMapping) {
-                clWriter.format("CL: %s %s\n",
-                        classMapping.getObfuscatedName(), classMapping.getDeobfuscatedName());
-            } else if (classMapping instanceof InnerClassMapping) {
-                InnerClassMapping mapping = (InnerClassMapping) classMapping;
-                clWriter.format("CL: %s %s\n",
-                        mapping.getFullObfuscatedName(), mapping.getFullDeobfuscatedName());
-            }
+            clWriter.format("CL: %s %s\n",
+                    classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
 
         classMapping.getInnerClassMappings().values().stream().filter(NOT_USELESS).forEach(this::writeClassMapping);

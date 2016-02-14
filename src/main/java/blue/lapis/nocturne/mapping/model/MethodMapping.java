@@ -107,10 +107,7 @@ public class MethodMapping extends MemberMapping {
     }
 
     private String getQualifiedName() {
-        return (getParent() instanceof InnerClassMapping
-                ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
-                : getParent().getObfuscatedName())
-                + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
+        return getParent().getFullObfuscatedName() + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }
 
     @Override
@@ -124,16 +121,12 @@ public class MethodMapping extends MemberMapping {
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
             IndexedMethod.Signature sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
             IndexedMethod method = IndexedClass.INDEXED_CLASSES
-                    .get(getParent() instanceof InnerClassMapping
-                            ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
-                            : getParent().getObfuscatedName())
+                    .get(getParent().getFullObfuscatedName())
                     .getMethods().get(sig);
 
             Set<String> bases = method.getBaseDefinitions();
             if (bases.isEmpty()) {
-                bases = Sets.newHashSet(getParent() instanceof InnerClassMapping
-                        ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
-                        : getParent().getObfuscatedName());
+                bases = Sets.newHashSet(getParent().getFullObfuscatedName());
             }
 
             for (String base : bases) {

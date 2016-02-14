@@ -30,10 +30,13 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -69,6 +72,8 @@ public class SelectableMember extends Text {
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
+    private final MethodDescriptor desc;
+
     private String fullName = null; // only used for classes
 
     public SelectableMember(CodeTab codeTab, MemberType type, String name) {
@@ -81,6 +86,7 @@ public class SelectableMember extends Text {
         this.type = type;
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
+        this.desc = type == MemberType.METHOD ? MethodDescriptor.fromString(descriptor) : null;
         this.parentClassProperty.set(parentClass);
 
         if (type == MemberType.CLASS) {
@@ -106,9 +112,11 @@ public class SelectableMember extends Text {
 
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
-                if (isInnerClass() || checkClassDupe(result.get())) {
-                    this.setMapping(result.get());
+                if ((getType() == MemberType.CLASS && !isInnerClass() && !checkClassDupe(result.get()))
+                    || ((getType() != MemberType.CLASS || isInnerClass()) && !checkMemberDupe(result.get()))) {
+                    return;
                 }
+                this.setMapping(result.get());
             }
         });
 
@@ -120,7 +128,8 @@ public class SelectableMember extends Text {
                             = MappingsHelper.getClassMapping(Main.getMappingContext(), getName());
                     if (mapping.isPresent()
                             && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName())) {
-                        if (!isInnerClass() && !checkClassDupe(mapping.get().getObfuscatedName())) {
+                        if ((!isInnerClass() && !checkClassDupe(mapping.get().getObfuscatedName()))
+                                || (isInnerClass() && !checkMemberDupe(mapping.get().getObfuscatedName()))) {
                             break;
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
@@ -137,6 +146,9 @@ public class SelectableMember extends Text {
                                 ? parent.get().getFieldMappings().get(getName())
                                 : parent.get().getMethodMappings().get(getName() + getDescriptor());
                         if (mapping != null) {
+                            if (!checkMemberDupe(mapping.getObfuscatedName())) {
+                                return;
+                            }
                             mapping.setDeobfuscatedName(mapping.getObfuscatedName());
                         }
                     }
@@ -182,14 +194,61 @@ public class SelectableMember extends Text {
 
     private boolean checkClassDupe(String newName) {
         if (Main.getLoadedJar().getCurrentNames().containsValue(newName)) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
-            alert.setHeaderText(null);
-            alert.setContentText(Main.getResourceBundle().getString("rename.dupe.content"));
-            alert.showAndWait();
+            showDupeAlert();
             return false;
+        } else {
+            return true;
         }
-        return true;
+    }
+
+    private boolean checkMemberDupe(String newName) {
+        switch (getType()) {
+            case CLASS: {
+                assert getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
+                Optional<JarClassEntry> jce = Main.getLoadedJar().getClass(getName()
+                        .substring(0, getName().lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
+                if (jce.isPresent()) {
+                    if (jce.get().getCurrentInnerClassNames().containsValue(newName)) {
+                        showDupeAlert();
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+            case FIELD: {
+                JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
+                if (jce.getCurrentFieldNames().containsValue(newName)) {
+                    showDupeAlert();
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            case METHOD: {
+                JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
+                IndexedMethod.Signature sig = new IndexedMethod.Signature(newName, this.desc);
+                if (jce.getCurrentMethodNames().containsValue(sig)) {
+                    showDupeAlert();
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            default: {
+                throw new AssertionError();
+            }
+        }
+    }
+
+    private void showDupeAlert() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
+        alert.setHeaderText(null);
+        alert.setContentText(Main.getResourceBundle().getString("rename.dupe.content"));
+        alert.showAndWait();
     }
 
     public void setMapping(String mapping) {

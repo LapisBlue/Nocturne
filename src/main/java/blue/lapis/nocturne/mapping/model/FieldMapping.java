@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.util.MemberType;
@@ -70,6 +71,14 @@ public class FieldMapping extends MemberMapping {
      */
     public Type getDeobfuscatedType() {
         return getType().deobfuscate(getParent().getContext());
+    }
+
+    @Override
+    public void setDeobfuscatedName(String deobf) {
+        super.setDeobfuscatedName(deobf);
+
+        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
+                .getCurrentFieldNames().put(getObfuscatedName(), deobf);
     }
 
     @Override

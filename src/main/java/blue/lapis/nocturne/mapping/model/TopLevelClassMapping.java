@@ -60,6 +60,16 @@ public class TopLevelClassMapping extends ClassMapping {
     }
 
     @Override
+    public String getFullObfuscatedName() {
+        return getObfuscatedName();
+    }
+
+    @Override
+    public String getFullDeobfuscatedName() {
+        return getDeobfuscatedName();
+    }
+
+    @Override
     public void setDeobfuscatedName(String deobfuscatedName) {
         setDeobfuscatedName(deobfuscatedName, true);
     }

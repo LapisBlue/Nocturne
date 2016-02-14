@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
@@ -65,6 +66,7 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
      *
      * @return The full obfuscated name of this inner class
      */
+    @Override
     public String getFullObfuscatedName() {
         return (parent instanceof InnerClassMapping
                 ? ((InnerClassMapping) parent).getFullObfuscatedName()
@@ -77,6 +79,7 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
      *
      * @return The full deobfuscated name of this inner class
      */
+    @Override
     public String getFullDeobfuscatedName() {
         return (parent instanceof InnerClassMapping
                 ? ((InnerClassMapping) parent).getFullDeobfuscatedName()
@@ -87,6 +90,14 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
     @Override
     public MappingContext getContext() {
         return getParent().getContext();
+    }
+
+    @Override
+    public void setDeobfuscatedName(String deobf) {
+        super.setDeobfuscatedName(deobf);
+
+        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
+                .getCurrentInnerClassNames().put(getObfuscatedName(), deobf);
     }
 
     @Override

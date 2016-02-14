@@ -33,7 +33,7 @@ public abstract class ConstantStructure {
     private final StructureType type;
 
     protected ConstantStructure(byte[] bytes) {
-        assert bytes.length > 0;
+        assert this instanceof DummyStructure || bytes.length > 0;
         this.bytes = bytes;
         if (!(this instanceof DummyStructure)) {
             this.type = StructureType.fromTag(bytes[0]);

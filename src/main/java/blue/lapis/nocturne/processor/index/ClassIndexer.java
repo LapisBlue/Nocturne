@@ -25,9 +25,12 @@
 package blue.lapis.nocturne.processor.index;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static com.google.common.base.Preconditions.checkArgument;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.ConstantPoolReader;
@@ -42,14 +45,18 @@ import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Creates an index of select information from a given class.
  */
 public class ClassIndexer extends ClassProcessor {
 
-    public ClassIndexer(String className, byte[] bytes) {
-        super(className, bytes);
+    private final JarClassEntry jce;
+
+    public ClassIndexer(JarClassEntry clazz) {
+        super(clazz.getName(), clazz.getContent());
+        this.jce = clazz;
     }
 
     /**
@@ -72,9 +79,19 @@ public class ClassIndexer extends ClassProcessor {
             interfaces.add(getClassNameFromIndex(pool, buffer.getShort())); // read each interface name
         }
 
-        skipFields(buffer);
+        if (getClassName().contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
+            int lastIndex = getClassName().lastIndexOf(INNER_CLASS_SEPARATOR_CHAR);
+            Optional<JarClassEntry> parent = Main.getLoadedJar()
+                    .getClass(getClassName().substring(0, lastIndex));
+            if (parent.isPresent()) {
+                String simpleName = getClassName().substring(lastIndex + 1);
+                parent.get().getCurrentInnerClassNames().put(simpleName, simpleName);
+            }
+        }
 
-        List<IndexedMethod> methods = readMethods(buffer, pool);
+        indexFields(buffer, pool);
+
+        List<IndexedMethod> methods = indexMethods(buffer, pool);
 
         return new IndexedClass(getClassName(), pool, superClass, interfaces, methods);
     }
@@ -85,10 +102,13 @@ public class ClassIndexer extends ClassProcessor {
      *
      * @param buffer The buffer to read from
      */
-    private void skipFields(ByteBuffer buffer) {
+    private void indexFields(ByteBuffer buffer, ConstantPool pool) {
         int fieldCount = buffer.getShort(); // read the field count
         for (int i = 0; i < fieldCount; i++) {
-            buffer.position(buffer.position() + 6); // skip the access, name, and descriptor (2 bytes each)
+            buffer.position(buffer.position() + 2); // skip the access
+            String name = getString(pool, buffer.getShort()); // get the name
+            jce.getCurrentFieldNames().put(name, name); // index the field name for future reference
+            buffer.position(buffer.position() + 2); // skip the descriptor
             skipAttributes(buffer);
         }
     }
@@ -101,7 +121,7 @@ public class ClassIndexer extends ClassProcessor {
      * @param pool The constant pool to read strings from
      * @return A {@link List} of read {@link IndexedMethod}s
      */
-    private List<IndexedMethod> readMethods(ByteBuffer buffer, ConstantPool pool) {
+    private List<IndexedMethod> indexMethods(ByteBuffer buffer, ConstantPool pool) {
         List<IndexedMethod> methods = new ArrayList<>();
 
         int methodCount = asUshort(buffer.getShort());
@@ -109,7 +129,9 @@ public class ClassIndexer extends ClassProcessor {
             IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
             MethodDescriptor desc = MethodDescriptor.fromString(getString(pool, buffer.getShort()));
-            methods.add(new IndexedMethod(new IndexedMethod.Signature(name, desc), vis));
+            IndexedMethod.Signature sig = new IndexedMethod.Signature(name, desc);
+            methods.add(new IndexedMethod(sig, vis));
+            jce.getCurrentMethodNames().put(sig, sig); // index the method sig for future reference
 
             skipAttributes(buffer);
         }

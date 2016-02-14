@@ -34,6 +34,7 @@ import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
+import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -43,6 +44,8 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -54,6 +57,10 @@ public class JarClassEntry {
     private final String name;
     private byte[] content;
     private boolean deobfuscated;
+
+    private final Map<String, String> classNames = new HashMap<>();
+    private final Map<String, String> fieldNames = new HashMap<>();
+    private final Map<IndexedMethod.Signature, IndexedMethod.Signature> methodNames = new HashMap<>();
 
     /**
      * Constructs a new {@link JarClassEntry} with the given name and byte
@@ -69,7 +76,7 @@ public class JarClassEntry {
     }
 
     public void index() {
-        INDEXED_CLASSES.put(getName(), new ClassIndexer(getName(), getContent()).index());
+        INDEXED_CLASSES.put(getName(), new ClassIndexer(this).index());
     }
 
     public void process() {
@@ -162,6 +169,18 @@ public class JarClassEntry {
         } finally {
             ff.clearContext();
         }
+    }
+
+    public Map<String, String> getCurrentInnerClassNames() {
+        return classNames;
+    }
+
+    public Map<String, String> getCurrentFieldNames() {
+        return fieldNames;
+    }
+
+    public Map<IndexedMethod.Signature, IndexedMethod.Signature> getCurrentMethodNames() {
+        return methodNames;
     }
 
     @Override

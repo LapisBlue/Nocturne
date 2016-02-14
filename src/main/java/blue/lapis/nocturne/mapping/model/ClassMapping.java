@@ -59,6 +59,10 @@ public abstract class ClassMapping extends Mapping {
         super(obfName, deobfName);
     }
 
+    public abstract String getFullObfuscatedName();
+
+    public abstract String getFullDeobfuscatedName();
+
     /**
      * Gets a clone of the {@link FieldMapping}s.
      *
@@ -198,10 +202,7 @@ public abstract class ClassMapping extends Mapping {
 
     public void updateEntryDeobfuscation() {
         if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
-            Optional<JarClassEntry> classEntry
-                    = Main.getLoadedJar().getClass(this instanceof InnerClassMapping
-                    ? ((InnerClassMapping) this).getFullObfuscatedName()
-                    : getObfuscatedName());
+            Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(getFullObfuscatedName());
             if (classEntry.isPresent()) {
                 classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
             }
