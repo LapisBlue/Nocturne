@@ -26,6 +26,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
@@ -36,6 +37,7 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +47,7 @@ import java.util.Set;
 public class MethodMapping extends MemberMapping {
 
     private final MethodDescriptor descriptor;
+    private final IndexedMethod.Signature sig;
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
@@ -61,6 +64,7 @@ public class MethodMapping extends MemberMapping {
                          boolean propagate) {
         super(parent, obfName, deobfName);
         this.descriptor = descriptor;
+        this.sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
 
         parent.addMethodMapping(this, propagate);
     }
@@ -115,39 +119,47 @@ public class MethodMapping extends MemberMapping {
         setDeobfuscatedName(name, true);
     }
 
-    public void setDeobfuscatedName(String name, boolean propagate) {
-        super.setDeobfuscatedName(name);
+    public void setDeobfuscatedName(String deobf, boolean propagate) {
+        super.setDeobfuscatedName(deobf);
 
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
-            IndexedMethod.Signature sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
-            IndexedMethod method = IndexedClass.INDEXED_CLASSES
-                    .get(getParent().getFullObfuscatedName())
-                    .getMethods().get(sig);
+            for (String clazz : getClassesInHierarchy(getParent().getFullObfuscatedName(), sig)) {
+                if (clazz.equals(getParent().getObfuscatedName())) {
+                    continue;
+                }
 
-            Set<String> bases = method.getBaseDefinitions();
-            if (bases.isEmpty()) {
-                bases = Sets.newHashSet(getParent().getFullObfuscatedName());
-            }
-
-            for (String base : bases) {
-                IndexedClass index = IndexedClass.INDEXED_CLASSES.get(base);
-                List<String> classes = Lists.newArrayList(index.getMethods().get(sig).getOverrides());
-                classes.add(base);
-
-                for (String clazz : classes) {
-                    if (clazz.equals(getParent().getObfuscatedName())) {
-                        continue;
-                    }
-
-                    ClassMapping cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
-                    if (cm.getMethodMappings().containsKey(getObfuscatedName())) {
-                        cm.getMethodMappings().get(getObfuscatedName()).setDeobfuscatedName(name, false);
-                    } else {
-                        new MethodMapping(cm, getObfuscatedName(), name, getObfuscatedDescriptor(), false);
-                    }
+                ClassMapping cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
+                if (cm.getMethodMappings().containsKey(getObfuscatedName())) {
+                    cm.getMethodMappings().get(getObfuscatedName()).setDeobfuscatedName(deobf, false);
+                } else {
+                    new MethodMapping(cm, getObfuscatedName(), deobf, getObfuscatedDescriptor(), false);
                 }
             }
         }
+
+        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
+                .getCurrentMethodNames().put(sig, new IndexedMethod.Signature(deobf, descriptor));
+    }
+
+    public static Set<String> getClassesInHierarchy(String parentClass, IndexedMethod.Signature signature) {
+        Set<String> classSet = new HashSet<>();
+
+        IndexedMethod method = IndexedClass.INDEXED_CLASSES
+                .get(parentClass)
+                .getMethods().get(signature);
+
+        Set<String> bases = method.getBaseDefinitions();
+        if (bases.isEmpty()) {
+            bases = Sets.newHashSet(parentClass);
+        }
+
+        for (String base : bases) {
+            IndexedClass index = IndexedClass.INDEXED_CLASSES.get(base);
+            classSet.addAll(Lists.newArrayList(index.getMethods().get(signature).getOverrides()));
+            classSet.add(base);
+        }
+
+        return classSet;
     }
 
 }

@@ -35,6 +35,7 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
@@ -73,6 +74,7 @@ public class SelectableMember extends Text {
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
     private final MethodDescriptor desc;
+    private final IndexedMethod.Signature sig;
 
     private String fullName = null; // only used for classes
 
@@ -87,6 +89,7 @@ public class SelectableMember extends Text {
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
         this.desc = type == MemberType.METHOD ? MethodDescriptor.fromString(descriptor) : null;
+        this.sig = type == MemberType.METHOD ? new IndexedMethod.Signature(name, desc) : null;
         this.parentClassProperty.set(parentClass);
 
         if (type == MemberType.CLASS) {
@@ -194,7 +197,7 @@ public class SelectableMember extends Text {
 
     private boolean checkClassDupe(String newName) {
         if (Main.getLoadedJar().getCurrentNames().containsValue(newName)) {
-            showDupeAlert();
+            showDupeAlert(false);
             return false;
         } else {
             return true;
@@ -209,7 +212,7 @@ public class SelectableMember extends Text {
                         .substring(0, getName().lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
                 if (jce.isPresent()) {
                     if (jce.get().getCurrentInnerClassNames().containsValue(newName)) {
-                        showDupeAlert();
+                        showDupeAlert(false);
                         return false;
                     } else {
                         return true;
@@ -221,21 +224,22 @@ public class SelectableMember extends Text {
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
                 if (jce.getCurrentFieldNames().containsValue(newName)) {
-                    showDupeAlert();
+                    showDupeAlert(false);
                     return false;
                 } else {
                     return true;
                 }
             }
             case METHOD: {
-                JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
-                IndexedMethod.Signature sig = new IndexedMethod.Signature(newName, this.desc);
-                if (jce.getCurrentMethodNames().containsValue(sig)) {
-                    showDupeAlert();
-                    return false;
-                } else {
-                    return true;
+                for (String clazz : MethodMapping.getClassesInHierarchy(getParentClass(), sig)) {
+                    JarClassEntry jce = Main.getLoadedJar().getClass(clazz).get();
+                    IndexedMethod.Signature sig = new IndexedMethod.Signature(newName, this.desc);
+                    if (jce.getCurrentMethodNames().containsValue(sig)) {
+                        showDupeAlert(!clazz.equals(getName()));
+                        return false;
+                    }
                 }
+                return true;
             }
             default: {
                 throw new AssertionError();
@@ -243,11 +247,13 @@ public class SelectableMember extends Text {
         }
     }
 
-    private void showDupeAlert() {
+    private void showDupeAlert(boolean hierarchical) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
         alert.setHeaderText(null);
-        alert.setContentText(Main.getResourceBundle().getString("rename.dupe.content"));
+        alert.setContentText(
+                Main.getResourceBundle().getString("rename.dupe.content" + (hierarchical ? ".hierarchy" : ""))
+        );
         alert.showAndWait();
     }
 

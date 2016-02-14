@@ -9,7 +9,7 @@
     <Text text="%about.description"/>
     <Text text="&#10;&#10;"/>
     <Text text="%about.license"/>
-    <Text text="&#10;"/>
+    <Text text="&#10;&#10;"/>
     <Text text="%about.github"/>
     <WebLink address="https://git.io/nocturne">https://git.io/nocturne</WebLink>
 </TextFlow>
