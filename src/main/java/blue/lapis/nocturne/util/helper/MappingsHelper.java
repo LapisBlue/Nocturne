@@ -1,6 +1,6 @@
 /*
  * Nocturne
- * Copyright (c) 2015, Lapis <https://github.com/LapisBlue>
+ * Copyright (c) 2015-2016, Lapis <https://github.com/LapisBlue>
  *
  * The MIT License
  *
@@ -22,6 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;

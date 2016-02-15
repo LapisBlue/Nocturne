@@ -7,7 +7,7 @@ plugins {
 
     id 'net.minecrell.gitpatcher' version '0.7.1'
 
-    id 'com.github.hierynomus.license' version '0.11.0'
+    id 'net.minecrell.licenser' version '0.1.1'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
@@ -88,15 +88,9 @@ shadowJar {
 
 // License header formatting
 license {
-    header = file('LICENSE')
     include '**/*.java'
-
-    ignoreFailures = false
-    strictCheck = true
-
-    mapping {
-        java = 'SLASHSTAR_STYLE'
-    }
+    include '**/*.css'
+    include '**/*.fxml'
 }
 
 // check code style
