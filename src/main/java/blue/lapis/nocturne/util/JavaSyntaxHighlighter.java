@@ -29,9 +29,7 @@ import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 
 import javafx.scene.Node;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

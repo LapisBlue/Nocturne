@@ -49,8 +49,6 @@ import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.URL;
 
 /**
  * Unit tests related to the {@link SrgReader}.

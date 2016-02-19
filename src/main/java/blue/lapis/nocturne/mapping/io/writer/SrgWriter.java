@@ -28,18 +28,12 @@ package blue.lapis.nocturne.mapping.io.writer;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.function.Predicate;
 
 /**

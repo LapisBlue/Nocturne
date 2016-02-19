@@ -47,7 +47,6 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.collect.ImmutableList;

@@ -97,7 +97,9 @@ public class MappingContext {
 
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
-        MainController.INSTANCE.saveMappingsButton.setDisable(!dirty);
+        if (MainController.isInitialized()) {
+            MainController.INSTANCE.saveMappingsButton.setDisable(!dirty);
+        }
     }
 
 }

@@ -29,7 +29,6 @@ import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 

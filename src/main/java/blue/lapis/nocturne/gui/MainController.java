@@ -325,4 +325,8 @@ public class MainController implements Initializable {
         }
     }
 
+    public static boolean isInitialized() {
+        return INSTANCE != null;
+    }
+
 }

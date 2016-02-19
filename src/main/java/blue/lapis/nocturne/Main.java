@@ -52,8 +52,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
