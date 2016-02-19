@@ -97,8 +97,6 @@ public class SelectableMember extends Text {
             fullName = getName();
         }
 
-        setDeobfuscated(false);
-
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
                 this.updateCodeTab();
@@ -197,6 +195,8 @@ public class SelectableMember extends Text {
         MEMBERS.get(key).add(this);
 
         updateText();
+
+        setDeobfuscated(!getName().equals(getText()));
     }
 
     private boolean checkClassDupe(String newName) {
@@ -329,6 +329,9 @@ public class SelectableMember extends Text {
         String deobf;
         if (getType() == MemberType.CLASS) {
             deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
+            if (!isInnerClass()) {
+                fullName = deobf;
+            }
         } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
             deobf = getName();
 

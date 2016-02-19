@@ -163,7 +163,7 @@ public abstract class ClassMapping extends Mapping {
             return qualifiedName;
         }
 
-        String deobfName = mapping.getDeobfuscatedName();
+        String deobfName = mapping.getFullDeobfuscatedName();
         for (int i = 1; i < arr.length; i++) {
             ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
             if (child == null) {
