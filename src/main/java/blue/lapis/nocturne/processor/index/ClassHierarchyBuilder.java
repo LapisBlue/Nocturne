@@ -59,9 +59,11 @@ public class ClassHierarchyBuilder {
     private void buildClassHierarchies() {
         for (IndexedClass clazz : classes.values()) {
             if (!clazz.getHierarchy().isEmpty()) {
+                Set<IndexedClass> toAdd = new HashSet<>();
                 for (IndexedClass child : clazz.getHierarchy()) {
-                    clazz.getHierarchy().addAll(child.getHierarchy());
+                    toAdd.addAll(child.getHierarchy());
                 }
+                clazz.getHierarchy().addAll(toAdd);
             } else {
                 Set<IndexedClass> parents = getParents(clazz);
                 clazz.getHierarchy().addAll(parents);
