@@ -44,7 +44,7 @@ public final class HierarchyHelper {
         checkState(INDEXED_CLASSES.containsKey(className), "Class \"" + className + "\" is not indexed");
         IndexedClass clazz = INDEXED_CLASSES.get(className);
 
-        return clazz.getMethods().get(sig).getHierarchy().stream().map(IndexedClass::getName)
+        return clazz.getHierarchy().stream().filter(c -> c.getMethods().containsKey(sig)).map(IndexedClass::getName)
                 .collect(Collectors.toSet());
     }
 
