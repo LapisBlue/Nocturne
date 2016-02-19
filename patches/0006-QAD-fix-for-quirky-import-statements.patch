@@ -1,0 +1,37 @@
+From ee0a8d228514336b941b3c1c0faa5ab0179aee8b Mon Sep 17 00:00:00 2001
+From: Max Roncace <me@caseif.net>
+Date: Thu, 18 Feb 2016 20:33:23 -0500
+Subject: [PATCH] QAD fix for quirky import statements
+
+
+diff --git a/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java b/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
+index 2433f97..b9d2e02 100644
+--- a/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
++++ b/src/org/jetbrains/java/decompiler/main/collectors/ImportCollector.java
+@@ -38,9 +38,15 @@ public class ImportCollector {
+   public ImportCollector(ClassNode root) {
+ 
+     String clname = root.classStruct.qualifiedName;
++    if (clname.endsWith(ConstantsUtil.Nocturne.CLASS_SUFFIX)) {
++      clname = clname.substring(0, clname.length() - ConstantsUtil.Nocturne.CLASS_SUFFIX.length());
++    }
+     int index = clname.lastIndexOf("/");
+     if (index >= 0) {
+       currentPackageSlash = clname.substring(0, index);
++      if (currentPackageSlash.startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX)) {
++        currentPackageSlash = currentPackageSlash.substring(ConstantsUtil.Nocturne.CLASS_PREFIX.length());
++      }
+       currentPackagePoint = currentPackageSlash.replace('/', '.');
+       currentPackageSlash += "/";
+     }
+@@ -150,6 +156,7 @@ public class ImportCollector {
+       // exclude a current class or one of the nested ones, java.lang and empty packages
+       if (!setNotImportedNames.contains(ent.getKey()) &&
+           !JAVA_LANG_PACKAGE.equals(ent.getValue()) &&
++          !ent.getValue().startsWith(ConstantsUtil.Nocturne.CLASS_PREFIX) &&
+           !ent.getValue().isEmpty()) {
+         res.add(ent.getValue() + "." + ent.getKey());
+       }
+-- 
+2.7.1.windows.2
+
