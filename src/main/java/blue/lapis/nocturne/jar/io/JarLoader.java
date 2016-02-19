@@ -37,6 +37,7 @@ import blue.lapis.nocturne.util.Constants;
 
 import com.google.common.collect.Sets;
 import javafx.scene.control.Alert;
+import sun.tools.jar.resources.jar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,6 +63,8 @@ public class JarLoader {
      *     {@link File}
      */
     public static ClassSet loadJar(InputStream jarFile) throws IOException {
+        IndexedClass.INDEXED_CLASSES.clear();
+
         JarInputStream jar;
         try {
             jar = new JarInputStream(jarFile);

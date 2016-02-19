@@ -97,7 +97,7 @@ public class IndexedMethod extends Hierarchical<IndexedClass> {
         PACKAGE  ((byte) 0b000),
         PUBLIC   ((byte) 0b001),
         PRIVATE  ((byte) 0b010),
-        PROTECTED((byte) 0x100);
+        PROTECTED((byte) 0b100);
 
         private static Map<Byte, Visibility> visMap;
 
