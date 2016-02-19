@@ -56,7 +56,7 @@ public final class MappingsSaveDialogHelper {
         saveMappings0();
     }
 
-    public static void saveMappingsAs() throws IOException {
+    public static boolean saveMappingsAs() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
         fileChooser.getExtensionFilters().addAll(
@@ -74,7 +74,7 @@ public final class MappingsSaveDialogHelper {
 
         File selectedFile = fileChooser.showSaveDialog(Main.getMainStage());
         if (selectedFile == null) {
-            return;
+            return false;
         }
         Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
 
@@ -91,6 +91,7 @@ public final class MappingsSaveDialogHelper {
         Main.setCurrentMappingsPath(selectedFile.toPath());
 
         saveMappings0();
+        return true;
     }
 
     private static void saveMappings0() throws IOException {
@@ -120,7 +121,7 @@ public final class MappingsSaveDialogHelper {
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.YES) {
-                saveMappingsAs();
+                return !saveMappingsAs();
             } else if (alert.getResult() == ButtonType.CANCEL) {
                 return true;
             }

@@ -154,11 +154,16 @@ public class MainController implements Initializable {
         if (!deinitializeCurrentJar()) {
             return;
         }
+
         closeJarButton.setDisable(true);
         loadMappingsButton.setDisable(true);
         saveMappingsButton.setDisable(true);
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
+
+        Main.getMappingContext().clear();
+        Main.getMappingContext().setDirty(false);
+
         updateClassViews();
     }
 
