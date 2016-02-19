@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 /**
  * A summary of select info from a processed class file.
  */
-public class IndexedClass {
+public class IndexedClass extends Hierarchical<IndexedClass> {
 
     public static final Map<String, IndexedClass> INDEXED_CLASSES = new HashMap<>();
 

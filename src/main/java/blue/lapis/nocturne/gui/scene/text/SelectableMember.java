@@ -36,10 +36,9 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -49,7 +48,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
@@ -58,7 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 /**
  * Represents a selectable member in code.
@@ -235,11 +235,13 @@ public class SelectableMember extends Text {
                 }
             }
             case METHOD: {
-                for (String clazz : MethodMapping.getClassesInHierarchy(getParentClass(), sig)) {
-                    JarClassEntry jce = Main.getLoadedJar().getClass(clazz).get();
-                    IndexedMethod.Signature sig = new IndexedMethod.Signature(newName, this.desc);
-                    if (jce.getCurrentMethodNames().containsValue(sig)) {
-                        showDupeAlert(!clazz.equals(getName()));
+                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(getParentClass(), sig).stream()
+                        .filter(c -> Main.getLoadedJar().getClass(c).isPresent())
+                        .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
+                for (JarClassEntry jce : hierarchy) {
+                    IndexedMethod.Signature newSig = new IndexedMethod.Signature(newName, this.desc);
+                    if (jce.getCurrentMethodNames().containsValue(newSig)) {
+                        showDupeAlert(!jce.getName().equals(getName()));
                         return false;
                     }
                 }

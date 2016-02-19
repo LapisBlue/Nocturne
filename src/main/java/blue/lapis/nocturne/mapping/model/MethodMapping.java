@@ -33,14 +33,8 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a {@link Mapping} for a method.
@@ -124,7 +118,7 @@ public class MethodMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
-            for (String clazz : getClassesInHierarchy(getParent().getFullObfuscatedName(), sig)) {
+            for (String clazz : HierarchyHelper.getClassesInHierarchy(getParent().getFullObfuscatedName(), sig)) {
                 if (clazz.equals(getParent().getObfuscatedName())) {
                     continue;
                 }
@@ -140,27 +134,6 @@ public class MethodMapping extends MemberMapping {
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentMethodNames().put(sig, new IndexedMethod.Signature(deobf, descriptor));
-    }
-
-    public static Set<String> getClassesInHierarchy(String parentClass, IndexedMethod.Signature signature) {
-        Set<String> classSet = new HashSet<>();
-
-        IndexedMethod method = IndexedClass.INDEXED_CLASSES
-                .get(parentClass)
-                .getMethods().get(signature);
-
-        Set<String> bases = method.getBaseDefinitions();
-        if (bases.isEmpty()) {
-            bases = Sets.newHashSet(parentClass);
-        }
-
-        for (String base : bases) {
-            IndexedClass index = IndexedClass.INDEXED_CLASSES.get(base);
-            classSet.addAll(Lists.newArrayList(index.getMethods().get(signature).getOverrides()));
-            classSet.add(base);
-        }
-
-        return classSet;
     }
 
 }

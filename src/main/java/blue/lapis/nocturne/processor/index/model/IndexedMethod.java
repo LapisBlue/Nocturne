@@ -28,21 +28,16 @@ package blue.lapis.nocturne.processor.index.model;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Represents a method serialized by Nocturne's class indexer.
  */
-public class IndexedMethod {
+public class IndexedMethod extends Hierarchical<IndexedClass> {
 
     private final Signature signature;
     private final Visibility visibility;
-
-    private final Set<String> bases = new HashSet<>();
-    private final Set<String> overrides = new HashSet<>();
 
     public IndexedMethod(Signature signature, Visibility visibility) {
         this.signature = signature;
@@ -55,14 +50,6 @@ public class IndexedMethod {
 
     public Visibility getVisibility() {
         return visibility;
-    }
-
-    public Set<String> getBaseDefinitions() {
-        return bases;
-    }
-
-    public Set<String> getOverrides() {
-        return this.overrides;
     }
 
     /**
@@ -107,10 +94,10 @@ public class IndexedMethod {
      */
     public enum Visibility {
 
-        PACKAGE((byte) 0x00),
-        PUBLIC((byte) 0x01),
-        PRIVATE((byte) 0x02),
-        PROTECTED((byte) 0x04);
+        PACKAGE  ((byte) 0b000),
+        PUBLIC   ((byte) 0b001),
+        PRIVATE  ((byte) 0b010),
+        PROTECTED((byte) 0x100);
 
         private static Map<Byte, Visibility> visMap;
 

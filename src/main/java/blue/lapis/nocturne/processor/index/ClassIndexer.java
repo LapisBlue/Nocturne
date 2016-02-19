@@ -72,7 +72,7 @@ public class ClassIndexer extends ClassProcessor {
         ByteBuffer buffer = ByteBuffer.wrap(bytes); // create a buffer for the bytecode
         buffer.position(CLASS_FORMAT_CONSTANT_POOL_OFFSET + pool.length() + 4); // position the buffer
 
-        String superClass = getClassNameFromIndex(pool, asUshort(buffer.getShort())); // read the superclass name
+        final String superClass = getClassNameFromIndex(pool, asUshort(buffer.getShort())); // read the superclass name
 
         int interfaceCount = asUshort(buffer.getShort()); // read the interface count
         List<String> interfaces = new ArrayList<>();
