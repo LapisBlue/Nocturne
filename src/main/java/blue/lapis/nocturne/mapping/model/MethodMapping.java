@@ -41,6 +41,7 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
  */
 public class MethodMapping extends MemberMapping {
 
+    private final SelectableMember.MemberKey memberKey;
     private final MethodDescriptor descriptor;
     private final IndexedMethod.Signature sig;
 
@@ -60,7 +61,8 @@ public class MethodMapping extends MemberMapping {
         super(parent, obfName, deobfName);
         this.descriptor = descriptor;
         this.sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
-
+        memberKey = new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
+                getObfuscatedDescriptor().toString());
         parent.addMethodMapping(this, propagate);
     }
 
@@ -101,8 +103,7 @@ public class MethodMapping extends MemberMapping {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
-                getObfuscatedDescriptor().toString());
+        return memberKey;
     }
 
     private String getQualifiedName() {

@@ -36,11 +36,13 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
+import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
+import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -186,9 +188,27 @@ public class SelectableMember extends Text {
         this.setOnContextMenuRequested(event ->
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
-        String qualifiedName = type == MemberType.CLASS ? name : parentClass + CLASS_PATH_SEPARATOR_CHAR + name;
+        String qualName;
+        if (type == MemberType.CLASS) {
+            qualName = name;
+        } else {
+            IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+            String parent = null;
+            if (ic.getMethods().containsKey(sig)) {
+                parent = getParentClass();
+            } else {
+                for (IndexedClass hc : ic.getHierarchy()) {
+                    if (hc.getMethods().containsKey(sig)) {
+                        parent = hc.getName();
+                        break;
+                    }
+                }
+            }
+            assert parent != null;
+            qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
+        }
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
-        MemberKey key = new MemberKey(type, qualifiedName, type == MemberType.METHOD ? descriptor : null);
+        MemberKey key = new MemberKey(type, qualName, type == MemberType.METHOD ? descriptor : null);
         if (!MEMBERS.containsKey(key)) {
             MEMBERS.put(key, new ArrayList<>());
         }
@@ -278,8 +298,16 @@ public class SelectableMember extends Text {
                 break;
             }
             case METHOD: {
-                MappingsHelper.genMethodMapping(Main.getMappingContext(), getParentClass(), getName(), mapping,
-                        getDescriptor());
+                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+                Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
+                classes.add(clazz);
+
+                for (IndexedClass ic : classes) {
+                    if (ic.getMethods().containsKey(sig)) {
+                        MappingsHelper.genMethodMapping(Main.getMappingContext(), ic.getName(), getName(), mapping,
+                                getDescriptor());
+                    }
+                }
                 break;
             }
             default: {
