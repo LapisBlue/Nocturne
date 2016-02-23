@@ -191,6 +191,8 @@ public class SelectableMember extends Text {
         String qualName;
         if (type == MemberType.CLASS) {
             qualName = name;
+        } else if (type == MemberType.FIELD) {
+            qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
         } else {
             IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
             String parent = null;
