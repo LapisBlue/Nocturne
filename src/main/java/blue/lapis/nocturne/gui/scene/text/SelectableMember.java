@@ -198,7 +198,6 @@ public class SelectableMember extends Text {
                 qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
                 break;
             case METHOD:
-            default:
                 IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
                 String parent = null;
                 if (ic.getMethods().containsKey(sig)) {
@@ -216,6 +215,8 @@ public class SelectableMember extends Text {
                 }
                 qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
                 break;
+            default:
+                throw new AssertionError();
         }
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
         MemberKey key = new MemberKey(type, qualName, type == MemberType.METHOD ? descriptor : null);
