@@ -190,27 +190,32 @@ public class SelectableMember extends Text {
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
         String qualName;
-        if (type == MemberType.CLASS) {
-            qualName = name;
-        } else if (type == MemberType.FIELD) {
-            qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
-        } else {
-            IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-            String parent = null;
-            if (ic.getMethods().containsKey(sig)) {
-                parent = getParentClass();
-            } else {
-                for (IndexedClass hc : ic.getHierarchy()) {
-                    if (hc.getMethods().containsKey(sig)) {
-                        parent = hc.getName();
-                        break;
+        switch (type) {
+            case CLASS:
+                qualName = name;
+                break;
+            case FIELD:
+                qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
+                break;
+            case METHOD:
+            default:
+                IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+                String parent = null;
+                if (ic.getMethods().containsKey(sig)) {
+                    parent = getParentClass();
+                } else {
+                    for (IndexedClass hc : ic.getHierarchy()) {
+                        if (hc.getMethods().containsKey(sig)) {
+                            parent = hc.getName();
+                            break;
+                        }
                     }
                 }
-            }
-            if (parent == null) {
-                throw new IllegalArgumentException();
-            }
-            qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
+                if (parent == null) {
+                    throw new IllegalArgumentException();
+                }
+                qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
+                break;
         }
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
         MemberKey key = new MemberKey(type, qualName, type == MemberType.METHOD ? descriptor : null);
@@ -360,27 +365,31 @@ public class SelectableMember extends Text {
 
     private void updateText() {
         String deobf;
-        if (getType() == MemberType.CLASS) {
-            deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
-            if (!isInnerClass()) {
-                fullName = deobf;
-            }
-        } else if (getType() == MemberType.FIELD || getType() == MemberType.METHOD) {
-            deobf = getName();
-
-            Optional<ClassMapping> classMapping
-                    = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
-            if (classMapping.isPresent()) {
-                Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
-                        ? classMapping.get().getFieldMappings()
-                        : classMapping.get().getMethodMappings();
-                Mapping mapping = mappings.get(getName() + (getType() == MemberType.METHOD ? getDescriptor() : ""));
-                if (mapping != null) {
-                    deobf = mapping.getDeobfuscatedName();
+        switch (this.getType()) {
+            case CLASS:
+                deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
+                if (!isInnerClass()) {
+                    fullName = deobf;
                 }
-            }
-        } else {
-            throw new AssertionError();
+                break;
+            case FIELD:
+            case METHOD:
+                deobf = getName();
+
+                Optional<ClassMapping> classMapping
+                        = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+                if (classMapping.isPresent()) {
+                    Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
+                            ? classMapping.get().getFieldMappings()
+                            : classMapping.get().getMethodMappings();
+                    Mapping mapping = mappings.get(getName() + (getType() == MemberType.METHOD ? getDescriptor() : ""));
+                    if (mapping != null) {
+                        deobf = mapping.getDeobfuscatedName();
+                    }
+                }
+                break;
+            default:
+                throw new AssertionError();
         }
 
         setAndProcessText(deobf);
