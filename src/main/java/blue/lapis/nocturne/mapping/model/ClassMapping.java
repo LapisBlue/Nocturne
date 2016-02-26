@@ -32,7 +32,7 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -193,7 +193,7 @@ public abstract class ClassMapping extends Mapping {
             return;
         }
 
-        String unqualName = this instanceof InnerClassMapping ? name : MappingsHelper.unqualify(name);
+        String unqualName = this instanceof InnerClassMapping ? name : StringHelper.unqualify(name);
         memberList.forEach(member -> {
             member.setText(unqualName);
             member.setDeobfuscated(!unqualName.equals(member.getName()));

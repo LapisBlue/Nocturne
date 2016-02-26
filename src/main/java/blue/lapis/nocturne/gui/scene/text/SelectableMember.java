@@ -41,6 +41,7 @@ import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
@@ -206,7 +207,9 @@ public class SelectableMember extends Text {
                     }
                 }
             }
-            assert parent != null;
+            if (parent == null) {
+                throw new IllegalArgumentException();
+            }
             qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
         }
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
@@ -394,12 +397,16 @@ public class SelectableMember extends Text {
             int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
             String simpleName = qualName.substring(offset + 1);
             String parentClass = qualName.substring(0, offset);
-            return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
+            try {
+                return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
+            } catch (IllegalArgumentException ex) {
+                return null;
+            }
         }
     }
 
     public void setAndProcessText(String text) {
-        setText(getType() == MemberType.CLASS ? MappingsHelper.unqualify(text) : text);
+        setText(getType() == MemberType.CLASS ? StringHelper.unqualify(text) : text);
     }
 
     public static final class MemberKey {

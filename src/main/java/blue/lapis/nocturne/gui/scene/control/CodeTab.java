@@ -31,6 +31,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -143,7 +144,12 @@ public class CodeTab extends Tab {
         int lastIndex = 0;
         while (matcher.find()) {
             nodes.add(new Text(code.substring(lastIndex, matcher.start())));
-            nodes.add(SelectableMember.fromMatcher(this, matcher));
+            SelectableMember sm = SelectableMember.fromMatcher(this, matcher);
+            if (sm != null) {
+                nodes.add(sm);
+            } else {
+                nodes.add(new Text(StringHelper.unqualify(matcher.group(2))));
+            }
             lastIndex = matcher.end();
         }
         nodes.add(new Text(code.substring(lastIndex)));
