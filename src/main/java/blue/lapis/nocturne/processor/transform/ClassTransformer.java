@@ -202,9 +202,9 @@ public class ClassTransformer extends ClassProcessor {
             attrOs.write(getBytes((short) attrCount));
 
             for (int i = 0; i < attrCount; i++) {
-                    Pair<byte[], Boolean> attr = processAttribute(buffer);
-                    attrOs.write(attr.first());
-                    isSynthetic = attr.second();
+                Pair<byte[], Boolean> attr = processAttribute(buffer);
+                attrOs.write(attr.first());
+                isSynthetic = attr.second();
             }
             final byte[] attrArr = attrOs.toByteArray();
             final int memberEnd = buffer.position();

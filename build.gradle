@@ -7,7 +7,7 @@ plugins {
 
     id 'net.minecrell.gitpatcher' version '0.7.1'
 
-    id 'net.minecrell.licenser' version '0.1.1'
+    id 'net.minecrell.licenser' version '0.1.2'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
@@ -16,7 +16,7 @@ defaultTasks 'clean', 'licenseFormat', 'build'
 // Project information
 allprojects {
     group = 'blue.lapis.nocturne'
-    version = '1.0.0-SNAPSHOT'
+    version = '1.0.0-rc1'
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
