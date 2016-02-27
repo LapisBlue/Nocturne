@@ -28,9 +28,9 @@ package blue.lapis.nocturne.processor.transform;
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
-import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
+import static blue.lapis.nocturne.util.helper.ByteHelper.readBytes;
 import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedDescriptor;
 import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
 import static blue.lapis.nocturne.util.helper.StringHelper.getUnprocessedName;
@@ -48,12 +48,12 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.tuple.Pair;
 
 import com.google.common.collect.ImmutableList;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -80,7 +80,9 @@ public class ClassTransformer extends ClassProcessor {
     private final Map<Integer, Integer> processedMethodNameMap = new HashMap<>();
     private final Map<Integer, Integer> processedMethodDescriptorMap = new HashMap<>();
 
-    private static final ImmutableList<String> IGNORED_METHODS = new ImmutableList.Builder<String>()
+    private static final ImmutableList<String> STUPID_PARAM_NAMES = ImmutableList.<String>builder()
+            .add("\u2603").build();
+    private static final ImmutableList<String> IGNORED_METHODS = ImmutableList.<String>builder()
             .add("<init>").add("<clinit>").build();
 
     public ClassTransformer(String className, byte[] bytes) {
@@ -198,27 +200,14 @@ public class ClassTransformer extends ClassProcessor {
             ByteArrayOutputStream attrOs = new ByteArrayOutputStream();
             int attrCount = asUshort(buffer.getShort());
             attrOs.write(getBytes((short) attrCount));
-            for (int i = 0; i < attrCount; i++) {
-                int attrNameIndex = asUshort(buffer.getShort());
-                attrOs.write(getBytes((short) attrNameIndex));
-                if (!isSynthetic) {
-                    String attrName = getString(attrNameIndex);
-                    if (attrName.equals("Synthetic")) {
-                        isSynthetic = true;
-                    }
-                }
 
-                long attrLength = asUint(buffer.getInt());
-                attrOs.write(getBytes((int) attrLength));
-                for (int j = 0; j < attrLength; j++) {
-                    try {
-                        attrOs.write(buffer.get());
-                    } catch (BufferUnderflowException ex) {
-                        System.err.println("Class: " + getClassName() + " - m: " + m);
-                        throw ex;
-                    }
-                }
+            for (int i = 0; i < attrCount; i++) {
+                    Pair<byte[], Boolean> attr = processAttribute(buffer);
+                    attrOs.write(attr.first());
+                    isSynthetic = attr.second();
             }
+            final byte[] attrArr = attrOs.toByteArray();
+            final int memberEnd = buffer.position();
 
             buffer.position(memberStart + 2);
 
@@ -264,9 +253,8 @@ public class ClassTransformer extends ClassProcessor {
             }
             os.write(getBytes((short) descriptorIndex));
 
-            byte[] attrArr = attrOs.toByteArray();
             os.write(attrArr);
-            buffer.position(buffer.position() + attrArr.length);
+            buffer.position(memberEnd);
         }
 
         return os.toByteArray();
@@ -398,6 +386,75 @@ public class ClassTransformer extends ClassProcessor {
         buffer.putShort((short) nameIndex);
         buffer.putShort((short) typeIndex);
         pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
+    }
+
+    private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        boolean isSynthetic = false;
+
+        int attrNameIndex = asUshort(buffer.getShort());
+        os.write(getBytes((short) attrNameIndex));
+        String attrName = getString(attrNameIndex);
+
+        int attrLength = buffer.getInt();
+
+        switch (attrName) {
+            case "Code": {
+                // note: we're now at max_stack
+                ByteArrayOutputStream bufferOs = new ByteArrayOutputStream();
+                bufferOs.write(readBytes(buffer, 4)); // skip max_stack and max_locals
+
+                // skip the actual code (also unimportant to us)
+                int codeLength = buffer.getInt(); // read code_length
+                bufferOs.write(getBytes(codeLength));
+                bufferOs.write(readBytes(buffer, codeLength)); // read code
+
+                // skip the exception table
+                int exceptionTableLength = asUshort(buffer.getShort()); // read exception_table_length
+                bufferOs.write(getBytes((short) exceptionTableLength));
+                bufferOs.write(readBytes(buffer, exceptionTableLength * 8)); // exception_table (each entry is 8 bytes)
+
+                // now we get to the good stuff
+                // note: we're now at attribute_count
+                ByteArrayOutputStream subOs = new ByteArrayOutputStream(); // since the length can change
+                int attrCount = asUshort(buffer.getShort()); // read attributes_count
+                int actualAttrCount = 0;
+                for (int a = 0; a < attrCount; a++) {
+                    // now we're in a sub-attribute
+                    int subAttrNameIndex = asUshort(buffer.getShort()); // read attribute_name_index
+                    String subAttrName = getString(subAttrNameIndex);
+                    int subAttrLength = buffer.getInt(); // read attribute_length
+
+                    if (subAttrName.equals("LocalVariableTable")) {
+                        attrLength -= subAttrLength + 6;
+                        readBytes(buffer, subAttrLength); // read and discard attribute body
+                    } else {
+                        actualAttrCount++;
+                        subOs.write(getBytes((short) subAttrNameIndex)); // write attribute_name_index
+                        subOs.write(getBytes(subAttrLength)); // write attribute_length
+                        subOs.write(readBytes(buffer, subAttrLength)); // read and write attribute body
+                    }
+                }
+
+                bufferOs.write(getBytes((short) actualAttrCount));
+                bufferOs.write(subOs.toByteArray());
+
+                os.write(getBytes(attrLength));
+                os.write(bufferOs.toByteArray());
+
+                break;
+            }
+            case "Synthetic": {
+                isSynthetic = true;
+            }
+            default: {
+                os.write(getBytes(attrLength));
+                os.write(readBytes(buffer, attrLength));
+                break;
+            }
+        }
+
+        return new Pair<>(os.toByteArray(), isSynthetic);
     }
 
     private NameAndType getNameAndType(RefStructure rs) {

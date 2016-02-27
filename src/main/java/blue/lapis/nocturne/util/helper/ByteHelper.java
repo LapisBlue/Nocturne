@@ -63,4 +63,10 @@ public final class ByteHelper {
         return ByteBuffer.allocate(Integer.BYTES).putInt(i).array();
     }
 
+    public static byte[] readBytes(ByteBuffer src, int toRead) {
+        byte[] arr = new byte[toRead];
+        src.get(arr);
+        return ByteBuffer.allocate(toRead).put(arr).array();
+    }
+
 }
