@@ -190,15 +190,18 @@ public class SelectableMember extends Text {
                 contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY()));
 
         String qualName;
+        IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
         switch (type) {
             case CLASS:
                 qualName = name;
                 break;
             case FIELD:
+                if (!ic.getFields().contains(getName())) {
+                    throw new IllegalArgumentException();
+                }
                 qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
                 break;
             case METHOD:
-                IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
                 String parent = null;
                 if (ic.getMethods().containsKey(sig)) {
                     parent = getParentClass();
@@ -211,7 +214,7 @@ public class SelectableMember extends Text {
                     }
                 }
                 if (parent == null) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(); //TODO
                 }
                 qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
                 break;

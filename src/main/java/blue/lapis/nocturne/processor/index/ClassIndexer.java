@@ -90,11 +90,11 @@ public class ClassIndexer extends ClassProcessor {
             }
         }
 
-        indexFields(buffer, pool);
+        List<String> fields = indexFields(buffer, pool);
 
         List<IndexedMethod> methods = indexMethods(buffer, pool);
 
-        return new IndexedClass(getClassName(), pool, superClass, interfaces, methods);
+        return new IndexedClass(getClassName(), pool, superClass, interfaces, fields, methods);
     }
 
     /**
@@ -103,15 +103,20 @@ public class ClassIndexer extends ClassProcessor {
      *
      * @param buffer The buffer to read from
      */
-    private void indexFields(ByteBuffer buffer, ConstantPool pool) {
+    private List<String> indexFields(ByteBuffer buffer, ConstantPool pool) {
+        List<String> fields = new ArrayList<>();
+
         int fieldCount = buffer.getShort(); // read the field count
         for (int i = 0; i < fieldCount; i++) {
             buffer.position(buffer.position() + 2); // skip the access
             String name = getString(pool, buffer.getShort()); // get the name
+            fields.add(name);
             jce.getCurrentFieldNames().put(name, name); // index the field name for future reference
             buffer.position(buffer.position() + 2); // skip the descriptor
             skipAttributes(buffer);
         }
+
+        return fields;
     }
 
     /**
