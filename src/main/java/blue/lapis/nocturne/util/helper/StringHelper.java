@@ -132,6 +132,12 @@ public final class StringHelper {
         return unqual;
     }
 
+    public static boolean isJavaClassIdentifier(String str) {
+        str = CLASS_PATH_SEPARATOR_PATTERN.matcher(str).replaceAll("");
+        str = INNER_CLASS_SEPARATOR_PATTERN.matcher(str).replaceAll("");
+        return isJavaIdentifier(str);
+    }
+
     public static boolean isJavaIdentifier(String str) {
         if (str.length() == 0 || !Character.isJavaIdentifierStart(str.charAt(0))) {
             return false;

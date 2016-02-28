@@ -128,7 +128,8 @@ public class SelectableMember extends Text {
                 if (getType() == MemberType.CLASS) {
                     res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");
                 }
-                if (!StringHelper.isJavaIdentifier(CLASS_PATH_SEPARATOR_PATTERN.matcher(res).replaceAll(""))) {
+                if ((getType() == MemberType.CLASS && !StringHelper.isJavaClassIdentifier(res))
+                    || (getType() != MemberType.CLASS && !StringHelper.isJavaIdentifier(res))) {
                     showIllegalAlert();
                     return;
                 }

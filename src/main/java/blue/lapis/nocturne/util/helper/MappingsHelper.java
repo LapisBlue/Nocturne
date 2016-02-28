@@ -51,7 +51,7 @@ public final class MappingsHelper {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
             return;
-        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+        } else if (!StringHelper.isJavaClassIdentifier(obf) || !StringHelper.isJavaClassIdentifier(deobf)) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
             return;
         }
