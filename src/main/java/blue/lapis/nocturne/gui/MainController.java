@@ -129,7 +129,7 @@ public class MainController implements Initializable {
                         openTab(className, selected.getValue());
                     }
                 } else {
-                    if (!selected.isExpanded()) {
+                    if (event instanceof MouseEvent == selected.isExpanded()) {
                         selected.setExpanded(true);
                         while (selected.getChildren().size() == 1) {
                             selected = selected.getChildren().get(0);
@@ -141,6 +141,7 @@ public class MainController implements Initializable {
                 }
             }
         };
+
         obfTree.setOnMouseClicked(event -> clickHandler.accept(event, obfTree));
         deobfTree.setOnMouseClicked(event -> clickHandler.accept(event, deobfTree));
 
