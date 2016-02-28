@@ -25,10 +25,12 @@
 
 package blue.lapis.nocturne.gui.scene.control;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -66,7 +68,7 @@ public class CodeTab extends Tab {
 
     public CodeTab(TabPane pane, String className, String displayName) {
         this.className = className;
-        this.setText(displayName);
+        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(displayName).replaceAll("."));
 
         pane.getTabs().add(this);
 
@@ -92,7 +94,7 @@ public class CodeTab extends Tab {
     }
 
     public void resetClassName() {
-        this.setText(className);
+        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(className).replaceAll("."));
     }
 
     /**

@@ -25,10 +25,13 @@
 
 package blue.lapis.nocturne.mapping.model;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 /**
@@ -79,7 +82,8 @@ public class TopLevelClassMapping extends ClassMapping {
     public void setDeobfuscatedName(String deobfuscatedName, boolean updateClassViews) {
         super.setDeobfuscatedName(deobfuscatedName, updateClassViews);
         if (CodeTab.CODE_TABS.containsKey(getObfuscatedName())) {
-            CodeTab.CODE_TABS.get(getObfuscatedName()).setText(deobfuscatedName);
+            CodeTab.CODE_TABS.get(getObfuscatedName())
+                    .setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(deobfuscatedName).replaceAll("."));
         }
 
         if (Main.getLoadedJar() != null) {
