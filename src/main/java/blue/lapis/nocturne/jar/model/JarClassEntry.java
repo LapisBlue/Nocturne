@@ -40,6 +40,7 @@ import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
+import javafx.scene.control.Dialog;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
@@ -54,6 +55,16 @@ import java.util.stream.Collectors;
  * Represents an class entry within a JAR file.
  */
 public class JarClassEntry {
+
+    private static Dialog<Boolean> decompileDialog;
+
+    static {
+        decompileDialog = new Dialog<>();
+        decompileDialog.setTitle(Main.getResourceBundle().getString("dialog.decompile.title"));
+        decompileDialog.setHeaderText(null);
+        decompileDialog.setContentText(Main.getResourceBundle().getString("dialog.decompile.content"));
+        decompileDialog.setResult(false);
+    }
 
     private final String name;
     private byte[] content;
@@ -132,6 +143,7 @@ public class JarClassEntry {
     }
 
     public String decompile() {
+        decompileDialog.show();
         Fernflower ff = new Fernflower(
                 SimpleBytecodeProvider.getInstance(),
                 NoopResultSaver.getInstance(),
@@ -168,6 +180,7 @@ public class JarClassEntry {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
+            decompileDialog.close();
             ff.clearContext();
         }
     }

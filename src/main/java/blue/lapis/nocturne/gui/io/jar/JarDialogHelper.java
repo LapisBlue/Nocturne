@@ -31,6 +31,11 @@ import blue.lapis.nocturne.jar.io.JarLoader;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
+import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogEvent;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -42,6 +47,16 @@ import java.nio.file.Files;
  * Static utility class for JAR open/save dialogs.
  */
 public final class JarDialogHelper {
+
+    private static Dialog<Boolean> loadDialog;
+
+    static {
+        loadDialog = new Dialog<>();
+        loadDialog.setTitle(Main.getResourceBundle().getString("dialog.load_jar.title"));
+        loadDialog.setHeaderText(null);
+        loadDialog.setContentText(Main.getResourceBundle().getString("dialog.load_jar.content"));
+        loadDialog.setResult(false);
+    }
 
     private JarDialogHelper() {
     }
@@ -68,7 +83,13 @@ public final class JarDialogHelper {
         Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_JAR_DIRECTORY, selectedFile.getParent());
 
         if (Files.exists(selectedFile.toPath())) {
-            ClassSet classSet = JarLoader.loadJar(new FileInputStream(selectedFile));
+            loadDialog.show();
+            ClassSet classSet;
+            try {
+                 classSet = JarLoader.loadJar(new FileInputStream(selectedFile));
+            } finally {
+                loadDialog.close();
+            }
             if (classSet != null) {
                 controller.closeJarButton.setDisable(false);
                 controller.loadMappingsButton.setDisable(false);
