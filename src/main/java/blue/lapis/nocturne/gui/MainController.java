@@ -54,9 +54,11 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
@@ -117,19 +119,33 @@ public class MainController implements Initializable {
     }
 
     private void initTreeViews() {
-        BiConsumer<MouseEvent, TreeView<String>> clickHandler = (event, treeView) -> {
-            if (event.getClickCount() == 2) {
+        BiConsumer<InputEvent, TreeView<String>> clickHandler = (event, treeView) -> {
+            if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
+                    || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
                 TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
                 if (selected instanceof ClassTreeItem) {
                     String className = ((ClassTreeItem) selected).getId();
                     if (Main.getLoadedJar() != null) {
                         openTab(className, selected.getValue());
                     }
+                } else {
+                    if (!selected.isExpanded()) {
+                        selected.setExpanded(true);
+                        while (selected.getChildren().size() == 1) {
+                            selected = selected.getChildren().get(0);
+                            selected.setExpanded(true);
+                        }
+                    } else {
+                        selected.setExpanded(false);
+                    }
                 }
             }
         };
         obfTree.setOnMouseClicked(event -> clickHandler.accept(event, obfTree));
         deobfTree.setOnMouseClicked(event -> clickHandler.accept(event, deobfTree));
+
+        obfTree.setOnKeyReleased(event -> clickHandler.accept(event, obfTree));
+        deobfTree.setOnKeyReleased(event -> clickHandler.accept(event, deobfTree));
     }
 
     private void setAccelerators() {
