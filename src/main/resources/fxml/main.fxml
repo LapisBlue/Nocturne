@@ -64,14 +64,11 @@
                       text="%menu.file.reset_mappings"/>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.language">
-            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect"
-                           text="Deutsch" id="langRadio-de_DE">
+            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
+                           text="English (US)" id="langRadio-en_US" selected="true">
                 <toggleGroup>
                     <ToggleGroup fx:id="languageGroup"/>
                 </toggleGroup>
-            </RadioMenuItem>
-            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
-                           text="English (US)" id="langRadio-en_US" selected="true">
             </RadioMenuItem>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.help">
