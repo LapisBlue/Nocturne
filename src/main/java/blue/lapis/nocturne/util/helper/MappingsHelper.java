@@ -50,7 +50,10 @@ public final class MappingsHelper {
     public static void genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
-            return; // ignore the mapping
+            return;
+        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+            Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
+            return;
         }
 
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
@@ -85,7 +88,10 @@ public final class MappingsHelper {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
-            return; // ignore the mapping
+            return;
+        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+            Main.getLogger().warning("Discovered field mapping with illegal name - ignoring");
+            return;
         }
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
@@ -101,7 +107,10 @@ public final class MappingsHelper {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
-            return; // ignore the mapping
+            return;
+        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+            Main.getLogger().warning("Discovered method mapping with illegal name - ignoring");
+            return;
         }
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);

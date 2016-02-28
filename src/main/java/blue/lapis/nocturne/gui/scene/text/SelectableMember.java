@@ -26,6 +26,8 @@
 package blue.lapis.nocturne.gui.scene.text;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
@@ -121,7 +123,16 @@ public class SelectableMember extends Text {
                         || ((getType() != MemberType.CLASS || isInnerClass()) && !checkMemberDupe(result.get()))) {
                     return;
                 }
-                this.setMapping(result.get());
+
+                String res = result.get();
+                if (getType() == MemberType.CLASS) {
+                    res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");
+                }
+                if (!StringHelper.isJavaIdentifier(CLASS_PATH_SEPARATOR_PATTERN.matcher(res).replaceAll(""))) {
+                    showIllegalAlert();
+                    return;
+                }
+                this.setMapping(res);
             }
         });
 
@@ -294,6 +305,14 @@ public class SelectableMember extends Text {
         alert.setContentText(
                 Main.getResourceBundle().getString("rename.dupe.content" + (hierarchical ? ".hierarchy" : ""))
         );
+        alert.showAndWait();
+    }
+
+    private void showIllegalAlert() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(Main.getResourceBundle().getString("rename.illegal.title"));
+        alert.setHeaderText(null);
+        alert.setContentText(Main.getResourceBundle().getString("rename.illegal.content"));
         alert.showAndWait();
     }
 

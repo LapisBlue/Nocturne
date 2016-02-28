@@ -131,4 +131,20 @@ public final class StringHelper {
         }
         return unqual;
     }
+
+    public static boolean isJavaIdentifier(String str) {
+        if (str.length() == 0 || !Character.isJavaIdentifierStart(str.charAt(0))) {
+            return false;
+        }
+
+        for (int i = 1; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c) && !Character.isJavaIdentifierPart(c)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

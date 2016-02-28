@@ -47,6 +47,8 @@ public final class Constants {
     public static final Pattern CLASS_PATH_SEPARATOR_PATTERN
             = Pattern.compile(CLASS_PATH_SEPARATOR_CHAR + "", Pattern.LITERAL);
 
+    public static final Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
+
     public static final String CLASS_FILE_NAME_TAIL = ".class";
 
     public static final int CLASS_FORMAT_CONSTANT_POOL_OFFSET = 8; // byte offset of the CP per the class file format
