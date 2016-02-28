@@ -31,6 +31,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
@@ -47,6 +48,11 @@ import java.util.Optional;
 public final class MappingsHelper {
 
     public static void genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
+        if (!Main.getLoadedJar().getClass(obf).isPresent()) {
+            Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
+            return; // ignore the mapping
+        }
+
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
@@ -76,6 +82,12 @@ public final class MappingsHelper {
     }
 
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf) {
+        if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
+            Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
+                    + "\" - ignoring");
+            return; // ignore the mapping
+        }
+
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         if (parent.getFieldMappings().containsKey(obf)) {
             parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
@@ -86,6 +98,12 @@ public final class MappingsHelper {
 
     public static void genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
                 String descriptor) {
+        if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
+            Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
+                    + "\" - ignoring");
+            return; // ignore the mapping
+        }
+
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         if (parent.getMethodMappings().containsKey(obf)) {
             parent.getMethodMappings().get(obf).setDeobfuscatedName(deobf);
