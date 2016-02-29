@@ -59,11 +59,15 @@ public class JarClassEntry {
     private static Dialog<Boolean> decompileDialog;
 
     static {
-        decompileDialog = new Dialog<>();
-        decompileDialog.setTitle(Main.getResourceBundle().getString("dialog.decompile.title"));
-        decompileDialog.setHeaderText(null);
-        decompileDialog.setContentText(Main.getResourceBundle().getString("dialog.decompile.content"));
-        decompileDialog.setResult(false);
+        if (!Main.getInstance().testingEnv) {
+            decompileDialog = new Dialog<>();
+            decompileDialog.setTitle(Main.getResourceBundle().getString("dialog.decompile.title"));
+            decompileDialog.setHeaderText(null);
+            decompileDialog.setContentText(Main.getResourceBundle().getString("dialog.decompile.content"));
+            decompileDialog.setResult(false);
+        } else {
+            decompileDialog = null;
+        }
     }
 
     private final String name;
@@ -143,7 +147,7 @@ public class JarClassEntry {
     }
 
     public String decompile() {
-        decompileDialog.show();
+        showDecompileDialog();
         Fernflower ff = new Fernflower(
                 SimpleBytecodeProvider.getInstance(),
                 NoopResultSaver.getInstance(),
@@ -180,7 +184,7 @@ public class JarClassEntry {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } finally {
-            decompileDialog.close();
+            closeDecompileDialog();
             ff.clearContext();
         }
     }
@@ -205,6 +209,14 @@ public class JarClassEntry {
     @Override
     public int hashCode() {
         return Objects.hash(getName());
+    }
+
+    private static void showDecompileDialog() {
+        decompileDialog.show();
+    }
+
+    private static void closeDecompileDialog() {
+        decompileDialog.close();
     }
 
 }

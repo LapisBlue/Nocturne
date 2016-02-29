@@ -86,7 +86,7 @@ public final class JarDialogHelper {
             loadDialog.show();
             ClassSet classSet;
             try {
-                 classSet = JarLoader.loadJar(new FileInputStream(selectedFile));
+                classSet = JarLoader.loadJar(new FileInputStream(selectedFile));
             } finally {
                 loadDialog.close();
             }

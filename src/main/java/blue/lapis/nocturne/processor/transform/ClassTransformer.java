@@ -388,6 +388,7 @@ public class ClassTransformer extends ClassProcessor {
         pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
     }
 
+    @SuppressWarnings("fallthrough")
     private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         boolean isSynthetic = false;

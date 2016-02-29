@@ -58,6 +58,8 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
 
+    public boolean testingEnv;
+
     private static Main instance;
 
     private static final EventHandler<WindowEvent> CLOSE_HANDLER = event -> {
@@ -99,12 +101,13 @@ public class Main extends Application {
         launch(args);
     }
 
-    public Main(boolean skipInit) {
+    public Main(boolean testingEnv) {
         super();
         instance = this;
-        if (!skipInit) {
+        if (!testingEnv) {
             initialize();
         }
+        this.testingEnv = testingEnv;
     }
 
     public Main() {
