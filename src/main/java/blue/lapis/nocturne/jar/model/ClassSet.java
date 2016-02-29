@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
  */
 public class ClassSet {
 
+    private final String name;
     private final Map<String, JarClassEntry> classMap = new HashMap<>();
     private final BiMap<String, String> names = HashBiMap.create();
 
@@ -55,11 +56,21 @@ public class ClassSet {
      * @param classes The {@link JarClassEntry JarClassEntries} to populate the
      *     new {@link ClassSet} with
      */
-    public ClassSet(Set<JarClassEntry> classes) {
+    public ClassSet(String name, Set<JarClassEntry> classes) {
+        this.name = name;
         classes.forEach(cl -> {
             classMap.put(cl.getName(), cl);
             getCurrentNames().put(cl.getName(), cl.getName());
         });
+    }
+
+    /**
+     * Returns the name of this {@link ClassSet}.
+     *
+     * @return The name of this {@link ClassSet}
+     */
+    public String getName() {
+        return name;
     }
 
     /**

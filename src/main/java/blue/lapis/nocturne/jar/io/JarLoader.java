@@ -61,7 +61,7 @@ public class JarLoader {
      * @throws IOException If an exception occurs while loading the provided
      *     {@link File}
      */
-    public static ClassSet loadJar(InputStream jarFile) throws IOException {
+    public static ClassSet loadJar(String name, InputStream jarFile) throws IOException {
         IndexedClass.INDEXED_CLASSES.clear();
 
         JarInputStream jar;
@@ -118,7 +118,7 @@ public class JarLoader {
         }
 
         jar.close(); // release the resource
-        ClassSet cs = new ClassSet(classes);
+        ClassSet cs = new ClassSet(name, classes);
         Main.setLoadedJar(cs);
         cs.getClasses().stream().forEach(JarClassEntry::index);
         new ClassHierarchyBuilder(Sets.newHashSet(INDEXED_CLASSES.values())).buildHierarchies();

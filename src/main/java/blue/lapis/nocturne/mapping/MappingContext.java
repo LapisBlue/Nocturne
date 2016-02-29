@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.mapping;
 
+import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
@@ -97,8 +98,9 @@ public class MappingContext {
 
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
-        if (MainController.isInitialized()) {
+        if (!Main.getInstance().testingEnv) {
             MainController.INSTANCE.saveMappingsButton.setDisable(!dirty);
+            Main.updateTitle();
         }
     }
 

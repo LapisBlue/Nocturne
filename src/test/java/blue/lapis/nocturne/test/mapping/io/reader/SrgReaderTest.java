@@ -68,7 +68,7 @@ public class SrgReaderTest {
     @BeforeClass
     public static void initialize() throws InterruptedException, IOException {
         new Main(true);
-        Main.setLoadedJar(JarLoader.loadJar(SrgReaderTest.class.getResourceAsStream("/test.jar")));
+        Main.setLoadedJar(JarLoader.loadJar("test.jar", SrgReaderTest.class.getResourceAsStream("/test.jar")));
         SrgReader reader
                 = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
         mappings = reader.read();

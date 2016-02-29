@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
 
-    public boolean testingEnv;
+    public final boolean testingEnv;
 
     private static Main instance;
 
@@ -244,6 +244,24 @@ public class Main extends Application {
 
     public static void setLoadedJar(ClassSet classSet) {
         getInstance().loadedJar = classSet;
+        updateTitle();
+    }
+
+    public static void updateTitle() {
+        if (getInstance().testingEnv) {
+            return;
+        }
+
+        String title;
+        if (getLoadedJar() == null) {
+            title = "Nocturne";
+        } else {
+            title = "Nocturne - " + (getMappingContext().isDirty() ? "*" : "") + getLoadedJar().getName();
+        }
+
+        if (!getMainStage().getTitle().equals(title)) {
+            getMainStage().setTitle(title);
+        }
     }
 
 }
