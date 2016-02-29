@@ -477,11 +477,10 @@ public class SelectableMember extends Text {
     }
 
     public void setDeobfuscated(boolean deobfuscated) {
+        getStyleClass().clear();
         if (deobfuscated) {
-            getStyleClass().remove("obfuscated");
             getStyleClass().add("deobfuscated");
         } else {
-            getStyleClass().remove("deobfuscated");
             getStyleClass().add("obfuscated");
         }
     }
