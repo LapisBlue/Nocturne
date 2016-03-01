@@ -123,6 +123,10 @@ public class MainController implements Initializable {
             if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
                     || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
                 TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
+                if (selected == null) {
+                    return;
+                }
+
                 if (selected instanceof ClassTreeItem) {
                     String className = ((ClassTreeItem) selected).getId();
                     if (Main.getLoadedJar() != null) {
