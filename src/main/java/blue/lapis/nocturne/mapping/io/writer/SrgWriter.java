@@ -96,15 +96,16 @@ public class SrgWriter extends MappingsWriter {
     @Override
     protected void writeFieldMapping(FieldMapping fieldMapping) {
         fdWriter.format("FD: %s/%s %s/%s\n",
-                fieldMapping.getParent().getObfuscatedName(), fieldMapping.getObfuscatedName(),
-                fieldMapping.getParent().getDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
+                fieldMapping.getParent().getFullObfuscatedName(), fieldMapping.getObfuscatedName(),
+                fieldMapping.getParent().getFullDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
     }
 
     @Override
     protected void writeMethodMapping(MethodMapping mapping) {
         mdWriter.format("MD: %s/%s %s %s/%s %s\n",
-                mapping.getParent().getObfuscatedName(), mapping.getObfuscatedName(), mapping.getObfuscatedDescriptor(),
-                mapping.getParent().getDeobfuscatedName(), mapping.getDeobfuscatedName(),
+                mapping.getParent().getFullObfuscatedName(), mapping.getObfuscatedName(),
+                mapping.getObfuscatedDescriptor(),
+                mapping.getParent().getFullDeobfuscatedName(), mapping.getDeobfuscatedName(),
                 mapping.getDeobfuscatedDescriptor());
     }
 }
