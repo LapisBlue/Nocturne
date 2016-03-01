@@ -41,7 +41,9 @@ import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.structure.ClassStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
+import blue.lapis.nocturne.processor.constantpool.model.structure.FieldrefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.IgnoredStructure;
+import blue.lapis.nocturne.processor.constantpool.model.structure.MethodrefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.NameAndTypeStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.RefStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
@@ -286,7 +288,7 @@ public class ClassTransformer extends ClassProcessor {
             } else if (  cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
-                handleNonClassMember(cs, processedPool);
+                handleNonClassMember(cs, index, processedPool);
             }
         }
     }
@@ -312,7 +314,7 @@ public class ClassTransformer extends ClassProcessor {
         pool.set(index, new ClassStructure(classBuffer.array()));
     }
 
-    private void handleNonClassMember(ConstantStructure cs, ConstantPool pool) {
+    private void handleNonClassMember(ConstantStructure cs, int index, ConstantPool pool) {
         MemberType memberType;
         switch (cs.getType()) {
             case FIELDREF: {
@@ -350,6 +352,9 @@ public class ClassTransformer extends ClassProcessor {
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
         if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
+            if (nat.getName().equals("a") && desc.toString().equals("(Lzj;ILcj;I)V")) {
+                int i = 0;
+            }
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
@@ -385,7 +390,16 @@ public class ClassTransformer extends ClassProcessor {
         buffer.put(StructureType.NAME_AND_TYPE.getTag());
         buffer.putShort((short) nameIndex);
         buffer.putShort((short) typeIndex);
-        pool.set(natIndex, new NameAndTypeStructure(buffer.array()));
+        pool.add(new NameAndTypeStructure(buffer.array()));
+
+        StructureType st = memberType == MemberType.FIELD ? StructureType.FIELDREF : StructureType.METHODREF;
+        ByteBuffer mBuffer = ByteBuffer.allocate(st.getLength() + 1);
+        mBuffer.put(st.getTag());
+        mBuffer.putShort((short) ((RefStructure) cs).getClassIndex());
+        mBuffer.putShort((short) pool.size());
+        pool.set(index, memberType == MemberType.FIELD
+                ? new FieldrefStructure(mBuffer.array())
+                : new MethodrefStructure(mBuffer.array()));
     }
 
     @SuppressWarnings("fallthrough")
