@@ -31,7 +31,6 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.MemberType;
 
 /**

@@ -31,11 +31,7 @@ import blue.lapis.nocturne.jar.io.JarLoader;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
-import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogEvent;
 import javafx.stage.FileChooser;
 
 import java.io.File;

@@ -55,13 +55,6 @@ public final class Constants {
     public static final int SHORT_UNSIGNER = (int) Math.pow(2, Short.BYTES * 8) - 1;
     public static final long INT_UNSIGNER = (long) Math.pow(2, Integer.BYTES * 8) - 1;
 
-    public static final String MEMBER_PREFIX = "%NOCTURNE+";
-    public static final String MEMBER_DELIMITER = "-";
-    public static final String MEMBER_SUFFIX = "%";
-    public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
-            + Pattern.quote(MEMBER_DELIMITER) + "(.+?)(?:" + Pattern.quote(MEMBER_DELIMITER) + "(.+?))*"
-            + Pattern.quote(MEMBER_SUFFIX));
-
     /**
      * Regular expression to match the types contained by a method descriptor.
      */
@@ -78,5 +71,20 @@ public final class Constants {
     }
 
     private Constants() {
+    }
+
+    public static class Processing {
+        public static final String DELIMITER = "-";
+
+        public static final String CLASS_PREFIX = "&NOCTURNE+";
+        public static final String CLASS_SUFFIX = "&";
+        public static final Pattern CLASS_REGEX = Pattern.compile(Pattern.quote(CLASS_PREFIX) + "(.+?)"
+                + Pattern.quote(CLASS_SUFFIX));
+
+        public static final String MEMBER_PREFIX = "%NOCTURNE+";
+        public static final String MEMBER_SUFFIX = "%";
+        public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
+                + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(DELIMITER) + "(.+?)"
+                + Pattern.quote(MEMBER_SUFFIX));
     }
 }

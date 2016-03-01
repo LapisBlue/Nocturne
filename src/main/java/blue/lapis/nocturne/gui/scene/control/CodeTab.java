@@ -26,11 +26,11 @@
 package blue.lapis.nocturne.gui.scene.control;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
-import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -47,9 +47,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The code-tab JavaFX component.
@@ -140,21 +142,10 @@ public class CodeTab extends Tab {
     public void setCode(String code) {
         this.code.getChildren().clear();
 
-        List<Node> nodes = Lists.newArrayList();
+        List<Node> nodes = Lists.newArrayList(new Text(code));
 
-        Matcher matcher = MEMBER_REGEX.matcher(code);
-        int lastIndex = 0;
-        while (matcher.find()) {
-            nodes.add(new Text(code.substring(lastIndex, matcher.start())));
-            SelectableMember sm = SelectableMember.fromMatcher(this, matcher);
-            if (sm != null) {
-                nodes.add(sm);
-            } else {
-                nodes.add(new Text(StringHelper.unqualify(matcher.group(2))));
-            }
-            lastIndex = matcher.end();
-        }
-        nodes.add(new Text(code.substring(lastIndex)));
+        parseItems(nodes, CLASS_REGEX, 1);
+        parseItems(nodes, MEMBER_REGEX, 2);
 
         JavaSyntaxHighlighter.highlight(nodes);
 
@@ -230,4 +221,34 @@ public class CodeTab extends Tab {
             }
         }
     }
+
+    public void parseItems(List<Node> nodes, Pattern pattern, int defaultGroup) {
+        List<Node> newNodes = new ArrayList<>();
+
+        for (Node node : nodes) {
+            if (node.getClass() != Text.class) {
+                newNodes.add(node);
+                continue;
+            }
+
+            String str = ((Text) node).getText();
+            Matcher matcher = pattern.matcher(str);
+            int lastIndex = 0;
+            while (matcher.find()) {
+                newNodes.add(new Text(str.substring(lastIndex, matcher.start())));
+                SelectableMember sm = SelectableMember.fromMatcher(this, matcher);
+                if (sm != null) {
+                    newNodes.add(sm);
+                } else {
+                    newNodes.add(new Text(StringHelper.unqualify(matcher.group(defaultGroup))));
+                }
+                lastIndex = matcher.end();
+            }
+            newNodes.add(new Text(str.substring(lastIndex)));
+        }
+
+        nodes.clear();
+        nodes.addAll(newNodes);
+    }
+
 }

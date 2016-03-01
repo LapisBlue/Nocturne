@@ -29,10 +29,13 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
-import static blue.lapis.nocturne.util.Constants.MEMBER_DELIMITER;
-import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
-import static blue.lapis.nocturne.util.Constants.MEMBER_REGEX;
-import static blue.lapis.nocturne.util.Constants.MEMBER_SUFFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_SUFFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.DELIMITER;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -48,10 +51,13 @@ import java.util.regex.Matcher;
  */
 public final class StringHelper {
 
-    // current format is %NOCTURNE+TYPE-name-descriptor% (descriptor is optional)
-    public static String getProcessedName(String qualifiedMemberName, String descriptor, MemberType memberType) {
-        return MEMBER_PREFIX + memberType.name() + MEMBER_DELIMITER + qualifiedMemberName
-                + (descriptor != null ? MEMBER_DELIMITER + descriptor : "") + MEMBER_SUFFIX;
+    // class format is ^NOCTURNE+name^
+    // member format is %NOCTURNE+TYPE-name-descriptor%
+    public static String getProcessedName(String qualName, String descriptor, MemberType memberType) {
+        if (memberType == MemberType.CLASS) {
+            return CLASS_PREFIX + qualName + CLASS_SUFFIX;
+        }
+        return MEMBER_PREFIX + memberType.name() + DELIMITER + qualName + DELIMITER + descriptor + MEMBER_SUFFIX;
     }
 
     public static String getProcessedDescriptor(MemberType memberType, String desc) {
@@ -106,11 +112,12 @@ public final class StringHelper {
     }
 
     public static String getUnprocessedName(String processed) {
-        Matcher matcher = MEMBER_REGEX.matcher(processed);
+        boolean clazz = processed.startsWith(CLASS_PREFIX);
+        Matcher matcher = (clazz ? CLASS_REGEX : MEMBER_REGEX).matcher(processed);
         if (!matcher.find()) {
             throw new IllegalArgumentException("String " + processed + " is not a processed member name");
         }
-        return matcher.group(2);
+        return matcher.group(clazz ? 1 : 2);
     }
 
     public static String resolvePackageName(String qualifiedClassName) {

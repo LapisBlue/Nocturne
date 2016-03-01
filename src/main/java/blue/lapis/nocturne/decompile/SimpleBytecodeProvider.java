@@ -25,12 +25,12 @@
 
 package blue.lapis.nocturne.decompile;
 
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.util.Constants;
 
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 
@@ -55,11 +55,11 @@ public class SimpleBytecodeProvider implements IBytecodeProvider {
 
     @Override
     public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-        Matcher matcher = Constants.MEMBER_REGEX.matcher(internalPath);
+        Matcher matcher = CLASS_REGEX.matcher(internalPath);
         if (!matcher.find()) {
             throw new IllegalArgumentException("Class not found");
         }
-        String name = matcher.group(2);
+        String name = matcher.group(1);
         checkState(Main.getLoadedJar() != null, "JAR is not loaded");
         Optional<JarClassEntry> entry = Main.getLoadedJar().getClass(name);
         checkArgument(entry.isPresent(), "Class not found");

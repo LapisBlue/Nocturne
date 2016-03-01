@@ -27,7 +27,7 @@ package blue.lapis.nocturne.processor.transform;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 import static blue.lapis.nocturne.util.helper.ByteHelper.readBytes;
@@ -331,7 +331,7 @@ public class ClassTransformer extends ClassProcessor {
             }
         }
         String className = getClassNameFromStruct((RefStructure) cs);
-        if (className.startsWith(MEMBER_PREFIX)) {
+        if (className.startsWith(CLASS_PREFIX)) {
             className = getUnprocessedName(className);
         }
 

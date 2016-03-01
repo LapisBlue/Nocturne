@@ -28,6 +28,7 @@ package blue.lapis.nocturne.gui.scene.text;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
@@ -128,7 +129,7 @@ public class SelectableMember extends Text {
                     res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");
                 }
                 if ((getType() == MemberType.CLASS && !StringHelper.isJavaClassIdentifier(res))
-                    || (getType() != MemberType.CLASS && !StringHelper.isJavaIdentifier(res))) {
+                        || (getType() != MemberType.CLASS && !StringHelper.isJavaIdentifier(res))) {
                     showIllegalAlert();
                     return;
                 }
@@ -419,13 +420,15 @@ public class SelectableMember extends Text {
     }
 
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
-        MemberType type = MemberType.fromString(matcher.group(1));
-        String qualName = matcher.group(2);
-        String descriptor = matcher.groupCount() > 2 ? matcher.group(3) : null;
+        MemberType type = matcher.group().startsWith(CLASS_PREFIX)
+                ? MemberType.CLASS
+                : MemberType.fromString(matcher.group(1));
 
         if (type == MemberType.CLASS) {
-            return new SelectableMember(codeTab, type, qualName);
+            return new SelectableMember(codeTab, type, matcher.group(1));
         } else {
+            String qualName = matcher.group(2);
+            String descriptor = matcher.group(3);
             int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
             String simpleName = qualName.substring(offset + 1);
             String parentClass = qualName.substring(0, offset);

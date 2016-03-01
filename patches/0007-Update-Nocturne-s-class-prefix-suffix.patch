@@ -1,0 +1,23 @@
+From 5d69e3871c33d6d3c82fa474def3c43dd1ceaabf Mon Sep 17 00:00:00 2001
+From: Max Roncace <me@caseif.net>
+Date: Tue, 1 Mar 2016 18:49:36 -0500
+Subject: [PATCH] Update Nocturne's class prefix/suffix
+
+
+diff --git a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
+index 7299bda..788027a 100644
+--- a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
++++ b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
+@@ -484,7 +484,7 @@ public class ConstantsUtil {
+    * Constant values specific to Nocturne
+    */
+   public class Nocturne {
+-    public static final String CLASS_PREFIX = "%NOCTURNE+CLASS-";
+-    public static final String CLASS_SUFFIX = "%";
++    public static final String CLASS_PREFIX = "&NOCTURNE+";
++    public static final String CLASS_SUFFIX = "&";
+   }
+ }
+-- 
+2.7.1.windows.2
+
