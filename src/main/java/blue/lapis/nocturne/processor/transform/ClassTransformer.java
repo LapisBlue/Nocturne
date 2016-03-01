@@ -352,9 +352,6 @@ public class ClassTransformer extends ClassProcessor {
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
         if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
-            if (nat.getName().equals("a") && desc.toString().equals("(Lzj;ILcj;I)V")) {
-                int i = 0;
-            }
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
