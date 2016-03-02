@@ -64,7 +64,7 @@ public final class StringHelper {
         switch (memberType) {
             case FIELD: {
                 if (desc.startsWith("L") && desc.endsWith(";")) {
-                    String typeClass = desc.substring(1, desc.length());
+                    String typeClass = desc.substring(1, desc.length() - 1);
                     if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
                         return "L" + getProcessedName(typeClass, null, MemberType.CLASS) + ";";
                     }
