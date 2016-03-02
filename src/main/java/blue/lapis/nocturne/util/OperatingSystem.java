@@ -33,28 +33,7 @@ import java.util.function.Predicate;
 public enum OperatingSystem implements Predicate<String> {
 
     OSX("mac"),
-    LINUX("nix", "nux") {
-        private final String home = System.getenv().getOrDefault("HOME", System.getProperty("user.home", "~"));
-        
-        private final String dataHome = System.getenv().getOrDefault("XDG_DATA_HOME", home + "/.local/share");
-        private final String configHome = System.getenv().getOrDefault("XDG_CONFIG_HOME", home + "/.config");
-        private final String cacheHome = System.getenv().getOrDefault("XDG_CACHE_HOME", home + "/.cache");
-        
-        @Override
-        public String getConfigFolder() {
-            return configHome;
-        }
-        
-        @Override
-        public String getDataFolder() {
-            return dataHome;
-        }
-        
-        @Override
-        public String getCacheFolder() {
-            return cacheHome;
-        }
-    },
+    LINUX("nix", "nux"),
     WINDOWS("win"),
     UNKNOWN;
 
@@ -74,56 +53,17 @@ public enum OperatingSystem implements Predicate<String> {
         return false;
     }
 
-    /**
-     * Returns the path to the config home, as defined by the XDG Base Directory specification.
-     * 
-     * <p>The config home defines the base directory relative to which user specific configuration
-     * files should be stored. On Linux, this can be modified by the environment variable
-     * {@code $XDG_CONFIG_HOME}. On OS X, this is ~/Library/Application Support. On Windows,
-     * this is %APPDATA%.
-     * 
-     * @return The path to the config home, as defined by the XDG Base Directory specification.
-     */
-    public String getConfigFolder() {
+    public String getAppDataFolder() {
         switch (this) {
             case OSX:
                 return System.getProperty("user.home") + "/Library/Application Support";
             case WINDOWS:
                 return System.getenv("APPDATA");
             case LINUX:
-                throw new AssertionError();
             case UNKNOWN:
             default:
                 return System.getProperty("user.home");
         }
-    }
-    
-    /**
-     * Returns the path to the data home, as defined by the XDG Base Directory specification.
-     * 
-     * <p>The data home defines the base directory relative to which user specific data
-     * files should be stored. On Linux, this can be modified by the environment variable
-     * {@code $XDG_DATA_HOME}. On other operating systems, this method is equivalent to
-     * {@code getConfigFolder()}.
-     * 
-     * @return The path to the data home, as defined by the XDG Base Directory specification.
-     */
-    public String getDataFolder() {
-        return getConfigFolder();
-    }
-    
-    /**
-     * Returns the path to the cache home, as defined by the XDG Base Directory specification.
-     * 
-     * <p>The cache home defines the base directory relative to which user specific
-     * <i>non-essential</i> data files should be stored. On Linux, this can be modified
-     * by the environment variable {@code $XDG_CACHE_HOME}. On other operating systems,
-     * this method is equivalent to {@code getConfigFolder()}.
-     * 
-     * @return The path to the cache home, as defined by the XDG Base Directory specification.
-     */
-    public String getCacheFolder() {
-        return getConfigFolder();
     }
 
     /**

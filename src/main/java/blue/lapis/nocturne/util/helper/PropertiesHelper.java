@@ -89,9 +89,9 @@ public final class PropertiesHelper {
     }
 
     private File getNocturneDirectory() {
-        String appdata = OperatingSystem.getOs().getConfigFolder();
+        String appdata = OperatingSystem.getOs().getAppDataFolder();
         if (OperatingSystem.getOs() == OperatingSystem.LINUX) {
-            return new File(appdata, "nocturne"); // to maintain compatibility with earlier Nocturne versions
+            return new File(appdata, ".config" + File.separator + "nocturne");
         } else {
             return new File(appdata, "Nocturne");
         }
