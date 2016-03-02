@@ -64,25 +64,26 @@ public class MappingContext {
     public void addMapping(TopLevelClassMapping mapping, boolean updateClassViews) {
         mappings.put(mapping.getObfuscatedName(), mapping);
         mapping.initialize(updateClassViews);
-
-        setDirty(true);
     }
 
     //TODO: probably add a removeMapping method at some point
 
     /**
-     * Merges the given {@link MappingContext} into the current one.
+     * Merges the given {@link MappingContext} into the current one. All
+     * mappings contained by the passed context will be mutated to indicate that
+     * the current {@link MappingContext} is now their parent.
      *
      * <p>Note that mappings from the provided set will take precedence over
      * existing ones if they are already present.</p>
      *
      * @param context The {@link MappingContext} to merge
      */
-    public void merge(MappingContext context) {
+    public void assimilate(MappingContext context) {
         this.mappings.putAll(context.getMappings());
         if (!context.getMappings().isEmpty()) {
             setDirty(true);
         }
+        context.getMappings().values().forEach(m -> m.setContext(this));
     }
 
     /**

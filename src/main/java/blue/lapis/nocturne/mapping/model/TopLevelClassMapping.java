@@ -38,7 +38,7 @@ import blue.lapis.nocturne.util.MemberType;
  */
 public class TopLevelClassMapping extends ClassMapping {
 
-    private final MappingContext parent;
+    private MappingContext parent;
 
     /**
      * Constructs a new {@link TopLevelClassMapping} with the given parameters.
@@ -60,6 +60,10 @@ public class TopLevelClassMapping extends ClassMapping {
     @Override
     public MappingContext getContext() {
         return parent;
+    }
+
+    public void setContext(MappingContext context) {
+        this.parent = context;
     }
 
     @Override

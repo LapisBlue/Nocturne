@@ -99,7 +99,6 @@ public abstract class ClassMapping extends Mapping {
     void addFieldMapping(FieldMapping mapping) {
         mapping.initialize();
         fieldMappings.put(mapping.getObfuscatedName(), mapping);
-        getContext().setDirty(true);
     }
 
     /**
@@ -142,8 +141,6 @@ public abstract class ClassMapping extends Mapping {
     void addInnerClassMapping(InnerClassMapping mapping) {
         mapping.initialize();
         innerClassMappings.put(mapping.getObfuscatedName(), mapping);
-
-        getContext().setDirty(true);
     }
 
     /**

@@ -76,7 +76,7 @@ public final class MappingsOpenDialogHelper {
             try (MappingsReader reader = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter())
                     .constructReader(new BufferedReader(new FileReader(selectedFile)))) {
                 MappingContext context = reader.read();
-                Main.getMappingContext().merge(context);
+                Main.getMappingContext().assimilate(context);
                 MainController.INSTANCE.updateClassViews();
                 Main.getMappingContext().setDirty(false);
             }
