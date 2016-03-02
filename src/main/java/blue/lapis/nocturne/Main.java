@@ -25,7 +25,9 @@
 
 package blue.lapis.nocturne;
 
+import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
@@ -52,6 +54,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -125,13 +128,22 @@ public class Main extends Application {
     public void initialize() {
         propertiesHelper = new PropertiesHelper();
         locale = getPropertiesHelper().getProperty(PropertiesHelper.Key.LOCALE);
-        resourceBundle = ResourceBundle.getBundle("lang." + locale);
+        initLocale();
     }
 
-    public static void reload() throws IOException {
-        getInstance().initialize();
-        getInstance().loadView(getCurrentLocale());
-        System.gc(); //TODO: I'm a terrible person
+    public void initLocale() {
+        try {
+            resourceBundle = ResourceBundle.getBundle("lang." + locale);
+        } catch (MissingResourceException ex) {
+            if (locale.equals("en_US")) {
+                Main.getLogger().severe("Cannot locate default locale (" + locale + ") - giving up");
+                throw ex;
+            }
+
+            Main.getLogger().warning("Current locale (" + locale + ") is not available - resetting to en_US");
+            locale = "en_US";
+            initLocale();
+        }
     }
 
     @Override

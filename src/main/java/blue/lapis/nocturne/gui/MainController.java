@@ -47,6 +47,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -74,6 +75,8 @@ import java.util.stream.Collectors;
 public class MainController implements Initializable {
 
     public static MainController INSTANCE;
+
+    private static final Alert RESTART_ALERT = new Alert(Alert.AlertType.WARNING);
 
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
@@ -116,6 +119,10 @@ public class MainController implements Initializable {
         setAccelerators();
 
         this.initTreeViews();
+
+        RESTART_ALERT.setTitle(Main.getResourceBundle().getString("dialog.restart.title"));
+        RESTART_ALERT.setHeaderText(null);
+        RESTART_ALERT.setContentText(Main.getResourceBundle().getString("dialog.restart.content"));
     }
 
     private void initTreeViews() {
@@ -252,7 +259,7 @@ public class MainController implements Initializable {
         if (!langId.equals(Main.getCurrentLocale())) {
             Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LOCALE, langId);
 
-            Main.reload();
+            RESTART_ALERT.showAndWait();
         }
 
     }
