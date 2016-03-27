@@ -25,9 +25,7 @@
 
 package blue.lapis.nocturne;
 
-import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
-import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;

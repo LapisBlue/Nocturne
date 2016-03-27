@@ -28,7 +28,7 @@ package blue.lapis.nocturne.processor.constantpool.model.structure;
 import blue.lapis.nocturne.util.helper.ByteHelper;
 
 /**
- * Repressents a NameAndType structure.
+ * Represents a NameAndType structure.
  */
 public class NameAndTypeStructure extends ConstantStructure {
 

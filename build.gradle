@@ -7,7 +7,7 @@ plugins {
 
     id 'net.minecrell.gitpatcher' version '0.8'
 
-    id 'net.minecrell.licenser' version '0.1.2'
+    id 'net.minecrell.licenser' version '0.1.5'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
@@ -46,7 +46,7 @@ repositories {
 
 // Project dependencies
 dependencies {
-    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.guava:guava:19.0'
     compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'
@@ -125,5 +125,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.11'
+    gradleVersion = '2.12'
 }
