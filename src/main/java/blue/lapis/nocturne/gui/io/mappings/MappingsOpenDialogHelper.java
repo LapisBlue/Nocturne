@@ -32,6 +32,8 @@ import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -73,8 +75,19 @@ public final class MappingsOpenDialogHelper {
         Path selectedPath = selectedFile.toPath();
 
         if (Files.exists(selectedPath)) { //TODO: isn't this redundant?
-            try (MappingsReader reader = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter())
-                    .constructReader(new BufferedReader(new FileReader(selectedFile)))) {
+            MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+            try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
+                if (type == MappingReaderType.ENIGMA) {
+                    Alert confirmEngima = new Alert(Alert.AlertType.CONFIRMATION,
+                            Main.getResourceBundle().getString("enigma.support_notice"),
+                            ButtonType.YES, ButtonType.NO);
+                    confirmEngima.showAndWait();
+
+                    if (confirmEngima.getResult() == ButtonType.NO) {
+                        return;
+                    }
+                }
+
                 MappingContext context = reader.read();
                 Main.getMappingContext().assimilate(context);
                 MainController.INSTANCE.updateClassViews();

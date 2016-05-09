@@ -39,9 +39,9 @@ import java.util.Map;
 public enum MappingReaderType {
 
     SRG(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
-            SrgReader.class);
-    /*ENIGMA(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_enigma"), "*.*"),
-            EnigmaReader.class);*/
+            SrgReader.class),
+    ENIGMA(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_enigma"), "*.*"),
+            EnigmaReader.class);
 
     private static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
 
