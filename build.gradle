@@ -16,7 +16,7 @@ defaultTasks 'clean', 'licenseFormat', 'build'
 // Project information
 allprojects {
     group = 'blue.lapis.nocturne'
-    version = '1.0.3-SNAPSHOT'
+    version = '1.1.0-SNAPSHOT'
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -125,5 +125,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '2.13'
 }
