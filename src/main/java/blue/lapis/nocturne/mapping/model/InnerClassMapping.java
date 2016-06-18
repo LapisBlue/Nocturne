@@ -29,8 +29,11 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
+
+import java.util.Optional;
 
 /**
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
@@ -70,7 +73,7 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
     @Override
     public String getFullObfuscatedName() {
         return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullObfuscatedName()
+                ? parent.getFullObfuscatedName()
                 : parent.getObfuscatedName())
                 + INNER_CLASS_SEPARATOR_CHAR + getObfuscatedName();
     }
@@ -83,7 +86,7 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
     @Override
     public String getFullDeobfuscatedName() {
         return (parent instanceof InnerClassMapping
-                ? ((InnerClassMapping) parent).getFullDeobfuscatedName()
+                ? parent.getFullDeobfuscatedName()
                 : parent.getDeobfuscatedName())
                 + INNER_CLASS_SEPARATOR_CHAR + getDeobfuscatedName();
     }
@@ -95,10 +98,16 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
 
     @Override
     public void setDeobfuscatedName(String deobf) {
-        super.setDeobfuscatedName(deobf);
+        Optional<JarClassEntry> jarClassEntry = Main.getLoadedJar().getClass(getParent().getFullObfuscatedName());
+        if (jarClassEntry.isPresent()) {
+            jarClassEntry.get().getCurrentInnerClassNames().put(getObfuscatedName(), deobf);
+        } else {
+            // log and skip
+            Main.getLogger().severe("Invalid obfuscated name: " + getParent().getFullObfuscatedName());
+            return;
+        }
 
-        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentInnerClassNames().put(getObfuscatedName(), deobf);
+        super.setDeobfuscatedName(deobf);
     }
 
     @Override
