@@ -26,9 +26,9 @@
 package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
+import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
+import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * Static utility class for dialogs for saving mappings.
@@ -53,16 +54,14 @@ public final class MappingsSaveDialogHelper {
             return;
         }
 
-        saveMappings0();
+        saveMappings0(Main.getCurrentWriterType());
     }
 
     public static boolean saveMappingsAs() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
-                new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_all"), "*.*")
-        );
+        Arrays.asList(MappingWriterType.values())
+                .forEach(t -> fileChooser.getExtensionFilters().add(t.getExtensionFilter()));
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
@@ -88,15 +87,17 @@ public final class MappingsSaveDialogHelper {
             Main.getMappingContext().setDirty(true);
         }
 
+        final MappingWriterType writerType = MappingWriterType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
         Main.setCurrentMappingsPath(selectedFile.toPath());
+        Main.setCurrentWriterType(writerType);
 
-        saveMappings0();
+        saveMappings0(writerType);
         return true;
     }
 
-    private static void saveMappings0() throws IOException {
+    private static void saveMappings0(MappingWriterType writerType) throws IOException {
         if (Main.getMappingContext().isDirty()) {
-            try (SrgWriter writer = new SrgWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
+            try (MappingsWriter writer = writerType.constructWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
                 writer.write(Main.getMappingContext());
             }
 

@@ -81,7 +81,12 @@ public class SrgWriter extends MappingsWriter {
         }
     }
 
-    @Override
+    /**
+     * Writes the given {@link ClassMapping} to the {@link SrgWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param classMapping The {@link ClassMapping} to write
+     */
     protected void writeClassMapping(ClassMapping classMapping) {
         if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
             clWriter.format("CL: %s %s\n",
@@ -93,14 +98,24 @@ public class SrgWriter extends MappingsWriter {
         classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).forEach(this::writeMethodMapping);
     }
 
-    @Override
+    /**
+     * Writes the given {@link FieldMapping} to the {@link SrgWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param fieldMapping The {@link FieldMapping} to write
+     */
     protected void writeFieldMapping(FieldMapping fieldMapping) {
         fdWriter.format("FD: %s/%s %s/%s\n",
                 fieldMapping.getParent().getFullObfuscatedName(), fieldMapping.getObfuscatedName(),
                 fieldMapping.getParent().getFullDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
     }
 
-    @Override
+    /**
+     * Writes the given {@link MethodMapping} to the {@link SrgWriter}'s
+     * {@link PrintWriter}.
+     *
+     * @param mapping The {@link MethodMapping} to write
+     */
     protected void writeMethodMapping(MethodMapping mapping) {
         mdWriter.format("MD: %s/%s %s %s/%s %s\n",
                 mapping.getParent().getFullObfuscatedName(), mapping.getObfuscatedName(),
