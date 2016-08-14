@@ -26,6 +26,7 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -37,6 +38,11 @@ import java.util.stream.Collectors;
  */
 public class EnigmaReader extends MappingsReader {
 
+    private static final String CLASS_MAPPING_KEY = "CLASS";
+    private static final String FIELD_MAPPING_KEY = "FIELD";
+    private static final String METHOD_MAPPING_KEY = "METHOD";
+    private static final String ARG_MAPPING_KEY = "ARG";
+
     public EnigmaReader(BufferedReader reader) {
         super(reader);
     }
@@ -47,14 +53,17 @@ public class EnigmaReader extends MappingsReader {
 
         String currentClass = null;
         int lineNum = 0;
+
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
             String[] arr = line.trim().split(" ");
+
             if (arr.length == 0) {
                 continue;
             }
+
             switch (arr[0]) {
-                case "CLASS": {
+                case CLASS_MAPPING_KEY: {
                     if (arr.length < 2 || arr.length > 3) {
                         throw new IllegalArgumentException("Cannot parse file: malformed class mapping on line "
                                 + lineNum);
@@ -67,7 +76,7 @@ public class EnigmaReader extends MappingsReader {
                     currentClass = obf;
                     break;
                 }
-                case "FIELD": {
+                case FIELD_MAPPING_KEY: {
                     if (arr.length != 4) {
                         throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
                                 + lineNum);
@@ -81,10 +90,10 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    MappingsHelper.genFieldMapping(mappings, currentClass, obf, deobf); // TODO: type
+                    MappingsHelper.genFieldMapping(mappings, currentClass, obf, deobf, Type.fromString(type));
                     break;
                 }
-                case "METHOD": {
+                case METHOD_MAPPING_KEY: {
                     if (arr.length == 3) {
                         continue;
                     }
@@ -105,7 +114,7 @@ public class EnigmaReader extends MappingsReader {
                     MappingsHelper.genMethodMapping(mappings, currentClass, obf, deobf, sig);
                     break;
                 }
-                case "ARG": {
+                case ARG_MAPPING_KEY: {
                     break;
                 }
                 default: {

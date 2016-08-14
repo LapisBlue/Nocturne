@@ -89,7 +89,7 @@ public class FieldMapping extends MemberMapping {
 
     private String getQualifiedName() {
         return (getParent() instanceof InnerClassMapping
-                ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
+                ? getParent().getFullObfuscatedName()
                 : getParent().getObfuscatedName())
                 + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }

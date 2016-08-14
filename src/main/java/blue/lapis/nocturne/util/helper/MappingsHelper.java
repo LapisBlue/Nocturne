@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -82,6 +83,10 @@ public final class MappingsHelper {
     }
 
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf) {
+        genFieldMapping(context, owningClass, obf, deobf, null);
+    }
+
+    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf, Type type) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -95,7 +100,7 @@ public final class MappingsHelper {
         if (parent.getFieldMappings().containsKey(obf)) {
             parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            new FieldMapping(parent, obf, deobf, null);
+            new FieldMapping(parent, obf, deobf, type);
         }
     }
 
