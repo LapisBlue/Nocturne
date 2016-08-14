@@ -7,7 +7,7 @@ plugins {
 
     id 'net.minecrell.gitpatcher' version '0.8'
 
-    id 'net.minecrell.licenser' version '0.1.5'
+    id 'net.minecrell.licenser' version '0.2.1'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
@@ -125,5 +125,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = '2.14'
 }
