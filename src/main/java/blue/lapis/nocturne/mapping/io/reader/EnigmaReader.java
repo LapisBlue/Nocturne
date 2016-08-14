@@ -56,8 +56,16 @@ public class EnigmaReader extends MappingsReader {
 
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
-            String[] arr = line.trim().split(" ");
 
+            // Remove comments
+            final int commentPos = line.indexOf('#');
+            if (commentPos >= 0) {
+                line = line.substring(0, commentPos);
+            }
+
+            final String[] arr = line.trim().split(" ");
+
+            // Skip empty lines
             if (arr.length == 0) {
                 continue;
             }
