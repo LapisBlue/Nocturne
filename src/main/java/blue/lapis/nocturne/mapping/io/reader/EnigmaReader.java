@@ -28,6 +28,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -51,7 +52,7 @@ public class EnigmaReader extends MappingsReader {
     public MappingContext read() {
         MappingContext mappings = new MappingContext();
 
-        String currentClass = null;
+        ClassMapping currentClass = null;
         int lineNum = 0;
 
         for (String line : reader.lines().collect(Collectors.toList())) {
@@ -70,6 +71,16 @@ public class EnigmaReader extends MappingsReader {
                 continue;
             }
 
+            // The indentation level of the line
+            int indentLevel = 0;
+            for (int i = 0; i < line.length(); i++) {
+                // Check if the char is a tab
+                if (line.charAt(i) != '\t') {
+                    break;
+                }
+                indentLevel++;
+            }
+
             switch (arr[0]) {
                 case CLASS_MAPPING_KEY: {
                     if (arr.length < 2 || arr.length > 3) {
@@ -79,9 +90,17 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1].replace("none/", "");
                     String deobf = arr.length == 3 ? arr[2] : obf;
-                    //TODO: handle inner classes
-                    MappingsHelper.genClassMapping(mappings, obf, deobf, false);
-                    currentClass = obf;
+
+                    if (indentLevel != 0) {
+                        if (currentClass == null) {
+                            throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
+                                    + "class mapping on line " + lineNum);
+                        }
+                        obf = currentClass.getFullObfuscatedName() + "/" + obf;
+                        deobf = currentClass.getFullDeobfuscatedName() + "/" + deobf;
+                    }
+
+                    currentClass = MappingsHelper.genClassMapping(mappings, obf, deobf, false);
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
@@ -98,7 +117,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    MappingsHelper.genFieldMapping(mappings, currentClass, obf, deobf, Type.fromString(type));
+                    MappingsHelper.genFieldMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, Type.fromString(type));
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
@@ -119,7 +138,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    MappingsHelper.genMethodMapping(mappings, currentClass, obf, deobf, sig);
+                    MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, sig);
                     break;
                 }
                 case ARG_MAPPING_KEY: {

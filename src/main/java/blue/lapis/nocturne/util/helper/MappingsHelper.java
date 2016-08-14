@@ -45,13 +45,13 @@ import java.util.Optional;
  */
 public final class MappingsHelper {
 
-    public static void genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
+    public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
-            return;
+            return null;
         } else if (!StringHelper.isJavaClassIdentifier(obf) || !StringHelper.isJavaClassIdentifier(deobf)) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
-            return;
+            return null;
         }
 
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
@@ -59,7 +59,7 @@ public final class MappingsHelper {
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
                 Main.getLogger().warning("Unsupported mapping: " + obf + " <-> " + deobf);
-                return; // ignore it
+                return null; // ignore it
             }
 
             // get the direct parent class to this inner class
@@ -69,15 +69,21 @@ public final class MappingsHelper {
             String baseObfName = obfSplit[obfSplit.length - 1];
             String baseDeobfname = deobfSplit[deobfSplit.length - 1];
             if (parent.getInnerClassMappings().containsKey(baseObfName)) {
-                parent.getInnerClassMappings().get(baseObfName).setDeobfuscatedName(baseDeobfname);
+                InnerClassMapping mapping = parent.getInnerClassMappings().get(baseObfName);
+                mapping.setDeobfuscatedName(baseDeobfname);
+                return mapping;
             } else {
-                new InnerClassMapping(parent, baseObfName, baseDeobfname);
+                return new InnerClassMapping(parent, baseObfName, baseDeobfname);
             }
         } else {
             if (context.getMappings().containsKey(obf)) {
-                context.getMappings().get(obf).setDeobfuscatedName(deobf);
+                TopLevelClassMapping mapping = context.getMappings().get(obf);
+                mapping.setDeobfuscatedName(deobf);
+                return mapping;
             } else {
-                context.addMapping(new TopLevelClassMapping(context, obf, deobf), updateClassViews);
+                TopLevelClassMapping mapping = new TopLevelClassMapping(context, obf, deobf);
+                context.addMapping(mapping, updateClassViews);
+                return mapping;
             }
         }
     }
