@@ -56,21 +56,21 @@ public class EnigmaReader extends MappingsReader {
             switch (arr[0]) {
                 case "CLASS": {
                     if (arr.length < 2 || arr.length > 3) {
-                        System.err.println("Cannot parse file: malformed class mapping on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: malformed class mapping on line "
+                                + lineNum);
                     }
 
                     String obf = arr[1].replace("none/", "");
                     String deobf = arr.length == 3 ? arr[2] : obf;
                     //TODO: handle inner classes
-                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf, false);
+                    MappingsHelper.genClassMapping(mappings, obf, deobf, false);
                     currentClass = obf;
                     break;
                 }
                 case "FIELD": {
                     if (arr.length != 4) {
-                        System.err.println("Cannot parse file: malformed field mapping on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
+                                + lineNum);
                     }
 
                     if (currentClass == null) {
@@ -81,7 +81,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf); // TODO: type
+                    MappingsHelper.genFieldMapping(mappings, currentClass, obf, deobf); // TODO: type
                     break;
                 }
                 case "METHOD": {
@@ -102,7 +102,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    MappingsHelper.genMethodMapping(Main.getMappingContext(), currentClass, obf, deobf, sig);
+                    MappingsHelper.genMethodMapping(mappings, currentClass, obf, deobf, sig);
                     break;
                 }
                 case "ARG": {
