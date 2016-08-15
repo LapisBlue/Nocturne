@@ -26,6 +26,7 @@
 package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
@@ -88,7 +89,15 @@ public class EnigmaWriter extends MappingsWriter {
             out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " " + methodMapping.getDeobfuscatedName() + " "
                     + methodMapping.getObfuscatedDescriptor().toString());
         }
-        // TODO: Support argument mappings
+
+        for (ArgumentMapping argumentMapping : methodMapping.getArgumentMappings().values()) {
+            writeArgumentMapping(argumentMapping, depth + 1);
+        }
+    }
+
+    protected void writeArgumentMapping(ArgumentMapping argumentMapping, int depth) {
+        // TODO: get the actual index
+        out.println(getIndentForDepth(depth) + "ARG 0 " + argumentMapping.getDeobfuscatedName());
     }
 
     private String getIndentForDepth(int depth) {
