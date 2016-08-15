@@ -35,12 +35,17 @@ import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a {@link Mapping} for a method.
  */
 public class MethodMapping extends MemberMapping {
 
+    private final Map<String, ArgumentMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodDescriptor descriptor;
     private final IndexedMethod.Signature sig;
@@ -81,6 +86,27 @@ public class MethodMapping extends MemberMapping {
 
     public void initialize(boolean propagate) {
         this.setDeobfuscatedName(getDeobfuscatedName(), propagate);
+    }
+
+    /**
+     * Gets a clone of the {@link ArgumentMapping}s.
+     *
+     * @return A clone of the {@link ArgumentMapping}s
+     */
+    public ImmutableMap<String, ArgumentMapping> getArgumentMappings() {
+        return ImmutableMap.copyOf(this.argumentMappings);
+    }
+
+    /**
+     * Adds the given {@link ArgumentMapping} to this {@link ClassMapping}.
+     *
+     * @param mapping The {@link ArgumentMapping} to add
+     * @param propagate Whether to propagate this mapping to super- and
+     *     sub-classes
+     */
+    void addArgumentMapping(ArgumentMapping mapping, boolean propagate) {
+        mapping.initialize(propagate);
+        argumentMappings.put(mapping.getObfuscatedName(), mapping);
     }
 
     /**

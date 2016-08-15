@@ -161,7 +161,9 @@ public class CodeTab extends Tab {
     public enum SelectableMemberType {
         FIELD("codetab.identifier.field", "codetab.identifier.type"),
         METHOD("codetab.identifier.method", "codetab.identifier.descriptor"),
-        CLASS("codetab.identifier.class");
+        ARG("codetab.identifier.arg", "codetab.identifier.type"),
+        CLASS("codetab.identifier.class"),
+        ;
 
         private final String identifierLabel;
         private final String infoLabel;
@@ -216,6 +218,8 @@ public class CodeTab extends Tab {
                     return SelectableMemberType.FIELD;
                 case METHOD:
                     return SelectableMemberType.METHOD;
+                case ARG:
+                    return SelectableMemberType.ARG;
                 default:
                     throw new AssertionError();
             }
