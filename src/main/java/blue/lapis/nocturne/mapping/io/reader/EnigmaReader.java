@@ -29,6 +29,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -53,6 +54,7 @@ public class EnigmaReader extends MappingsReader {
         MappingContext mappings = new MappingContext();
 
         ClassMapping currentClass = null;
+        MethodMapping currentMethod = null;
         int lineNum = 0;
 
         for (String line : reader.lines().collect(Collectors.toList())) {
@@ -101,6 +103,7 @@ public class EnigmaReader extends MappingsReader {
                     }
 
                     currentClass = MappingsHelper.genClassMapping(mappings, obf, deobf, false);
+                    currentMethod = null;
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
@@ -117,7 +120,9 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
+
                     MappingsHelper.genFieldMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, Type.fromString(type));
+                    currentMethod = null;
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
@@ -138,10 +143,25 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, sig);
+
+                    currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, sig);
                     break;
                 }
                 case ARG_MAPPING_KEY: {
+                    if (arr.length != 3) {
+                        throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
+                                + lineNum);
+                    }
+
+                    if (currentMethod == null) {
+                        throw new IllegalArgumentException("Cannot parse file: found argument mapping before initial "
+                                + "method mapping on line " + lineNum);
+                    }
+
+                    int index = Integer.parseInt(arr[1]);
+                    String deobf = arr[2];
+
+                    MappingsHelper.genArgumentMapping(mappings, currentMethod, index, deobf);
                     break;
                 }
                 default: {
