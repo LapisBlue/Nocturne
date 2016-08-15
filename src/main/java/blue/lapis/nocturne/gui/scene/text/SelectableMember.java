@@ -35,10 +35,12 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
@@ -79,6 +81,7 @@ public class SelectableMember extends Text {
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
+    private final Type fieldType;
     private final MethodDescriptor desc;
     private final IndexedMethod.Signature sig;
 
@@ -94,6 +97,7 @@ public class SelectableMember extends Text {
         this.type = type;
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
+        this.fieldType = type == MemberType.FIELD ? Type.fromString(descriptor) : null;
         this.desc = type == MemberType.METHOD ? MethodDescriptor.fromString(descriptor) : null;
         this.sig = type == MemberType.METHOD ? new IndexedMethod.Signature(name, desc) : null;
         this.parentClassProperty.set(parentClass);
@@ -273,7 +277,8 @@ public class SelectableMember extends Text {
             }
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
-                if (jce.getCurrentFieldNames().containsValue(newName)) {
+                IndexedField.Signature newSig = new IndexedField.Signature(newName, this.fieldType);
+                if (jce.getCurrentFields().containsValue(newSig)) {
                     showDupeAlert(false);
                     return false;
                 } else {
@@ -286,7 +291,7 @@ public class SelectableMember extends Text {
                         .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
                 for (JarClassEntry jce : hierarchy) {
                     IndexedMethod.Signature newSig = new IndexedMethod.Signature(newName, this.desc);
-                    if (jce.getCurrentMethodNames().containsValue(newSig)) {
+                    if (jce.getCurrentMethods().containsValue(newSig)) {
                         showDupeAlert(!jce.getName().equals(getName()));
                         return false;
                     }

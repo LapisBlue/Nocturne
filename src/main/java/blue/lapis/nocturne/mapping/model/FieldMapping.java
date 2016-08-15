@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.util.MemberType;
 
 /**
@@ -38,7 +39,8 @@ import blue.lapis.nocturne.util.MemberType;
 public class FieldMapping extends MemberMapping {
 
     private final ClassMapping parent;
-    private final Type type; //TODO: not necessary (or possible) for SRG mappings so we won't enforce it
+    private final Type type;
+    private final IndexedField.Signature sig;
 
     /**
      * Constructs a new {@link FieldMapping} with the given parameters.
@@ -52,6 +54,7 @@ public class FieldMapping extends MemberMapping {
         super(parent, obfName, deobfName);
         this.parent = parent;
         this.type = type;
+        this.sig = new IndexedField.Signature(obfName, type);
 
         parent.addFieldMapping(this);
     }
@@ -79,7 +82,7 @@ public class FieldMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentFieldNames().put(getObfuscatedName(), deobf);
+                .getCurrentFields().put(sig, new IndexedField.Signature(getDeobfuscatedName(), type));
     }
 
     @Override

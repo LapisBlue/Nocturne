@@ -36,8 +36,11 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.processor.index.model.IndexedField;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Static utility class for assisting with mapping retrieval and creation.
@@ -81,6 +84,7 @@ public final class MappingsHelper {
         }
     }
 
+    //TODO: modify this to accept proper field signatures
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
@@ -95,7 +99,16 @@ public final class MappingsHelper {
         if (parent.getFieldMappings().containsKey(obf)) {
             parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            new FieldMapping(parent, obf, deobf, null);
+            Stream<IndexedField.Signature> stream = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
+                    .stream().filter(s -> s.getName().equals(obf));
+            if (stream.count() > 1) {
+                Main.getLogger().warning("Discovered ambiguous field mapping! Ignoring...");
+                return;
+            } else if (stream.count() == 0) {
+                Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
+                return;
+            }
+            new FieldMapping(parent, obf, deobf, stream.findFirst().get().getType());
         }
     }
 

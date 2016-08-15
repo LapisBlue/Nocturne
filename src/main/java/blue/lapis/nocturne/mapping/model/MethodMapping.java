@@ -160,7 +160,7 @@ public class MethodMapping extends MemberMapping {
         }
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentMethodNames().put(sig, new IndexedMethod.Signature(deobf, descriptor));
+                .getCurrentMethods().put(sig, new IndexedMethod.Signature(deobf, descriptor));
     }
 
 }
