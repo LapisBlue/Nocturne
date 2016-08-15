@@ -36,26 +36,38 @@ public class ArgumentMapping extends Mapping {
 
     private final SelectableMember.MemberKey memberKey;
     private final MethodMapping parent;
+    private final int index;
 
     /**
      * Constructs a new {@link ArgumentMapping} with the given parameters.
      *
      * @param parent The parent method mapping
+     * @param index The index of the argument
      * @param obfName The obfuscated name of the mapped argument
      * @param deobfName The deobfuscated name of the mapped argument
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes
      */
-    public ArgumentMapping(MethodMapping parent, String obfName, String deobfName, boolean propagate) {
+    public ArgumentMapping(MethodMapping parent, int index, String obfName, String deobfName, boolean propagate) {
         super(obfName, deobfName);
         this.memberKey = new SelectableMember.MemberKey(MemberType.ARG, "", ""); // TODO: Use actual values
         this.parent = parent;
+        this.index = index;
 
         this.parent.addArgumentMapping(this, propagate);
     }
 
     public void initialize(boolean propagate) {
         this.setDeobfuscatedName(getDeobfuscatedName(), propagate);
+    }
+
+    /**
+     * Gets the index of the mapped argument.
+     *
+     * @return The index
+     */
+    public int getIndex() {
+        return index;
     }
 
     /**
