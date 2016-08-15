@@ -36,7 +36,8 @@ public enum MemberType {
 
     CLASS,
     FIELD,
-    METHOD;
+    METHOD,
+    ARG;
 
     private static HashMap<String, MemberType> index;
 
