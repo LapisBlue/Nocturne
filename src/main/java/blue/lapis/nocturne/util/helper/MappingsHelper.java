@@ -87,8 +87,6 @@ public final class MappingsHelper {
         }
     }
 
-    //TODO: modify this to accept proper field signatures
-    // this is gonna be tricky
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
                                        String descriptor) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
