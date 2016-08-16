@@ -87,7 +87,7 @@ public class FieldMapping extends MemberMapping {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), null);
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), type.toString());
     }
 
     private String getQualifiedName() {
