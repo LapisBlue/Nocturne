@@ -26,6 +26,8 @@
 package blue.lapis.nocturne.processor.index.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -46,8 +48,8 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
     private ImmutableConstantPool constantPool;
     private final String superClass;
     private final ImmutableList<String> interfaces;
-    private final ImmutableMap<IndexedField.Signature, IndexedField> fields;
-    private final ImmutableMap<IndexedMethod.Signature, IndexedMethod> methods;
+    private final ImmutableMap<FieldSignature, IndexedField> fields;
+    private final ImmutableMap<MethodSignature, IndexedMethod> methods;
 
     public IndexedClass(String name, ImmutableConstantPool constantPool, String superClass, List<String> interfaces,
             List<IndexedField> fields, List<IndexedMethod> methods) {
@@ -78,11 +80,11 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
         return interfaces;
     }
 
-    public ImmutableMap<IndexedField.Signature, IndexedField> getFields() {
+    public ImmutableMap<FieldSignature, IndexedField> getFields() {
         return fields;
     }
 
-    public ImmutableMap<IndexedMethod.Signature, IndexedMethod> getMethods() {
+    public ImmutableMap<MethodSignature, IndexedMethod> getMethods() {
         return methods;
     }
 

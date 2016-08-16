@@ -81,7 +81,7 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf); // TODO: type
+                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf, type);
                     break;
                 }
                 case "METHOD": {

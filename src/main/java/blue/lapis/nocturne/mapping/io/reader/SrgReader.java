@@ -99,7 +99,8 @@ public class SrgReader extends MappingsReader {
             String owningClass = arr[1].substring(0, lastIndex);
             String obf = arr[1].substring(lastIndex + 1);
             String deobf = arr[2].substring(arr[2].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
-            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf);
+            // SRG doesn't support field types so we just pass a null type arg and let the helper method figure it out
+            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf, null);
         }
     }
 

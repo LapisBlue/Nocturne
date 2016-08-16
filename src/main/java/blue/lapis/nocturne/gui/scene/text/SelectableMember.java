@@ -40,8 +40,9 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.IndexedField;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
@@ -81,9 +82,7 @@ public class SelectableMember extends Text {
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
-    private final Type fieldType;
-    private final MethodDescriptor desc;
-    private final IndexedMethod.Signature sig;
+    private final MemberSignature sig;
 
     private String fullName = null; // only used for classes
 
@@ -97,9 +96,15 @@ public class SelectableMember extends Text {
         this.type = type;
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
-        this.fieldType = type == MemberType.FIELD ? Type.fromString(descriptor) : null;
-        this.desc = type == MemberType.METHOD ? MethodDescriptor.fromString(descriptor) : null;
-        this.sig = type == MemberType.METHOD ? new IndexedMethod.Signature(name, desc) : null;
+
+        if (type == MemberType.FIELD) {
+            this.sig = new FieldSignature(name, Type.fromString(descriptor));
+        } else if (type == MemberType.METHOD) {
+            this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
+        } else {
+            this.sig = null;
+        }
+
         this.parentClassProperty.set(parentClass);
 
         if (type == MemberType.CLASS) {
@@ -212,17 +217,20 @@ public class SelectableMember extends Text {
                 qualName = name;
                 break;
             case FIELD:
-                if (!ic.getFields().contains(getName())) {
+                //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
+                if (!ic.getFields().containsKey(sig)) {
                     throw new IllegalArgumentException();
                 }
                 qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
                 break;
             case METHOD:
                 String parent = null;
+                //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
                 if (ic.getMethods().containsKey(sig)) {
                     parent = getParentClass();
                 } else {
                     for (IndexedClass hc : ic.getHierarchy()) {
+                        //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
                         if (hc.getMethods().containsKey(sig)) {
                             parent = hc.getName();
                             break;
@@ -238,7 +246,8 @@ public class SelectableMember extends Text {
                 throw new AssertionError();
         }
         //TODO: we're ignoring field descriptors for now since SRG doesn't support them
-        MemberKey key = new MemberKey(type, qualName, type == MemberType.METHOD ? descriptor : null);
+        MemberKey key = new MemberKey(type, qualName,
+                type == MemberType.FIELD || type == MemberType.METHOD ? descriptor : null);
         if (!MEMBERS.containsKey(key)) {
             MEMBERS.put(key, new ArrayList<>());
         }
@@ -277,7 +286,8 @@ public class SelectableMember extends Text {
             }
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
-                IndexedField.Signature newSig = new IndexedField.Signature(newName, this.fieldType);
+                FieldSignature newSig = new FieldSignature(newName,
+                        ((FieldSignature) sig).getType());
                 if (jce.getCurrentFields().containsValue(newSig)) {
                     showDupeAlert(false);
                     return false;
@@ -286,11 +296,13 @@ public class SelectableMember extends Text {
                 }
             }
             case METHOD: {
-                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(getParentClass(), sig).stream()
-                        .filter(c -> Main.getLoadedJar().getClass(c).isPresent())
+                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(getParentClass(),
+                        (MethodSignature) sig)
+                        .stream().filter(c -> Main.getLoadedJar().getClass(c).isPresent())
                         .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
                 for (JarClassEntry jce : hierarchy) {
-                    IndexedMethod.Signature newSig = new IndexedMethod.Signature(newName, this.desc);
+                    MethodSignature newSig
+                            = new MethodSignature(newName, ((MethodSignature) sig).getDescriptor());
                     if (jce.getCurrentMethods().containsValue(newSig)) {
                         showDupeAlert(!jce.getName().equals(getName()));
                         return false;
@@ -333,7 +345,8 @@ public class SelectableMember extends Text {
                 break;
             }
             case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappingContext(), getParentClass(), getName(), mapping);
+                MappingsHelper.genFieldMapping(Main.getMappingContext(), getParentClass(), getName(), mapping,
+                        getDescriptor());
                 break;
             }
             case METHOD: {
@@ -342,6 +355,7 @@ public class SelectableMember extends Text {
                 classes.add(clazz);
 
                 for (IndexedClass ic : classes) {
+                    //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
                     if (ic.getMethods().containsKey(sig)) {
                         MappingsHelper.genMethodMapping(Main.getMappingContext(), ic.getName(), getName(), mapping,
                                 getDescriptor());

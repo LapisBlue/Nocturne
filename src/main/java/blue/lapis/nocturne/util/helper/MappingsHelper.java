@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -37,9 +38,11 @@ import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.IndexedField;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -85,7 +88,9 @@ public final class MappingsHelper {
     }
 
     //TODO: modify this to accept proper field signatures
-    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf) {
+    // this is gonna be tricky
+    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
+                                       String descriptor) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -99,16 +104,22 @@ public final class MappingsHelper {
         if (parent.getFieldMappings().containsKey(obf)) {
             parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            Stream<IndexedField.Signature> stream = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
-                    .stream().filter(s -> s.getName().equals(obf));
-            if (stream.count() > 1) {
-                Main.getLogger().warning("Discovered ambiguous field mapping! Ignoring...");
-                return;
-            } else if (stream.count() == 0) {
-                Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
-                return;
+            Type type;
+            if (descriptor != null) {
+                type = Type.fromString(descriptor);
+            } else {
+                List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
+                        .stream().filter(s -> s.getName().equals(obf)).collect(Collectors.toList());
+                if (sigList.size() > 1) {
+                    Main.getLogger().warning("Discovered ambiguous field mapping! Ignoring...");
+                    return;
+                } else if (sigList.size() == 0) {
+                    Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
+                    return;
+                }
+                type = sigList.get(0).getType();
             }
-            new FieldMapping(parent, obf, deobf, stream.findFirst().get().getType());
+            new FieldMapping(parent, obf, deobf, type);
         }
     }
 

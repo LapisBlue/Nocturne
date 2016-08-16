@@ -44,8 +44,8 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
-
-import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class ClassIndexer extends ClassProcessor {
             }
         }
 
-        List<IndexedField.Signature> fields = indexFields(buffer, pool);
+        List<IndexedField> fields = indexFields(buffer, pool);
 
         List<IndexedMethod> methods = indexMethods(buffer, pool);
 
@@ -107,16 +107,16 @@ public class ClassIndexer extends ClassProcessor {
      *
      * @param buffer The buffer to read from
      */
-    private List<IndexedField.Signature> indexFields(ByteBuffer buffer, ConstantPool pool) {
-        List<IndexedField.Signature> fields = new ArrayList<>();
+    private List<IndexedField> indexFields(ByteBuffer buffer, ConstantPool pool) {
+        List<IndexedField> fields = new ArrayList<>();
 
         int fieldCount = buffer.getShort(); // read the field count
         for (int i = 0; i < fieldCount; i++) {
-            buffer.position(buffer.position() + 2); // skip the access
+            IndexedField.Visibility vis = IndexedField.Visibility.fromAccessFlags(buffer.getShort()); // get the access
             String name = getString(pool, buffer.getShort()); // get the name
             Type desc = Type.fromString(getString(pool, buffer.getShort())); // get the descriptor
-            IndexedField.Signature sig = new IndexedField.Signature(name, desc);
-            fields.add(sig);
+            FieldSignature sig = new FieldSignature(name, desc);
+            fields.add(new IndexedField(sig, vis));
             jce.getCurrentFields().put(sig, sig); // index the field name for future reference
             skipAttributes(buffer);
         }
@@ -140,7 +140,7 @@ public class ClassIndexer extends ClassProcessor {
             IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
             MethodDescriptor desc = MethodDescriptor.fromString(getString(pool, buffer.getShort()));
-            IndexedMethod.Signature sig = new IndexedMethod.Signature(name, desc);
+            MethodSignature sig = new MethodSignature(name, desc);
             methods.add(new IndexedMethod(sig, vis));
             jce.getCurrentMethods().put(sig, sig); // index the method sig for future reference
 

@@ -25,68 +25,30 @@
 
 package blue.lapis.nocturne.processor.index.model;
 
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a method serialized by Nocturne's class indexer.
  */
 public class IndexedMethod extends Hierarchical<IndexedClass> {
 
-    private final Signature signature;
+    private final MethodSignature signature;
     private final Visibility visibility;
 
-    public IndexedMethod(Signature signature, Visibility visibility) {
+    public IndexedMethod(MethodSignature signature, Visibility visibility) {
         this.signature = signature;
         this.visibility = visibility;
     }
 
-    public Signature getSignature() {
+    public MethodSignature getSignature() {
         return signature;
     }
 
     public Visibility getVisibility() {
         return visibility;
-    }
-
-    /**
-     * Represents the unique signature of a particular method.
-     */
-    public static class Signature {
-
-        private final String name;
-        private final MethodDescriptor descriptor;
-
-        public Signature(String name, MethodDescriptor descriptor) {
-            this.name = name;
-            this.descriptor = descriptor;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public MethodDescriptor getDescriptor() {
-            return descriptor;
-        }
-
-        @Override
-        public boolean equals(Object otherObj) {
-            if (!(otherObj instanceof Signature)) {
-                return false;
-            }
-            Signature sig = (Signature) otherObj;
-            return sig.getName().equals(getName()) && sig.getDescriptor().equals(getDescriptor());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, descriptor);
-        }
-
     }
 
     /**

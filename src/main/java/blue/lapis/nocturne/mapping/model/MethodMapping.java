@@ -31,10 +31,11 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class MethodMapping extends MemberMapping {
     private final Map<String, ArgumentMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodDescriptor descriptor;
-    private final IndexedMethod.Signature sig;
+    private final MethodSignature sig;
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
@@ -65,7 +66,7 @@ public class MethodMapping extends MemberMapping {
                          boolean propagate) {
         super(parent, obfName, deobfName);
         this.descriptor = descriptor;
-        this.sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
+        this.sig = new MethodSignature(getObfuscatedName(), descriptor);
         memberKey = new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
                 getObfuscatedDescriptor().toString());
         parent.addMethodMapping(this, propagate);
@@ -160,7 +161,7 @@ public class MethodMapping extends MemberMapping {
         }
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentMethods().put(sig, new IndexedMethod.Signature(deobf, descriptor));
+                .getCurrentMethods().put(sig, new MethodSignature(deobf, descriptor));
     }
 
 }

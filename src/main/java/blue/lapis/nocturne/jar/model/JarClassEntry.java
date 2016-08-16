@@ -35,8 +35,8 @@ import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
-import blue.lapis.nocturne.processor.index.model.IndexedField;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -64,8 +64,8 @@ public class JarClassEntry {
     private boolean deobfuscated;
 
     private final Map<String, String> classNames = new HashMap<>();
-    private final Map<IndexedField.Signature, IndexedField.Signature> fields = new HashMap<>();
-    private final Map<IndexedMethod.Signature, IndexedMethod.Signature> methods = new HashMap<>();
+    private final Map<FieldSignature, FieldSignature> fields = new HashMap<>();
+    private final Map<MethodSignature, MethodSignature> methods = new HashMap<>();
 
     static {
         if (!Main.getInstance().testingEnv) {
@@ -194,11 +194,11 @@ public class JarClassEntry {
         return classNames;
     }
 
-    public Map<IndexedField.Signature, IndexedField.Signature> getCurrentFields() {
+    public Map<FieldSignature, FieldSignature> getCurrentFields() {
         return fields;
     }
 
-    public Map<IndexedMethod.Signature, IndexedMethod.Signature> getCurrentMethods() {
+    public Map<MethodSignature, MethodSignature> getCurrentMethods() {
         return methods;
     }
 

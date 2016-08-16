@@ -25,68 +25,30 @@
 
 package blue.lapis.nocturne.processor.index.model;
 
-import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Represents a method serialized by Nocturne's class indexer.
  */
 public class IndexedField extends Hierarchical<IndexedClass> {
 
-    private final Signature signature;
+    private final FieldSignature signature;
     private final Visibility visibility;
 
-    public IndexedField(Signature signature, Visibility visibility) {
+    public IndexedField(FieldSignature signature, Visibility visibility) {
         this.signature = signature;
         this.visibility = visibility;
     }
 
-    public Signature getSignature() {
+    public FieldSignature getSignature() {
         return signature;
     }
 
     public Visibility getVisibility() {
         return visibility;
-    }
-
-    /**
-     * Represents the unique signature of a particular field.
-     */
-    public static class Signature {
-
-        private final String name;
-        private final Type type;
-
-        public Signature(String name, Type type) {
-            this.name = name;
-            this.type = type;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Type getType() {
-            return type;
-        }
-
-        @Override
-        public boolean equals(Object otherObj) {
-            if (!(otherObj instanceof Signature)) {
-                return false;
-            }
-            Signature sig = (Signature) otherObj;
-            return sig.getName().equals(getName()) && sig.getType().equals(getType());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, type);
-        }
-
     }
 
     /**
