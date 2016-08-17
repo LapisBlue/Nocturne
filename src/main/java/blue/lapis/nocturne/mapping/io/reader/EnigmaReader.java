@@ -25,13 +25,17 @@
 
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
 import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -92,8 +96,8 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    String obf = arr[1].replace("none/", "");
-                    String deobf = arr.length == 3 ? arr[2] : obf;
+                    String obf = removeNonePrefix(arr[1]);
+                    String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
                     if (indentLevel != 0) {
                         if (currentClass == null) {
@@ -121,7 +125,7 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1];
                     String deobf = arr[2];
-                    String type = arr[3];
+                    Type type = removeNonePrefix(Type.fromString(arr[3]));
                     MappingsHelper.genFieldMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, type);
                     currentMethod = null;
                     break;
@@ -134,21 +138,22 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1];
                     String deobf;
-                    String sig;
+                    String descStr;
                     if (arr.length == 3) {
                         deobf = obf;
-                        sig = arr[2];
+                        descStr = arr[2];
                     } else if (arr.length == 4) {
                         deobf = arr[2];
-                        sig = arr[3];
+                        descStr = arr[3];
                     } else {
                         throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
                                 + lineNum);
                     }
 
+                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
 
                     currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf,
-                            deobf, sig, true);
+                            deobf, desc, true);
                     break;
                 }
                 case ARG_MAPPING_KEY: {
@@ -176,4 +181,30 @@ public class EnigmaReader extends MappingsReader {
 
         return mappings;
     }
+
+    private String removeNonePrefix(String str) {
+        if (str.length() < 6) {
+            return str;
+        }
+        String substr = str.substring(5);
+        if (str.startsWith(ENIGMA_ROOT_PACKAGE_PREFIX)
+                && !CLASS_PATH_SEPARATOR_PATTERN.matcher(str.substring(5)).find()) {
+            return substr;
+        }
+        return str;
+    }
+
+    private Type removeNonePrefix(Type type) {
+        return type.isPrimitive() ? type : Type.fromString("L" + removeNonePrefix(type.getClassName()) + ";");
+    }
+
+    private MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
+        Type[] params = new Type[desc.getParamTypes().length];
+        for (int i = 0; i < params.length; i++) {
+            params[i] = removeNonePrefix(desc.getParamTypes()[i]);
+        }
+        Type returnType = removeNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(returnType, params);
+    }
+
 }

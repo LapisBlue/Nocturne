@@ -97,6 +97,11 @@ public final class MappingsHelper {
 
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
                                        String descriptor) {
+        genFieldMapping(context, owningClass, obf, deobf, descriptor);
+    }
+
+    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
+                                       Type descriptor) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -110,10 +115,7 @@ public final class MappingsHelper {
         if (parent.getFieldMappings().containsKey(obf)) {
             parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
         } else {
-            Type type;
-            if (descriptor != null) {
-                type = Type.fromString(descriptor);
-            } else {
+            if (descriptor == null) {
                 List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
                         .stream().filter(s -> s.getName().equals(obf)).collect(Collectors.toList());
                 if (sigList.size() > 1) {
@@ -123,14 +125,20 @@ public final class MappingsHelper {
                     Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
                     return;
                 }
-                type = sigList.get(0).getType();
+                descriptor = sigList.get(0).getType();
             }
-            new FieldMapping(parent, obf, deobf, type);
+            new FieldMapping(parent, obf, deobf, descriptor);
         }
     }
 
     public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
-                String descriptor, boolean acceptInitializer) {
+                                                 String descriptor, boolean acceptInitializer) {
+        return genMethodMapping(context, owningClass, obf, deobf, MethodDescriptor.fromString(descriptor),
+                acceptInitializer);
+    }
+
+    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
+                                                 MethodDescriptor descriptor, boolean acceptInitializer) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -147,7 +155,7 @@ public final class MappingsHelper {
             methodMapping.setDeobfuscatedName(deobf);
             return methodMapping;
         } else {
-            return new MethodMapping(parent, obf, deobf, MethodDescriptor.fromString(descriptor));
+            return new MethodMapping(parent, obf, deobf, descriptor);
         }
     }
 

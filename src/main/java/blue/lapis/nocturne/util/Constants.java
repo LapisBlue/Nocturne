@@ -66,6 +66,8 @@ public final class Constants {
             .put("ind", "    ") // set indentation string
             .build();
 
+    public static final String ENIGMA_ROOT_PACKAGE_PREFIX = "none/";
+
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }

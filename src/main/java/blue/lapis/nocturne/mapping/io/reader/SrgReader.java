@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -100,7 +101,7 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String deobf = arr[2].substring(arr[2].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
             // SRG doesn't support field types so we just pass a null type arg and let the helper method figure it out
-            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf, null);
+            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf, (Type) null);
         }
     }
 

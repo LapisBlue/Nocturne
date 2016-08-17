@@ -25,6 +25,11 @@
 
 package blue.lapis.nocturne.mapping.io.writer;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
+
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
@@ -59,9 +64,10 @@ public class EnigmaWriter extends MappingsWriter {
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
         if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
-            out.println(getIndentForDepth(depth) + "CLASS " + classMapping.getObfuscatedName());
+            out.println(getIndentForDepth(depth) + "CLASS " + addNonePrefix(classMapping.getObfuscatedName()));
         } else {
-            out.println(getIndentForDepth(depth) + "CLASS " + classMapping.getObfuscatedName() + " " + classMapping.getDeobfuscatedName());
+            out.println(getIndentForDepth(depth) + "CLASS " + addNonePrefix(classMapping.getObfuscatedName()) + " "
+                    + addNonePrefix(classMapping.getDeobfuscatedName()));
         }
 
         for (ClassMapping innerClass : classMapping.getInnerClassMappings().values()) {
@@ -78,17 +84,18 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     protected void writeFieldMapping(FieldMapping fieldMapping, int depth) {
-        out.println(getIndentForDepth(depth) + "FIELD " + fieldMapping.getObfuscatedName() + " " + fieldMapping.getDeobfuscatedName() + " "
-                + fieldMapping.getType().toString());
+        out.println(getIndentForDepth(depth) + "FIELD " + fieldMapping.getObfuscatedName() + " "
+                + fieldMapping.getDeobfuscatedName() + " " + addNonePrefix(fieldMapping.getType()).toString());
     }
 
     protected void writeMethodMapping(MethodMapping methodMapping, int depth) {
         if (methodMapping.getDeobfuscatedName().equals(methodMapping.getObfuscatedName())) {
             out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " "
-                    + methodMapping.getObfuscatedDescriptor().toString());
+                    + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
         } else {
-            out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " " + methodMapping.getDeobfuscatedName() + " "
-                    + methodMapping.getObfuscatedDescriptor().toString());
+            out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " "
+                    + methodMapping.getDeobfuscatedName() + " "
+                    + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
         }
 
         for (ArgumentMapping argumentMapping : methodMapping.getArgumentMappings().values()) {
@@ -107,4 +114,25 @@ public class EnigmaWriter extends MappingsWriter {
         }
         return builder.toString();
     }
+
+    private String addNonePrefix(String str) {
+        if (!CLASS_PATH_SEPARATOR_PATTERN.matcher(str).find()) {
+            return ENIGMA_ROOT_PACKAGE_PREFIX + str;
+        }
+        return str;
+    }
+
+    private Type addNonePrefix(Type type) {
+        return type.isPrimitive() ? type : Type.fromString("L" + addNonePrefix(type.getClassName()) + ";");
+    }
+
+    private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {
+        Type[] params = new Type[desc.getParamTypes().length];
+        for (int i = 0; i < params.length; i++) {
+            params[i] = addNonePrefix(desc.getParamTypes()[i]);
+        }
+        Type returnType = addNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(returnType, params);
+    }
+
 }
