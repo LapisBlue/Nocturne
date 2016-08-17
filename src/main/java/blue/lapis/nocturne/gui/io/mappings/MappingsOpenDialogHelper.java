@@ -52,8 +52,13 @@ public final class MappingsOpenDialogHelper {
     public static void openMappings() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
-        Arrays.asList(MappingReaderType.values())
-                .forEach(t -> fileChooser.getExtensionFilters().add(t.getExtensionFilter()));
+        Arrays.asList(MappingReaderType.values()).forEach(t -> {
+            fileChooser.getExtensionFilters().add(t.getExtensionFilter());
+            if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT)
+                    .equals(t.name())) {
+                fileChooser.setSelectedExtensionFilter(t.getExtensionFilter());
+            }
+        });
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
@@ -71,8 +76,9 @@ public final class MappingsOpenDialogHelper {
 
         Path selectedPath = selectedFile.toPath();
 
-        if (Files.exists(selectedPath)) { //TODO: isn't this redundant?
             MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+            Main.getPropertiesHelper()
+                    .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
             try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
                 MappingContext context = reader.read();
                 Main.getMappingContext().assimilate(context);
@@ -81,7 +87,6 @@ public final class MappingsOpenDialogHelper {
             }
 
             Main.setCurrentMappingsPath(selectedPath);
-        }
     }
 
 }

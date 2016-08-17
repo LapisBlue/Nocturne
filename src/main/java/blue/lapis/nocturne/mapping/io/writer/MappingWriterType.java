@@ -42,6 +42,8 @@ public enum MappingWriterType {
     SRG(MappingFormatType.SRG, SrgWriter.class),
     ENIGMA(MappingFormatType.ENIGMA, EnigmaWriter.class);
 
+    private final MappingFormatType type;
+
     private static final Map<FileChooser.ExtensionFilter, MappingWriterType> filterToType = Maps.newHashMap();
 
     static {
@@ -52,6 +54,7 @@ public enum MappingWriterType {
     private final Constructor<? extends MappingsWriter> writerCtor;
 
     MappingWriterType(MappingFormatType mappingType, Class<? extends MappingsWriter> readerClass) {
+        this.type = mappingType;
         this.extensionFilter = new FileChooser.ExtensionFilter(Main.getResourceBundle()
                 .getString("filechooser.type_" + mappingType.name().toLowerCase()),
                 "*." + mappingType.getFileExtension());
@@ -60,6 +63,10 @@ public enum MappingWriterType {
         } catch (NoSuchMethodException ex) {
             throw new RuntimeException("Failed to initialize reader type for class " + readerClass.getName(), ex);
         }
+    }
+
+    public MappingFormatType getFormatType() {
+        return this.type;
     }
 
     public FileChooser.ExtensionFilter getExtensionFilter() {

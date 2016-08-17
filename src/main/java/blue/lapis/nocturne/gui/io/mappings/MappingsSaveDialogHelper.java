@@ -26,6 +26,8 @@
 package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.io.MappingFormatType;
+import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
@@ -60,8 +62,13 @@ public final class MappingsSaveDialogHelper {
     public static boolean saveMappingsAs() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
-        Arrays.asList(MappingWriterType.values())
-                .forEach(t -> fileChooser.getExtensionFilters().add(t.getExtensionFilter()));
+        Arrays.asList(MappingWriterType.values()).forEach(t -> {
+            fileChooser.getExtensionFilters().add(t.getExtensionFilter());
+            if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT)
+                    .equals(t.name())) {
+                fileChooser.setSelectedExtensionFilter(t.getExtensionFilter());
+            }
+        });
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
@@ -87,17 +94,21 @@ public final class MappingsSaveDialogHelper {
             Main.getMappingContext().setDirty(true);
         }
 
-        final MappingWriterType writerType = MappingWriterType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+        final MappingWriterType writerType
+                = MappingWriterType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
         Main.setCurrentMappingsPath(selectedFile.toPath());
         Main.setCurrentWriterType(writerType);
 
         saveMappings0(writerType);
+        Main.getPropertiesHelper()
+                .setProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT, writerType.getFormatType().name());
         return true;
     }
 
     private static void saveMappings0(MappingWriterType writerType) throws IOException {
         if (Main.getMappingContext().isDirty()) {
-            try (MappingsWriter writer = writerType.constructWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
+            try (MappingsWriter writer
+                         = writerType.constructWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
                 writer.write(Main.getMappingContext());
             }
 
