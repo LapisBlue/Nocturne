@@ -55,9 +55,7 @@ public class SrgReader extends MappingsReader {
     }
 
     @Override
-    public MappingContext read() {
-        MappingContext mappings = new MappingContext();
-
+    public MappingContext read(MappingContext mappings) {
         Pattern spacePattern = Pattern.compile(" ", Pattern.LITERAL);
         List<String> rawClassMappings = new ArrayList<>();
         List<String> rawFieldMappings = new ArrayList<>();

@@ -27,7 +27,6 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
-import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -35,7 +34,6 @@ import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -56,9 +54,7 @@ public class EnigmaReader extends MappingsReader {
     }
 
     @Override
-    public MappingContext read() {
-        MappingContext mappings = new MappingContext();
-
+    public MappingContext read(MappingContext mappings) {
         ClassMapping currentClass = null;
         MethodMapping currentMethod = null;
         int lineNum = 0;
@@ -101,7 +97,7 @@ public class EnigmaReader extends MappingsReader {
 
                     if (indentLevel != 0) {
                         if (currentClass == null) {
-                            throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
+                            throw new IllegalArgumentException("Cannot parse file: found inner class mapping before initial "
                                     + "class mapping on line " + lineNum);
                         }
                         obf = currentClass.getFullObfuscatedName() + "$" + obf;
