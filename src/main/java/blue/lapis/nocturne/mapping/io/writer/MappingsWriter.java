@@ -26,9 +26,6 @@
 package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.MethodMapping;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,30 +55,6 @@ public abstract class MappingsWriter implements Closeable {
      * @param mappings The {@link MappingContext} to write.
      */
     public abstract void write(MappingContext mappings);
-
-    /**
-     * Writes the given {@link ClassMapping} to the {@link MappingsWriter}'s
-     * {@link PrintWriter}.
-     *
-     * @param classMapping The {@link ClassMapping} to write
-     */
-    protected abstract void writeClassMapping(ClassMapping classMapping);
-
-    /**
-     * Writes the given {@link FieldMapping} to the {@link MappingsWriter}'s
-     * {@link PrintWriter}.
-     *
-     * @param fieldMapping The {@link FieldMapping} to write
-     */
-    protected abstract void writeFieldMapping(FieldMapping fieldMapping);
-
-    /**
-     * Writes the given {@link MethodMapping} to the {@link MappingsWriter}'s
-     * {@link PrintWriter}.
-     *
-     * @param mapping The {@link MethodMapping} to write
-     */
-    protected abstract void writeMethodMapping(MethodMapping mapping);
 
     @Override
     public void close() throws IOException {
