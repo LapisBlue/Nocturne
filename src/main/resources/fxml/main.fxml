@@ -51,6 +51,10 @@
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="true" fx:id="loadMappingsButton" onAction="#loadMappings"
                       text="%menu.file.load_mappings"/>
+            <Menu mnemonicParsing="true" fx:id="loadMappingsFromMenu" text="%menu.file.load_mappings_from">
+                <MenuItem mnemonicParsing="true" onAction="#loadPomfMapping"
+                          text="%menu.file.load_mappings_from.pomf"/>
+            </Menu>
             <MenuItem mnemonicParsing="true" fx:id="saveMappingsButton" onAction="#saveMappings"
                       text="%menu.file.save_mappings"/>
             <MenuItem mnemonicParsing="true" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"

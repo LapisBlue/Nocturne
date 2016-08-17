@@ -30,14 +30,15 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+import blue.lapis.nocturne.mapping.io.reader.PomfReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -87,6 +88,25 @@ public final class MappingsOpenDialogHelper {
         }
 
         Main.setCurrentMappingsPath(selectedPath);
+    }
+
+    public static void openPomfMappings() throws IOException {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle(Main.getResourceBundle().getString("directorychooser.open_pomf"));
+
+        File selectedDirectory = directoryChooser.showDialog(Main.getMainStage());
+        if (selectedDirectory == null) {
+            return;
+        }
+
+        Path selectedPath = selectedDirectory.toPath();
+
+        try(MappingsReader reader = new PomfReader(selectedPath)) {
+            MappingContext context = reader.read();
+            Main.getMappingContext().assimilate(context);
+            MainController.INSTANCE.updateClassViews();
+            Main.getMappingContext().setDirty(false);
+        }
     }
 
 }

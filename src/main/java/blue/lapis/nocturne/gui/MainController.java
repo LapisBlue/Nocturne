@@ -41,13 +41,12 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -81,6 +80,7 @@ public class MainController implements Initializable {
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
+    public Menu loadMappingsFromMenu;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
@@ -104,6 +104,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         closeJarButton.setDisable(Main.getLoadedJar() == null);
         loadMappingsButton.setDisable(Main.getLoadedJar() == null);
+        loadMappingsFromMenu.setDisable(Main.getLoadedJar() == null);
         saveMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsAsButton.setDisable(Main.getLoadedJar() == null);
         resetMappingsButton.setDisable(Main.getLoadedJar() == null);
@@ -185,6 +186,7 @@ public class MainController implements Initializable {
 
         closeJarButton.setDisable(true);
         loadMappingsButton.setDisable(true);
+        loadMappingsFromMenu.setDisable(true);
         saveMappingsButton.setDisable(true);
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
@@ -197,6 +199,11 @@ public class MainController implements Initializable {
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
         MappingsOpenDialogHelper.openMappings();
+        updateClassViews();
+    }
+
+    public void loadPomfMapping(ActionEvent actionEvent) throws IOException {
+        MappingsOpenDialogHelper.openPomfMappings();
         updateClassViews();
     }
 
@@ -356,5 +363,4 @@ public class MainController implements Initializable {
     public static boolean isInitialized() {
         return INSTANCE != null;
     }
-
 }
