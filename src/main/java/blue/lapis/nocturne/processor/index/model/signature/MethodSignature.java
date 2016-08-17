@@ -26,7 +26,6 @@
 package blue.lapis.nocturne.processor.index.model.signature;
 
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 
 import java.util.Objects;
 

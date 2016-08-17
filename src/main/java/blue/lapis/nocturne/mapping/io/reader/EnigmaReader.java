@@ -27,7 +27,6 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
-import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -35,7 +34,6 @@ import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;

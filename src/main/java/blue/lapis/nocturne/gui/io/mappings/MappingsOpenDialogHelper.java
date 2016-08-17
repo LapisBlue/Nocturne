@@ -31,13 +31,13 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 

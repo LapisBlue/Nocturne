@@ -26,7 +26,6 @@
 package blue.lapis.nocturne.processor.index.model.signature;
 
 import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.processor.index.model.IndexedField;
 
 import java.util.Objects;
 

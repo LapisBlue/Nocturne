@@ -26,11 +26,10 @@
 package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.mapping.io.MappingFormatType;
-import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;

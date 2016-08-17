@@ -27,7 +27,6 @@ package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
-import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -45,7 +44,6 @@ import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Static utility class for assisting with mapping retrieval and creation.
@@ -177,7 +175,7 @@ public final class MappingsHelper {
     }
 
     private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
-            boolean create) {
+                                                          boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);
