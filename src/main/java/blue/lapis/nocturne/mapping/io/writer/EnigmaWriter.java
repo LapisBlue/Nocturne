@@ -34,6 +34,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
+import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
@@ -63,11 +64,14 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
+        boolean inner = classMapping instanceof InnerClassMapping;
         if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
-            out.println(getIndentForDepth(depth) + "CLASS " + addNonePrefix(classMapping.getObfuscatedName()));
+            out.println(getIndentForDepth(depth) + "CLASS "
+                    + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())));
         } else {
-            out.println(getIndentForDepth(depth) + "CLASS " + addNonePrefix(classMapping.getObfuscatedName()) + " "
-                    + addNonePrefix(classMapping.getDeobfuscatedName()));
+            out.println(getIndentForDepth(depth) + "CLASS "
+                    + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())) + " "
+                    + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
         }
 
         for (ClassMapping innerClass : classMapping.getInnerClassMappings().values()) {
