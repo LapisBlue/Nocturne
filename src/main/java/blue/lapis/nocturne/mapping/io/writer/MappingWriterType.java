@@ -26,6 +26,8 @@
 package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.io.MappingFormatType;
+
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
@@ -37,10 +39,8 @@ import java.util.Map;
 
 public enum MappingWriterType {
 
-    SRG(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
-            SrgWriter.class),
-    ENIGMA(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_enigma"), "*.*"),
-            EnigmaWriter.class);
+    SRG(MappingFormatType.SRG, SrgWriter.class),
+    ENIGMA(MappingFormatType.ENIGMA, EnigmaWriter.class);
 
     private static final Map<FileChooser.ExtensionFilter, MappingWriterType> filterToType = Maps.newHashMap();
 
@@ -51,8 +51,10 @@ public enum MappingWriterType {
     private final FileChooser.ExtensionFilter extensionFilter;
     private final Constructor<? extends MappingsWriter> writerCtor;
 
-    MappingWriterType(FileChooser.ExtensionFilter extensionFilter, Class<? extends MappingsWriter> readerClass) {
-        this.extensionFilter = extensionFilter;
+    MappingWriterType(MappingFormatType mappingType, Class<? extends MappingsWriter> readerClass) {
+        this.extensionFilter = new FileChooser.ExtensionFilter(Main.getResourceBundle()
+                .getString("filechooser.type_" + mappingType.name().toLowerCase()),
+                "*." + mappingType.getFileExtension());
         try {
             this.writerCtor = readerClass.getConstructor(PrintWriter.class);
         } catch (NoSuchMethodException ex) {

@@ -104,6 +104,7 @@ public final class PropertiesHelper {
         public static final Key LOCALE = new Key("locale", "en_US");
         public static final Key LAST_JAR_DIRECTORY = new Key("lastJarDir", "");
         public static final Key LAST_MAPPINGS_DIRECTORY = new Key("lastMappingsDir", "");
+        public static final Key LAST_MAPPING_FORMAT = new Key("lastMappingFormat", "");
 
         private final String key;
         private final String defaultValue;

@@ -26,6 +26,9 @@
 package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.mapping.io.MappingFormatType;
+import blue.lapis.nocturne.mapping.io.writer.EnigmaWriter;
+import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
@@ -38,10 +41,8 @@ import java.util.Map;
 
 public enum MappingReaderType {
 
-    SRG(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_srg"), "*.srg"),
-            SrgReader.class),
-    ENIGMA(new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_enigma"), "*.*"),
-            EnigmaReader.class);
+    SRG(MappingFormatType.SRG, SrgReader.class),
+    ENIGMA(MappingFormatType.ENIGMA, EnigmaReader.class);
 
     private static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
 
@@ -52,8 +53,10 @@ public enum MappingReaderType {
     private final FileChooser.ExtensionFilter extensionFilter;
     private final Constructor<? extends MappingsReader> readerCtor;
 
-    MappingReaderType(FileChooser.ExtensionFilter extensionFilter, Class<? extends MappingsReader> readerClass) {
-        this.extensionFilter = extensionFilter;
+    MappingReaderType(MappingFormatType mappingType, Class<? extends MappingsReader> readerClass) {
+        this.extensionFilter = new FileChooser.ExtensionFilter(Main.getResourceBundle()
+                .getString("filechooser.type_" + mappingType.name().toLowerCase()),
+                "*." + mappingType.getFileExtension());
         try {
             this.readerCtor = readerClass.getConstructor(BufferedReader.class);
         } catch (NoSuchMethodException ex) {
