@@ -25,8 +25,13 @@
 
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static javax.swing.text.html.HTML.Tag.HEAD;
+
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -37,6 +42,11 @@ import java.util.stream.Collectors;
  */
 public class EnigmaReader extends MappingsReader {
 
+    private static final String CLASS_MAPPING_KEY = "CLASS";
+    private static final String FIELD_MAPPING_KEY = "FIELD";
+    private static final String METHOD_MAPPING_KEY = "METHOD";
+    private static final String ARG_MAPPING_KEY = "ARG";
+
     public EnigmaReader(BufferedReader reader) {
         super(reader);
     }
@@ -45,32 +55,63 @@ public class EnigmaReader extends MappingsReader {
     public MappingContext read() {
         MappingContext mappings = new MappingContext();
 
-        String currentClass = null;
+        ClassMapping currentClass = null;
+        MethodMapping currentMethod = null;
         int lineNum = 0;
+
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
-            String[] arr = line.trim().split(" ");
+
+            // Remove comments
+            final int commentPos = line.indexOf('#');
+            if (commentPos >= 0) {
+                line = line.substring(0, commentPos);
+            }
+
+            final String[] arr = line.trim().split(" ");
+
+            // Skip empty lines
             if (arr.length == 0) {
                 continue;
             }
+
+            // The indentation level of the line
+            int indentLevel = 0;
+            for (int i = 0; i < line.length(); i++) {
+                // Check if the char is a tab
+                if (line.charAt(i) != '\t') {
+                    break;
+                }
+                indentLevel++;
+            }
+
             switch (arr[0]) {
-                case "CLASS": {
+                case CLASS_MAPPING_KEY: {
                     if (arr.length < 2 || arr.length > 3) {
-                        System.err.println("Cannot parse file: malformed class mapping on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: malformed class mapping on line "
+                                + lineNum);
                     }
 
                     String obf = arr[1].replace("none/", "");
                     String deobf = arr.length == 3 ? arr[2] : obf;
-                    //TODO: handle inner classes
-                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf, false);
-                    currentClass = obf;
+
+                    if (indentLevel != 0) {
+                        if (currentClass == null) {
+                            throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
+                                    + "class mapping on line " + lineNum);
+                        }
+                        obf = currentClass.getFullObfuscatedName() + "/" + obf;
+                        deobf = currentClass.getFullDeobfuscatedName() + "/" + deobf;
+                    }
+
+                    currentClass = MappingsHelper.genClassMapping(mappings, obf, deobf, false);
+                    currentMethod = null;
                     break;
                 }
-                case "FIELD": {
+                case FIELD_MAPPING_KEY: {
                     if (arr.length != 4) {
-                        System.err.println("Cannot parse file: malformed field mapping on line " + lineNum);
-                        System.exit(1);
+                        throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
+                                + lineNum);
                     }
 
                     if (currentClass == null) {
@@ -81,10 +122,11 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String type = arr[3];
-                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf, type);
+                    MappingsHelper.genFieldMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, type);
+                    currentMethod = null;
                     break;
                 }
-                case "METHOD": {
+                case METHOD_MAPPING_KEY: {
                     if (arr.length == 3) {
                         continue;
                     }
@@ -102,10 +144,25 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     String sig = arr[3];
-                    MappingsHelper.genMethodMapping(Main.getMappingContext(), currentClass, obf, deobf, sig);
+
+                    currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, sig);
                     break;
                 }
-                case "ARG": {
+                case ARG_MAPPING_KEY: {
+                    if (arr.length != 3) {
+                        throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
+                                + lineNum);
+                    }
+
+                    if (currentMethod == null) {
+                        throw new IllegalArgumentException("Cannot parse file: found argument mapping before initial "
+                                + "method mapping on line " + lineNum);
+                    }
+
+                    int index = Integer.parseInt(arr[1]);
+                    String deobf = arr[2];
+
+                    MappingsHelper.genArgumentMapping(mappings, currentMethod, index, deobf);
                     break;
                 }
                 default: {

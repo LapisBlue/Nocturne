@@ -27,11 +27,13 @@ package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
+import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
@@ -50,13 +52,13 @@ import java.util.stream.Stream;
  */
 public final class MappingsHelper {
 
-    public static void genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
+    public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
-            return;
+            return null;
         } else if (!StringHelper.isJavaClassIdentifier(obf) || !StringHelper.isJavaClassIdentifier(deobf)) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
-            return;
+            return null;
         }
 
         if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
@@ -64,7 +66,7 @@ public final class MappingsHelper {
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
                 Main.getLogger().warning("Unsupported mapping: " + obf + " <-> " + deobf);
-                return; // ignore it
+                return null; // ignore it
             }
 
             // get the direct parent class to this inner class
@@ -74,15 +76,21 @@ public final class MappingsHelper {
             String baseObfName = obfSplit[obfSplit.length - 1];
             String baseDeobfname = deobfSplit[deobfSplit.length - 1];
             if (parent.getInnerClassMappings().containsKey(baseObfName)) {
-                parent.getInnerClassMappings().get(baseObfName).setDeobfuscatedName(baseDeobfname);
+                InnerClassMapping mapping = parent.getInnerClassMappings().get(baseObfName);
+                mapping.setDeobfuscatedName(baseDeobfname);
+                return mapping;
             } else {
-                new InnerClassMapping(parent, baseObfName, baseDeobfname);
+                return new InnerClassMapping(parent, baseObfName, baseDeobfname);
             }
         } else {
             if (context.getMappings().containsKey(obf)) {
-                context.getMappings().get(obf).setDeobfuscatedName(deobf);
+                TopLevelClassMapping mapping = context.getMappings().get(obf);
+                mapping.setDeobfuscatedName(deobf);
+                return mapping;
             } else {
-                context.addMapping(new TopLevelClassMapping(context, obf, deobf), updateClassViews);
+                TopLevelClassMapping mapping = new TopLevelClassMapping(context, obf, deobf);
+                context.addMapping(mapping, updateClassViews);
+                return mapping;
             }
         }
     }
@@ -121,22 +129,39 @@ public final class MappingsHelper {
         }
     }
 
-    public static void genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
+    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
                 String descriptor) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
-            return;
+            return null;
         } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered method mapping with illegal name - ignoring");
-            return;
+            return null;
         }
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
         if (parent.getMethodMappings().containsKey(obf)) {
-            parent.getMethodMappings().get(obf).setDeobfuscatedName(deobf);
+            final MethodMapping methodMapping = parent.getMethodMappings().get(obf);
+            methodMapping.setDeobfuscatedName(deobf);
+            return methodMapping;
         } else {
-            new MethodMapping(parent, obf, deobf, MethodDescriptor.fromString(descriptor));
+            return new MethodMapping(parent, obf, deobf, MethodDescriptor.fromString(descriptor));
+        }
+    }
+
+    public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index, String deobf) {
+        if (!StringHelper.isJavaIdentifier(deobf)) {
+            Main.getLogger().warning("Discovered argument mapping with illegal name - ignoring");
+            return;
+        }
+
+        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream().filter(
+                argumentMapping -> argumentMapping.getIndex() == index).findFirst();
+        if (mapping.isPresent()) {
+            mapping.get().setDeobfuscatedName(deobf);
+        } else {
+            new ArgumentMapping(methodMapping, index, deobf, deobf, true);
         }
     }
 
