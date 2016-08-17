@@ -358,7 +358,7 @@ public class SelectableMember extends Text {
                     //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
                     if (ic.getMethods().containsKey(sig)) {
                         MappingsHelper.genMethodMapping(Main.getMappingContext(), ic.getName(), getName(), mapping,
-                                getDescriptor());
+                                getDescriptor(), false);
                     }
                 }
                 break;

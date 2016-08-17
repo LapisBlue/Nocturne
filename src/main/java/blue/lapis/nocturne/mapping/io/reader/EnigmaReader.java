@@ -127,25 +127,28 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
-                    if (arr.length == 3) {
-                        continue;
-                    }
-
-                    if (arr.length != 4) {
-                        throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
-                                + lineNum);
-                    }
-
                     if (currentClass == null) {
                         throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
                                 + "class mapping on line " + lineNum);
                     }
 
                     String obf = arr[1];
-                    String deobf = arr[2];
-                    String sig = arr[3];
+                    String deobf;
+                    String sig;
+                    if (arr.length == 3) {
+                        deobf = obf;
+                        sig = arr[2];
+                    } else if (arr.length == 4) {
+                        deobf = arr[2];
+                        sig = arr[3];
+                    } else {
+                        throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
+                                + lineNum);
+                    }
 
-                    currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, sig);
+
+                    currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf,
+                            deobf, sig, true);
                     break;
                 }
                 case ARG_MAPPING_KEY: {

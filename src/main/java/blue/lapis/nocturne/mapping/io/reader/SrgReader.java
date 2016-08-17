@@ -112,7 +112,7 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String descriptor = arr[2];
             String deobf = arr[3].substring(arr[3].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
-            MappingsHelper.genMethodMapping(context, owningClass, obf, deobf, descriptor);
+            MappingsHelper.genMethodMapping(context, owningClass, obf, deobf, descriptor, false);
         }
     }
 

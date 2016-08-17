@@ -130,12 +130,13 @@ public final class MappingsHelper {
     }
 
     public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
-                String descriptor) {
+                String descriptor, boolean acceptInitializer) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
             return null;
-        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+        } else if (!(obf.equals("<init>") && acceptInitializer && obf.equals(deobf))
+                && (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf))) {
             Main.getLogger().warning("Discovered method mapping with illegal name - ignoring");
             return null;
         }

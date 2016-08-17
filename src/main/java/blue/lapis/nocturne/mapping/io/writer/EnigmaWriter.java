@@ -54,6 +54,7 @@ public class EnigmaWriter extends MappingsWriter {
         for (TopLevelClassMapping classMapping : mappings.getMappings().values()) {
             this.writeClassMapping(classMapping, 0);
         }
+        out.close();
     }
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
@@ -95,9 +96,8 @@ public class EnigmaWriter extends MappingsWriter {
         }
     }
 
-    protected void writeArgumentMapping(ArgumentMapping argumentMapping, int depth) {
-        // TODO: get the actual index
-        out.println(getIndentForDepth(depth) + "ARG 0 " + argumentMapping.getDeobfuscatedName());
+    protected void writeArgumentMapping(ArgumentMapping argMapping, int depth) {
+        out.println(getIndentForDepth(depth) + "ARG " + argMapping.getIndex() + " " + argMapping.getDeobfuscatedName());
     }
 
     private String getIndentForDepth(int depth) {
