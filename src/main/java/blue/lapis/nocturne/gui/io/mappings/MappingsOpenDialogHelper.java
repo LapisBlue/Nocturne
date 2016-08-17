@@ -76,17 +76,17 @@ public final class MappingsOpenDialogHelper {
 
         Path selectedPath = selectedFile.toPath();
 
-            MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
-            Main.getPropertiesHelper()
-                    .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
-            try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
-                MappingContext context = reader.read();
-                Main.getMappingContext().assimilate(context);
-                MainController.INSTANCE.updateClassViews();
-                Main.getMappingContext().setDirty(false);
-            }
+        MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+        Main.getPropertiesHelper()
+                .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
+        try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
+            MappingContext context = reader.read();
+            Main.getMappingContext().assimilate(context);
+            MainController.INSTANCE.updateClassViews();
+            Main.getMappingContext().setDirty(false);
+        }
 
-            Main.setCurrentMappingsPath(selectedPath);
+        Main.setCurrentMappingsPath(selectedPath);
     }
 
 }

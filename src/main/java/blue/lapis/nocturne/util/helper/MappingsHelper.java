@@ -52,7 +52,8 @@ import java.util.stream.Stream;
  */
 public final class MappingsHelper {
 
-    public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf, boolean updateClassViews) {
+    public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf,
+                                               boolean updateClassViews) {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
             return null;
@@ -97,7 +98,7 @@ public final class MappingsHelper {
 
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
                                        String descriptor) {
-        genFieldMapping(context, owningClass, obf, deobf, descriptor);
+        genFieldMapping(context, owningClass, obf, deobf, Type.fromString(descriptor));
     }
 
     public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
@@ -159,7 +160,8 @@ public final class MappingsHelper {
         }
     }
 
-    public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index, String deobf) {
+    public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index,
+                                          String deobf) {
         if (!StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered argument mapping with illegal name - ignoring");
             return;

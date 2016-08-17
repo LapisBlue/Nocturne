@@ -40,15 +40,15 @@ import java.io.IOException;
 /**
  * Unit tests related to the {@link SrgReader}.
  */
-public class SrgReaderTest {
+public class EnigmaReaderTest {
 
     private static ReaderTestHelper helper;
 
     @BeforeClass
     public static void initialize() throws IOException {
         loadMain();
-        SrgReader reader
-                = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
+        EnigmaReader reader
+                = new EnigmaReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.eng"))));
         helper = new ReaderTestHelper(reader.read());
     }
 

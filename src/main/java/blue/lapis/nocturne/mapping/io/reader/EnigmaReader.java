@@ -104,8 +104,8 @@ public class EnigmaReader extends MappingsReader {
                             throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
                                     + "class mapping on line " + lineNum);
                         }
-                        obf = currentClass.getFullObfuscatedName() + "/" + obf;
-                        deobf = currentClass.getFullDeobfuscatedName() + "/" + deobf;
+                        obf = currentClass.getFullObfuscatedName() + "$" + obf;
+                        deobf = currentClass.getFullDeobfuscatedName() + "$" + deobf;
                     }
 
                     currentClass = MappingsHelper.genClassMapping(mappings, obf, deobf, false);

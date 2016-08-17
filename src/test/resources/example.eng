@@ -1,0 +1,7 @@
+CLASS none/a com/example/project/Example
+	CLASS b Inner
+		FIELD a someInnerField I
+	FIELD a someField I
+	METHOD a someMethod (ILnone/a;I)Lnone/a;
+CLASS none/b
+	CLASS a Inner
