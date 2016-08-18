@@ -68,6 +68,11 @@ public class EnigmaReaderTest {
     }
 
     @Test
+    public void nestedInnerClassWithoutParentMappingTest() {
+        helper.nestedInnerClassWithoutParentMappingTest();
+    }
+
+    @Test
     public void fieldTest() {
         helper.fieldTest();
     }
@@ -75,6 +80,11 @@ public class EnigmaReaderTest {
     @Test
     public void fieldInnerClassTest() {
         helper.fieldInnerClassTest();
+    }
+
+    @Test
+    public void fieldNestedInnerClassTest() {
+        helper.fieldNestedInnerClassTest();
     }
 
     @Test

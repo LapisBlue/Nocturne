@@ -67,6 +67,11 @@ public class SrgReaderTest {
     }
 
     @Test
+    public void nestedInnerClassWithoutParentMappingTest() {
+        helper.nestedInnerClassWithoutParentMappingTest();
+    }
+
+    @Test
     public void fieldTest() {
         helper.fieldTest();
     }
@@ -74,6 +79,11 @@ public class SrgReaderTest {
     @Test
     public void fieldInnerClassTest() {
         helper.fieldInnerClassTest();
+    }
+
+    @Test
+    public void fieldNestedInnerClassTest() {
+        helper.fieldNestedInnerClassTest();
     }
 
     @Test

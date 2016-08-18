@@ -1,7 +1,8 @@
-# This is a comment, to check the reader doesn't read them.
 CL: a com/example/project/Example
 CL: a$b com/example/project/Example$Inner
-CL: b$a com/example/project/Another$Inner
+CL: a$b$c com/example/project/Example$Inner$Deeper
+CL: b$a$c com/example/project/Another$Inner$Deeper
 FD: a/a com/example/project/Example/someField
 FD: a$b/a com/example/project/Example$Inner/someInnerField
+FD: a$b$c/a com/example/project/Example$Inner$Deeper/someDeeperField
 MD: a/a (ILa;I)La; com/example/project/Example/someMethod (ILcom/example/project/Example;I)Lcom/example/project/Example;
