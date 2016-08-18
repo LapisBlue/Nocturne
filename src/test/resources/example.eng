@@ -3,5 +3,5 @@ CLASS none/a com/example/project/Example
 		FIELD a someInnerField I
 	FIELD a someField I
 	METHOD a someMethod (ILnone/a;I)Lnone/a;
-CLASS none/b
+CLASS none/b com/example/project/Another
 	CLASS a Inner

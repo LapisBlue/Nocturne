@@ -90,7 +90,7 @@ class ReaderTestHelper {
         assertEquals("a", inner.getObfuscatedName());
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals("b$a", inner.getFullObfuscatedName());
-        assertEquals("b$Inner", inner.getFullDeobfuscatedName());
+        assertEquals("com/example/project/Another$Inner", inner.getFullDeobfuscatedName());
     }
 
     void fieldTest() {

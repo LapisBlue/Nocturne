@@ -72,6 +72,31 @@ public final class MappingsHelper {
             ClassMapping parent = getOrCreateClassMapping(context,
                     obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
 
+            // atomic validation pass
+            ClassMapping next = parent;
+            for (int i = deobfSplit.length - 2; i >= 0; i--) {
+                if (!next.getObfuscatedName().equals(next.getDeobfuscatedName())
+                        && !next.getDeobfuscatedName().equals(deobfSplit[i])) {
+                    Main.getLogger().warning("Nonsense mapping " + obf + " -> " + deobf
+                            + " - conflicts with outer class mapping. Ignoring...");
+                    return null;
+                }
+                if (next instanceof InnerClassMapping) {
+                    next = ((InnerClassMapping) next).getParent();
+                }
+            }
+
+            // application pass
+            next = parent;
+            for (int i = deobfSplit.length - 2; i >= 0; i--) {
+                if (next.getObfuscatedName().equals(next.getDeobfuscatedName())) {
+                    next.setDeobfuscatedName(deobfSplit[i]);
+                }
+                if (next instanceof InnerClassMapping) {
+                    next = ((InnerClassMapping) next).getParent();
+                }
+            }
+
             String baseObfName = obfSplit[obfSplit.length - 1];
             String baseDeobfname = deobfSplit[deobfSplit.length - 1];
             if (parent.getInnerClassMappings().containsKey(baseObfName)) {
@@ -165,8 +190,8 @@ public final class MappingsHelper {
             return;
         }
 
-        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream().filter(
-                argumentMapping -> argumentMapping.getIndex() == index).findFirst();
+        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream()
+                .filter(argumentMapping -> argumentMapping.getIndex() == index).findFirst();
         if (mapping.isPresent()) {
             mapping.get().setDeobfuscatedName(deobf);
         } else {
