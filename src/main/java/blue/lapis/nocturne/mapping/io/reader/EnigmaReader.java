@@ -56,7 +56,9 @@ public class EnigmaReader extends MappingsReader {
     }
 
     @Override
-    public MappingContext read(MappingContext mappings) {
+    public MappingContext read() {
+        MappingContext mappings = new MappingContext();
+
         Stack<ClassMapping> classStack = new Stack<>();
         MethodMapping currentMethod = null;
         int lineNum = 0;

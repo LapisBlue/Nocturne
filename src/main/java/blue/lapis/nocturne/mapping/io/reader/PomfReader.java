@@ -30,13 +30,11 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 /**
  * The mappings reader for the POMF format.
@@ -48,8 +46,8 @@ public class PomfReader extends EnigmaReader {
     }
 
     @Override
-    public MappingContext read(MappingContext mappings) {
-        return super.read(mappings);
+    public MappingContext read() {
+        return super.read();
     }
 
     private static BufferedReader readPomfMappings(Path mappingsPath) throws IOException {
@@ -57,8 +55,8 @@ public class PomfReader extends EnigmaReader {
         PrintWriter writer = new PrintWriter(out);
 
         Files.walk(mappingsPath).filter(Files::isRegularFile).forEach(path -> {
-            try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
-                reader.lines().collect(Collectors.toList()).forEach(writer::println);
+            try (BufferedReader reader = Files.newBufferedReader(path)) {
+                reader.lines().forEach(writer::println);
             } catch (IOException e) {
                 e.printStackTrace();
             }

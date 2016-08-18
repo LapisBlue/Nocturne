@@ -47,19 +47,9 @@ public abstract class MappingsReader implements Closeable {
     /**
      * Reads from the given {@link BufferedReader}.
      *
-     * @param mappings The {@link MappingContext} to read to
      * @return A {@link MappingContext} from the {@link BufferedReader}.
      */
-    public abstract MappingContext read(MappingContext mappings);
-
-    /**
-     * Reads from the given {@link BufferedReader}.
-     *
-     * @return A {@link MappingContext} from the {@link BufferedReader}.
-     */
-    public MappingContext read() {
-        return read(new MappingContext());
-    }
+    public abstract MappingContext read();
 
     protected int getClassNestingLevel(String name) {
         return name.split(" ")[1].length()
