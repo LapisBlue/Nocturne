@@ -27,7 +27,6 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -104,10 +103,6 @@ public class EnigmaReader extends MappingsReader {
                     String obf = removeNonePrefix(arr[1]);
                     String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
-                    if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
-                        obf = classStack.peek().getFullObfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + obf;
-                        deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
-                    }
                     classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
                     currentMethod = null;
                     break;

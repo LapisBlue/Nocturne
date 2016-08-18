@@ -67,11 +67,11 @@ public class EnigmaWriter extends MappingsWriter {
         boolean inner = classMapping instanceof InnerClassMapping;
         if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
             out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())));
+                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getFullObfuscatedName())));
         } else {
             out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())) + " "
-                    + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
+                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getFullObfuscatedName())) + " "
+                    + (inner ? classMapping.getFullDeobfuscatedName() : addNonePrefix(classMapping.getFullDeobfuscatedName())));
         }
 
         for (ClassMapping innerClass : classMapping.getInnerClassMappings().values()) {
