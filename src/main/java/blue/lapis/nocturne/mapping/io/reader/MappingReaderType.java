@@ -27,8 +27,6 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.MappingFormatType;
-import blue.lapis.nocturne.mapping.io.writer.EnigmaWriter;
-import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;

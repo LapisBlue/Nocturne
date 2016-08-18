@@ -32,6 +32,7 @@ import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.mapping.io.reader.PomfReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 

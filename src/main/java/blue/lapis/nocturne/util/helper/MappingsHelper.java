@@ -27,7 +27,6 @@ package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
-import static javax.swing.text.html.HTML.Tag.HEAD;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -45,7 +44,6 @@ import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Static utility class for assisting with mapping retrieval and creation.
@@ -66,13 +64,38 @@ public final class MappingsHelper {
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
-                Main.getLogger().warning("Unsupported mapping: " + obf + " <-> " + deobf);
+                Main.getLogger().warning("Unsupported mapping: " + obf + " -> " + deobf);
                 return null; // ignore it
             }
 
             // get the direct parent class to this inner class
             ClassMapping parent = getOrCreateClassMapping(context,
                     obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
+
+            // atomic validation pass
+            ClassMapping next = parent;
+            for (int i = deobfSplit.length - 2; i >= 0; i--) {
+                if (!next.getObfuscatedName().equals(next.getDeobfuscatedName())
+                        && !next.getDeobfuscatedName().equals(deobfSplit[i])) {
+                    Main.getLogger().warning("Nonsense mapping " + obf + " -> " + deobf
+                            + " - conflicts with outer class mapping. Ignoring...");
+                    return null;
+                }
+                if (next instanceof InnerClassMapping) {
+                    next = ((InnerClassMapping) next).getParent();
+                }
+            }
+
+            // application pass
+            next = parent;
+            for (int i = deobfSplit.length - 2; i >= 0; i--) {
+                if (next.getObfuscatedName().equals(next.getDeobfuscatedName())) {
+                    next.setDeobfuscatedName(deobfSplit[i]);
+                }
+                if (next instanceof InnerClassMapping) {
+                    next = ((InnerClassMapping) next).getParent();
+                }
+            }
 
             String baseObfName = obfSplit[obfSplit.length - 1];
             String baseDeobfname = deobfSplit[deobfSplit.length - 1];
@@ -167,8 +190,8 @@ public final class MappingsHelper {
             return;
         }
 
-        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream().filter(
-                argumentMapping -> argumentMapping.getIndex() == index).findFirst();
+        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream()
+                .filter(argumentMapping -> argumentMapping.getIndex() == index).findFirst();
         if (mapping.isPresent()) {
             mapping.get().setDeobfuscatedName(deobf);
         } else {
@@ -177,7 +200,7 @@ public final class MappingsHelper {
     }
 
     private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
-            boolean create) {
+                                                          boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);

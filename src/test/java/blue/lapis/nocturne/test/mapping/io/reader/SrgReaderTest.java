@@ -27,7 +27,6 @@ package blue.lapis.nocturne.test.mapping.io.reader;
 
 import static blue.lapis.nocturne.test.mapping.io.reader.ReaderTestHelper.loadMain;
 
-import blue.lapis.nocturne.mapping.io.reader.EnigmaReader;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 
 import jdk.nashorn.api.scripting.URLReader;
@@ -68,6 +67,11 @@ public class SrgReaderTest {
     }
 
     @Test
+    public void nestedInnerClassWithoutParentMappingTest() {
+        helper.nestedInnerClassWithoutParentMappingTest();
+    }
+
+    @Test
     public void fieldTest() {
         helper.fieldTest();
     }
@@ -75,6 +79,11 @@ public class SrgReaderTest {
     @Test
     public void fieldInnerClassTest() {
         helper.fieldInnerClassTest();
+    }
+
+    @Test
+    public void fieldNestedInnerClassTest() {
+        helper.fieldNestedInnerClassTest();
     }
 
     @Test

@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -37,6 +38,7 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -55,9 +57,10 @@ public class EnigmaReader extends MappingsReader {
 
     @Override
     public MappingContext read(MappingContext mappings) {
-        ClassMapping currentClass = null;
+        Stack<ClassMapping> classStack = new Stack<>();
         MethodMapping currentMethod = null;
         int lineNum = 0;
+        int lastIndentLevel = -1;
 
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
@@ -85,6 +88,10 @@ public class EnigmaReader extends MappingsReader {
                 indentLevel++;
             }
 
+            if (lastIndentLevel != -1 && indentLevel < lastIndentLevel) {
+                classStack.pop();
+            }
+
             switch (arr[0]) {
                 case CLASS_MAPPING_KEY: {
                     if (arr.length < 2 || arr.length > 3) {
@@ -95,16 +102,11 @@ public class EnigmaReader extends MappingsReader {
                     String obf = removeNonePrefix(arr[1]);
                     String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
-                    if (indentLevel != 0) {
-                        if (currentClass == null) {
-                            throw new IllegalArgumentException("Cannot parse file: found inner class mapping before initial "
-                                    + "class mapping on line " + lineNum);
-                        }
-                        obf = currentClass.getFullObfuscatedName() + "$" + obf;
-                        deobf = currentClass.getFullDeobfuscatedName() + "$" + deobf;
+                    if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
+                        obf = classStack.peek().getFullObfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + obf;
+                        deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
                     }
-
-                    currentClass = MappingsHelper.genClassMapping(mappings, obf, deobf, false);
+                    classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
                     currentMethod = null;
                     break;
                 }
@@ -114,7 +116,7 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    if (currentClass == null) {
+                    if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
                                 + "class mapping on line " + lineNum);
                     }
@@ -122,12 +124,13 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     Type type = removeNonePrefix(Type.fromString(arr[3]));
-                    MappingsHelper.genFieldMapping(mappings, currentClass.getFullObfuscatedName(), obf, deobf, type);
+                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(), obf, deobf,
+                            type);
                     currentMethod = null;
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
-                    if (currentClass == null) {
+                    if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
                                 + "class mapping on line " + lineNum);
                     }
@@ -148,8 +151,8 @@ public class EnigmaReader extends MappingsReader {
 
                     MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
 
-                    currentMethod = MappingsHelper.genMethodMapping(mappings, currentClass.getFullObfuscatedName(), obf,
-                            deobf, desc, true);
+                    currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                            obf, deobf, desc, true);
                     break;
                 }
                 case ARG_MAPPING_KEY: {
@@ -173,6 +176,7 @@ public class EnigmaReader extends MappingsReader {
                     Main.getLogger().warning("Unrecognized mapping on line " + lineNum);
                 }
             }
+            lastIndentLevel = indentLevel;
         }
 
         return mappings;

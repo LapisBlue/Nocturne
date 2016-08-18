@@ -90,7 +90,22 @@ class ReaderTestHelper {
         assertEquals("a", inner.getObfuscatedName());
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals("b$a", inner.getFullObfuscatedName());
-        assertEquals("b$Inner", inner.getFullDeobfuscatedName());
+        assertEquals("com/example/project/Another$Inner", inner.getFullDeobfuscatedName());
+    }
+
+    void nestedInnerClassWithoutParentMappingTest() {
+        assertTrue(mappings.getMappings().containsKey("b"));
+        ClassMapping mapping = mappings.getMappings().get("b");
+
+        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
+        assertTrue(inner.getInnerClassMappings().containsKey("c"));
+        InnerClassMapping deeper = inner.getInnerClassMappings().get("c");
+
+        assertEquals("c", deeper.getObfuscatedName());
+        assertEquals("Deeper", deeper.getDeobfuscatedName());
+        assertEquals("b$a$c", deeper.getFullObfuscatedName());
+        assertEquals("com/example/project/Another$Inner$Deeper", deeper.getFullDeobfuscatedName());
     }
 
     void fieldTest() {
@@ -113,6 +128,19 @@ class ReaderTestHelper {
         FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someInnerField", fieldMapping.getDeobfuscatedName());
+    }
+
+    void fieldNestedInnerClassTest() {
+        assertTrue(mappings.getMappings().containsKey("a"));
+        assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
+        ClassMapping inner = mappings.getMappings().get("a").getInnerClassMappings().get("b");
+        assertTrue(inner.getInnerClassMappings().containsKey("c"));
+        ClassMapping deeper = inner.getInnerClassMappings().get("c");
+        assertTrue(deeper.getFieldMappings().containsKey("a"));
+
+        FieldMapping fieldMapping = deeper.getFieldMappings().get("a");
+        assertEquals("a", fieldMapping.getObfuscatedName());
+        assertEquals("someDeeperField", fieldMapping.getDeobfuscatedName());
     }
 
     void methodTest() {
