@@ -40,6 +40,7 @@ import java.util.Map;
 public enum MappingWriterType {
 
     SRG(MappingFormatType.SRG, SrgWriter.class),
+    JAM(MappingFormatType.JAM, JamWriter.class),
     ENIGMA(MappingFormatType.ENIGMA, EnigmaWriter.class);
 
     private final MappingFormatType type;

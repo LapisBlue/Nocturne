@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.io;
 
 public enum MappingFormatType {
     SRG("srg"),
+    JAM("jam"),
     ENIGMA("*");
 
     private final String extension;

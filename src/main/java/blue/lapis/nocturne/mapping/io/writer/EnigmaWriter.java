@@ -31,11 +31,11 @@ import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
@@ -89,7 +89,8 @@ public class EnigmaWriter extends MappingsWriter {
 
     protected void writeFieldMapping(FieldMapping fieldMapping, int depth) {
         out.println(getIndentForDepth(depth) + "FIELD " + fieldMapping.getObfuscatedName() + " "
-                + fieldMapping.getDeobfuscatedName() + " " + addNonePrefix(fieldMapping.getType()).toString());
+                + fieldMapping.getDeobfuscatedName() + " "
+                + addNonePrefix(fieldMapping.getObfuscatedType()).toString());
     }
 
     protected void writeMethodMapping(MethodMapping methodMapping, int depth) {
@@ -102,12 +103,12 @@ public class EnigmaWriter extends MappingsWriter {
                     + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
         }
 
-        for (ArgumentMapping argumentMapping : methodMapping.getArgumentMappings().values()) {
-            writeArgumentMapping(argumentMapping, depth + 1);
+        for (MethodParameterMapping methodParameterMapping : methodMapping.getParamMappings().values()) {
+            writeArgumentMapping(methodParameterMapping, depth + 1);
         }
     }
 
-    protected void writeArgumentMapping(ArgumentMapping argMapping, int depth) {
+    protected void writeArgumentMapping(MethodParameterMapping argMapping, int depth) {
         out.println(getIndentForDepth(depth) + "ARG " + argMapping.getIndex() + " " + argMapping.getDeobfuscatedName());
     }
 

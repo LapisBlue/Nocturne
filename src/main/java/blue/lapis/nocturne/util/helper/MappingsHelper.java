@@ -32,11 +32,11 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.model.ArgumentMapping;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
@@ -190,12 +190,12 @@ public final class MappingsHelper {
             return;
         }
 
-        Optional<ArgumentMapping> mapping = methodMapping.getArgumentMappings().values().stream()
+        Optional<MethodParameterMapping> mapping = methodMapping.getParamMappings().values().stream()
                 .filter(argumentMapping -> argumentMapping.getIndex() == index).findFirst();
         if (mapping.isPresent()) {
             mapping.get().setDeobfuscatedName(deobf);
         } else {
-            new ArgumentMapping(methodMapping, index, deobf, deobf, true);
+            new MethodParameterMapping(methodMapping, index, deobf, true);
         }
     }
 

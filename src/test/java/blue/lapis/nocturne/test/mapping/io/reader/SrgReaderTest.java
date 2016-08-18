@@ -47,7 +47,8 @@ public class SrgReaderTest {
     public static void initialize() throws IOException {
         loadMain();
         SrgReader reader
-                = new SrgReader(new BufferedReader(new URLReader(ClassLoader.getSystemResource("example.srg"))));
+                = new SrgReader(new BufferedReader(new URLReader(
+                        ClassLoader.getSystemResource("mappings/example.srg"))));
         helper = new ReaderTestHelper(reader.read());
     }
 

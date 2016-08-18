@@ -34,7 +34,6 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
@@ -114,6 +113,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (arr.length != 4) {
                         throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
                                 + lineNum);
@@ -133,6 +136,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
                                 + "class mapping on line " + lineNum);
@@ -159,6 +166,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case ARG_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (arr.length != 3) {
                         throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
                                 + lineNum);

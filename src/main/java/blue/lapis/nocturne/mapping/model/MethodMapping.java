@@ -46,7 +46,7 @@ import java.util.Map;
  */
 public class MethodMapping extends MemberMapping {
 
-    private final Map<String, ArgumentMapping> argumentMappings = new HashMap<>();
+    private final Map<String, MethodParameterMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodDescriptor descriptor;
     private final MethodSignature sig;
@@ -90,22 +90,22 @@ public class MethodMapping extends MemberMapping {
     }
 
     /**
-     * Gets a clone of the {@link ArgumentMapping}s.
+     * Gets a clone of the {@link MethodParameterMapping}s.
      *
-     * @return A clone of the {@link ArgumentMapping}s
+     * @return A clone of the {@link MethodParameterMapping}s
      */
-    public ImmutableMap<String, ArgumentMapping> getArgumentMappings() {
+    public ImmutableMap<String, MethodParameterMapping> getParamMappings() {
         return ImmutableMap.copyOf(this.argumentMappings);
     }
 
     /**
-     * Adds the given {@link ArgumentMapping} to this {@link ClassMapping}.
+     * Adds the given {@link MethodParameterMapping} to this {@link ClassMapping}.
      *
-     * @param mapping The {@link ArgumentMapping} to add
+     * @param mapping The {@link MethodParameterMapping} to add
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes
      */
-    void addArgumentMapping(ArgumentMapping mapping, boolean propagate) {
+    void addArgumentMapping(MethodParameterMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
         argumentMappings.put(mapping.getObfuscatedName(), mapping);
     }
