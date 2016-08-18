@@ -54,7 +54,7 @@ public class PomfReader extends EnigmaReader {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(out);
 
-        Files.walk(mappingsPath).filter(Files::isRegularFile).forEach(path -> {
+        Files.walk(mappingsPath).filter(path -> Files.isRegularFile(path) && path.toFile().getName().endsWith(".mapping")).forEach(path -> {
             try (BufferedReader reader = Files.newBufferedReader(path)) {
                 reader.lines().forEach(writer::println);
             } catch (IOException e) {
