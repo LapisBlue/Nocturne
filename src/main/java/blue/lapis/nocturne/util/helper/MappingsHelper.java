@@ -64,7 +64,7 @@ public final class MappingsHelper {
             String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
             String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
             if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
-                Main.getLogger().warning("Unsupported mapping: " + obf + " <-> " + deobf);
+                Main.getLogger().warning("Unsupported mapping: " + obf + " -> " + deobf);
                 return null; // ignore it
             }
 
