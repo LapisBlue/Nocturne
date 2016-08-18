@@ -26,20 +26,23 @@
 package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
+
+import java.util.Optional;
 
 /**
  * Represents a {@link Mapping} for arguments.
  */
-public class ArgumentMapping extends Mapping {
+public class MethodParameterMapping extends Mapping {
 
     private final SelectableMember.MemberKey memberKey;
     private final MethodMapping parent;
     private final int index;
 
     /**
-     * Constructs a new {@link ArgumentMapping} with the given parameters.
+     * Constructs a new {@link MethodParameterMapping} with the given parameters.
      *
      * @param parent The parent method mapping
      * @param index The index of the argument
@@ -48,8 +51,8 @@ public class ArgumentMapping extends Mapping {
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes
      */
-    public ArgumentMapping(MethodMapping parent, int index, String obfName, String deobfName, boolean propagate) {
-        super(obfName, deobfName);
+    public MethodParameterMapping(MethodMapping parent, int index, String deobfName, boolean propagate) {
+        super(deobfName, deobfName);
         this.memberKey = new SelectableMember.MemberKey(MemberType.ARG, "", ""); // TODO: Use actual values
         this.parent = parent;
         this.index = index;

@@ -64,7 +64,7 @@ public class FieldMapping extends MemberMapping {
      *
      * @return The {@link Type} of this field
      */
-    public Type getType() {
+    public Type getObfuscatedType() {
         return type;
     }
 
@@ -74,7 +74,7 @@ public class FieldMapping extends MemberMapping {
      * @return The deobfuscated {@link Type} of this field
      */
     public Type getDeobfuscatedType() {
-        return getType().deobfuscate(getParent().getContext());
+        return getObfuscatedType().deobfuscate(getParent().getContext());
     }
 
     @Override

@@ -40,6 +40,7 @@ import java.util.Map;
 public enum MappingReaderType {
 
     SRG(MappingFormatType.SRG, SrgReader.class),
+    JAM(MappingFormatType.JAM, JamReader.class),
     ENIGMA(MappingFormatType.ENIGMA, EnigmaReader.class);
 
     private final MappingFormatType type;

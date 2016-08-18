@@ -111,6 +111,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (arr.length != 4) {
                         throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
                                 + lineNum);
@@ -130,6 +134,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
                                 + "class mapping on line " + lineNum);
@@ -156,6 +164,10 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case ARG_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
                     if (arr.length != 3) {
                         throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
                                 + lineNum);
