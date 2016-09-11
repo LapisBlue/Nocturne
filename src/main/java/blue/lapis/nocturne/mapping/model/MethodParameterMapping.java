@@ -53,7 +53,7 @@ public class MethodParameterMapping extends Mapping {
         this.parent = parent;
         this.index = index;
 
-        this.parent.addArgumentMapping(this, propagate);
+        this.parent.addParamMapping(this, propagate);
     }
 
     public void initialize(boolean propagate) {

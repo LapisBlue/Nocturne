@@ -46,6 +46,7 @@ import java.util.Map;
  */
 public class MethodMapping extends MemberMapping {
 
+    //TODO: this needs to have integers as keys. it doesn't make sense with strings.
     private final Map<String, MethodParameterMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodSignature sig;
@@ -98,9 +99,13 @@ public class MethodMapping extends MemberMapping {
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes
      */
-    void addArgumentMapping(MethodParameterMapping mapping, boolean propagate) {
+    void addParamMapping(MethodParameterMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
         argumentMappings.put(mapping.getObfuscatedName(), mapping);
+    }
+
+    public void removeParamMapping(String name) {
+        argumentMappings.remove(name);
     }
 
     /**

@@ -39,8 +39,10 @@ import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
+import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
@@ -80,6 +82,8 @@ public class SelectableMember extends Text {
     private final CodeTab codeTab;
     private final MemberType type;
 
+    private final MemberKey key;
+
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
@@ -114,6 +118,9 @@ public class SelectableMember extends Text {
         if (type == MemberType.CLASS) {
             fullName = getName();
         }
+
+        this.key = new MemberKey(type, getQualifiedName(),
+                type == MemberType.FIELD || type == MemberType.METHOD ? descriptor : null);
 
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
@@ -153,12 +160,28 @@ public class SelectableMember extends Text {
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
             if (getText().equals(getName())) {
-                return;
+                Optional<? extends Mapping> mapping = getMapping();
+                if (mapping.isPresent()) {
+                    mapping.get().setAdHoc(false);
+                    if (mapping.get() instanceof MemberMapping) {
+                        ClassMapping parent = ((MemberMapping) mapping.get()).getParent();
+                        if (mapping.get() instanceof FieldMapping) {
+                            //noinspection ConstantConditions
+                            parent.removeFieldMapping((FieldSignature) sig);
+                        } else {
+                            //noinspection ConstantConditions
+                            parent.removeMethodMapping((MethodSignature) sig);
+                        }
+                    } else if (mapping.get() instanceof MethodParameterMapping) {
+                        ((MethodParameterMapping) mapping.get()).getParent()
+                                .removeParamMapping(mapping.get().getObfuscatedName());
+                    }
+                }
+                MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(false));
             }
             switch (getType()) {
                 case CLASS: {
-                    Optional<ClassMapping> mapping
-                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getName());
+                    Optional<? extends Mapping> mapping = getMapping();
                     if (mapping.isPresent()
                             && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName())) {
                         if ((!isInnerClass() && !checkClassDupe(mapping.get().getObfuscatedName()))
@@ -166,6 +189,8 @@ public class SelectableMember extends Text {
                             break;
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
+                        mapping.get().setAdHoc(false);
+                        setDeobfuscated(false);
                     }
                     fullName = getName();
                     break;
@@ -175,14 +200,20 @@ public class SelectableMember extends Text {
                     Optional<ClassMapping> parent
                             = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
                     if (parent.isPresent()) {
-                        MemberMapping mapping = (getType() == MemberType.FIELD
-                                ? parent.get().getFieldMappings() : parent.get().getMethodMappings())
-                                .get(sig);
-                        if (mapping != null) {
-                            if (!checkMemberDupe(mapping.getObfuscatedName())) {
+                        Optional<? extends Mapping> mapping = getMapping();
+                        if (mapping.isPresent()) {
+                            if (!checkMemberDupe(mapping.get().getObfuscatedName())) {
                                 return;
                             }
-                            mapping.setDeobfuscatedName(mapping.getObfuscatedName());
+                            if (getType() == MemberType.FIELD) {
+                                //noinspection ConstantConditions
+                                parent.get().removeFieldMapping((FieldSignature) sig);
+                            } else {
+                                //noinspection ConstantConditions
+                                parent.get().removeMethodMapping((MethodSignature) sig);
+                            }
+                            setDeobfuscated(false);
+                            updateText();
                         }
                     }
                     break;
@@ -197,8 +228,10 @@ public class SelectableMember extends Text {
 
         MenuItem toggleDeobf = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.toggleDeobf"));
         toggleDeobf.setOnAction(event -> {
-            this.setDeobfuscated(!this.deobfuscated);
-            genMapping().setAdHoc(this.deobfuscated); // set as ad hoc if we've marked it as deobfuscated
+            // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
+            boolean shouldDeobf = !this.deobfuscated;
+            genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
+            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf));
         });
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
@@ -215,7 +248,7 @@ public class SelectableMember extends Text {
         contextMenu.getItems().add(jumpToDefItem);
 
         this.setOnContextMenuRequested(event -> {
-            Optional<ClassMapping> mapping = MappingsHelper.getClassMapping(Main.getMappingContext(), getClassName());
+            Optional<? extends Mapping> mapping = getMapping();
             toggleDeobf.setDisable(mapping.isPresent()
                     && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName()));
 
@@ -223,43 +256,6 @@ public class SelectableMember extends Text {
 
         });
 
-        String qualName;
-        IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-        switch (type) {
-            case CLASS:
-                qualName = name;
-                break;
-            case FIELD:
-                //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
-                if (!ic.getFields().containsKey(sig)) {
-                    throw new IllegalArgumentException();
-                }
-                qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + name;
-                break;
-            case METHOD:
-                String parent = null;
-                //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                if (ic.getMethods().containsKey(sig)) {
-                    parent = getParentClass();
-                } else {
-                    for (IndexedClass hc : ic.getHierarchy()) {
-                        //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                        if (hc.getMethods().containsKey(sig)) {
-                            parent = hc.getName();
-                            break;
-                        }
-                    }
-                }
-                if (parent == null) {
-                    throw new IllegalArgumentException(); //TODO
-                }
-                qualName = parent + CLASS_PATH_SEPARATOR_CHAR + name;
-                break;
-            default:
-                throw new AssertionError();
-        }
-        MemberKey key = new MemberKey(type, qualName,
-                type == MemberType.FIELD || type == MemberType.METHOD ? descriptor : null);
         if (!MEMBERS.containsKey(key)) {
             MEMBERS.put(key, new ArrayList<>());
         }
@@ -568,6 +564,46 @@ public class SelectableMember extends Text {
                 throw new AssertionError();
             }
         }
+    }
+
+    private String getQualifiedName() {
+        String qualName;
+        IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+        switch (type) {
+            case CLASS:
+                qualName = getName();
+                break;
+            case FIELD:
+                //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
+                if (!ic.getFields().containsKey(sig)) {
+                    throw new IllegalArgumentException();
+                }
+                qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + getName();
+                break;
+            case METHOD:
+                String parent = null;
+                //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
+                if (ic.getMethods().containsKey(sig)) {
+                    parent = getParentClass();
+                } else {
+                    for (IndexedClass hc : ic.getHierarchy()) {
+                        //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
+                        if (hc.getMethods().containsKey(sig)) {
+                            parent = hc.getName();
+                            break;
+                        }
+                    }
+                }
+                if (parent == null) {
+                    throw new IllegalArgumentException(); //TODO
+                }
+                qualName = parent + CLASS_PATH_SEPARATOR_CHAR + getName();
+                break;
+            default:
+                throw new AssertionError();
+        }
+
+        return qualName;
     }
 
 }
