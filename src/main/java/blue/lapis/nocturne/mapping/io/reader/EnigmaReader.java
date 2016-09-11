@@ -107,7 +107,6 @@ public class EnigmaReader extends MappingsReader {
                     String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
                     if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
-                        obf = classStack.peek().getFullObfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + obf;
                         deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
                     }
                     classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));

@@ -72,7 +72,7 @@ public class EnigmaWriter extends MappingsWriter {
             }
         } else {
             out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())) + " "
+                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())) + " "
                     + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
         }
 
