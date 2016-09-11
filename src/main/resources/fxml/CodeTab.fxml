@@ -58,7 +58,7 @@
                     </HBox>
                 </VBox>
             </TitledPane>
-            <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
+            <ScrollPane VBox.vgrow="ALWAYS">
                 <TextFlow fx:id="code" id="code" VBox.vgrow="ALWAYS"/>
             </ScrollPane>
         </VBox>
