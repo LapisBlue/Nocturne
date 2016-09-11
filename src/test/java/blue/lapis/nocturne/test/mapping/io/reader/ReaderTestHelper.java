@@ -40,6 +40,8 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.io.IOException;
 
@@ -112,8 +114,10 @@ class ReaderTestHelper {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
 
-        assertTrue(mapping.getFieldMappings().containsKey("a"));
-        FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
+        FieldSignature aSig = new FieldSignature("a", Type.fromString("I"));
+
+        assertTrue(mapping.getFieldMappings().containsKey(aSig));
+        FieldMapping fieldMapping = mapping.getFieldMappings().get(aSig);
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someField", fieldMapping.getDeobfuscatedName());
     }
@@ -123,9 +127,12 @@ class ReaderTestHelper {
         assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
 
         ClassMapping mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
-        assertTrue(mapping.getFieldMappings().containsKey("a"));
 
-        FieldMapping fieldMapping = mapping.getFieldMappings().get("a");
+        FieldSignature aSig = new FieldSignature("a", Type.fromString("I"));
+
+        assertTrue(mapping.getFieldMappings().containsKey(aSig));
+
+        FieldMapping fieldMapping = mapping.getFieldMappings().get(aSig);
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someInnerField", fieldMapping.getDeobfuscatedName());
     }
@@ -136,9 +143,12 @@ class ReaderTestHelper {
         ClassMapping inner = mappings.getMappings().get("a").getInnerClassMappings().get("b");
         assertTrue(inner.getInnerClassMappings().containsKey("c"));
         ClassMapping deeper = inner.getInnerClassMappings().get("c");
-        assertTrue(deeper.getFieldMappings().containsKey("a"));
 
-        FieldMapping fieldMapping = deeper.getFieldMappings().get("a");
+        FieldSignature aSig = new FieldSignature("a", Type.fromString("I"));
+
+        assertTrue(deeper.getFieldMappings().containsKey(aSig));
+
+        FieldMapping fieldMapping = deeper.getFieldMappings().get(aSig);
         assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someDeeperField", fieldMapping.getDeobfuscatedName());
     }
@@ -147,9 +157,10 @@ class ReaderTestHelper {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
 
-        assertTrue(mapping.getMethodMappings().containsKey("a(ILa;I)La;"));
+        MethodSignature aSig = new MethodSignature("a", MethodDescriptor.fromString("(ILa;I)La;"));
+        assertTrue(mapping.getMethodMappings().containsKey(aSig));
 
-        MethodMapping methodMapping = mapping.getMethodMappings().get("a(ILa;I)La;");
+        MethodMapping methodMapping = mapping.getMethodMappings().get(aSig);
         assertEquals("a", methodMapping.getObfuscatedName());
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
         assertArrayEquals(
