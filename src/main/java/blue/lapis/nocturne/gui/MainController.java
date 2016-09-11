@@ -194,7 +194,12 @@ public class MainController implements Initializable {
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        MappingsOpenDialogHelper.openMappings();
+        MappingsOpenDialogHelper.openMappings(false);
+        updateClassViews();
+    }
+
+    public void mergeMappings(ActionEvent actionEvent) throws IOException {
+        MappingsOpenDialogHelper.openMappings(true);
         updateClassViews();
     }
 
