@@ -41,7 +41,6 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -66,7 +65,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -265,7 +263,7 @@ public class MainController implements Initializable {
 
     public void updateObfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(), obfTree.getRoot());
             root.setExpanded(true);
             obfTree.setRoot(root);
         } else {
@@ -276,7 +274,7 @@ public class MainController implements Initializable {
 
     public void updateDeobfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(), deobfTree.getRoot());
             root.setExpanded(true);
             deobfTree.setRoot(root);
         } else {
@@ -284,7 +282,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element, TreeItem<String> oldTreeItem) {
         TreeItem<String> treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
@@ -296,11 +294,27 @@ public class MainController implements Initializable {
         } else {
             treeItem = new TreeItem<>("(root)");
         }
+        if (oldTreeItem != null) {
+            treeItem.setExpanded(oldTreeItem.isExpanded());
+        }
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(
-                    element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
-            );
+            for (HierarchyNode node : element.getChildren()) {
+                if (oldTreeItem != null) {
+                    boolean added = false;
+                    for (TreeItem<String> child : oldTreeItem.getChildren()) {
+                        if (node.getDisplayName().equalsIgnoreCase(child.getValue())) {
+                            treeItem.getChildren().add(this.generateTreeItem(node, child));
+                            added = true;
+                        }
+                    }
+                    if (!added) {
+                        treeItem.getChildren().add(this.generateTreeItem(node, null));
+                    }
+                } else {
+                    treeItem.getChildren().add(this.generateTreeItem(node, null));
+                }
+            }
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;
