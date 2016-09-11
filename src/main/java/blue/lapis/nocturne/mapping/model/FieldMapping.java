@@ -86,6 +86,11 @@ public class FieldMapping extends MemberMapping {
     }
 
     @Override
+    public FieldSignature getSignature() {
+        return sig;
+    }
+
+    @Override
     protected SelectableMember.MemberKey getMemberKey() {
         return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), type.toString());
     }

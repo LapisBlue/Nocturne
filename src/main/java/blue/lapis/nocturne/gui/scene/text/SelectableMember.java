@@ -422,10 +422,12 @@ public class SelectableMember extends Text {
                 Optional<ClassMapping> classMapping
                         = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
                 if (classMapping.isPresent()) {
-                    Map<String, ? extends Mapping> mappings = getType() == MemberType.FIELD
+                    Map<? extends MemberSignature, ? extends Mapping> mappings = getType() == MemberType.FIELD
                             ? classMapping.get().getFieldMappings()
                             : classMapping.get().getMethodMappings();
-                    Mapping mapping = mappings.get(getName() + (getType() == MemberType.METHOD ? getDescriptor() : ""));
+                    Mapping mapping = mappings.get(getType() == MemberType.METHOD
+                            ? new MethodSignature(getName(), MethodDescriptor.fromString(getDescriptor()))
+                            : new FieldSignature(getName(), Type.fromString(getDescriptor())));
                     if (mapping != null) {
                         deobf = mapping.getDeobfuscatedName();
                     }

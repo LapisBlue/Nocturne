@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
 
 import java.util.List;
 
@@ -66,6 +67,13 @@ public abstract class MemberMapping extends Mapping implements IMemberMapping {
             member.setDeobfuscated(!name.equals(member.getName()));
         });
     }
+
+    /**
+     * Gets the signature of this {@link MemberMapping}.
+     *
+     * @return The signature of this {@link MemberMapping}
+     */
+    public abstract MemberSignature getSignature();
 
     @Override
     public MappingContext getContext() {

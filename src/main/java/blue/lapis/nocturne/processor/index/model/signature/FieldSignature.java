@@ -46,6 +46,11 @@ public class FieldSignature extends MemberSignature {
     }
 
     @Override
+    public String toString() {
+        return this.getName() + ":" + this.getType().toString();
+    }
+
+    @Override
     public boolean equals(Object otherObj) {
         if (!(otherObj instanceof FieldSignature)) {
             return false;

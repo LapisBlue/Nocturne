@@ -129,6 +129,11 @@ public class MethodMapping extends MemberMapping {
     }
 
     @Override
+    public MethodSignature getSignature() {
+        return sig;
+    }
+
+    @Override
     protected SelectableMember.MemberKey getMemberKey() {
         return memberKey;
     }
