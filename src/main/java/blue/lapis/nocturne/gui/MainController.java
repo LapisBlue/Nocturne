@@ -223,11 +223,27 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+        Main.getMappingContext().getMappings().values().forEach(cm -> {
+            Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
+            JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
+            if (jce == null) {
+                return;
+            }
+            cm.getInnerClassMappings().values()
+                    .forEach(im -> jce.getCurrentInnerClassNames().put(im.getObfuscatedName(), im.getObfuscatedName()));
+            cm.getFieldMappings().values()
+                    .forEach(fm -> jce.getCurrentFields().put(fm.getSignature(), fm.getSignature()));
+            cm.getMethodMappings().values()
+                    .forEach(mm -> jce.getCurrentMethods().put(mm.getSignature(), mm.getSignature()));
+        });
         Main.getMappingContext().clear();
         Main.getLoadedJar().getClasses().forEach(jce -> jce.setDeobfuscated(false));
         CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
         SelectableMember.MEMBERS.values()
-                .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
+                .forEach(list -> list.forEach(member -> {
+                    member.setAndProcessText(member.getName());
+                    member.setDeobfuscated(false);
+                }));
         updateClassViews();
     }
 
