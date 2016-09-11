@@ -212,8 +212,10 @@ public class SelectableMember extends Text {
                                 //noinspection ConstantConditions
                                 parent.get().removeMethodMapping((MethodSignature) sig);
                             }
-                            setDeobfuscated(false);
-                            updateText();
+                            MEMBERS.get(key).forEach(sm -> {
+                                sm.setDeobfuscated(false);
+                                sm.updateText();
+                            });
                         }
                     }
                     break;
