@@ -28,8 +28,10 @@ package blue.lapis.nocturne.mapping.io.reader;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -116,7 +118,7 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String deobf = arr[2].substring(arr[2].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
             // SRG doesn't support field types so we just pass a null type arg and let the helper method figure it out
-            MappingsHelper.genFieldMapping(context, owningClass, obf, deobf, (Type) null);
+            MappingsHelper.genFieldMapping(context, owningClass, new FieldSignature(obf, null), deobf);
         }
     }
 
@@ -128,7 +130,8 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String descriptor = arr[2];
             String deobf = arr[3].substring(arr[3].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
-            MappingsHelper.genMethodMapping(context, owningClass, obf, deobf, descriptor, false);
+            MappingsHelper.genMethodMapping(context, owningClass,
+                    new MethodSignature(obf, MethodDescriptor.fromString(descriptor)), deobf, false);
         }
     }
 

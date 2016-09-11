@@ -26,11 +26,8 @@
 package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
-
-import java.util.Optional;
 
 /**
  * Represents a {@link Mapping} for arguments.
@@ -46,7 +43,6 @@ public class MethodParameterMapping extends Mapping {
      *
      * @param parent The parent method mapping
      * @param index The index of the argument
-     * @param obfName The obfuscated name of the mapped argument
      * @param deobfName The deobfuscated name of the mapped argument
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes

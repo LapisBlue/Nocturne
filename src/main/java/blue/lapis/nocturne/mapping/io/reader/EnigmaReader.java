@@ -35,6 +35,8 @@ import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -130,8 +132,8 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     Type type = removeNonePrefix(Type.fromString(arr[3]));
-                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(), obf, deobf,
-                            type);
+                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                            new FieldSignature(obf, type), deobf);
                     currentMethod = null;
                     break;
                 }
@@ -162,7 +164,7 @@ public class EnigmaReader extends MappingsReader {
                     MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
 
                     currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
-                            obf, deobf, desc, true);
+                            new MethodSignature(obf, desc), deobf, true);
                     break;
                 }
                 case ARG_MAPPING_KEY: {

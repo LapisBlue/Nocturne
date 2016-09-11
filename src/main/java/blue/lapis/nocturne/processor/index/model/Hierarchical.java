@@ -46,6 +46,7 @@ public class Hierarchical<T extends Hierarchical> {
 
     public void finalizeHierarchy() {
         checkState(!isHierarchyFinalized, "Cannot finalize hierarchy more than once");
+        //noinspection SuspiciousMethodCalls
         getHierarchy().remove(this);
         hierarchy = ImmutableSet.copyOf(hierarchy);
 
