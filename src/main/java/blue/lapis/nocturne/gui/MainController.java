@@ -79,6 +79,7 @@ public class MainController implements Initializable {
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
+    public MenuItem mergeMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
@@ -102,6 +103,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         closeJarButton.setDisable(Main.getLoadedJar() == null);
         loadMappingsButton.setDisable(Main.getLoadedJar() == null);
+        mergeMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsAsButton.setDisable(Main.getLoadedJar() == null);
         resetMappingsButton.setDisable(Main.getLoadedJar() == null);
@@ -161,6 +163,8 @@ public class MainController implements Initializable {
     private void setAccelerators() {
         openJarButton.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         loadMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
+        mergeMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN,
+                KeyCombination.ALT_DOWN));
         saveMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         saveMappingsAsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
                 KeyCombination.ALT_DOWN));
@@ -183,6 +187,7 @@ public class MainController implements Initializable {
 
         closeJarButton.setDisable(true);
         loadMappingsButton.setDisable(true);
+        mergeMappingsButton.setDisable(true);
         saveMappingsButton.setDisable(true);
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
@@ -194,6 +199,13 @@ public class MainController implements Initializable {
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
+        try {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+                return;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
         MappingsOpenDialogHelper.openMappings(false);
         updateClassViews();
     }
