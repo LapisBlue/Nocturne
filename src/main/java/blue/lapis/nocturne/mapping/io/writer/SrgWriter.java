@@ -88,7 +88,7 @@ public class SrgWriter extends MappingsWriter {
      * @param classMapping The {@link ClassMapping} to write
      */
     protected void writeClassMapping(ClassMapping classMapping) {
-        if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
+        if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL: %s %s\n",
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }

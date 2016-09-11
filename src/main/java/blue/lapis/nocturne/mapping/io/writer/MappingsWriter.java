@@ -26,15 +26,20 @@
 package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.Mapping;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.function.Predicate;
 
 /**
  * Superclass for all writer classes.
  */
 public abstract class MappingsWriter implements Closeable {
+
+    protected static final Predicate<Mapping> NOT_USELESS
+            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
 
     protected final PrintWriter out;
 

@@ -42,9 +42,6 @@ import java.util.function.Predicate;
  */
 public class JamWriter extends MappingsWriter {
 
-    private static final Predicate<Mapping> NOT_USELESS
-            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
-
     private final ByteArrayOutputStream clOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream fdOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream mdOut = new ByteArrayOutputStream();
@@ -94,7 +91,7 @@ public class JamWriter extends MappingsWriter {
      * @param classMapping The {@link ClassMapping} to write
      */
     protected void writeClassMapping(ClassMapping classMapping) {
-        if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
+        if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL %s %s\n",
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
