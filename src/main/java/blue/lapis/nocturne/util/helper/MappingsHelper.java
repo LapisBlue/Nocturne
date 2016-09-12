@@ -29,8 +29,6 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -40,6 +38,7 @@ import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.util.List;
 import java.util.Optional;
@@ -119,67 +118,59 @@ public final class MappingsHelper {
         }
     }
 
-    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
-                                       String descriptor) {
-        genFieldMapping(context, owningClass, obf, deobf, Type.fromString(descriptor));
-    }
-
-    public static void genFieldMapping(MappingContext context, String owningClass, String obf, String deobf,
-                                       Type descriptor) {
+    public static FieldMapping genFieldMapping(MappingContext context, String owningClass, final FieldSignature sig,
+                                               String deobf) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
-            return;
-        } else if (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf)) {
+            return null;
+        } else if (!StringHelper.isJavaIdentifier(sig.getName()) || !StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered field mapping with illegal name - ignoring");
-            return;
+            return null;
         }
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getFieldMappings().containsKey(obf)) {
-            parent.getFieldMappings().get(obf).setDeobfuscatedName(deobf);
+        if (parent.getFieldMappings().containsKey(sig)) {
+            final FieldMapping fieldMapping = parent.getFieldMappings().get(sig);
+            fieldMapping.setDeobfuscatedName(deobf);
+            return fieldMapping;
         } else {
-            if (descriptor == null) {
+            FieldSignature finalSig = sig;
+            if (sig.getType() == null) {
                 List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
-                        .stream().filter(s -> s.getName().equals(obf)).collect(Collectors.toList());
+                        .stream().filter(s -> s.getName().equals(sig.getName())).collect(Collectors.toList());
                 if (sigList.size() > 1) {
                     Main.getLogger().warning("Discovered ambiguous field mapping! Ignoring...");
-                    return;
+                    return null;
                 } else if (sigList.size() == 0) {
                     Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
-                    return;
+                    return null;
                 }
-                descriptor = sigList.get(0).getType();
+                finalSig = sigList.get(0);
             }
-            new FieldMapping(parent, obf, deobf, descriptor);
+            return new FieldMapping(parent, finalSig, deobf);
         }
     }
 
-    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
-                                                 String descriptor, boolean acceptInitializer) {
-        return genMethodMapping(context, owningClass, obf, deobf, MethodDescriptor.fromString(descriptor),
-                acceptInitializer);
-    }
-
-    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, String obf, String deobf,
-                                                 MethodDescriptor descriptor, boolean acceptInitializer) {
+    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, MethodSignature sig,
+                                                 String deobf, boolean acceptInitializer) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
             return null;
-        } else if (!(obf.equals("<init>") && acceptInitializer && obf.equals(deobf))
-                && (!StringHelper.isJavaIdentifier(obf) || !StringHelper.isJavaIdentifier(deobf))) {
+        } else if (!(sig.getName().equals("<init>") && acceptInitializer && sig.getName().equals(deobf))
+                && (!StringHelper.isJavaIdentifier(sig.getName()) || !StringHelper.isJavaIdentifier(deobf))) {
             Main.getLogger().warning("Discovered method mapping with illegal name - ignoring");
             return null;
         }
 
         ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getMethodMappings().containsKey(obf)) {
-            final MethodMapping methodMapping = parent.getMethodMappings().get(obf);
+        if (parent.getMethodMappings().containsKey(sig)) {
+            final MethodMapping methodMapping = parent.getMethodMappings().get(sig);
             methodMapping.setDeobfuscatedName(deobf);
             return methodMapping;
         } else {
-            return new MethodMapping(parent, obf, deobf, descriptor);
+            return new MethodMapping(parent, sig, deobf);
         }
     }
 

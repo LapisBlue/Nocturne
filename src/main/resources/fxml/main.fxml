@@ -55,6 +55,8 @@
                 <MenuItem mnemonicParsing="true" onAction="#loadPomfMapping"
                           text="%menu.file.load_mappings_from.pomf"/>
             </Menu>
+            <MenuItem mnemonicParsing="true" fx:id="mergeMappingsButton" onAction="#mergeMappings"
+                      text="%menu.file.merge_mappings"/>
             <MenuItem mnemonicParsing="true" fx:id="saveMappingsButton" onAction="#saveMappings"
                       text="%menu.file.save_mappings"/>
             <MenuItem mnemonicParsing="true" fx:id="saveMappingsAsButton" onAction="#saveMappingsAs"
@@ -69,13 +71,19 @@
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
-                           text="Deutsch" id="langRadio-de_DE" selected="false">
+                           text="العربية" id="langRadio-ar_SA">
                 <toggleGroup>
                     <ToggleGroup fx:id="languageGroup"/>
                 </toggleGroup>
             </RadioMenuItem>
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
+                           text="Deutsch" id="langRadio-de_DE">
+            </RadioMenuItem>
+            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
                            text="English (US)" id="langRadio-en_US" selected="true">
+            </RadioMenuItem>
+            <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"
+                           text="Español (España)" id="langRadio-es_ES">
             </RadioMenuItem>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.help">

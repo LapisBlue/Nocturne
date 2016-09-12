@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.io.reader;
 
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -34,6 +35,8 @@ import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
@@ -103,6 +106,9 @@ public class EnigmaReader extends MappingsReader {
                     String obf = removeNonePrefix(arr[1]);
                     String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
+                    if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
+                        deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
+                    }
                     classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
                     currentMethod = null;
                     break;
@@ -125,8 +131,8 @@ public class EnigmaReader extends MappingsReader {
                     String obf = arr[1];
                     String deobf = arr[2];
                     Type type = removeNonePrefix(Type.fromString(arr[3]));
-                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(), obf, deobf,
-                            type);
+                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                            new FieldSignature(obf, type), deobf);
                     currentMethod = null;
                     break;
                 }
@@ -157,7 +163,7 @@ public class EnigmaReader extends MappingsReader {
                     MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
 
                     currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
-                            obf, deobf, desc, true);
+                            new MethodSignature(obf, desc), deobf, true);
                     break;
                 }
                 case ARG_MAPPING_KEY: {

@@ -64,7 +64,9 @@ public class SrgWriter extends MappingsWriter {
 
     @Override
     public void write(MappingContext mappingContext) {
-        mappingContext.getMappings().values().forEach(this::writeClassMapping);
+        mappingContext.getMappings().values().stream().sorted(
+                (o1, o2) -> o1.getFullObfuscatedName().compareToIgnoreCase(o2.getFullObfuscatedName())
+        ).forEach(this::writeClassMapping);
         clWriter.close();
         fdWriter.close();
         mdWriter.close();
@@ -88,14 +90,20 @@ public class SrgWriter extends MappingsWriter {
      * @param classMapping The {@link ClassMapping} to write
      */
     protected void writeClassMapping(ClassMapping classMapping) {
-        if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
+        if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL: %s %s\n",
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
 
-        classMapping.getInnerClassMappings().values().stream().filter(NOT_USELESS).forEach(this::writeClassMapping);
-        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).forEach(this::writeFieldMapping);
-        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).forEach(this::writeMethodMapping);
+        classMapping.getInnerClassMappings().values().stream().filter(NOT_USELESS).sorted(
+            (o1, o2) -> o1.getFullObfuscatedName().compareToIgnoreCase(o2.getFullObfuscatedName())
+        ).forEach(this::writeClassMapping);
+        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).sorted(
+                (o1, o2) -> o1.getObfuscatedName().compareToIgnoreCase(o2.getObfuscatedName())
+        ).forEach(this::writeFieldMapping);
+        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).sorted(
+                (o1, o2) -> o1.getObfuscatedName().compareToIgnoreCase(o2.getObfuscatedName())
+        ).forEach(this::writeMethodMapping);
     }
 
     /**

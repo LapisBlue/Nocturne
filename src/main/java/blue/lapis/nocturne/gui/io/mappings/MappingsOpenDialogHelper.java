@@ -51,7 +51,7 @@ public final class MappingsOpenDialogHelper {
     private MappingsOpenDialogHelper() {
     }
 
-    public static void openMappings() throws IOException {
+    public static void openMappings(boolean merge) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
         Arrays.asList(MappingReaderType.values()).forEach(t -> {
@@ -83,6 +83,9 @@ public final class MappingsOpenDialogHelper {
                 .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
         try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
             MappingContext context = reader.read();
+            if (!merge) {
+                Main.getMappingContext().clear();
+            }
             Main.getMappingContext().assimilate(context);
             MainController.INSTANCE.updateClassViews();
             Main.getMappingContext().setDirty(false);

@@ -66,25 +66,24 @@ public class EnigmaWriter extends MappingsWriter {
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
         boolean inner = classMapping instanceof InnerClassMapping;
         if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
-            out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getFullObfuscatedName())));
+            if (!classMapping.getInnerClassMappings().isEmpty()) {
+                out.println(getIndentForDepth(depth) + "CLASS "
+                        + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())));
+            }
         } else {
             out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getFullObfuscatedName())) + " "
-                    + (inner ? classMapping.getFullDeobfuscatedName() : addNonePrefix(classMapping.getFullDeobfuscatedName())));
+                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName()))
+                    + " "
+                    + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
         }
 
-        for (ClassMapping innerClass : classMapping.getInnerClassMappings().values()) {
-            this.writeClassMapping(innerClass, depth + 1);
-        }
+        classMapping.getInnerClassMappings().values().forEach(m -> this.writeClassMapping(m, depth + 1));
 
-        for (FieldMapping fieldMapping : classMapping.getFieldMappings().values()) {
-            this.writeFieldMapping(fieldMapping, depth + 1);
-        }
+        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS)
+                .forEach(m -> this.writeFieldMapping(m, depth + 1));
 
-        for (MethodMapping methodMapping : classMapping.getMethodMappings().values()) {
-            this.writeMethodMapping(methodMapping, depth + 1);
-        }
+        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS)
+                .forEach(m -> this.writeMethodMapping(m, depth + 1));
     }
 
     protected void writeFieldMapping(FieldMapping fieldMapping, int depth) {

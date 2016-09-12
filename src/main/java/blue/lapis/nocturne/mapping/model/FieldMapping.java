@@ -39,22 +39,19 @@ import blue.lapis.nocturne.util.MemberType;
 public class FieldMapping extends MemberMapping {
 
     private final ClassMapping parent;
-    private final Type type;
     private final FieldSignature sig;
 
     /**
      * Constructs a new {@link FieldMapping} with the given parameters.
      *
      * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the field
+     * @param sig The obfuscated signature of the field
      * @param deobfName The deobfuscated name of the field
-     * @param type The (obfuscated) {@link Type} of the field
      */
-    public FieldMapping(ClassMapping parent, String obfName, String deobfName, Type type) {
-        super(parent, obfName, deobfName);
+    public FieldMapping(ClassMapping parent, FieldSignature sig, String deobfName) {
+        super(parent, sig.getName(), deobfName);
         this.parent = parent;
-        this.type = type;
-        this.sig = new FieldSignature(obfName, type);
+        this.sig = sig;
 
         parent.addFieldMapping(this);
     }
@@ -65,7 +62,7 @@ public class FieldMapping extends MemberMapping {
      * @return The {@link Type} of this field
      */
     public Type getObfuscatedType() {
-        return type;
+        return sig.getType();
     }
 
     /**
@@ -82,12 +79,17 @@ public class FieldMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentFields().put(sig, new FieldSignature(getDeobfuscatedName(), type));
+                .getCurrentFields().put(sig, new FieldSignature(getDeobfuscatedName(), sig.getType()));
+    }
+
+    @Override
+    public FieldSignature getSignature() {
+        return sig;
     }
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), type.toString());
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), sig.getType().toString());
     }
 
     private String getQualifiedName() {

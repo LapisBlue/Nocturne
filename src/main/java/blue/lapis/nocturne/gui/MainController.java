@@ -66,7 +66,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -81,6 +80,7 @@ public class MainController implements Initializable {
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
     public Menu loadMappingsFromMenu;
+    public MenuItem mergeMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
@@ -105,6 +105,7 @@ public class MainController implements Initializable {
         closeJarButton.setDisable(Main.getLoadedJar() == null);
         loadMappingsButton.setDisable(Main.getLoadedJar() == null);
         loadMappingsFromMenu.setDisable(Main.getLoadedJar() == null);
+        mergeMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsAsButton.setDisable(Main.getLoadedJar() == null);
         resetMappingsButton.setDisable(Main.getLoadedJar() == null);
@@ -164,6 +165,8 @@ public class MainController implements Initializable {
     private void setAccelerators() {
         openJarButton.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         loadMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
+        mergeMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN,
+                KeyCombination.ALT_DOWN));
         saveMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         saveMappingsAsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
                 KeyCombination.ALT_DOWN));
@@ -187,6 +190,7 @@ public class MainController implements Initializable {
         closeJarButton.setDisable(true);
         loadMappingsButton.setDisable(true);
         loadMappingsFromMenu.setDisable(true);
+        mergeMappingsButton.setDisable(true);
         saveMappingsButton.setDisable(true);
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
@@ -198,7 +202,19 @@ public class MainController implements Initializable {
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        MappingsOpenDialogHelper.openMappings();
+        try {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+                return;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        MappingsOpenDialogHelper.openMappings(false);
+        updateClassViews();
+    }
+
+    public void mergeMappings(ActionEvent actionEvent) throws IOException {
+        MappingsOpenDialogHelper.openMappings(true);
         updateClassViews();
     }
 
@@ -215,11 +231,27 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+        Main.getMappingContext().getMappings().values().forEach(cm -> {
+            Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
+            JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
+            if (jce == null) {
+                return;
+            }
+            cm.getInnerClassMappings().values()
+                    .forEach(im -> jce.getCurrentInnerClassNames().put(im.getObfuscatedName(), im.getObfuscatedName()));
+            cm.getFieldMappings().values()
+                    .forEach(fm -> jce.getCurrentFields().put(fm.getSignature(), fm.getSignature()));
+            cm.getMethodMappings().values()
+                    .forEach(mm -> jce.getCurrentMethods().put(mm.getSignature(), mm.getSignature()));
+        });
         Main.getMappingContext().clear();
         Main.getLoadedJar().getClasses().forEach(jce -> jce.setDeobfuscated(false));
         CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
         SelectableMember.MEMBERS.values()
-                .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
+                .forEach(list -> list.forEach(member -> {
+                    member.setAndProcessText(member.getName());
+                    member.setDeobfuscated(false);
+                }));
         updateClassViews();
     }
 
@@ -273,7 +305,7 @@ public class MainController implements Initializable {
 
     public void updateObfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(), obfTree.getRoot());
             root.setExpanded(true);
             obfTree.setRoot(root);
         } else {
@@ -284,7 +316,8 @@ public class MainController implements Initializable {
 
     public void updateDeobfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
+            TreeItem<String> root
+                    = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(), deobfTree.getRoot());
             root.setExpanded(true);
             deobfTree.setRoot(root);
         } else {
@@ -292,7 +325,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element, TreeItem<String> oldTreeItem) {
         TreeItem<String> treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
@@ -304,11 +337,27 @@ public class MainController implements Initializable {
         } else {
             treeItem = new TreeItem<>("(root)");
         }
+        if (oldTreeItem != null) {
+            treeItem.setExpanded(oldTreeItem.isExpanded());
+        }
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(
-                    element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
-            );
+            for (HierarchyNode node : element.getChildren()) {
+                if (oldTreeItem != null) {
+                    boolean added = false;
+                    for (TreeItem<String> child : oldTreeItem.getChildren()) {
+                        if (node.getDisplayName().equalsIgnoreCase(child.getValue())) {
+                            treeItem.getChildren().add(this.generateTreeItem(node, child));
+                            added = true;
+                        }
+                    }
+                    if (!added) {
+                        treeItem.getChildren().add(this.generateTreeItem(node, null));
+                    }
+                } else {
+                    treeItem.getChildren().add(this.generateTreeItem(node, null));
+                }
+            }
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;

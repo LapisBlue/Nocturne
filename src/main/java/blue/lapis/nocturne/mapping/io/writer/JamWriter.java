@@ -28,22 +28,17 @@ package blue.lapis.nocturne.mapping.io.writer;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.function.Predicate;
 
 /**
  * The mappings writer, for the SRG format.
  */
 public class JamWriter extends MappingsWriter {
-
-    private static final Predicate<Mapping> NOT_USELESS
-            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
 
     private final ByteArrayOutputStream clOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream fdOut = new ByteArrayOutputStream();
@@ -94,7 +89,7 @@ public class JamWriter extends MappingsWriter {
      * @param classMapping The {@link ClassMapping} to write
      */
     protected void writeClassMapping(ClassMapping classMapping) {
-        if (!classMapping.getObfuscatedName().equals(classMapping.getDeobfuscatedName())) {
+        if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL %s %s\n",
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
