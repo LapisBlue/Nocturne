@@ -161,7 +161,7 @@ public class CodeTab extends Tab {
     public enum SelectableMemberType {
         FIELD("codetab.identifier.field", "codetab.identifier.type"),
         METHOD("codetab.identifier.method", "codetab.identifier.descriptor"),
-        ARG("codetab.identifier.arg", "codetab.identifier.type"),
+        ARG("codetab.identifier.param", "codetab.identifier.type"),
         CLASS("codetab.identifier.class"),
         ;
 
