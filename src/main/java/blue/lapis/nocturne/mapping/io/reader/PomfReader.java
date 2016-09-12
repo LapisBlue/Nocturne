@@ -67,4 +67,5 @@ public class PomfReader extends EnigmaReader {
         out.close();
         return new BufferedReader(new InputStreamReader(input));
     }
+
 }
