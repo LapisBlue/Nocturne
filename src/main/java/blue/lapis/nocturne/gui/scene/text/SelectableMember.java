@@ -461,7 +461,7 @@ public class SelectableMember extends Text {
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
         MemberType type = matcher.group().startsWith(CLASS_PREFIX)
                 ? MemberType.CLASS
-                : MemberType.fromString(matcher.group(1));
+                : MemberType.valueOf(matcher.group(1));
 
         if (type == MemberType.CLASS) {
             return new SelectableMember(codeTab, type, matcher.group(1));
