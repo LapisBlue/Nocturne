@@ -31,6 +31,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 
 /**
@@ -79,7 +80,8 @@ public class FieldMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentFields().put(sig, new FieldSignature(getDeobfuscatedName(), sig.getType()));
+                .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
+                : new FieldSignature(getDeobfuscatedName(), sig.getType()));
     }
 
     @Override

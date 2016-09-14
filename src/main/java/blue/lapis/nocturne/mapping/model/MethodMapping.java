@@ -164,7 +164,8 @@ public class MethodMapping extends MemberMapping {
         }
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentMethods().put(sig, new MethodSignature(deobf, sig.getDescriptor()));
+                .getCurrentMethods().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
+                : new MethodSignature(getDeobfuscatedName(), sig.getDescriptor()));
     }
 
 }
