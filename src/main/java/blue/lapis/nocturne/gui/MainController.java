@@ -47,6 +47,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
@@ -66,6 +67,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -297,7 +299,7 @@ public class MainController implements Initializable {
 
     public void updateObfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(), obfTree.getRoot());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy());
             root.setExpanded(true);
             obfTree.setRoot(root);
         } else {
@@ -308,8 +310,7 @@ public class MainController implements Initializable {
 
     public void updateDeobfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root
-                    = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(), deobfTree.getRoot());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy());
             root.setExpanded(true);
             deobfTree.setRoot(root);
         } else {
@@ -317,7 +318,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element, TreeItem<String> oldTreeItem) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element) {
         TreeItem<String> treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
@@ -329,27 +330,11 @@ public class MainController implements Initializable {
         } else {
             treeItem = new TreeItem<>("(root)");
         }
-        if (oldTreeItem != null) {
-            treeItem.setExpanded(oldTreeItem.isExpanded());
-        }
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            for (HierarchyNode node : element.getChildren()) {
-                if (oldTreeItem != null) {
-                    boolean added = false;
-                    for (TreeItem<String> child : oldTreeItem.getChildren()) {
-                        if (node.getDisplayName().equalsIgnoreCase(child.getValue())) {
-                            treeItem.getChildren().add(this.generateTreeItem(node, child));
-                            added = true;
-                        }
-                    }
-                    if (!added) {
-                        treeItem.getChildren().add(this.generateTreeItem(node, null));
-                    }
-                } else {
-                    treeItem.getChildren().add(this.generateTreeItem(node, null));
-                }
-            }
+            treeItem.getChildren().addAll(
+                    element.getChildren().stream().map(this::generateTreeItem).collect(Collectors.toList())
+            );
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;
