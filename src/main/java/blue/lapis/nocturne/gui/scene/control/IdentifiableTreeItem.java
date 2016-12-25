@@ -27,11 +27,11 @@ package blue.lapis.nocturne.gui.scene.control;
 
 import javafx.scene.control.TreeItem;
 
-public class ClassTreeItem extends TreeItem<String> {
+public class IdentifiableTreeItem extends TreeItem<String> {
 
     private final String id;
 
-    public ClassTreeItem(String id, String displayName) {
+    public IdentifiableTreeItem(String id, String displayName) {
         this.setValue(displayName);
         this.id = id;
     }
