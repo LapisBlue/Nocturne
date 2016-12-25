@@ -28,8 +28,12 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
+import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.SceneHelper;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -95,6 +99,16 @@ public final class MappingsSaveDialogHelper {
 
         final MappingWriterType writerType
                 = MappingWriterType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+
+        if (writerType == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(Main.getResourceBundle().getString("filechooser.no_extension.title"));
+            alert.setContentText(Main.getResourceBundle().getString("filechooser.no_extension"));
+
+            alert.showAndWait();
+            return false;
+        }
+
         Main.setCurrentMappingsPath(selectedFile.toPath());
         Main.setCurrentWriterType(writerType);
 
