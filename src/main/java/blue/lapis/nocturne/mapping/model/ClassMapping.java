@@ -195,7 +195,7 @@ public abstract class ClassMapping extends Mapping {
         String unqualName = this instanceof InnerClassMapping ? name : StringHelper.unqualify(name);
         memberList.forEach(member -> {
             member.setText(unqualName);
-            member.setDeobfuscated(!unqualName.equals(member.getName()));
+            member.setDeobfuscated(!name.equals(member.getName()));
         });
 
         if (updateClassViews) {
@@ -206,9 +206,7 @@ public abstract class ClassMapping extends Mapping {
     private void updateEntryDeobfuscation() {
         if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
             Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(getFullObfuscatedName());
-            if (classEntry.isPresent()) {
-                classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
-            }
+            classEntry.ifPresent(jce -> jce.setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName())));
         }
     }
 
