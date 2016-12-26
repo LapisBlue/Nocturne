@@ -140,7 +140,7 @@ public class MainController implements Initializable {
                     return;
                 }
 
-                if (selected instanceof IdentifiableTreeItem) {
+                if (selected.getChildren().isEmpty()) {
                     String className = ((IdentifiableTreeItem) selected).getId().substring(1);
                     if (Main.getLoadedJar() != null) {
                         openTab(className, selected.getValue());
