@@ -27,6 +27,7 @@ package blue.lapis.nocturne.test.mapping.io.reader;
 
 import static blue.lapis.nocturne.test.mapping.io.reader.ReaderTestHelper.loadMain;
 
+import blue.lapis.nocturne.mapping.io.reader.JamReader;
 import blue.lapis.nocturne.mapping.io.reader.SrgReader;
 
 import jdk.nashorn.api.scripting.URLReader;
@@ -39,16 +40,16 @@ import java.io.IOException;
 /**
  * Unit tests related to the {@link SrgReader}.
  */
-public class SrgReaderTest {
+public class JamReaderTest {
 
     private static ReaderTestHelper helper;
 
     @BeforeClass
     public static void initialize() throws IOException {
         loadMain();
-        SrgReader reader
-                = new SrgReader(new BufferedReader(new URLReader(
-                        ClassLoader.getSystemResource("mappings/example.srg"))));
+        JamReader reader
+                = new JamReader(new BufferedReader(new URLReader(
+                        ClassLoader.getSystemResource("mappings/example.jam"))));
         helper = new ReaderTestHelper(reader.read());
     }
 

@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.Type;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.util.MemberType;
 
 /**
@@ -38,20 +39,19 @@ import blue.lapis.nocturne.util.MemberType;
 public class FieldMapping extends MemberMapping {
 
     private final ClassMapping parent;
-    private final Type type; //TODO: not necessary (or possible) for SRG mappings so we won't enforce it
+    private final FieldSignature sig;
 
     /**
      * Constructs a new {@link FieldMapping} with the given parameters.
      *
      * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the field
+     * @param sig The obfuscated signature of the field
      * @param deobfName The deobfuscated name of the field
-     * @param type The (obfuscated) {@link Type} of the field
      */
-    public FieldMapping(ClassMapping parent, String obfName, String deobfName, Type type) {
-        super(parent, obfName, deobfName);
+    public FieldMapping(ClassMapping parent, FieldSignature sig, String deobfName) {
+        super(parent, sig.getName(), deobfName);
         this.parent = parent;
-        this.type = type;
+        this.sig = sig;
 
         parent.addFieldMapping(this);
     }
@@ -61,8 +61,8 @@ public class FieldMapping extends MemberMapping {
      *
      * @return The {@link Type} of this field
      */
-    public Type getType() {
-        return type;
+    public Type getObfuscatedType() {
+        return sig.getType();
     }
 
     /**
@@ -71,7 +71,7 @@ public class FieldMapping extends MemberMapping {
      * @return The deobfuscated {@link Type} of this field
      */
     public Type getDeobfuscatedType() {
-        return getType().deobfuscate(getParent().getContext());
+        return getObfuscatedType().deobfuscate(getParent().getContext());
     }
 
     @Override
@@ -79,17 +79,23 @@ public class FieldMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentFieldNames().put(getObfuscatedName(), deobf);
+                .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
+                : new FieldSignature(getDeobfuscatedName(), sig.getType()));
+    }
+
+    @Override
+    public FieldSignature getSignature() {
+        return sig;
     }
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), null);
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), sig.getType().toString());
     }
 
     private String getQualifiedName() {
         return (getParent() instanceof InnerClassMapping
-                ? ((InnerClassMapping) getParent()).getFullObfuscatedName()
+                ? getParent().getFullObfuscatedName()
                 : getParent().getObfuscatedName())
                 + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }

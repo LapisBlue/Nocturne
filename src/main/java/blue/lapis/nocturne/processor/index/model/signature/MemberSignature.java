@@ -23,16 +23,21 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.util;
+package blue.lapis.nocturne.processor.index.model.signature;
 
 /**
- * Represents a particular type of member.
+ * Represents the unique signature of a particular class member.
  */
-public enum MemberType {
+public abstract class MemberSignature {
 
-    CLASS,
-    FIELD,
-    METHOD,
-    ARG
+    protected final String name;
+
+    public MemberSignature(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
 }

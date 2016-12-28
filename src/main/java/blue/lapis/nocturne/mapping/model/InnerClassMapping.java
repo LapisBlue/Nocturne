@@ -107,7 +107,7 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
             return;
         }
 
-        super.setDeobfuscatedName(deobf);
+        super.setDeobfuscatedName(deobf, false);
     }
 
     @Override

@@ -33,6 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.ConstantPoolReader;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
@@ -41,7 +42,10 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.ClassStructure
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -90,7 +94,7 @@ public class ClassIndexer extends ClassProcessor {
             }
         }
 
-        List<String> fields = indexFields(buffer, pool);
+        List<IndexedField> fields = indexFields(buffer, pool);
 
         List<IndexedMethod> methods = indexMethods(buffer, pool);
 
@@ -103,16 +107,17 @@ public class ClassIndexer extends ClassProcessor {
      *
      * @param buffer The buffer to read from
      */
-    private List<String> indexFields(ByteBuffer buffer, ConstantPool pool) {
-        List<String> fields = new ArrayList<>();
+    private List<IndexedField> indexFields(ByteBuffer buffer, ConstantPool pool) {
+        List<IndexedField> fields = new ArrayList<>();
 
         int fieldCount = buffer.getShort(); // read the field count
         for (int i = 0; i < fieldCount; i++) {
-            buffer.position(buffer.position() + 2); // skip the access
+            IndexedField.Visibility vis = IndexedField.Visibility.fromAccessFlags(buffer.getShort()); // get the access
             String name = getString(pool, buffer.getShort()); // get the name
-            fields.add(name);
-            jce.getCurrentFieldNames().put(name, name); // index the field name for future reference
-            buffer.position(buffer.position() + 2); // skip the descriptor
+            Type desc = Type.fromString(getString(pool, buffer.getShort())); // get the descriptor
+            FieldSignature sig = new FieldSignature(name, desc);
+            fields.add(new IndexedField(sig, vis));
+            jce.getCurrentFields().put(sig, sig); // index the field name for future reference
             skipAttributes(buffer);
         }
 
@@ -135,9 +140,9 @@ public class ClassIndexer extends ClassProcessor {
             IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
             MethodDescriptor desc = MethodDescriptor.fromString(getString(pool, buffer.getShort()));
-            IndexedMethod.Signature sig = new IndexedMethod.Signature(name, desc);
+            MethodSignature sig = new MethodSignature(name, desc);
             methods.add(new IndexedMethod(sig, vis));
-            jce.getCurrentMethodNames().put(sig, sig); // index the method sig for future reference
+            jce.getCurrentMethods().put(sig, sig); // index the method sig for future reference
 
             skipAttributes(buffer);
         }

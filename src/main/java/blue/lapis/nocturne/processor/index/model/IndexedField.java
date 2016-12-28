@@ -25,7 +25,7 @@
 
 package blue.lapis.nocturne.processor.index.model;
 
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,17 +33,17 @@ import java.util.Map;
 /**
  * Represents a method serialized by Nocturne's class indexer.
  */
-public class IndexedMethod extends Hierarchical<IndexedClass> {
+public class IndexedField extends Hierarchical<IndexedClass> {
 
-    private final MethodSignature signature;
+    private final FieldSignature signature;
     private final Visibility visibility;
 
-    public IndexedMethod(MethodSignature signature, Visibility visibility) {
+    public IndexedField(FieldSignature signature, Visibility visibility) {
         this.signature = signature;
         this.visibility = visibility;
     }
 
-    public MethodSignature getSignature() {
+    public FieldSignature getSignature() {
         return signature;
     }
 

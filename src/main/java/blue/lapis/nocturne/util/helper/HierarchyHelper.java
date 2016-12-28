@@ -31,6 +31,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  */
 public final class HierarchyHelper {
 
-    public static Set<String> getClassesInHierarchy(String className, IndexedMethod.Signature sig) {
+    public static Set<String> getClassesInHierarchy(String className, MethodSignature sig) {
         checkState(INDEXED_CLASSES.containsKey(className), "Class \"" + className + "\" is not indexed");
         IndexedClass clazz = INDEXED_CLASSES.get(className);
 

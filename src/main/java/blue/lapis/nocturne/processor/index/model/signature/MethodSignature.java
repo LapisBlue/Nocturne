@@ -23,16 +23,40 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.util;
+package blue.lapis.nocturne.processor.index.model.signature;
+
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+
+import java.util.Objects;
 
 /**
- * Represents a particular type of member.
+ * Represents the unique signature of a particular method.
  */
-public enum MemberType {
+public class MethodSignature extends MemberSignature {
 
-    CLASS,
-    FIELD,
-    METHOD,
-    ARG
+    protected final MethodDescriptor descriptor;
+
+    public MethodSignature(String name, MethodDescriptor descriptor) {
+        super(name);
+        this.descriptor = descriptor;
+    }
+
+    public MethodDescriptor getDescriptor() {
+        return descriptor;
+    }
+
+    @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof MethodSignature)) {
+            return false;
+        }
+        MethodSignature sig = (MethodSignature) otherObj;
+        return sig.getName().equals(getName()) && sig.getDescriptor().equals(getDescriptor());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, descriptor);
+    }
 
 }

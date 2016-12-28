@@ -23,16 +23,20 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.util;
+package blue.lapis.nocturne.mapping.io;
 
-/**
- * Represents a particular type of member.
- */
-public enum MemberType {
+public enum MappingFormatType {
+    SRG("srg"),
+    JAM("jam"),
+    ENIGMA("*");
 
-    CLASS,
-    FIELD,
-    METHOD,
-    ARG
+    private final String extension;
 
+    MappingFormatType(String extension) {
+        this.extension = extension;
+    }
+
+    public String getFileExtension() {
+        return this.extension;
+    }
 }

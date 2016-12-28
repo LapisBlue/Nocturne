@@ -31,36 +31,38 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
+import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a {@link Mapping} for a method.
  */
 public class MethodMapping extends MemberMapping {
 
+    //TODO: this needs to have integers as keys. it doesn't make sense with strings.
+    private final Map<String, MethodParameterMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
-    private final MethodDescriptor descriptor;
-    private final IndexedMethod.Signature sig;
+    private final MethodSignature sig;
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
      * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the method
+     * @param sig The obfuscated signature of the method
      * @param deobfName The deobfuscated name of the method
-     * @param descriptor The (obfuscated) {@link MethodDescriptor descriptor} of
-     *     the method
      * @param propagate Whether to propagate this mapping to super- and
      *     sub-classes
      */
-    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor,
-                         boolean propagate) {
-        super(parent, obfName, deobfName);
-        this.descriptor = descriptor;
-        this.sig = new IndexedMethod.Signature(getObfuscatedName(), descriptor);
+    public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName, boolean propagate) {
+        super(parent, sig.getName(), deobfName);
+        this.sig = sig;
         memberKey = new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
                 getObfuscatedDescriptor().toString());
         parent.addMethodMapping(this, propagate);
@@ -70,17 +72,40 @@ public class MethodMapping extends MemberMapping {
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
      * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the method
+     * @param sig The obfuscated signature of the method
      * @param deobfName The deobfuscated name of the method
-     * @param descriptor The (obfuscated) {@link MethodDescriptor descriptor} of
-     *     the method
      */
-    public MethodMapping(ClassMapping parent, String obfName, String deobfName, MethodDescriptor descriptor) {
-        this(parent, obfName, deobfName, descriptor, true);
+    public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName) {
+        this(parent, sig, deobfName, true);
     }
 
     public void initialize(boolean propagate) {
         this.setDeobfuscatedName(getDeobfuscatedName(), propagate);
+    }
+
+    /**
+     * Gets a clone of the {@link MethodParameterMapping}s.
+     *
+     * @return A clone of the {@link MethodParameterMapping}s
+     */
+    public ImmutableMap<String, MethodParameterMapping> getParamMappings() {
+        return ImmutableMap.copyOf(this.argumentMappings);
+    }
+
+    /**
+     * Adds the given {@link MethodParameterMapping} to this {@link ClassMapping}.
+     *
+     * @param mapping The {@link MethodParameterMapping} to add
+     * @param propagate Whether to propagate this mapping to super- and
+     *     sub-classes
+     */
+    void addParamMapping(MethodParameterMapping mapping, boolean propagate) {
+        mapping.initialize(propagate);
+        argumentMappings.put(mapping.getObfuscatedName(), mapping);
+    }
+
+    public void removeParamMapping(String name) {
+        argumentMappings.remove(name);
     }
 
     /**
@@ -89,7 +114,7 @@ public class MethodMapping extends MemberMapping {
      * @return The {@link MethodDescriptor} of this method
      */
     public MethodDescriptor getObfuscatedDescriptor() {
-        return descriptor;
+        return sig.getDescriptor();
     }
 
     /**
@@ -99,6 +124,11 @@ public class MethodMapping extends MemberMapping {
      */
     public MethodDescriptor getDeobfuscatedDescriptor() {
         return getObfuscatedDescriptor().deobfuscate(getParent().getContext());
+    }
+
+    @Override
+    public MethodSignature getSignature() {
+        return sig;
     }
 
     @Override
@@ -125,16 +155,17 @@ public class MethodMapping extends MemberMapping {
                 }
 
                 ClassMapping cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
-                if (cm.getMethodMappings().containsKey(getObfuscatedName())) {
-                    cm.getMethodMappings().get(getObfuscatedName()).setDeobfuscatedName(deobf, false);
+                if (cm.getMethodMappings().containsKey(getSignature())) {
+                    cm.getMethodMappings().get(getSignature()).setDeobfuscatedName(deobf, false);
                 } else {
-                    new MethodMapping(cm, getObfuscatedName(), deobf, getObfuscatedDescriptor(), false);
+                    new MethodMapping(cm, getSignature(), deobf, false);
                 }
             }
         }
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
-                .getCurrentMethodNames().put(sig, new IndexedMethod.Signature(deobf, descriptor));
+                .getCurrentMethods().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
+                : new MethodSignature(getDeobfuscatedName(), sig.getDescriptor()));
     }
 
 }

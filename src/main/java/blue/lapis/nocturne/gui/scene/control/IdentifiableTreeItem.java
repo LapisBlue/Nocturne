@@ -23,16 +23,21 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.util;
+package blue.lapis.nocturne.gui.scene.control;
 
-/**
- * Represents a particular type of member.
- */
-public enum MemberType {
+import javafx.scene.control.TreeItem;
 
-    CLASS,
-    FIELD,
-    METHOD,
-    ARG
+public class IdentifiableTreeItem extends TreeItem<String> {
+
+    private final String id;
+
+    public IdentifiableTreeItem(String id, String displayName) {
+        this.setValue(displayName);
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
 
 }

@@ -25,17 +25,33 @@
 
 package blue.lapis.nocturne.mapping.io.reader;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
  * The mappings reader for the Enigma format.
  */
 public class EnigmaReader extends MappingsReader {
+
+    private static final String CLASS_MAPPING_KEY = "CLASS";
+    private static final String FIELD_MAPPING_KEY = "FIELD";
+    private static final String METHOD_MAPPING_KEY = "METHOD";
+    private static final String ARG_MAPPING_KEY = "ARG";
 
     public EnigmaReader(BufferedReader reader) {
         super(reader);
@@ -45,75 +61,165 @@ public class EnigmaReader extends MappingsReader {
     public MappingContext read() {
         MappingContext mappings = new MappingContext();
 
-        String currentClass = null;
+        Stack<ClassMapping> classStack = new Stack<>();
+        MethodMapping currentMethod = null;
         int lineNum = 0;
+        int lastIndentLevel = -1;
+
         for (String line : reader.lines().collect(Collectors.toList())) {
             lineNum++;
-            String[] arr = line.trim().split(" ");
+
+            // Remove comments
+            final int commentPos = line.indexOf('#');
+            if (commentPos >= 0) {
+                line = line.substring(0, commentPos);
+            }
+
+            final String[] arr = line.trim().split(" ");
+
+            // Skip empty lines
             if (arr.length == 0) {
                 continue;
             }
-            switch (arr[0]) {
-                case "CLASS": {
-                    if (arr.length < 2 || arr.length > 3) {
-                        System.err.println("Cannot parse file: malformed class mapping on line " + lineNum);
-                        System.exit(1);
-                    }
 
-                    String obf = arr[1].replace("none/", "");
-                    String deobf = arr.length == 3 ? arr[2] : obf;
-                    //TODO: handle inner classes
-                    MappingsHelper.genClassMapping(Main.getMappingContext(), obf, deobf, false);
-                    currentClass = obf;
+            // The indentation level of the line
+            int indentLevel = 0;
+            for (int i = 0; i < line.length(); i++) {
+                // Check if the char is a tab
+                if (line.charAt(i) != '\t') {
                     break;
                 }
-                case "FIELD": {
-                    if (arr.length != 4) {
-                        System.err.println("Cannot parse file: malformed field mapping on line " + lineNum);
-                        System.exit(1);
+                indentLevel++;
+            }
+
+            if (lastIndentLevel != -1 && indentLevel < lastIndentLevel) {
+                classStack.pop();
+            }
+
+            switch (arr[0]) {
+                case CLASS_MAPPING_KEY: {
+                    if (arr.length < 2 || arr.length > 3) {
+                        throw new IllegalArgumentException("Cannot parse file: malformed class mapping on line "
+                                + lineNum);
                     }
 
-                    if (currentClass == null) {
+                    String obf = removeNonePrefix(arr[1]);
+                    String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
+
+                    if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
+                        deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
+                    }
+                    classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
+                    currentMethod = null;
+                    break;
+                }
+                case FIELD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
+                    if (arr.length != 4) {
+                        throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
+                                + lineNum);
+                    }
+
+                    if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
                                 + "class mapping on line " + lineNum);
                     }
 
                     String obf = arr[1];
                     String deobf = arr[2];
-                    String type = arr[3];
-                    MappingsHelper.genFieldMapping(Main.getMappingContext(), currentClass, obf, deobf); // TODO: type
+                    Type type = removeNonePrefix(Type.fromString(arr[3]));
+                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                            new FieldSignature(obf, type), deobf);
+                    currentMethod = null;
                     break;
                 }
-                case "METHOD": {
-                    if (arr.length == 3) {
+                case METHOD_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
                         continue;
                     }
 
-                    if (arr.length != 4) {
-                        throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
-                                + lineNum);
-                    }
-
-                    if (currentClass == null) {
+                    if (classStack.isEmpty()) {
                         throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
                                 + "class mapping on line " + lineNum);
                     }
 
                     String obf = arr[1];
-                    String deobf = arr[2];
-                    String sig = arr[3];
-                    MappingsHelper.genMethodMapping(Main.getMappingContext(), currentClass, obf, deobf, sig);
+                    String deobf;
+                    String descStr;
+                    if (arr.length == 3) {
+                        deobf = obf;
+                        descStr = arr[2];
+                    } else if (arr.length == 4) {
+                        deobf = arr[2];
+                        descStr = arr[3];
+                    } else {
+                        throw new IllegalArgumentException("Cannot parse file: malformed method mapping on line "
+                                + lineNum);
+                    }
+
+                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
+
+                    currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                            new MethodSignature(obf, desc), deobf, true);
                     break;
                 }
-                case "ARG": {
+                case ARG_MAPPING_KEY: {
+                    if (classStack.peek() == null) {
+                        continue;
+                    }
+
+                    if (arr.length != 3) {
+                        throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
+                                + lineNum);
+                    }
+
+                    if (currentMethod == null) {
+                        throw new IllegalArgumentException("Cannot parse file: found argument mapping before initial "
+                                + "method mapping on line " + lineNum);
+                    }
+
+                    int index = Integer.parseInt(arr[1]);
+                    String deobf = arr[2];
+
+                    MappingsHelper.genArgumentMapping(mappings, currentMethod, index, deobf);
                     break;
                 }
                 default: {
                     Main.getLogger().warning("Unrecognized mapping on line " + lineNum);
                 }
             }
+            lastIndentLevel = indentLevel;
         }
 
         return mappings;
     }
+
+    private String removeNonePrefix(String str) {
+        if (str.length() < 6) {
+            return str;
+        }
+        String substr = str.substring(5);
+        if (str.startsWith(ENIGMA_ROOT_PACKAGE_PREFIX)
+                && !CLASS_PATH_SEPARATOR_PATTERN.matcher(str.substring(5)).find()) {
+            return substr;
+        }
+        return str;
+    }
+
+    private Type removeNonePrefix(Type type) {
+        return type.isPrimitive() ? type : Type.fromString("L" + removeNonePrefix(type.getClassName()) + ";");
+    }
+
+    private MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
+        Type[] params = new Type[desc.getParamTypes().length];
+        for (int i = 0; i < params.length; i++) {
+            params[i] = removeNonePrefix(desc.getParamTypes()[i]);
+        }
+        Type returnType = removeNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(returnType, params);
+    }
+
 }

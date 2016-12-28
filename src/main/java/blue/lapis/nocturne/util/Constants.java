@@ -29,6 +29,7 @@ import blue.lapis.nocturne.Main;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import java.util.regex.Pattern;
 
@@ -49,6 +50,8 @@ public final class Constants {
 
     public static final Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
 
+    public static final Pattern SPACE_PATTERN = Pattern.compile(" ", Pattern.LITERAL);
+
     public static final String CLASS_FILE_NAME_TAIL = ".class";
 
     public static final int CLASS_FORMAT_CONSTANT_POOL_OFFSET = 8; // byte offset of the CP per the class file format
@@ -62,9 +65,11 @@ public final class Constants {
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
 
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
-            .put("rsy", "1") // hide synthetic class members
-            .put("ind", "    ") // set indentation string
+            .put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1")
+            .put(IFernflowerPreferences.INDENT_STRING, "    ")
             .build();
+
+    public static final String ENIGMA_ROOT_PACKAGE_PREFIX = "none/";
 
     static {
         VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");

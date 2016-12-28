@@ -89,6 +89,7 @@ public final class JarDialogHelper {
             if (classSet != null) {
                 controller.closeJarButton.setDisable(false);
                 controller.loadMappingsButton.setDisable(false);
+                controller.mergeMappingsButton.setDisable(false);
                 controller.saveMappingsAsButton.setDisable(false);
                 controller.resetMappingsButton.setDisable(false);
             }

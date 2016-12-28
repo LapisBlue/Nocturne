@@ -89,9 +89,9 @@ public final class PropertiesHelper {
     }
 
     private File getNocturneDirectory() {
-        String appdata = OperatingSystem.getOs().getAppDataFolder();
+        String appdata = OperatingSystem.getOs().getConfigFolder();
         if (OperatingSystem.getOs() == OperatingSystem.LINUX) {
-            return new File(appdata, ".config" + File.separator + "nocturne");
+            return new File(appdata, "nocturne"); // to maintain compatibility with earlier Nocturne versions
         } else {
             return new File(appdata, "Nocturne");
         }
@@ -104,6 +104,8 @@ public final class PropertiesHelper {
         public static final Key LOCALE = new Key("locale", "en_US");
         public static final Key LAST_JAR_DIRECTORY = new Key("lastJarDir", "");
         public static final Key LAST_MAPPINGS_DIRECTORY = new Key("lastMappingsDir", "");
+        public static final Key LAST_MAPPING_LOAD_FORMAT = new Key("lastMappingLoadFormat", "");
+        public static final Key LAST_MAPPING_SAVE_FORMAT = new Key("lastMappingSaveFormat", "");
 
         private final String key;
         private final String defaultValue;

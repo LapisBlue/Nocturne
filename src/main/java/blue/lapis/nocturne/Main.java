@@ -29,6 +29,7 @@ import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
@@ -86,6 +87,7 @@ public class Main extends Application {
 
     private final MappingContext mappingContext = new MappingContext();
     private Path currentMappingsPath;
+    private MappingWriterType currentWriterType;
     private ClassSet loadedJar;
 
     static {
@@ -246,6 +248,14 @@ public class Main extends Application {
 
     public static void setCurrentMappingsPath(Path path) {
         getInstance().currentMappingsPath = path;
+    }
+
+    public static MappingWriterType getCurrentWriterType() {
+        return getInstance().currentWriterType;
+    }
+
+    public static void setCurrentWriterType(MappingWriterType currentWriterType) {
+        getInstance().currentWriterType = currentWriterType;
     }
 
     public static ClassSet getLoadedJar() {

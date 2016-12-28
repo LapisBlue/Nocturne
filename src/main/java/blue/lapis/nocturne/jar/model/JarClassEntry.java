@@ -35,7 +35,8 @@ import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
-import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -58,6 +59,14 @@ public class JarClassEntry {
 
     private static Dialog<Boolean> decompileDialog;
 
+    private final String name;
+    private byte[] content;
+    private boolean deobfuscated;
+
+    private final Map<String, String> classNames = new HashMap<>();
+    private final Map<FieldSignature, FieldSignature> fields = new HashMap<>();
+    private final Map<MethodSignature, MethodSignature> methods = new HashMap<>();
+
     static {
         if (!Main.getInstance().testingEnv) {
             decompileDialog = new Dialog<>();
@@ -69,14 +78,6 @@ public class JarClassEntry {
             decompileDialog = null;
         }
     }
-
-    private final String name;
-    private byte[] content;
-    private boolean deobfuscated;
-
-    private final Map<String, String> classNames = new HashMap<>();
-    private final Map<String, String> fieldNames = new HashMap<>();
-    private final Map<IndexedMethod.Signature, IndexedMethod.Signature> methodNames = new HashMap<>();
 
     /**
      * Constructs a new {@link JarClassEntry} with the given name and byte
@@ -193,12 +194,12 @@ public class JarClassEntry {
         return classNames;
     }
 
-    public Map<String, String> getCurrentFieldNames() {
-        return fieldNames;
+    public Map<FieldSignature, FieldSignature> getCurrentFields() {
+        return fields;
     }
 
-    public Map<IndexedMethod.Signature, IndexedMethod.Signature> getCurrentMethodNames() {
-        return methodNames;
+    public Map<MethodSignature, MethodSignature> getCurrentMethods() {
+        return methods;
     }
 
     @Override

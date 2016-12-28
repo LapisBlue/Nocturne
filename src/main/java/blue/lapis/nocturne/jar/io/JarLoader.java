@@ -120,9 +120,9 @@ public class JarLoader {
         jar.close(); // release the resource
         ClassSet cs = new ClassSet(name, classes);
         Main.setLoadedJar(cs);
-        cs.getClasses().stream().forEach(JarClassEntry::index);
+        cs.getClasses().forEach(JarClassEntry::index);
         new ClassHierarchyBuilder(Sets.newHashSet(INDEXED_CLASSES.values())).buildHierarchies();
-        cs.getClasses().stream().forEach(JarClassEntry::process);
+        cs.getClasses().forEach(JarClassEntry::process);
         INDEXED_CLASSES.values().forEach(IndexedClass::clearPool);
         return cs;
     }

@@ -81,41 +81,40 @@ public final class JavaSyntaxHighlighter {
      */
     public static void highlight(List<Node> nodes) {
         List<Node> newNodes = new ArrayList<>();
-        nodes.stream()
-                .forEach(node -> {
-                    if (node.getClass() == SelectableMember.class) {
-                        newNodes.add(node);
-                        return;
-                    }
-                    String text = ((Text) node).getText();
-                    Matcher matcher = PATTERN.matcher(text);
-                    int lastIndex = 0;
+        nodes.forEach(node -> {
+            if (node.getClass() == SelectableMember.class) {
+                newNodes.add(node);
+                return;
+            }
+            String text = ((Text) node).getText();
+            Matcher matcher = PATTERN.matcher(text);
+            int lastIndex = 0;
 
-                    while (matcher.find()) {
-                        String group = null;
-                        for (String pattern : PATTERN_NAMES) {
-                            if (matcher.group(pattern) != null) {
-                                group = pattern;
-                                break;
-                            }
-                        }
-                        assert group != null;
-
-                        int start = matcher.start(group);
-                        int end = matcher.end(group);
-                        if (group.equals("NUMBER") && !Character.isDigit(matcher.group(group).charAt(0))) {
-                            //TODO: I am a horrible person
-                            start += 1;
-                        }
-                        newNodes.add(new Text(text.substring(lastIndex, start)));
-                        Text syntaxItem = new Text(text.substring(start, end));
-                        syntaxItem.getStyleClass().add("syntax");
-                        syntaxItem.getStyleClass().add(group.toLowerCase());
-                        newNodes.add(syntaxItem);
-                        lastIndex = matcher.end();
+            while (matcher.find()) {
+                String group = null;
+                for (String pattern : PATTERN_NAMES) {
+                    if (matcher.group(pattern) != null) {
+                        group = pattern;
+                        break;
                     }
-                    newNodes.add(new Text(text.substring(lastIndex)));
-                });
+                }
+                assert group != null;
+
+                int start = matcher.start(group);
+                int end = matcher.end(group);
+                if (group.equals("NUMBER") && !Character.isDigit(matcher.group(group).charAt(0))) {
+                    //TODO: I am a horrible person
+                    start += 1;
+                }
+                newNodes.add(new Text(text.substring(lastIndex, start)));
+                Text syntaxItem = new Text(text.substring(start, end));
+                syntaxItem.getStyleClass().add("syntax");
+                syntaxItem.getStyleClass().add(group.toLowerCase());
+                newNodes.add(syntaxItem);
+                lastIndex = matcher.end();
+            }
+            newNodes.add(new Text(text.substring(lastIndex)));
+        });
         nodes.clear();
         nodes.addAll(newNodes);
     }

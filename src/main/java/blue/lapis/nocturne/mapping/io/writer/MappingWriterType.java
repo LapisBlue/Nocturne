@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.mapping.io.reader;
+package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.MappingFormatType;
@@ -31,36 +31,36 @@ import blue.lapis.nocturne.mapping.io.MappingFormatType;
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
-import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
 
-public enum MappingReaderType {
+public enum MappingWriterType {
 
-    SRG(MappingFormatType.SRG, SrgReader.class),
-    JAM(MappingFormatType.JAM, JamReader.class),
-    ENIGMA(MappingFormatType.ENIGMA, EnigmaReader.class);
+    SRG(MappingFormatType.SRG, SrgWriter.class),
+    JAM(MappingFormatType.JAM, JamWriter.class),
+    ENIGMA(MappingFormatType.ENIGMA, EnigmaWriter.class);
 
     private final MappingFormatType type;
 
-    public static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
+    private static final Map<FileChooser.ExtensionFilter, MappingWriterType> filterToType = Maps.newHashMap();
 
     static {
         Arrays.asList(values()).forEach(t -> filterToType.put(t.getExtensionFilter(), t));
     }
 
     private final FileChooser.ExtensionFilter extensionFilter;
-    private final Constructor<? extends MappingsReader> readerCtor;
+    private final Constructor<? extends MappingsWriter> writerCtor;
 
-    MappingReaderType(MappingFormatType mappingType, Class<? extends MappingsReader> readerClass) {
+    MappingWriterType(MappingFormatType mappingType, Class<? extends MappingsWriter> readerClass) {
         this.type = mappingType;
         this.extensionFilter = new FileChooser.ExtensionFilter(Main.getResourceBundle()
                 .getString("filechooser.type_" + mappingType.name().toLowerCase()),
                 "*." + mappingType.getFileExtension());
         try {
-            this.readerCtor = readerClass.getConstructor(BufferedReader.class);
+            this.writerCtor = readerClass.getConstructor(PrintWriter.class);
         } catch (NoSuchMethodException ex) {
             throw new RuntimeException("Failed to initialize reader type for class " + readerClass.getName(), ex);
         }
@@ -74,16 +74,16 @@ public enum MappingReaderType {
         return this.extensionFilter;
     }
 
-    public MappingsReader constructReader(BufferedReader reader) {
+    public MappingsWriter constructWriter(PrintWriter writer) {
         try {
-            return readerCtor.newInstance(reader);
+            return writerCtor.newInstance(writer);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException ex) {
-            throw new RuntimeException("Failed to construct reader with class "
-                    + readerCtor.getDeclaringClass().getName(), ex);
+            throw new RuntimeException("Failed to construct writer with class "
+                    + writerCtor.getDeclaringClass().getName(), ex);
         }
     }
 
-    public static MappingReaderType fromExtensionFilter(FileChooser.ExtensionFilter filter) {
+    public static MappingWriterType fromExtensionFilter(FileChooser.ExtensionFilter filter) {
         return filterToType.get(filter);
     }
 }

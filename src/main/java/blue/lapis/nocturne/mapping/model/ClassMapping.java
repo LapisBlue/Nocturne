@@ -32,6 +32,8 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
+import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.ImmutableMap;
@@ -46,8 +48,8 @@ import java.util.Optional;
  */
 public abstract class ClassMapping extends Mapping {
 
-    private final Map<String, FieldMapping> fieldMappings = new HashMap<>();
-    private final Map<String, MethodMapping> methodMappings = new HashMap<>();
+    private final Map<FieldSignature, FieldMapping> fieldMappings = new HashMap<>();
+    private final Map<MethodSignature, MethodMapping> methodMappings = new HashMap<>();
     private final Map<String, InnerClassMapping> innerClassMappings = new HashMap<>();
 
     /**
@@ -69,7 +71,7 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link FieldMapping}s
      */
-    public ImmutableMap<String, FieldMapping> getFieldMappings() {
+    public ImmutableMap<FieldSignature, FieldMapping> getFieldMappings() {
         return ImmutableMap.copyOf(this.fieldMappings);
     }
 
@@ -78,7 +80,7 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link MethodMapping}s
      */
-    public ImmutableMap<String, MethodMapping> getMethodMappings() {
+    public ImmutableMap<MethodSignature, MethodMapping> getMethodMappings() {
         return ImmutableMap.copyOf(this.methodMappings);
     }
 
@@ -98,17 +100,17 @@ public abstract class ClassMapping extends Mapping {
      */
     void addFieldMapping(FieldMapping mapping) {
         mapping.initialize();
-        fieldMappings.put(mapping.getObfuscatedName(), mapping);
+        fieldMappings.put(mapping.getSignature(), mapping);
     }
 
     /**
-     * Removes the {@link FieldMapping} by the given name from this
+     * Removes the {@link FieldMapping} with the given signature from this
      * {@link ClassMapping}.
      *
-     * @param fieldName The name of the field to remove the mapping of
+     * @param fieldSig The signature of the field to remove the mapping of
      */
-    public void removeFieldMapping(String fieldName) {
-        fieldMappings.remove(fieldName);
+    public void removeFieldMapping(FieldSignature fieldSig) {
+        fieldMappings.remove(fieldSig);
     }
 
     /**
@@ -120,17 +122,17 @@ public abstract class ClassMapping extends Mapping {
      */
     void addMethodMapping(MethodMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
-        methodMappings.put(mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor(), mapping);
+        methodMappings.put(mapping.getSignature(), mapping);
     }
 
     /**
-     * Removes the {@link MethodMapping} by the given name from this
+     * Removes the {@link MethodMapping} with the given signature from this
      * {@link ClassMapping}.
      *
-     * @param methodName The name of the method to remove the mapping of
+     * @param methodSig The signature of the method to remove the mapping of
      */
-    public void removeMethodMapping(String methodName) {
-        methodMappings.remove(methodName);
+    public void removeMethodMapping(MethodSignature methodSig) {
+        methodMappings.remove(methodSig);
     }
 
     /**
@@ -193,7 +195,7 @@ public abstract class ClassMapping extends Mapping {
         String unqualName = this instanceof InnerClassMapping ? name : StringHelper.unqualify(name);
         memberList.forEach(member -> {
             member.setText(unqualName);
-            member.setDeobfuscated(!unqualName.equals(member.getName()));
+            member.setDeobfuscated(!name.equals(member.getName()));
         });
 
         if (updateClassViews) {
@@ -201,12 +203,10 @@ public abstract class ClassMapping extends Mapping {
         }
     }
 
-    public void updateEntryDeobfuscation() {
+    private void updateEntryDeobfuscation() {
         if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
             Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(getFullObfuscatedName());
-            if (classEntry.isPresent()) {
-                classEntry.get().setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName()));
-            }
+            classEntry.ifPresent(jce -> jce.setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName())));
         }
     }
 

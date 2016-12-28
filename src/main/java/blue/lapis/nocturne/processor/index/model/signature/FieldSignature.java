@@ -23,21 +23,45 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.gui.scene.control;
+package blue.lapis.nocturne.processor.index.model.signature;
 
-import javafx.scene.control.TreeItem;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 
-public class ClassTreeItem extends TreeItem<String> {
+import java.util.Objects;
 
-    private final String id;
+/**
+ * Represents the unique signature of a particular field.
+ */
+public class FieldSignature extends MemberSignature {
 
-    public ClassTreeItem(String id, String displayName) {
-        this.setValue(displayName);
-        this.id = id;
+    protected final Type type;
+
+    public FieldSignature(String name, Type type) {
+        super(name);
+        this.type = type;
     }
 
-    public String getId() {
-        return id;
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return this.getName() + ":" + this.getType().toString();
+    }
+
+    @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof FieldSignature)) {
+            return false;
+        }
+        FieldSignature sig = (FieldSignature) otherObj;
+        return sig.getName().equals(getName()) && sig.getType().equals(getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type);
     }
 
 }

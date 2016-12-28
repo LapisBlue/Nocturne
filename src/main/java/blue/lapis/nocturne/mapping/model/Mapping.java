@@ -35,6 +35,7 @@ public abstract class Mapping {
 
     private final String obf;
     private String deobf;
+    private boolean adHoc;
 
     /**
      * Constructs a new mapping with the given parameters.
@@ -75,8 +76,31 @@ public abstract class Mapping {
      * @param name The new deobfuscated name of this {@link Mapping}
      */
     public void setDeobfuscatedName(String name) {
+        if (this.deobf.equals(name)) {
+            this.setAdHoc(false);
+        }
         this.deobf = name;
         getContext().setDirty(true);
+    }
+
+    /**
+     * Gets whether this mapping is ad hoc, for the purpose of on-demand
+     * deobfuscation toggling.
+     *
+     * @return Whether this mapping is ad hoc
+     */
+    public boolean isAdHoc() {
+        return adHoc;
+    }
+
+    /**
+     * Sets whether this mapping is ad hoc, for the purpose of on-demand
+     * deobfuscation toggling.
+     *
+     * @param adHoc Whether this mapping is ad hoc
+     */
+    public void setAdHoc(boolean adHoc) {
+        this.adHoc = adHoc;
     }
 
     /**

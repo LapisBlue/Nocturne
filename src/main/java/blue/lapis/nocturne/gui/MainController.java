@@ -31,8 +31,8 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
-import blue.lapis.nocturne.gui.scene.control.ClassTreeItem;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
+import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
@@ -41,6 +41,7 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -62,9 +63,14 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -78,6 +84,7 @@ public class MainController implements Initializable {
     public MenuItem openJarButton;
     public MenuItem closeJarButton;
     public MenuItem loadMappingsButton;
+    public MenuItem mergeMappingsButton;
     public MenuItem saveMappingsButton;
     public MenuItem saveMappingsAsButton;
     public MenuItem closeButton;
@@ -101,6 +108,7 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         closeJarButton.setDisable(Main.getLoadedJar() == null);
         loadMappingsButton.setDisable(Main.getLoadedJar() == null);
+        mergeMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsButton.setDisable(Main.getLoadedJar() == null);
         saveMappingsAsButton.setDisable(Main.getLoadedJar() == null);
         resetMappingsButton.setDisable(Main.getLoadedJar() == null);
@@ -131,8 +139,8 @@ public class MainController implements Initializable {
                     return;
                 }
 
-                if (selected instanceof ClassTreeItem) {
-                    String className = ((ClassTreeItem) selected).getId();
+                if (selected.getChildren().isEmpty()) {
+                    String className = ((IdentifiableTreeItem) selected).getId().substring(1);
                     if (Main.getLoadedJar() != null) {
                         openTab(className, selected.getValue());
                     }
@@ -160,6 +168,8 @@ public class MainController implements Initializable {
     private void setAccelerators() {
         openJarButton.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         loadMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN));
+        mergeMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN,
+                KeyCombination.ALT_DOWN));
         saveMappingsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         saveMappingsAsButton.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
                 KeyCombination.ALT_DOWN));
@@ -182,6 +192,7 @@ public class MainController implements Initializable {
 
         closeJarButton.setDisable(true);
         loadMappingsButton.setDisable(true);
+        mergeMappingsButton.setDisable(true);
         saveMappingsButton.setDisable(true);
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
@@ -193,7 +204,19 @@ public class MainController implements Initializable {
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        MappingsOpenDialogHelper.openMappings();
+        try {
+            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
+                return;
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        MappingsOpenDialogHelper.openMappings(false);
+        updateClassViews();
+    }
+
+    public void mergeMappings(ActionEvent actionEvent) throws IOException {
+        MappingsOpenDialogHelper.openMappings(true);
         updateClassViews();
     }
 
@@ -205,11 +228,27 @@ public class MainController implements Initializable {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+        Main.getMappingContext().getMappings().values().forEach(cm -> {
+            Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
+            JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
+            if (jce == null) {
+                return;
+            }
+            cm.getInnerClassMappings().values()
+                    .forEach(im -> jce.getCurrentInnerClassNames().put(im.getObfuscatedName(), im.getObfuscatedName()));
+            cm.getFieldMappings().values()
+                    .forEach(fm -> jce.getCurrentFields().put(fm.getSignature(), fm.getSignature()));
+            cm.getMethodMappings().values()
+                    .forEach(mm -> jce.getCurrentMethods().put(mm.getSignature(), mm.getSignature()));
+        });
         Main.getMappingContext().clear();
         Main.getLoadedJar().getClasses().forEach(jce -> jce.setDeobfuscated(false));
         CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
         SelectableMember.MEMBERS.values()
-                .forEach(list -> list.forEach(member -> member.setAndProcessText(member.getName())));
+                .forEach(list -> list.forEach(member -> {
+                    member.setAndProcessText(member.getName());
+                    member.setDeobfuscated(false);
+                }));
         updateClassViews();
     }
 
@@ -263,7 +302,8 @@ public class MainController implements Initializable {
 
     public void updateObfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(), obfTree.getRoot());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(),
+                    getExpandedIds((IdentifiableTreeItem) obfTree.getRoot()));
             root.setExpanded(true);
             obfTree.setRoot(root);
         } else {
@@ -274,7 +314,8 @@ public class MainController implements Initializable {
 
     public void updateDeobfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(), deobfTree.getRoot());
+            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(),
+                    getExpandedIds((IdentifiableTreeItem) deobfTree.getRoot()));
             root.setExpanded(true);
             deobfTree.setRoot(root);
         } else {
@@ -282,39 +323,23 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element, TreeItem<String> oldTreeItem) {
-        TreeItem<String> treeItem;
+    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded) {
+        IdentifiableTreeItem treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
-            if (node.isTerminal()) {
-                treeItem = new ClassTreeItem(node.getId(), node.getDisplayName());
-            } else {
-                treeItem = new TreeItem<>(node.getDisplayName());
-            }
+            treeItem = new IdentifiableTreeItem((node.isTerminal() ? "C" : "P") + node.getId(), node.getDisplayName());
         } else {
-            treeItem = new TreeItem<>("(root)");
+            treeItem = new IdentifiableTreeItem("//root", "(root)");
         }
-        if (oldTreeItem != null) {
-            treeItem.setExpanded(oldTreeItem.isExpanded());
+
+        if (expanded.contains(treeItem.getId())) {
+            treeItem.setExpanded(true);
         }
+
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            for (HierarchyNode node : element.getChildren()) {
-                if (oldTreeItem != null) {
-                    boolean added = false;
-                    for (TreeItem<String> child : oldTreeItem.getChildren()) {
-                        if (node.getDisplayName().equalsIgnoreCase(child.getValue())) {
-                            treeItem.getChildren().add(this.generateTreeItem(node, child));
-                            added = true;
-                        }
-                    }
-                    if (!added) {
-                        treeItem.getChildren().add(this.generateTreeItem(node, null));
-                    }
-                } else {
-                    treeItem.getChildren().add(this.generateTreeItem(node, null));
-                }
-            }
+            treeItem.getChildren().addAll(element.getChildren().stream()
+                    .map(e -> this.generateTreeItem(e, expanded)).collect(Collectors.toList()));
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;
@@ -368,6 +393,28 @@ public class MainController implements Initializable {
 
     public static boolean isInitialized() {
         return INSTANCE != null;
+    }
+
+    private static Map<String, IdentifiableTreeItem> flatten(IdentifiableTreeItem tree) {
+        Map<String, IdentifiableTreeItem> map = new HashMap<>();
+        map.put(tree.getId(), tree);
+        if (tree.getChildren().isEmpty()) {
+            return map;
+        }
+
+        for (TreeItem<String> child : tree.getChildren()) {
+            map.putAll(flatten((IdentifiableTreeItem) child));
+        }
+        return map;
+    }
+
+    private static Set<String> getExpandedIds(IdentifiableTreeItem tree) {
+        if (tree == null) {
+            return Collections.emptySet();
+        }
+
+        return flatten(tree).entrySet().stream().filter(e -> e.getValue().isExpanded()).map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
 }

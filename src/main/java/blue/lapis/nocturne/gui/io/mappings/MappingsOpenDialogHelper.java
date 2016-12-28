@@ -38,7 +38,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -50,11 +49,16 @@ public final class MappingsOpenDialogHelper {
     private MappingsOpenDialogHelper() {
     }
 
-    public static void openMappings() throws IOException {
+    public static void openMappings(boolean merge) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
-        Arrays.asList(MappingReaderType.values())
-                .forEach(t -> fileChooser.getExtensionFilters().add(t.getExtensionFilter()));
+        Arrays.asList(MappingReaderType.values()).forEach(t -> {
+            fileChooser.getExtensionFilters().add(t.getExtensionFilter());
+            if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT)
+                    .equals(t.name())) {
+                fileChooser.setSelectedExtensionFilter(t.getExtensionFilter());
+            }
+        });
 
         String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
@@ -72,17 +76,20 @@ public final class MappingsOpenDialogHelper {
 
         Path selectedPath = selectedFile.toPath();
 
-        if (Files.exists(selectedPath)) { //TODO: isn't this redundant?
-            try (MappingsReader reader = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter())
-                    .constructReader(new BufferedReader(new FileReader(selectedFile)))) {
-                MappingContext context = reader.read();
-                Main.getMappingContext().assimilate(context);
-                MainController.INSTANCE.updateClassViews();
-                Main.getMappingContext().setDirty(false);
+        MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+        Main.getPropertiesHelper()
+                .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
+        try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
+            MappingContext context = reader.read();
+            if (!merge) {
+                Main.getMappingContext().clear();
             }
-
-            Main.setCurrentMappingsPath(selectedPath);
+            Main.getMappingContext().assimilate(context);
+            MainController.INSTANCE.updateClassViews();
+            Main.getMappingContext().setDirty(false);
         }
+
+        Main.setCurrentMappingsPath(selectedPath);
     }
 
 }

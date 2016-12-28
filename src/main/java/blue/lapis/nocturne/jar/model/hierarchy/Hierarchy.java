@@ -53,11 +53,13 @@ public class Hierarchy extends HierarchyElement {
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(fullName);
 
             HierarchyElement parent = root;
+            StringBuilder qual = new StringBuilder();
             for (int i = 0; i < arr.length - 1; i++) {
-                if (parent != null && parent.getChild(arr[i], false).isPresent()) {
+                qual.append(arr[i]);
+                if (parent.getChild(arr[i], false).isPresent()) {
                     parent = parent.getChild(arr[i], false).get();
                 } else {
-                    parent = new HierarchyNode(id, arr[i], false, parent);
+                    parent = new HierarchyNode(qual.toString(), arr[i], false, parent);
                 }
             }
             new HierarchyNode(id, arr[arr.length - 1], true, parent);
