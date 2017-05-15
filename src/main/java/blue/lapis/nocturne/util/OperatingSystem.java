@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.util;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -66,12 +67,8 @@ public enum OperatingSystem implements Predicate<String> {
 
     @Override
     public boolean test(String s) {
-        for (String partial : this.partials) {
-            if (s.contains(partial)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(this.partials)
+                .anyMatch(s::contains);
     }
 
     /**
@@ -132,14 +129,10 @@ public enum OperatingSystem implements Predicate<String> {
      * @return The current {@link OperatingSystem}.
      */
     public static OperatingSystem getOs() {
-        String osName = System.getProperty("os.name").toLowerCase();
+        final String osName = System.getProperty("os.name").toLowerCase();
 
-        for (OperatingSystem os : values()) {
-            if (os.test(osName)) {
-                return os;
-            }
-        }
-
-        return OperatingSystem.UNKNOWN;
+        return Arrays.stream(values())
+                .filter(os -> os.test(osName))
+                .findFirst().orElse(OperatingSystem.UNKNOWN);
     }
 }

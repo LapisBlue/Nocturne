@@ -28,10 +28,9 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
+import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
-
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -52,7 +51,7 @@ public final class MappingsOpenDialogHelper {
     public static void openMappings(boolean merge) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
-        Arrays.asList(MappingReaderType.values()).forEach(t -> {
+        Arrays.asList(MappingFormat.values()).forEach(t -> {
             fileChooser.getExtensionFilters().add(t.getExtensionFilter());
             if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT)
                     .equals(t.name())) {
@@ -76,10 +75,10 @@ public final class MappingsOpenDialogHelper {
 
         Path selectedPath = selectedFile.toPath();
 
-        MappingReaderType type = MappingReaderType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+        final MappingFormat mappingFormat = MappingFormat.fromExtensionFilter(fileChooser.getSelectedExtensionFilter()).get();
         Main.getPropertiesHelper()
-                .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, type.getFormatType().name());
-        try (MappingsReader reader = type.constructReader(new BufferedReader(new FileReader(selectedFile)))) {
+                .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, mappingFormat.name());
+        try (MappingsReader reader = mappingFormat.createParser(new BufferedReader(new FileReader(selectedFile)))) {
             MappingContext context = reader.read();
             if (!merge) {
                 Main.getMappingContext().clear();

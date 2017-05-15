@@ -26,10 +26,9 @@
 package blue.lapis.nocturne.gui.io.mappings;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
+import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -40,6 +39,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Static utility class for dialogs for saving mappings.
@@ -55,13 +55,13 @@ public final class MappingsSaveDialogHelper {
             return;
         }
 
-        saveMappings0(Main.getCurrentWriterType());
+        saveMappings0(Main.getCurrentMappingFormat());
     }
 
     public static boolean saveMappingsAs() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
-        Arrays.asList(MappingWriterType.values()).forEach(t -> {
+        Arrays.asList(MappingFormat.values()).forEach(t -> {
             fileChooser.getExtensionFilters().add(t.getExtensionFilter());
             if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT)
                     .equals(t.name())) {
@@ -93,10 +93,10 @@ public final class MappingsSaveDialogHelper {
             Main.getMappingContext().setDirty(true);
         }
 
-        final MappingWriterType writerType
-                = MappingWriterType.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
+        final Optional<MappingFormat> mappingFormat
+                = MappingFormat.fromExtensionFilter(fileChooser.getSelectedExtensionFilter());
 
-        if (writerType == null) {
+        if (!mappingFormat.isPresent()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle(Main.getResourceBundle().getString("filechooser.no_extension.title"));
             alert.setContentText(Main.getResourceBundle().getString("filechooser.no_extension"));
@@ -106,18 +106,18 @@ public final class MappingsSaveDialogHelper {
         }
 
         Main.setCurrentMappingsPath(selectedFile.toPath());
-        Main.setCurrentWriterType(writerType);
+        Main.setCurrentMappingFormat(mappingFormat.get());
 
-        saveMappings0(writerType);
+        saveMappings0(mappingFormat.get());
         Main.getPropertiesHelper()
-                .setProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT, writerType.getFormatType().name());
+                .setProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT, mappingFormat.get().name());
         return true;
     }
 
-    private static void saveMappings0(MappingWriterType writerType) throws IOException {
+    private static void saveMappings0(MappingFormat format) throws IOException {
         if (Main.getMappingContext().isDirty()) {
             try (MappingsWriter writer
-                         = writerType.constructWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
+                         = format.createWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
                 writer.write(Main.getMappingContext());
             }
 
