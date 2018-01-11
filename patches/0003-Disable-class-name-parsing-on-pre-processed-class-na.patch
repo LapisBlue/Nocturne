@@ -1,11 +1,11 @@
-From ad79d3c84fe8c15f215523b677d7b7586a9d47f9 Mon Sep 17 00:00:00 2001
+From e9a33df42346cff4def18488275e13eb0a5af3f9 Mon Sep 17 00:00:00 2001
 From: Max Roncace <me@caseif.net>
 Date: Wed, 20 Jan 2016 22:31:36 -0500
 Subject: [PATCH] Disable class name parsing on pre-processed class names
 
 
 diff --git a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
-index b9a30a5..7299bda 100644
+index b9a30a5..788027a 100644
 --- a/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
 +++ b/src/org/jetbrains/java/decompiler/code/ConstantsUtil.java
 @@ -479,4 +479,12 @@ public class ConstantsUtil {
@@ -17,8 +17,8 @@ index b9a30a5..7299bda 100644
 +   * Constant values specific to Nocturne
 +   */
 +  public class Nocturne {
-+    public static final String CLASS_PREFIX = "%NOCTURNE+CLASS-";
-+    public static final String CLASS_SUFFIX = "%";
++    public static final String CLASS_PREFIX = "&NOCTURNE+";
++    public static final String CLASS_SUFFIX = "&";
 +  }
  }
 diff --git a/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java b/src/org/jetbrains/java/decompiler/main/ClassesProcessor.java
@@ -78,5 +78,5 @@ index c832772..537c470 100644
  
      if (res.contains("$")) { // attempt to invoke foreign member
 -- 
-2.5.3.windows.1
+2.14.3
 
