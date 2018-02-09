@@ -45,10 +45,12 @@ public enum MappingReaderType {
 
     private final MappingFormatType type;
 
-    public static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
+    private static final Map<FileChooser.ExtensionFilter, MappingReaderType> filterToType = Maps.newHashMap();
+    private static final Map<MappingFormatType, MappingReaderType> formatToType = Maps.newHashMap();
 
     static {
         Arrays.asList(values()).forEach(t -> filterToType.put(t.getExtensionFilter(), t));
+        Arrays.asList(values()).forEach(t -> formatToType.put(t.getFormatType(), t));
     }
 
     private final FileChooser.ExtensionFilter extensionFilter;
@@ -85,5 +87,9 @@ public enum MappingReaderType {
 
     public static MappingReaderType fromExtensionFilter(FileChooser.ExtensionFilter filter) {
         return filterToType.get(filter);
+    }
+
+    public static MappingReaderType fromFormatType(final MappingFormatType formatType) {
+        return formatToType.get(formatType);
     }
 }

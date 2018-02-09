@@ -30,8 +30,8 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.io.reader.MappingReaderType;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
+import blue.lapis.nocturne.mapping.io.writer.MappingWriterType;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
-
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -90,6 +90,7 @@ public final class MappingsOpenDialogHelper {
         }
 
         Main.setCurrentMappingsPath(selectedPath);
+        Main.setCurrentWriterType(MappingWriterType.fromFormatType(type.getFormatType()));
     }
 
 }
