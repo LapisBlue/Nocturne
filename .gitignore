@@ -261,6 +261,7 @@ gradle-app.setting
 !test.jar
 
 #################
-## Git submodules
+## Nocturne
 #################
 FernFlower/
+run/
