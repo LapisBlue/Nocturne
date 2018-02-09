@@ -27,7 +27,6 @@ package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.io.MappingFormatType;
-
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
@@ -46,9 +45,11 @@ public enum MappingWriterType {
     private final MappingFormatType type;
 
     private static final Map<FileChooser.ExtensionFilter, MappingWriterType> filterToType = Maps.newHashMap();
+    private static final Map<MappingFormatType, MappingWriterType> formatToType = Maps.newHashMap();
 
     static {
         Arrays.asList(values()).forEach(t -> filterToType.put(t.getExtensionFilter(), t));
+        Arrays.asList(values()).forEach(t -> formatToType.put(t.getFormatType(), t));
     }
 
     private final FileChooser.ExtensionFilter extensionFilter;
@@ -85,5 +86,9 @@ public enum MappingWriterType {
 
     public static MappingWriterType fromExtensionFilter(FileChooser.ExtensionFilter filter) {
         return filterToType.get(filter);
+    }
+
+    public static MappingWriterType fromFormatType(final MappingFormatType formatType) {
+        return formatToType.get(formatType);
     }
 }
