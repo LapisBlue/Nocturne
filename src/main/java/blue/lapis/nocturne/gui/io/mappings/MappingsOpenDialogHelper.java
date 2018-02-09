@@ -89,6 +89,7 @@ public final class MappingsOpenDialogHelper {
         }
 
         Main.setCurrentMappingsPath(selectedPath);
+        Main.setCurrentMappingFormat(mappingFormat);
     }
 
 }
