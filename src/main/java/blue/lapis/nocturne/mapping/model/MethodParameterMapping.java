@@ -28,6 +28,9 @@ package blue.lapis.nocturne.mapping.model;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
+import com.google.common.base.MoreObjects;
+
+import java.util.Objects;
 
 /**
  * Represents a {@link Mapping} for arguments.
@@ -98,4 +101,25 @@ public class MethodParameterMapping extends Mapping {
 
         // TODO: propagate
     }
+
+    @Override
+    protected MoreObjects.ToStringHelper buildToString() {
+        return super.buildToString()
+                .add("index", this.index);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.index);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof MethodParameterMapping)) return false;
+        if (!super.equals(obj)) return false;
+        final MethodParameterMapping that = (MethodParameterMapping) obj;
+        return Objects.equals(this.index, that.index);
+    }
+
 }

@@ -35,12 +35,13 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.StringHelper;
-
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -208,6 +209,30 @@ public abstract class ClassMapping extends Mapping {
             Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(getFullObfuscatedName());
             classEntry.ifPresent(jce -> jce.setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName())));
         }
+    }
+
+    @Override
+    protected MoreObjects.ToStringHelper buildToString() {
+        return super.buildToString()
+                .add("fields", this.getFieldMappings())
+                .add("methods", this.getMethodMappings())
+                .add("innerClasses", this.getInnerClassMappings());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof ClassMapping)) return false;
+        final ClassMapping that = (ClassMapping) obj;
+        return Objects.equals(this.fieldMappings, that.fieldMappings) &&
+                Objects.equals(this.methodMappings, that.methodMappings) &&
+                Objects.equals(this.innerClassMappings, that.innerClassMappings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.fieldMappings, this.methodMappings, this.innerClassMappings);
     }
 
 }

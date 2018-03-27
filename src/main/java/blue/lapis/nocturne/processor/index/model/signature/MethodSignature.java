@@ -26,6 +26,7 @@
 package blue.lapis.nocturne.processor.index.model.signature;
 
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
 
@@ -46,17 +47,23 @@ public class MethodSignature extends MemberSignature {
     }
 
     @Override
-    public boolean equals(Object otherObj) {
-        if (!(otherObj instanceof MethodSignature)) {
-            return false;
-        }
-        MethodSignature sig = (MethodSignature) otherObj;
-        return sig.getName().equals(getName()) && sig.getDescriptor().equals(getDescriptor());
+    protected MoreObjects.ToStringHelper buildToString() {
+        return super.buildToString()
+                .add("descriptor", this.descriptor);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof MethodSignature)) return false;
+        final MethodSignature that = (MethodSignature) obj;
+        return Objects.equals(this.name, that.name) &&
+                Objects.equals(this.descriptor, that.descriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, descriptor);
+        return Objects.hash(this.name, this.descriptor);
     }
 
 }

@@ -25,6 +25,8 @@
 
 package blue.lapis.nocturne.processor.index.model.signature;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Represents the unique signature of a particular class member.
  */
@@ -38,6 +40,16 @@ public abstract class MemberSignature {
 
     public String getName() {
         return name;
+    }
+
+    protected MoreObjects.ToStringHelper buildToString() {
+        return MoreObjects.toStringHelper(this)
+                .add("name", this.name);
+    }
+
+    @Override
+    public String toString() {
+        return this.buildToString().toString();
     }
 
 }

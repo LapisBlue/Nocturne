@@ -30,6 +30,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a mapping for a class member.
@@ -78,6 +79,21 @@ public abstract class MemberMapping extends Mapping implements IMemberMapping {
     @Override
     public MappingContext getContext() {
         return getParent().getContext();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof MemberMapping)) return false;
+
+        final MemberMapping that = (MemberMapping) obj;
+        return Objects.equals(this.parent, that.parent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.parent);
     }
 
 }

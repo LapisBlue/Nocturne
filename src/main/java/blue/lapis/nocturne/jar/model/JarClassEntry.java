@@ -41,6 +41,7 @@ import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
+import com.google.common.base.MoreObjects;
 import javafx.scene.control.Dialog;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -203,13 +204,24 @@ public class JarClassEntry {
     }
 
     @Override
-    public boolean equals(Object otherObject) {
-        return otherObject instanceof JarClassEntry && getName().equals(((JarClassEntry) otherObject).getName());
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof JarClassEntry)) return false;
+        final JarClassEntry that = (JarClassEntry) obj;
+        return Objects.equals(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(JarClassEntry.class, getName());
+        return Objects.hash(this.name, this.deobfuscated);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("name", this.name)
+                .add("deobfuscated", this.deobfuscated)
+                .toString();
     }
 
     private static void showDecompileDialog() {

@@ -27,6 +27,9 @@ package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+import com.google.common.base.MoreObjects;
+
+import java.util.Objects;
 
 /**
  * Represents a single obfuscation mapping for a particular member.
@@ -111,5 +114,30 @@ public abstract class Mapping {
     public abstract MappingContext getContext();
 
     protected abstract SelectableMember.MemberKey getMemberKey();
+
+    protected MoreObjects.ToStringHelper buildToString() {
+        return MoreObjects.toStringHelper(this)
+                .add("obfName", this.obf)
+                .add("deobfName", this.deobf);
+    }
+
+    @Override
+    public String toString() {
+        return this.buildToString().toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Mapping)) return false;
+        final Mapping that = (Mapping) obj;
+        return Objects.equals(this.obf, that.obf) &&
+                Objects.equals(this.deobf, that.deobf);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.obf, this.deobf);
+    }
 
 }

@@ -99,4 +99,14 @@ public class TopLevelClassMapping extends ClassMapping {
         return new SelectableMember.MemberKey(MemberType.CLASS, getObfuscatedName(), null);
     }
 
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof TopLevelClassMapping)) return false;
+        final TopLevelClassMapping that = (TopLevelClassMapping) obj;
+        return super.equals(that);
+    }
+
 }

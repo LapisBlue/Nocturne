@@ -33,6 +33,7 @@ import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -113,6 +114,20 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
         return new SelectableMember.MemberKey(MemberType.CLASS, getFullObfuscatedName(), null);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof InnerClassMapping)) return false;
+        final InnerClassMapping that = (InnerClassMapping) obj;
+        return Objects.equals(this.parent, that.parent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.parent);
     }
 
 }

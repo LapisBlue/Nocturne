@@ -117,7 +117,7 @@ public final class MappingsSaveDialogHelper {
     private static void saveMappings0(MappingFormat format) throws IOException {
         if (Main.getMappingContext().isDirty()) {
             try (MappingsWriter writer
-                         = format.createWriter(new PrintWriter(Main.getCurrentMappingsPath().toFile()))) {
+                         = format.createWriter(new PrintWriter(Files.newOutputStream(Main.getCurrentMappingsPath())))) {
                 writer.write(Main.getMappingContext());
             }
 

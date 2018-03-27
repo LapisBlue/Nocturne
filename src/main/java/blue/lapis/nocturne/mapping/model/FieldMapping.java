@@ -100,4 +100,9 @@ public class FieldMapping extends MemberMapping {
                 + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || super.equals(obj) && obj instanceof FieldMapping;
+    }
+
 }

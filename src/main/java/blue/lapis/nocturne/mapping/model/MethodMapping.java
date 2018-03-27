@@ -35,11 +35,12 @@ import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
-
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a {@link Mapping} for a method.
@@ -166,6 +167,26 @@ public class MethodMapping extends MemberMapping {
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentMethods().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
                 : new MethodSignature(getDeobfuscatedName(), sig.getDescriptor()));
+    }
+
+    @Override
+    protected MoreObjects.ToStringHelper buildToString() {
+        return super.buildToString()
+                .add("signature", this.sig);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof MethodMapping)) return false;
+        final MethodMapping that = (MethodMapping) obj;
+        return Objects.equals(this.sig, that.sig);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.sig);
     }
 
 }
