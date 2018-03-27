@@ -16,7 +16,7 @@ defaultTasks 'clean', 'licenseFormat', 'build'
 // Project information
 allprojects {
     group = 'blue.lapis.nocturne'
-    version = '1.1.1'
+    version = '1.1.2'
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
