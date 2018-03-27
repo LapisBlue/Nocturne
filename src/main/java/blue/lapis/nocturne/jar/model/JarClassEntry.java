@@ -204,12 +204,12 @@ public class JarClassEntry {
 
     @Override
     public boolean equals(Object otherObject) {
-        return otherObject instanceof JarClassEntry && hashCode() == otherObject.hashCode();
+        return otherObject instanceof JarClassEntry && getName().equals(((JarClassEntry) otherObject).getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName());
+        return Objects.hash(JarClassEntry.class, getName());
     }
 
     private static void showDecompileDialog() {
