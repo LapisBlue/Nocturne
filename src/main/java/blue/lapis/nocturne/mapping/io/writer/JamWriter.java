@@ -129,7 +129,7 @@ public class JamWriter extends MappingsWriter {
         }
         for (MethodParameterMapping pm : mapping.getParamMappings().values()) {
             mpWriter.format("MP %s %s %s %s %s\n",
-                    pm.getParent().getParent().getFullDeobfuscatedName(),
+                    pm.getParent().getParent().getFullObfuscatedName(),
                     pm.getParent().getObfuscatedName(),
                     pm.getParent().getObfuscatedDescriptor(),
                     pm.getIndex(),
