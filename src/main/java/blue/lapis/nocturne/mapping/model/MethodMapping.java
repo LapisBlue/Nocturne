@@ -29,15 +29,15 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -125,7 +125,7 @@ public class MethodMapping extends MemberMapping {
      * @return The deobfuscated {@link MethodDescriptor} of this method
      */
     public MethodDescriptor getDeobfuscatedDescriptor() {
-        return getObfuscatedDescriptor().deobfuscate(getParent().getContext());
+        return MappingsHelper.deobfuscate(getParent().getContext(), getObfuscatedDescriptor());
     }
 
     @Override
