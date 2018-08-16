@@ -41,12 +41,13 @@ project('FernFlower') {
 
 // Project repositories
 repositories {
+    mavenLocal() // TODO: temporary
     mavenCentral()
 }
 
 // Project dependencies
 dependencies {
-    compile 'com.google.guava:guava:19.0'
+    compile 'me.jamiemansfield:bombe-core:0.1.0'
     compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'

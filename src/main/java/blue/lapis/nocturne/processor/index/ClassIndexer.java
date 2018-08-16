@@ -32,8 +32,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.ConstantPoolReader;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
@@ -44,8 +42,10 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
+import me.jamiemansfield.bombe.type.FieldType;
+import me.jamiemansfield.bombe.type.MethodDescriptor;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -114,7 +114,7 @@ public class ClassIndexer extends ClassProcessor {
         for (int i = 0; i < fieldCount; i++) {
             IndexedField.Visibility vis = IndexedField.Visibility.fromAccessFlags(buffer.getShort()); // get the access
             String name = getString(pool, buffer.getShort()); // get the name
-            Type desc = Type.fromString(getString(pool, buffer.getShort())); // get the descriptor
+            FieldType desc = FieldType.of(getString(pool, buffer.getShort())); // get the descriptor
             FieldSignature sig = new FieldSignature(name, desc);
             fields.add(new IndexedField(sig, vis));
             jce.getCurrentFields().put(sig, sig); // index the field name for future reference
@@ -139,7 +139,7 @@ public class ClassIndexer extends ClassProcessor {
         for (int i = 0; i < methodCount; i++) {
             IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
-            MethodDescriptor desc = MethodDescriptor.fromString(getString(pool, buffer.getShort()));
+            MethodDescriptor desc = MethodDescriptor.compile(getString(pool, buffer.getShort()));
             MethodSignature sig = new MethodSignature(name, desc);
             methods.add(new IndexedMethod(sig, vis));
             jce.getCurrentMethods().put(sig, sig); // index the method sig for future reference

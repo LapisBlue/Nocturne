@@ -29,9 +29,10 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
+import me.jamiemansfield.bombe.type.Type;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
 
 /**
  * Represents a {@link Mapping} for a field.
@@ -62,7 +63,7 @@ public class FieldMapping extends MemberMapping {
      * @return The {@link Type} of this field
      */
     public Type getObfuscatedType() {
-        return sig.getType();
+        return sig.getType().get(); // TODO: Nocturne's reader guarantees the type is present
     }
 
     /**
@@ -71,7 +72,7 @@ public class FieldMapping extends MemberMapping {
      * @return The deobfuscated {@link Type} of this field
      */
     public Type getDeobfuscatedType() {
-        return getObfuscatedType().deobfuscate(getParent().getContext());
+        return MappingsHelper.deobfuscate(getParent().getContext(), getObfuscatedType());
     }
 
     @Override
@@ -80,7 +81,7 @@ public class FieldMapping extends MemberMapping {
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
-                : new FieldSignature(getDeobfuscatedName(), sig.getType()));
+                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null))); // TODO: Handle better
     }
 
     @Override

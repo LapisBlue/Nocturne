@@ -28,14 +28,14 @@ package blue.lapis.nocturne.mapping.io.reader;
 import static blue.lapis.nocturne.util.Constants.SPACE_PATTERN;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import me.jamiemansfield.bombe.type.FieldType;
+import me.jamiemansfield.bombe.type.MethodDescriptor;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -127,7 +127,7 @@ public class JamReader extends MappingsReader {
             String obf = arr[2];
             String desc = arr[3];
             String deobf = arr[4];
-            MappingsHelper.genFieldMapping(context, owningClass, new FieldSignature(obf, Type.fromString(desc)), deobf);
+            MappingsHelper.genFieldMapping(context, owningClass, new FieldSignature(obf, FieldType.of(desc)), deobf);
         }
     }
 
@@ -139,7 +139,7 @@ public class JamReader extends MappingsReader {
             String desc = arr[3];
             String deobf = arr[4];
             MappingsHelper.genMethodMapping(context, owningClass,
-                    new MethodSignature(obf, MethodDescriptor.fromString(desc)), deobf, false);
+                    new MethodSignature(obf, MethodDescriptor.compile(desc)), deobf, false);
         }
     }
 
@@ -155,10 +155,10 @@ public class JamReader extends MappingsReader {
                 continue;
             }
             MethodMapping methodMapping = classMapping.get().getMethodMappings()
-                    .get(new MethodSignature(owningMethod, MethodDescriptor.fromString(owningMethodDesc)));
+                    .get(new MethodSignature(owningMethod, MethodDescriptor.compile(owningMethodDesc)));
             if (methodMapping == null) {
                 methodMapping = new MethodMapping(classMapping.get(),
-                        new MethodSignature(owningMethod, MethodDescriptor.fromString(owningMethodDesc)), owningMethod,
+                        new MethodSignature(owningMethod, MethodDescriptor.compile(owningMethodDesc)), owningMethod,
                         false);
             }
             int index;

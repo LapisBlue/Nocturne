@@ -32,11 +32,11 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.StringHelper;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.util.HashMap;
 import java.util.List;

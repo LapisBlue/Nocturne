@@ -26,11 +26,10 @@
 package blue.lapis.nocturne.processor.index.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.util.HashMap;
 import java.util.List;

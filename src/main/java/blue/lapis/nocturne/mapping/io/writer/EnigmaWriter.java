@@ -28,8 +28,6 @@ package blue.lapis.nocturne.mapping.io.writer;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
 
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -37,8 +35,14 @@ import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+import me.jamiemansfield.bombe.type.FieldType;
+import me.jamiemansfield.bombe.type.MethodDescriptor;
+import me.jamiemansfield.bombe.type.ObjectType;
+import me.jamiemansfield.bombe.type.Type;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The mappings writer, for the Enigma format.
@@ -126,17 +130,21 @@ public class EnigmaWriter extends MappingsWriter {
         return str;
     }
 
-    private Type addNonePrefix(Type type) {
-        return type.isPrimitive() ? type : Type.fromString("L" + addNonePrefix(type.getClassName()) + ";");
+    private <T extends Type> T addNonePrefix(T type) {
+        if (type instanceof ObjectType) {
+            final ObjectType obj = (ObjectType) type;
+            return (T) new ObjectType(addNonePrefix(obj.getClassName()));
+        }
+        return type;
     }
 
     private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {
-        Type[] params = new Type[desc.getParamTypes().length];
-        for (int i = 0; i < params.length; i++) {
-            params[i] = addNonePrefix(desc.getParamTypes()[i]);
+        final List<FieldType> params = new ArrayList<>(desc.getParamTypes().size());
+        for (final FieldType param : desc.getParamTypes()) {
+            params.add(addNonePrefix(param));
         }
-        Type returnType = addNonePrefix(desc.getReturnType());
-        return new MethodDescriptor(returnType, params);
+        final Type returnType = addNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(params, returnType);
     }
 
 }

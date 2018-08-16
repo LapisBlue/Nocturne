@@ -36,22 +36,16 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
-
 import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -61,6 +55,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
+import me.jamiemansfield.bombe.type.FieldType;
+import me.jamiemansfield.bombe.type.MethodDescriptor;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MemberSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,9 +105,9 @@ public class SelectableMember extends Text {
         this.descriptorProperty.set(descriptor);
 
         if (type == MemberType.FIELD) {
-            this.sig = new FieldSignature(name, Type.fromString(descriptor));
+            this.sig = new FieldSignature(name, FieldType.of(descriptor));
         } else if (type == MemberType.METHOD) {
-            this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
+            this.sig = new MethodSignature(name, MethodDescriptor.compile(descriptor));
         } else {
             this.sig = null;
         }
@@ -306,7 +305,7 @@ public class SelectableMember extends Text {
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
                 FieldSignature newSig = new FieldSignature(newName,
-                        ((FieldSignature) sig).getType());
+                        ((FieldSignature) sig).getType().get()); // TODO: Nocturne's reader guarantees types
                 if (jce.getCurrentFields().containsValue(newSig)) {
                     showDupeAlert(false);
                     return false;
@@ -447,8 +446,8 @@ public class SelectableMember extends Text {
                             ? classMapping.get().getFieldMappings()
                             : classMapping.get().getMethodMappings();
                     Mapping mapping = mappings.get(getType() == MemberType.METHOD
-                            ? new MethodSignature(getName(), MethodDescriptor.fromString(getDescriptor()))
-                            : new FieldSignature(getName(), Type.fromString(getDescriptor())));
+                            ? new MethodSignature(getName(), MethodDescriptor.compile(getDescriptor()))
+                            : new FieldSignature(getName(), FieldType.of(getDescriptor())));
                     if (mapping != null) {
                         deobf = mapping.getDeobfuscatedName();
                     }

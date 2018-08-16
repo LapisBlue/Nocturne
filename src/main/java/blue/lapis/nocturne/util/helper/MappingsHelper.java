@@ -37,8 +37,12 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
+import me.jamiemansfield.bombe.type.ArrayType;
+import me.jamiemansfield.bombe.type.MethodDescriptor;
+import me.jamiemansfield.bombe.type.ObjectType;
+import me.jamiemansfield.bombe.type.Type;
+import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import me.jamiemansfield.bombe.type.signature.MethodSignature;
 
 import java.util.List;
 import java.util.Optional;
@@ -235,6 +239,30 @@ public final class MappingsHelper {
      */
     public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
         return getClassMapping(context, qualifiedName, true).get();
+    }
+
+    private static ObjectType deobfuscateObject(final MappingContext ctx, final ObjectType objType) {
+        final Optional<ClassMapping> typeMapping = getClassMapping(ctx, objType.getClassName());
+        return new ObjectType(typeMapping.map(ClassMapping::getFullDeobfuscatedName).orElse(objType.getClassName()));
+    }
+
+    public static <T extends Type> T deobfuscate(final MappingContext ctx, final T obfuscatedType) {
+        if (obfuscatedType instanceof ObjectType) {
+            return (T) deobfuscateObject(ctx, (ObjectType) obfuscatedType);
+        }
+        else if (obfuscatedType instanceof ArrayType && ((ArrayType) obfuscatedType).getComponent() instanceof ObjectType) {
+            final ArrayType arr = (ArrayType) obfuscatedType;
+            final ObjectType obj = (ObjectType) arr.getComponent();
+            return (T) new ArrayType(arr.getDimCount(), deobfuscateObject(ctx, obj));
+        }
+        return obfuscatedType;
+    }
+
+    public static MethodDescriptor deobfuscate(final MappingContext ctx, final MethodDescriptor obfDesc) {
+        return new MethodDescriptor(
+                obfDesc.getParamTypes().stream().map(type -> deobfuscate(ctx, type)).collect(Collectors.toList()),
+                deobfuscate(ctx, obfDesc.getReturnType())
+        );
     }
 
 }
