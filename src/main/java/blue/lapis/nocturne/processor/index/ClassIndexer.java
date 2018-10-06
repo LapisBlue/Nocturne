@@ -139,7 +139,7 @@ public class ClassIndexer extends ClassProcessor {
         for (int i = 0; i < methodCount; i++) {
             IndexedMethod.Visibility vis = IndexedMethod.Visibility.fromAccessFlags(buffer.getShort());
             String name = getString(pool, buffer.getShort());
-            MethodDescriptor desc = MethodDescriptor.compile(getString(pool, buffer.getShort()));
+            MethodDescriptor desc = MethodDescriptor.of(getString(pool, buffer.getShort()));
             MethodSignature sig = new MethodSignature(name, desc);
             methods.add(new IndexedMethod(sig, vis));
             jce.getCurrentMethods().put(sig, sig); // index the method sig for future reference

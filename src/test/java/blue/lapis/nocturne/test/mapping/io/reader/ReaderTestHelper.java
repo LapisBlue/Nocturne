@@ -156,7 +156,7 @@ class ReaderTestHelper {
         assertTrue(mappings.getMappings().containsKey("a"));
         ClassMapping mapping = mappings.getMappings().get("a");
 
-        MethodSignature aSig = new MethodSignature("a", MethodDescriptor.compile("(ILa;I)La;"));
+        MethodSignature aSig = new MethodSignature("a", MethodDescriptor.of("(ILa;I)La;"));
         assertTrue(mapping.getMethodMappings().containsKey(aSig));
 
         MethodMapping methodMapping = mapping.getMethodMappings().get(aSig);

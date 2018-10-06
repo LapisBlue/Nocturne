@@ -107,7 +107,7 @@ public class SelectableMember extends Text {
         if (type == MemberType.FIELD) {
             this.sig = new FieldSignature(name, FieldType.of(descriptor));
         } else if (type == MemberType.METHOD) {
-            this.sig = new MethodSignature(name, MethodDescriptor.compile(descriptor));
+            this.sig = new MethodSignature(name, MethodDescriptor.of(descriptor));
         } else {
             this.sig = null;
         }
@@ -446,7 +446,7 @@ public class SelectableMember extends Text {
                             ? classMapping.get().getFieldMappings()
                             : classMapping.get().getMethodMappings();
                     Mapping mapping = mappings.get(getType() == MemberType.METHOD
-                            ? new MethodSignature(getName(), MethodDescriptor.compile(getDescriptor()))
+                            ? new MethodSignature(getName(), MethodDescriptor.of(getDescriptor()))
                             : new FieldSignature(getName(), FieldType.of(getDescriptor())));
                     if (mapping != null) {
                         deobf = mapping.getDeobfuscatedName();

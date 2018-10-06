@@ -132,7 +132,7 @@ public class SrgReader extends MappingsReader {
             String descriptor = arr[2];
             String deobf = arr[3].substring(arr[3].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
             MappingsHelper.genMethodMapping(context, owningClass,
-                    new MethodSignature(obf, MethodDescriptor.compile(descriptor)), deobf, false);
+                    new MethodSignature(obf, MethodDescriptor.of(descriptor)), deobf, false);
         }
     }
 

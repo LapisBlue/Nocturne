@@ -164,7 +164,7 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.compile(descStr));
+                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.of(descStr));
 
                     currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
                             new MethodSignature(obf, desc), deobf, true);

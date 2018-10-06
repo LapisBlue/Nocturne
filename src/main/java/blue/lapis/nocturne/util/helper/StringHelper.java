@@ -76,7 +76,7 @@ public final class StringHelper {
             }
             case METHOD: {
                 if (!desc.contains(MEMBER_PREFIX)) { // if this condition is true then it's already been processed
-                    MethodDescriptor md = MethodDescriptor.compile(desc);
+                    MethodDescriptor md = MethodDescriptor.of(desc);
                     List<FieldType> newParams = new ArrayList<>();
                     for (FieldType param : md.getParamTypes()) {
                         if (param instanceof ArrayType && ((ArrayType) param).getComponent() instanceof ObjectType) {

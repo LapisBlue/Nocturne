@@ -139,7 +139,7 @@ public class JamReader extends MappingsReader {
             String desc = arr[3];
             String deobf = arr[4];
             MappingsHelper.genMethodMapping(context, owningClass,
-                    new MethodSignature(obf, MethodDescriptor.compile(desc)), deobf, false);
+                    new MethodSignature(obf, MethodDescriptor.of(desc)), deobf, false);
         }
     }
 
@@ -155,10 +155,10 @@ public class JamReader extends MappingsReader {
                 continue;
             }
             MethodMapping methodMapping = classMapping.get().getMethodMappings()
-                    .get(new MethodSignature(owningMethod, MethodDescriptor.compile(owningMethodDesc)));
+                    .get(new MethodSignature(owningMethod, MethodDescriptor.of(owningMethodDesc)));
             if (methodMapping == null) {
                 methodMapping = new MethodMapping(classMapping.get(),
-                        new MethodSignature(owningMethod, MethodDescriptor.compile(owningMethodDesc)), owningMethod,
+                        new MethodSignature(owningMethod, MethodDescriptor.of(owningMethodDesc)), owningMethod,
                         false);
             }
             int index;
