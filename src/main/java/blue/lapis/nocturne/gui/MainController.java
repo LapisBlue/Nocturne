@@ -303,7 +303,7 @@ public class MainController implements Initializable {
     public void updateObfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
             TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) obfTree.getRoot()));
+                    getExpandedIds((IdentifiableTreeItem) obfTree.getRoot()), true);
             root.setExpanded(true);
             obfTree.setRoot(root);
         } else {
@@ -315,7 +315,7 @@ public class MainController implements Initializable {
     public void updateDeobfuscatedClassListView() {
         if (Main.getLoadedJar() != null) {
             TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) deobfTree.getRoot()));
+                    getExpandedIds((IdentifiableTreeItem) deobfTree.getRoot()), false);
             root.setExpanded(true);
             deobfTree.setRoot(root);
         } else {
@@ -323,7 +323,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded, final boolean checkLength) {
         IdentifiableTreeItem treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
@@ -339,12 +339,15 @@ public class MainController implements Initializable {
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
             treeItem.getChildren().addAll(element.getChildren().stream()
-                    .map(e -> this.generateTreeItem(e, expanded)).collect(Collectors.toList()));
+                    .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;
             boolean c2 = t2.getChildren().size() > 0;
             if (c1 == c2) { // both either terminal or non-terminal
+                if (checkLength && t1.getValue().length() != t2.getValue().length()) {
+                    return t1.getValue().length() - t2.getValue().length();
+                }
                 return t1.getValue().compareTo(t2.getValue());
             } else if (c1) { // first is non-terminal, second is terminal
                 return -1;
