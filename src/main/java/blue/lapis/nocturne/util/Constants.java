@@ -65,6 +65,8 @@ public final class Constants {
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
 
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
+            .put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1")
+            .put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1")
             .put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1")
             .put(IFernflowerPreferences.INDENT_STRING, "    ")
             .build();
