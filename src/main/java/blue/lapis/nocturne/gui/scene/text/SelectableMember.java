@@ -357,7 +357,10 @@ public class SelectableMember extends Text {
         switch (type) {
             case CLASS: {
                 if (fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-                    mapping = fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1) + mapping;
+                    mapping = MappingsHelper.getOrCreateClassMapping(
+                            Main.getMappingContext(),
+                            fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1)
+                    ).getFullDeobfuscatedName() + '$' + mapping;
                 }
                 MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping, true);
                 fullName = mapping;
