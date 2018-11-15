@@ -34,6 +34,8 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Comparator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -41,8 +43,30 @@ import java.util.function.Predicate;
  */
 public class SrgWriter extends MappingsWriter {
 
-    private static final Predicate<Mapping> NOT_USELESS
-            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
+    protected static final Comparator<ClassMapping> ALPHABETISE_CLASSES =
+            comparingLength(ClassMapping::getFullObfuscatedName);
+
+    protected static final Comparator<FieldMapping> ALPHABETISE_FIELDS =
+            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedType());
+
+    protected static final Comparator<MethodMapping> ALPHABETISE_METHODS =
+            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor().toString());
+
+    private static <T> Comparator<T> comparingLength(final Function<? super T, String> keyExtractor) {
+        return (c1, c2) -> {
+            final String key1 = keyExtractor.apply(c1);
+            final String key2 = keyExtractor.apply(c2);
+
+            final String redacted1 = key1.contains("$") ? key1.substring(0, key1.indexOf('$')) : key1;
+            final String redacted2 = key1.contains("$") ? key2.substring(0, key2.indexOf('$')) : key2;
+
+            if (redacted1.length() != redacted2.length()) {
+                return redacted1.length() - redacted2.length();
+            }
+
+            return key1.compareTo(key2);
+        };
+    }
 
     private final ByteArrayOutputStream clOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream fdOut = new ByteArrayOutputStream();
@@ -64,9 +88,7 @@ public class SrgWriter extends MappingsWriter {
 
     @Override
     public void write(MappingContext mappingContext) {
-        mappingContext.getMappings().values().stream().sorted(
-                (o1, o2) -> o1.getFullObfuscatedName().compareToIgnoreCase(o2.getFullObfuscatedName())
-        ).forEach(this::writeClassMapping);
+        mappingContext.getMappings().values().stream().sorted(ALPHABETISE_CLASSES).forEach(this::writeClassMapping);
         clWriter.close();
         fdWriter.close();
         mdWriter.close();
@@ -95,15 +117,9 @@ public class SrgWriter extends MappingsWriter {
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
 
-        classMapping.getInnerClassMappings().values().stream().filter(NOT_USELESS).sorted(
-            (o1, o2) -> o1.getFullObfuscatedName().compareToIgnoreCase(o2.getFullObfuscatedName())
-        ).forEach(this::writeClassMapping);
-        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).sorted(
-                (o1, o2) -> o1.getObfuscatedName().compareToIgnoreCase(o2.getObfuscatedName())
-        ).forEach(this::writeFieldMapping);
-        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).sorted(
-                (o1, o2) -> o1.getObfuscatedName().compareToIgnoreCase(o2.getObfuscatedName())
-        ).forEach(this::writeMethodMapping);
+        classMapping.getInnerClassMappings().values().stream().sorted(ALPHABETISE_CLASSES).forEach(this::writeClassMapping);
+        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).sorted(ALPHABETISE_FIELDS).forEach(this::writeFieldMapping);
+        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).sorted(ALPHABETISE_METHODS).forEach(this::writeMethodMapping);
     }
 
     /**
