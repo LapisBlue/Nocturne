@@ -38,7 +38,6 @@ import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
-import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -54,12 +53,15 @@ import org.cadixdev.bombe.type.signature.MemberSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 import org.cadixdev.lorenz.model.ClassMapping;
 import org.cadixdev.lorenz.model.FieldMapping;
+import org.cadixdev.lorenz.model.InnerClassMapping;
 import org.cadixdev.lorenz.model.Mapping;
 import org.cadixdev.lorenz.model.MethodMapping;
 import org.cadixdev.lorenz.model.MethodParameterMapping;
+import org.cadixdev.lorenz.model.TopLevelClassMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -238,7 +240,7 @@ public class SelectableMember extends Text {
         jumpToDefItem.setOnAction(event -> {
             String className = getClassName();
             final Optional<? extends ClassMapping<?, ?>> cm = Main.getMappings().getClassMapping(className);
-            MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
+            MainController.INSTANCE.openTab(className);
         });
 
         ContextMenu contextMenu = new ContextMenu();
@@ -264,7 +266,7 @@ public class SelectableMember extends Text {
         updateText();
 
         final Optional<? extends Mapping> mapping = this.getMapping();
-        setDeobfuscated(!getName().equals(fullName) || mapping.isPresent());
+        setDeobfuscated(!getName().equals(this.fullName) || (mapping.isPresent() && mapping.get().hasDeobfuscatedName()));
     }
 
     private String getClassName() {
@@ -351,31 +353,103 @@ public class SelectableMember extends Text {
         alert.showAndWait();
     }
 
-    public void setMapping(String mapping) {
+    public void setMapping(final String mapping) {
         switch (type) {
             case CLASS: {
-                Main.getMappings().getOrCreateClassMapping(this.fullName).setDeobfuscatedName(mapping);
+                // Set the de-obfuscated name
+                final ClassMapping<?, ?> klass = Main.getMappings().getOrCreateClassMapping(this.fullName)
+                        .setDeobfuscatedName(mapping);
+
+                // Set the class as de-obfuscated
+                Main.getLoadedJar().getClass(klass.getFullObfuscatedName()).ifPresent(entry -> {
+                    entry.setDeobfuscated(klass.hasDeobfuscatedName());
+                });
+
+                // Correct all the selectable mappings
+                final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                if (members == null) break;
+                members.forEach(member -> {
+                    member.setText(klass.getSimpleDeobfuscatedName());
+                    member.setDeobfuscated(klass.hasDeobfuscatedName());
+                });
+
+                // Set the name in the jar model
+                if (klass instanceof TopLevelClassMapping) {
+                    Main.getLoadedJar().getCurrentNames().put(klass.getFullObfuscatedName(), klass.getDeobfuscatedName());
+                }
+                else if (klass instanceof InnerClassMapping) {
+                    final String parentName = ((InnerClassMapping) klass).getParent().getFullObfuscatedName();
+                    final String childName = klass.getObfuscatedName();
+
+                    final Optional<JarClassEntry> jarClassEntry = Main.getLoadedJar().getClass(parentName);
+                    if (jarClassEntry.isPresent()) {
+                        jarClassEntry.get().getCurrentInnerClassNames().put(childName, klass.getDeobfuscatedName());
+                    }
+                    else {
+                        Main.getLogger().severe("Invalid obfuscated name: " + parentName);
+                    }
+                }
+
+                // Correct the tab name
+                if (CodeTab.CODE_TABS.containsKey(klass.getFullObfuscatedName())) {
+                    CodeTab.CODE_TABS.get(klass.getFullObfuscatedName()).update();
+                }
+
+                // Update the classes
+                MainController.INSTANCE.updateClassViews();
+
                 break;
             }
             case FIELD: {
-                Main.getMappings().getOrCreateClassMapping(this.getParentClass())
+                // Set the de-obfuscated name
+                final FieldMapping field = Main.getMappings().getOrCreateClassMapping(this.getParentClass())
                         .getOrCreateFieldMapping((FieldSignature) this.sig)
                         .setDeobfuscatedName(mapping);
+
+                // Correct all the selectable mappings
+                final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                if (members == null) break;
+                members.forEach(member -> {
+                    member.setText(field.getDeobfuscatedName());
+                    member.setDeobfuscated(field.hasDeobfuscatedName());
+                });
+
+                // Set the name in the jar model
+                Main.getLoadedJar().getClass(this.getParentClass()).ifPresent(entry -> {
+                    entry.getCurrentFields().put(field.getSignature(), field.getDeobfuscatedSignature());
+                });
+
                 break;
             }
             case METHOD: {
-                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-                Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
-                classes.add(clazz);
+                // The method needs to be propagated throughout the whole jar.
+                final IndexedClass klass = IndexedClass.INDEXED_CLASSES.get(this.getParentClass());
+                final Set<IndexedClass> classes = new HashSet<>(klass.getHierarchy());
+                classes.add(klass);
 
-                for (IndexedClass ic : classes) {
-                    //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                    if (ic.getMethods().containsKey(sig)) {
-                        Main.getMappings().getOrCreateClassMapping(ic.getName())
+                for (final IndexedClass ic : classes) {
+                    // noinspection SuspiciousMethodCalls
+                    if (ic.getMethods().containsKey(this.sig)) {
+                        // Set the de-obfuscated name
+                        final MethodMapping method = Main.getMappings().getOrCreateClassMapping(ic.getName())
                                 .getOrCreateMethodMapping((MethodSignature) this.sig)
                                 .setDeobfuscatedName(mapping);
+
+                        // Correct all the selectable mappings
+                        final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                        if (members == null) break;
+                        members.forEach(member -> {
+                            member.setText(method.getDeobfuscatedName());
+                            member.setDeobfuscated(method.hasDeobfuscatedName());
+                        });
+
+                        // Set the name in the jar model
+                        Main.getLoadedJar().getClass(method.getParent().getFullObfuscatedName()).ifPresent(entry -> {
+                            entry.getCurrentMethods().put(method.getSignature(), method.getDeobfuscatedSignature());
+                        });
                     }
                 }
+
                 break;
             }
             default: {

@@ -25,7 +25,6 @@
 
 package blue.lapis.nocturne.gui.scene.control;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 
@@ -34,7 +33,6 @@ import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import javafx.fxml.FXMLLoader;
@@ -42,9 +40,11 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.cadixdev.lorenz.model.TopLevelClassMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class CodeTab extends Tab {
 
     public static final Map<String, CodeTab> CODE_TABS = Maps.newHashMap();
 
-    private final String className;
+    private final TopLevelClassMapping klass;
 
     public Label memberIdentifierLabel;
     public Label memberInfoLabel;
@@ -68,9 +68,9 @@ public class CodeTab extends Tab {
     public Label memberInfo;
     public TextFlow code;
 
-    public CodeTab(TabPane pane, String className, String displayName) {
-        this.className = className;
-        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(displayName).replaceAll("."));
+    public CodeTab(TabPane pane, final TopLevelClassMapping klass) {
+        this.klass = klass;
+        this.update();
 
         pane.getTabs().add(this);
 
@@ -85,18 +85,15 @@ public class CodeTab extends Tab {
             e.printStackTrace();
         }
 
-        CODE_TABS.put(className, this);
+        CODE_TABS.put(this.klass.getFullObfuscatedName(), this);
         getTabPane().getSelectionModel().select(this);
 
-        this.setOnClosed(event -> CODE_TABS.remove(this.getClassName()));
+        this.setOnClosed(event -> CODE_TABS.remove(this.klass.getFullObfuscatedName()));
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void resetClassName() {
-        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(className).replaceAll("."));
+    public void update() {
+        this.setText(this.klass.getSimpleDeobfuscatedName());
+        this.setTooltip(new Tooltip(this.klass.getFullDeobfuscatedName()));
     }
 
     /**

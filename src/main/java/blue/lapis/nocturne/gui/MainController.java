@@ -139,7 +139,7 @@ public class MainController implements Initializable {
                 if (selected.getChildren().isEmpty()) {
                     String className = ((IdentifiableTreeItem) selected).getId().substring(1);
                     if (Main.getLoadedJar() != null) {
-                        openTab(className, selected.getValue());
+                        openTab(className);
                     }
                 } else {
                     if (event instanceof MouseEvent == selected.isExpanded()) {
@@ -361,11 +361,11 @@ public class MainController implements Initializable {
         CodeTab.CODE_TABS.clear();
     }
 
-    public void openTab(String className, String displayName) {
+    public void openTab(String className) {
         if (CodeTab.CODE_TABS.containsKey(className)) {
             tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
         } else {
-            CodeTab tab = new CodeTab(tabs, className, displayName);
+            CodeTab tab = new CodeTab(tabs, Main.getMappings().getOrCreateTopLevelClassMapping(className));
 
             Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
             checkArgument(clazz.isPresent(), "Cannot find class entry for " + className);
