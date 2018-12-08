@@ -25,15 +25,11 @@
 
 package blue.lapis.nocturne;
 
-import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
-import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -45,7 +41,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import org.cadixdev.lorenz.MappingSet;
+import org.cadixdev.lorenz.io.MappingFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -63,16 +60,6 @@ public class Main extends Application {
 
     private static Main instance;
 
-    private static final EventHandler<WindowEvent> CLOSE_HANDLER = event -> {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                event.consume();
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    };
-
     private static final Logger LOGGER = Logger.getLogger("Nocturne");
     private static final Logger FERNFLOWER_LOGGER = Logger.getLogger("FernFlower");
 
@@ -84,7 +71,7 @@ public class Main extends Application {
     private Stage mainStage;
     private Scene scene;
 
-    private final MappingContext mappingContext = new MappingContext();
+    private MappingSet mappings = MappingSet.create();
     private Path currentMappingsPath;
     private MappingFormat currentMappingFormat;
     private ClassSet loadedJar;
@@ -214,7 +201,6 @@ public class Main extends Application {
             SceneHelper.addStdStylesheet(scene);
             mainStage.setTitle("Nocturne");
             mainStage.setScene(scene);
-            mainStage.setOnCloseRequest(CLOSE_HANDLER);
             mainStage.show();
         } else {
             scene.setRoot(root);
@@ -237,8 +223,12 @@ public class Main extends Application {
         return getInstance().mainStage;
     }
 
-    public static MappingContext getMappingContext() {
-        return getInstance().mappingContext;
+    public static MappingSet getMappings() {
+        return getInstance().mappings;
+    }
+
+    public static void clearMappings() {
+        getInstance().mappings = MappingSet.create();
     }
 
     public static Path getCurrentMappingsPath() {
@@ -275,7 +265,7 @@ public class Main extends Application {
         if (getLoadedJar() == null) {
             title = "Nocturne";
         } else {
-            title = "Nocturne - " + (getMappingContext().isDirty() ? "*" : "") + getLoadedJar().getName();
+            title = "Nocturne - " + getLoadedJar().getName();
         }
 
         if (!getMainStage().getTitle().equals(title)) {

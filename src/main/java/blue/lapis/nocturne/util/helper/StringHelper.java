@@ -39,11 +39,11 @@ import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.util.MemberType;
-import me.jamiemansfield.bombe.type.ArrayType;
-import me.jamiemansfield.bombe.type.FieldType;
-import me.jamiemansfield.bombe.type.MethodDescriptor;
-import me.jamiemansfield.bombe.type.ObjectType;
-import me.jamiemansfield.bombe.type.Type;
+import org.cadixdev.bombe.type.ArrayType;
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.ObjectType;
+import org.cadixdev.bombe.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;

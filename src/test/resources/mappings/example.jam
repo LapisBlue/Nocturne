@@ -1,8 +1,0 @@
-CL a com/example/project/Example
-CL a$b com/example/project/Example$Inner
-CL a$b$c com/example/project/Example$Inner$Deeper
-CL b$a$c com/example/project/Another$Inner$Deeper
-FD a a I someField
-FD a$b a I someInnerField
-FD a$b$c a I someDeeperField
-MD a a (ILa;I)La; someMethod

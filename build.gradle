@@ -42,12 +42,21 @@ project('FernFlower') {
 // Project repositories
 repositories {
     mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/groups/public/'
+    }
 }
 
 // Project dependencies
 dependencies {
     compile 'com.google.guava:guava:19.0'
-    compile 'me.jamiemansfield:bombe-core:0.2.0'
+
+    // Mapping IO (Lorenz)
+    compile 'org.cadixdev:lorenz:0.5.0-SNAPSHOT'
+    compile 'org.cadixdev:lorenz-io-enigma:0.5.0-SNAPSHOT'
+    compile 'org.cadixdev:lorenz-io-jam:0.5.0-SNAPSHOT'
+    compile 'org.cadixdev:lorenz-io-kin:0.5.0-SNAPSHOT'
+
     compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'
@@ -89,6 +98,7 @@ shadowJar {
 
 // License header formatting
 license {
+    exclude '**/blue/lapis/nocturne/gui/io/mappings/MappingsHelper.java'
     include '**/*.java'
     include '**/*.css'
     include '**/*.fxml'

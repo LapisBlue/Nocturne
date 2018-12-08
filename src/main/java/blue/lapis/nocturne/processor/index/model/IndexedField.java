@@ -25,7 +25,7 @@
 
 package blue.lapis.nocturne.processor.index.model;
 
-import me.jamiemansfield.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.signature.FieldSignature;
 
 import java.util.HashMap;
 import java.util.Map;

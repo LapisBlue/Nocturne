@@ -29,11 +29,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
-import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
-import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.gui.io.mappings.MappingsHelper;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
@@ -196,37 +194,25 @@ public class MainController implements Initializable {
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
 
-        Main.getMappingContext().clear();
-        Main.getMappingContext().setDirty(false);
+        Main.clearMappings();
 
         updateClassViews();
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        MappingsOpenDialogHelper.openMappings(false);
+        // TODO: save mappings if needed
+        MappingsHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
         updateClassViews();
     }
 
     public void mergeMappings(ActionEvent actionEvent) throws IOException {
-        MappingsOpenDialogHelper.openMappings(true);
+        MappingsHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
         updateClassViews();
     }
 
     public void resetMappings(ActionEvent actionEvent) {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        // TODO: save mappings if needed
+        /*
         Main.getMappingContext().getMappings().values().forEach(cm -> {
             Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
             JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
@@ -249,24 +235,20 @@ public class MainController implements Initializable {
                     member.setDeobfuscated(false);
                 }));
         updateClassViews();
+        */
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
-        MappingsSaveDialogHelper.saveMappings();
+        // TODO: reimplement old mappings save stuff
+        MappingsHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
-        MappingsSaveDialogHelper.saveMappingsAs();
+        MappingsHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void onClose(ActionEvent actionEvent) {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        // TODO: save mappings if needed
         System.exit(0);
     }
 
@@ -363,11 +345,9 @@ public class MainController implements Initializable {
     }
 
     private boolean deinitializeCurrentJar() throws IOException {
-        if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-            return false;
-        }
-        Main.getMappingContext().clear();
-        closeAllTabs();
+        // TODO: save mappings if needed
+        Main.clearMappings();
+        this.closeAllTabs();
         Main.setLoadedJar(null);
         return true;
     }

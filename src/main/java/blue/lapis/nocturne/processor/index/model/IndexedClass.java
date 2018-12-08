@@ -28,8 +28,8 @@ package blue.lapis.nocturne.processor.index.model;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import me.jamiemansfield.bombe.type.signature.FieldSignature;
-import me.jamiemansfield.bombe.type.signature.MethodSignature;
+import org.cadixdev.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.HashMap;
 import java.util.List;
