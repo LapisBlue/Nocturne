@@ -63,7 +63,10 @@
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.edit">
             <MenuItem mnemonicParsing="true" fx:id="resetMappingsButton" onAction="#resetMappings"
-                      text="%menu.file.reset_mappings"/>
+                      text="%menu.edit.reset_mappings"/>
+        </Menu>
+        <Menu text="%menu.view">
+            <MenuItem fx:id="closeAllTabsButton" onAction="#closeAllTabs" text="%menu.view.close_all_tabs"/>
         </Menu>
         <Menu mnemonicParsing="true" text="%menu.language">
             <RadioMenuItem mnemonicParsing="false" onAction="#onLanguageSelect" toggleGroup="$languageGroup"

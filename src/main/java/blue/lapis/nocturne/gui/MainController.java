@@ -41,7 +41,6 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -376,7 +375,7 @@ public class MainController implements Initializable {
     /**
      * Closes all currently opened tabs.
      */
-    private void closeAllTabs() {
+    public void closeAllTabs() {
         tabs.getTabs().forEach(tab -> tab.getOnClosed().handle(null));
         tabs.getTabs().clear();
         CodeTab.CODE_TABS.clear();
