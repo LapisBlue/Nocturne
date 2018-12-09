@@ -396,7 +396,7 @@ public class SelectableMember extends Text {
                 }
 
                 // Update the classes
-                MainController.INSTANCE.updateClassViews();
+                MainController.INSTANCE.refreshClasses();
 
                 break;
             }

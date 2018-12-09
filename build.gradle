@@ -98,7 +98,8 @@ shadowJar {
 
 // License header formatting
 license {
-    exclude '**/blue/lapis/nocturne/gui/io/mappings/MappingsHelper.java'
+    exclude '**/blue/lapis/nocturne/gui/io/MappingsDialogHelper.java'
+    exclude '**/blue/lapis/nocturne/gui/tree/*.java'
     include '**/*.java'
     include '**/*.css'
     include '**/*.fxml'
