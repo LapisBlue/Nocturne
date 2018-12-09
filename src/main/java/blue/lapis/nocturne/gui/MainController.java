@@ -278,7 +278,6 @@ public class MainController implements Initializable {
 
             RESTART_ALERT.showAndWait();
         }
-
     }
 
     public void updateObfuscatedClassListView() {
@@ -290,7 +289,6 @@ public class MainController implements Initializable {
         } else {
             obfTree.setRoot(null);
         }
-
     }
 
     public void updateDeobfuscatedClassListView() {

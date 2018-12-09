@@ -74,7 +74,7 @@ public final class Constants {
     public static final String ENIGMA_ROOT_PACKAGE_PREFIX = "none/";
 
     static {
-        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
+        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "dev");
     }
 
     private Constants() {

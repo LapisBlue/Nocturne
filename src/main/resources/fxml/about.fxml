@@ -33,6 +33,16 @@
     <Text text="%about.description"/>
     <Text text="&#10;&#10;"/>
     <Text text="%about.license"/>
+    <Text text="&#10;"/>
+    <Text text="%about.license.symphony1"/>
+    <Text text="&#10;"/>
+    <Text text="%about.license.symphony2"/>
+    <Text text="&#10;&#10;"/>
+    <Text text="%about.cadix"/>
+    <Text text="&#10;"/>
+    <Text text=" - "/><WebLink address="https://github.com/CadixDev/Bombe">Bombe</WebLink><Text text="%about.cadix.bombe"/>
+    <Text text="&#10;"/>
+    <Text text=" - "/><WebLink address="https://github.com/CadixDev/Lorenz">Lorenz</WebLink><Text text="%about.cadix.lorenz"/>
     <Text text="&#10;&#10;"/>
     <Text text="%about.github"/>
     <WebLink address="https://git.io/nocturne">https://git.io/nocturne</WebLink>

@@ -415,7 +415,7 @@ public class SelectableMember extends Text {
                 });
 
                 // Set the name in the jar model
-                Main.getLoadedJar().getClass(this.getParentClass()).ifPresent(entry -> {
+                Main.getLoadedJar().getClass(field.getParent().getFullObfuscatedName()).ifPresent(entry -> {
                     entry.getCurrentFields().put(field.getSignature(), field.getDeobfuscatedSignature());
                 });
 
@@ -511,9 +511,11 @@ public class SelectableMember extends Text {
                 final Optional<? extends ClassMapping<?, ?>> classMapping = this.getParentMapping();
                 if (classMapping.isPresent()) {
                     final Mapping mapping = this.getType() == MemberType.FIELD ?
-                            classMapping.get().getOrCreateFieldMapping(
+                            classMapping.get().computeFieldMapping(
                                     new FieldSignature(getName(), FieldType.of(getDescriptor()))
-                            ) :
+                            ).orElseGet(() -> classMapping.get().createFieldMapping(
+                                    new FieldSignature(getName(), FieldType.of(getDescriptor()))
+                            )) :
                             classMapping.get().getOrCreateMethodMapping(
                                     new MethodSignature(getName(), MethodDescriptor.of(getDescriptor()))
                             );
