@@ -30,13 +30,12 @@ import static blue.lapis.nocturne.processor.index.model.IndexedClass.INDEXED_CLA
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.processor.index.ClassHierarchyBuilder;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.Constants;
-
 import com.google.common.collect.Sets;
 import javafx.scene.control.Alert;
+import org.cadixdev.lorenz.model.ClassMapping;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -99,7 +98,7 @@ public class JarLoader {
                 JarClassEntry classEntry = new JarClassEntry(className, bytes);
 
                 //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
-                ClassMapping mapping = Main.getMappingContext().getMappings().get(className);
+                final ClassMapping<?, ?> mapping = Main.getMappings().getOrCreateClassMapping(className);
                 if (mapping != null && !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) {
                     classEntry.setDeobfuscated(true);
                 }

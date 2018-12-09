@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.gui.io.jar;
+package blue.lapis.nocturne.gui.io;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;

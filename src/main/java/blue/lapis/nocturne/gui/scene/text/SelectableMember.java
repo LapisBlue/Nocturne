@@ -29,30 +29,15 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
-import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
-import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.Mapping;
-import blue.lapis.nocturne.mapping.model.MemberMapping;
-import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
-import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
-
-import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -61,9 +46,22 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.signature.MemberSignature;
+import org.cadixdev.bombe.type.signature.MethodSignature;
+import org.cadixdev.lorenz.model.ClassMapping;
+import org.cadixdev.lorenz.model.FieldMapping;
+import org.cadixdev.lorenz.model.InnerClassMapping;
+import org.cadixdev.lorenz.model.Mapping;
+import org.cadixdev.lorenz.model.MethodMapping;
+import org.cadixdev.lorenz.model.MethodParameterMapping;
+import org.cadixdev.lorenz.model.TopLevelClassMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -106,9 +104,9 @@ public class SelectableMember extends Text {
         this.descriptorProperty.set(descriptor);
 
         if (type == MemberType.FIELD) {
-            this.sig = new FieldSignature(name, Type.fromString(descriptor));
+            this.sig = new FieldSignature(name, FieldType.of(descriptor));
         } else if (type == MemberType.METHOD) {
-            this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
+            this.sig = new MethodSignature(name, MethodDescriptor.of(descriptor));
         } else {
             this.sig = null;
         }
@@ -160,21 +158,20 @@ public class SelectableMember extends Text {
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
         resetItem.setOnAction(event -> {
             if (getText().equals(getName())) {
-                Optional<? extends Mapping> mapping = getMapping();
+                final Optional<? extends Mapping> mapping = this.getMapping();
                 if (mapping.isPresent()) {
-                    mapping.get().setAdHoc(false);
-                    if (mapping.get() instanceof MemberMapping) {
-                        ClassMapping parent = ((MemberMapping) mapping.get()).getParent();
-                        if (mapping.get() instanceof FieldMapping) {
-                            //noinspection ConstantConditions
-                            parent.removeFieldMapping((FieldSignature) sig);
-                        } else {
-                            //noinspection ConstantConditions
-                            parent.removeMethodMapping((MethodSignature) sig);
-                        }
-                    } else if (mapping.get() instanceof MethodParameterMapping) {
-                        ((MethodParameterMapping) mapping.get()).getParent()
-                                .removeParamMapping(mapping.get().getObfuscatedName());
+                    // TODO: mapping.get().setAdHoc(false);
+                    if (mapping.get() instanceof FieldMapping) {
+                        final FieldMapping field = (FieldMapping) mapping.get();
+                        field.setDeobfuscatedName(field.getObfuscatedName());
+                    }
+                    else if (mapping.get() instanceof MethodMapping) {
+                        final MethodMapping method = (MethodMapping) mapping.get();
+                        method.setDeobfuscatedName(method.getObfuscatedName());
+                    }
+                    else if (mapping.get() instanceof MethodParameterMapping) {
+                        final MethodParameterMapping param = (MethodParameterMapping) mapping.get();
+                        param.setDeobfuscatedName(param.getObfuscatedName());
                     }
                 }
                 MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(false));
@@ -189,7 +186,7 @@ public class SelectableMember extends Text {
                             break;
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
-                        mapping.get().setAdHoc(false);
+                        // TODO: mapping.get().setAdHoc(false);
                         setDeobfuscated(false);
                     }
                     fullName = getName();
@@ -197,20 +194,23 @@ public class SelectableMember extends Text {
                 }
                 case FIELD:
                 case METHOD: {
-                    Optional<ClassMapping> parent
-                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+                    final Optional<? extends ClassMapping<?, ?>> parent = Main.getMappings().getClassMapping(this.getParentClass());
                     if (parent.isPresent()) {
-                        Optional<? extends Mapping> mapping = getMapping();
+                        final Optional<? extends Mapping> mapping = this.getMapping();
                         if (mapping.isPresent()) {
                             if (!checkMemberDupe(mapping.get().getObfuscatedName())) {
                                 return;
                             }
                             if (getType() == MemberType.FIELD) {
                                 //noinspection ConstantConditions
-                                parent.get().removeFieldMapping((FieldSignature) sig);
+                                parent.get().getFieldMapping((FieldSignature) sig).ifPresent(field -> {
+                                    field.setDeobfuscatedName(field.getObfuscatedName());
+                                });
                             } else {
                                 //noinspection ConstantConditions
-                                parent.get().removeMethodMapping((MethodSignature) sig);
+                                parent.get().getMethodMapping((MethodSignature) sig).ifPresent(method -> {
+                                    method.setDeobfuscatedName(method.getObfuscatedName());
+                                });
                             }
                             MEMBERS.get(key).forEach(sm -> {
                                 sm.setDeobfuscated(false);
@@ -232,15 +232,15 @@ public class SelectableMember extends Text {
         toggleDeobf.setOnAction(event -> {
             // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
             boolean shouldDeobf = !this.deobfuscated;
-            genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
+            // TODO: genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
             MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf));
         });
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
         jumpToDefItem.setOnAction(event -> {
             String className = getClassName();
-            Optional<ClassMapping> cm = MappingsHelper.getClassMapping(Main.getMappingContext(), className);
-            MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
+            final Optional<? extends ClassMapping<?, ?>> cm = Main.getMappings().getClassMapping(className);
+            MainController.INSTANCE.openTab(className);
         });
 
         ContextMenu contextMenu = new ContextMenu();
@@ -265,8 +265,8 @@ public class SelectableMember extends Text {
 
         updateText();
 
-        Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(!getName().equals(fullName) || (mapping.isPresent() && mapping.get().isAdHoc()));
+        final Optional<? extends Mapping> mapping = this.getMapping();
+        setDeobfuscated(!getName().equals(this.fullName) || (mapping.isPresent() && mapping.get().hasDeobfuscatedName()));
     }
 
     private String getClassName() {
@@ -306,7 +306,7 @@ public class SelectableMember extends Text {
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
                 FieldSignature newSig = new FieldSignature(newName,
-                        ((FieldSignature) sig).getType());
+                        ((FieldSignature) sig).getType().get()); // TODO: Nocturne's reader guarantees types
                 if (jce.getCurrentFields().containsValue(newSig)) {
                     showDupeAlert(false);
                     return false;
@@ -353,35 +353,103 @@ public class SelectableMember extends Text {
         alert.showAndWait();
     }
 
-    public void setMapping(String mapping) {
+    public void setMapping(final String mapping) {
         switch (type) {
             case CLASS: {
-                if (fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-                    mapping = MappingsHelper.getOrCreateClassMapping(
-                            Main.getMappingContext(),
-                            fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1)
-                    ).getFullDeobfuscatedName() + '$' + mapping;
+                // Set the de-obfuscated name
+                final ClassMapping<?, ?> klass = Main.getMappings().getOrCreateClassMapping(this.fullName)
+                        .setDeobfuscatedName(mapping);
+
+                // Set the class as de-obfuscated
+                Main.getLoadedJar().getClass(klass.getFullObfuscatedName()).ifPresent(entry -> {
+                    entry.setDeobfuscated(klass.hasDeobfuscatedName());
+                });
+
+                // Correct all the selectable mappings
+                final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                if (members == null) break;
+                members.forEach(member -> {
+                    member.setText(klass.getSimpleDeobfuscatedName());
+                    member.setDeobfuscated(klass.hasDeobfuscatedName());
+                });
+
+                // Set the name in the jar model
+                if (klass instanceof TopLevelClassMapping) {
+                    Main.getLoadedJar().getCurrentNames().put(klass.getFullObfuscatedName(), klass.getDeobfuscatedName());
                 }
-                MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping, true);
-                fullName = mapping;
+                else if (klass instanceof InnerClassMapping) {
+                    final String parentName = ((InnerClassMapping) klass).getParent().getFullObfuscatedName();
+                    final String childName = klass.getObfuscatedName();
+
+                    final Optional<JarClassEntry> jarClassEntry = Main.getLoadedJar().getClass(parentName);
+                    if (jarClassEntry.isPresent()) {
+                        jarClassEntry.get().getCurrentInnerClassNames().put(childName, klass.getDeobfuscatedName());
+                    }
+                    else {
+                        Main.getLogger().severe("Invalid obfuscated name: " + parentName);
+                    }
+                }
+
+                // Correct the tab name
+                if (CodeTab.CODE_TABS.containsKey(klass.getFullObfuscatedName())) {
+                    CodeTab.CODE_TABS.get(klass.getFullObfuscatedName()).update();
+                }
+
+                // Update the classes
+                MainController.INSTANCE.refreshClasses();
+
                 break;
             }
             case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappingContext(), getParentClass(), (FieldSignature) sig,
-                        mapping);
+                // Set the de-obfuscated name
+                final FieldMapping field = Main.getMappings().getOrCreateClassMapping(this.getParentClass())
+                        .getOrCreateFieldMapping((FieldSignature) this.sig)
+                        .setDeobfuscatedName(mapping);
+
+                // Correct all the selectable mappings
+                final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                if (members == null) break;
+                members.forEach(member -> {
+                    member.setText(field.getDeobfuscatedName());
+                    member.setDeobfuscated(field.hasDeobfuscatedName());
+                });
+
+                // Set the name in the jar model
+                Main.getLoadedJar().getClass(field.getParent().getFullObfuscatedName()).ifPresent(entry -> {
+                    entry.getCurrentFields().put(field.getSignature(), field.getDeobfuscatedSignature());
+                });
+
                 break;
             }
             case METHOD: {
-                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-                Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
-                classes.add(clazz);
+                // The method needs to be propagated throughout the whole jar.
+                final IndexedClass klass = IndexedClass.INDEXED_CLASSES.get(this.getParentClass());
+                final Set<IndexedClass> classes = new HashSet<>(klass.getHierarchy());
+                classes.add(klass);
 
-                for (IndexedClass ic : classes) {
-                    //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                    if (ic.getMethods().containsKey(sig)) {
-                        genMethodMapping(Main.getMappingContext(), ic.getName(), (MethodSignature) sig, mapping, false);
+                for (final IndexedClass ic : classes) {
+                    // noinspection SuspiciousMethodCalls
+                    if (ic.getMethods().containsKey(this.sig)) {
+                        // Set the de-obfuscated name
+                        final MethodMapping method = Main.getMappings().getOrCreateClassMapping(ic.getName())
+                                .getOrCreateMethodMapping((MethodSignature) this.sig)
+                                .setDeobfuscatedName(mapping);
+
+                        // Correct all the selectable mappings
+                        final List<SelectableMember> members = SelectableMember.MEMBERS.get(this.key);
+                        if (members == null) break;
+                        members.forEach(member -> {
+                            member.setText(method.getDeobfuscatedName());
+                            member.setDeobfuscated(method.hasDeobfuscatedName());
+                        });
+
+                        // Set the name in the jar model
+                        Main.getLoadedJar().getClass(method.getParent().getFullObfuscatedName()).ifPresent(entry -> {
+                            entry.getCurrentMethods().put(method.getSignature(), method.getDeobfuscatedSignature());
+                        });
                     }
                 }
+
                 break;
             }
             default: {
@@ -431,7 +499,7 @@ public class SelectableMember extends Text {
         String deobf;
         switch (this.getType()) {
             case CLASS:
-                deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
+                deobf = this.getMapping().map(Mapping::getDeobfuscatedName).orElse(this.getName());
                 if (!isInnerClass()) {
                     fullName = deobf;
                 }
@@ -440,15 +508,17 @@ public class SelectableMember extends Text {
             case METHOD:
                 deobf = getName();
 
-                Optional<ClassMapping> classMapping
-                        = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+                final Optional<? extends ClassMapping<?, ?>> classMapping = this.getParentMapping();
                 if (classMapping.isPresent()) {
-                    Map<? extends MemberSignature, ? extends Mapping> mappings = getType() == MemberType.FIELD
-                            ? classMapping.get().getFieldMappings()
-                            : classMapping.get().getMethodMappings();
-                    Mapping mapping = mappings.get(getType() == MemberType.METHOD
-                            ? new MethodSignature(getName(), MethodDescriptor.fromString(getDescriptor()))
-                            : new FieldSignature(getName(), Type.fromString(getDescriptor())));
+                    final Mapping mapping = this.getType() == MemberType.FIELD ?
+                            classMapping.get().computeFieldMapping(
+                                    new FieldSignature(getName(), FieldType.of(getDescriptor()))
+                            ).orElseGet(() -> classMapping.get().createFieldMapping(
+                                    new FieldSignature(getName(), FieldType.of(getDescriptor()))
+                            )) :
+                            classMapping.get().getOrCreateMethodMapping(
+                                    new MethodSignature(getName(), MethodDescriptor.of(getDescriptor()))
+                            );
                     if (mapping != null) {
                         deobf = mapping.getDeobfuscatedName();
                     }
@@ -530,40 +600,32 @@ public class SelectableMember extends Text {
         }
     }
 
-    private Mapping genMapping() {
-        switch (getType()) {
-            case CLASS: {
-                return getOrCreateClassMapping(Main.getMappingContext(), getClassName());
-            }
-            case FIELD: {
-                return MappingsHelper.genFieldMapping(Main.getMappingContext(), getClassName(), (FieldSignature) sig,
-                        getName());
-            }
-            case METHOD: {
-                return MappingsHelper.genMethodMapping(Main.getMappingContext(), getClassName(), (MethodSignature) sig,
-                        getName(), false);
-            }
-            default: {
-                throw new AssertionError();
-            }
-        }
+    private Optional<? extends ClassMapping<?, ?>> getParentMapping() {
+        final String parent = this.getParentClass();
+        if (parent == null || parent.isEmpty()) return Optional.empty();
+
+        return Main.getMappings().getClassMapping(parent);
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
     private Optional<? extends Mapping> getMapping() {
-        Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(Main.getMappingContext(), getClassName());
-        if (!classMapping.isPresent()) {
-            return classMapping;
-        }
-        switch (getType()) {
+        switch (this.getType()) {
             case CLASS: {
-                return classMapping;
+                final String name = this.getName();
+                if (name == null || name.isEmpty()) return Optional.empty();
+
+                return Main.getMappings().getClassMapping(name);
             }
             case FIELD: {
-                return Optional.ofNullable(classMapping.get().getFieldMappings().get(sig));
+                final Optional<? extends ClassMapping<?, ?>> parent = this.getParentMapping();
+                if (!parent.isPresent()) return Optional.empty();
+
+                return parent.get().getFieldMapping((FieldSignature) this.sig);
             }
             case METHOD: {
-                return Optional.ofNullable(classMapping.get().getMethodMappings().get(sig));
+                final Optional<? extends ClassMapping<?, ?>> parent = this.getParentMapping();
+                if (!parent.isPresent()) return Optional.empty();
+
+                return parent.get().getMethodMapping((MethodSignature) this.sig);
             }
             default: {
                 throw new AssertionError();

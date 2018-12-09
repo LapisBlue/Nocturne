@@ -26,11 +26,10 @@
 package blue.lapis.nocturne.util;
 
 import blue.lapis.nocturne.Main;
-
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +37,8 @@ import java.util.regex.Pattern;
  */
 public final class Constants {
 
-    public static final String VERSION;
+    public static final String VERSION =
+            Objects.toString(Main.class.getPackage().getImplementationVersion(), "dev");
 
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
     public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
@@ -58,12 +58,6 @@ public final class Constants {
     public static final int SHORT_UNSIGNER = (int) Math.pow(2, Short.BYTES * 8) - 1;
     public static final long INT_UNSIGNER = (long) Math.pow(2, Integer.BYTES * 8) - 1;
 
-    /**
-     * Regular expression to match the types contained by a method descriptor.
-     */
-    // side-note: I'm really proud of this thing. I wrote it in like 2 minutes and it works exactly how I want it to.
-    public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
-
     public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
             .put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1")
             .put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1")
@@ -71,16 +65,11 @@ public final class Constants {
             .put(IFernflowerPreferences.INDENT_STRING, "    ")
             .build();
 
-    public static final String ENIGMA_ROOT_PACKAGE_PREFIX = "none/";
-
-    static {
-        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
-    }
-
     private Constants() {
     }
 
     public static class Processing {
+
         public static final String DELIMITER = "-";
 
         public static final String CLASS_PREFIX = "&NOCTURNE+";
@@ -93,5 +82,10 @@ public final class Constants {
         public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
                 + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(DELIMITER) + "(.+?)"
                 + Pattern.quote(MEMBER_SUFFIX));
+
+        private Processing() {
+        }
+
     }
+
 }

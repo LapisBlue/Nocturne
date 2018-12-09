@@ -38,9 +38,12 @@ import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.util.MemberType;
+import org.cadixdev.bombe.type.ArrayType;
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.ObjectType;
+import org.cadixdev.bombe.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,33 +76,53 @@ public final class StringHelper {
             }
             case METHOD: {
                 if (!desc.contains(MEMBER_PREFIX)) { // if this condition is true then it's already been processed
-                    MethodDescriptor md = MethodDescriptor.fromString(desc);
-                    List<Type> newParams = new ArrayList<>();
-                    for (Type param : md.getParamTypes()) {
-                        if (param.isPrimitive()) {
-                            newParams.add(param);
-                        } else {
-                            String typeClass = param.getClassName();
+                    MethodDescriptor md = MethodDescriptor.of(desc);
+                    List<FieldType> newParams = new ArrayList<>();
+                    for (FieldType param : md.getParamTypes()) {
+                        if (param instanceof ArrayType && ((ArrayType) param).getComponent() instanceof ObjectType) {
+                            final ArrayType arr = (ArrayType) param;
+                            final ObjectType obj = (ObjectType) arr.getComponent();
+
+                            if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                                final ObjectType newObj = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
+                                newParams.add(new ArrayType(arr.getDimCount(), newObj));
+                            }
+                            else {
+                                newParams.add(param);
+                            }
+                        }
+                        else if (param instanceof ObjectType) {
+                            final ObjectType obj = (ObjectType) param;
+                            final String typeClass = obj.getClassName();
                             if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                                newParams.add(new Type(getProcessedName(typeClass, null, MemberType.CLASS),
-                                        param.getArrayDimensions()));
+                                newParams.add(new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS)));
                             } else {
                                 newParams.add(param);
                             }
                         }
+                        else {
+                            newParams.add(param);
+                        }
                     }
                     Type returnType = md.getReturnType();
-                    if (!returnType.isPrimitive()) {
-                        String typeClass = returnType.getClassName();
+                    if (returnType instanceof ArrayType && ((ArrayType) returnType).getComponent() instanceof ObjectType) {
+                        final ArrayType arr = (ArrayType) returnType;
+                        final ObjectType obj = (ObjectType) arr.getComponent();
+
+                        if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                            final ObjectType newObj = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
+                            returnType = new ArrayType(arr.getDimCount(), newObj);
+                        }
+                    }
+                    else if (returnType instanceof ObjectType) {
+                        final ObjectType obj = (ObjectType) returnType;
+                        final String typeClass = obj.getClassName();
                         if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                            returnType = new Type(getProcessedName(typeClass, null, MemberType.CLASS),
-                                    returnType.getArrayDimensions());
+                            returnType = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
                         }
                     }
 
-                    Type[] newParamArr = new Type[newParams.size()];
-                    newParams.toArray(newParamArr);
-                    MethodDescriptor newMd = new MethodDescriptor(returnType, newParamArr);
+                    final MethodDescriptor newMd = new MethodDescriptor(newParams, returnType);
                     return newMd.toString();
                 }
                 break;

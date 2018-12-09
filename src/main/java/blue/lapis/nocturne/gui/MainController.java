@@ -28,16 +28,14 @@ package blue.lapis.nocturne.gui;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
-import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
-import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.gui.io.JarDialogHelper;
+import blue.lapis.nocturne.gui.io.MappingsDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.gui.tree.ClassElement;
+import blue.lapis.nocturne.gui.tree.PackageElement;
+import blue.lapis.nocturne.gui.tree.TreeElement;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
@@ -53,22 +51,22 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import org.cadixdev.lorenz.model.TopLevelClassMapping;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -96,8 +94,8 @@ public class MainController implements Initializable {
 
     public TabPane tabs;
 
-    public TreeView<String> obfTree;
-    public TreeView<String> deobfTree;
+    public TreeView<TreeElement> classes;
+    private TreeItem<TreeElement> treeRoot;
 
     public MainController() {
         INSTANCE = this;
@@ -130,38 +128,20 @@ public class MainController implements Initializable {
     }
 
     private void initTreeViews() {
-        BiConsumer<InputEvent, TreeView<String>> clickHandler = (event, treeView) -> {
-            if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
-                    || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
-                TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
-                if (selected == null) {
-                    return;
-                }
-
-                if (selected.getChildren().isEmpty()) {
-                    String className = ((IdentifiableTreeItem) selected).getId().substring(1);
-                    if (Main.getLoadedJar() != null) {
-                        openTab(className, selected.getValue());
-                    }
-                } else {
-                    if (event instanceof MouseEvent == selected.isExpanded()) {
-                        selected.setExpanded(true);
-                        while (selected.getChildren().size() == 1) {
-                            selected = selected.getChildren().get(0);
-                            selected.setExpanded(true);
-                        }
-                    } else {
-                        selected.setExpanded(false);
-                    }
-                }
+        // Event handlers
+        this.classes.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                final TreeItem<TreeElement> item = this.classes.getSelectionModel().getSelectedItems().get(0);
+                if (item == null) return;
+                item.getValue().activate();
             }
-        };
+        });
+        // TODO: keyboard selection
 
-        obfTree.setOnMouseClicked(event -> clickHandler.accept(event, obfTree));
-        deobfTree.setOnMouseClicked(event -> clickHandler.accept(event, deobfTree));
-
-        obfTree.setOnKeyReleased(event -> clickHandler.accept(event, obfTree));
-        deobfTree.setOnKeyReleased(event -> clickHandler.accept(event, deobfTree));
+        // Root element
+        this.treeRoot = new TreeItem<>(new PackageElement("root"));
+        this.treeRoot.setExpanded(true);
+        this.classes.setRoot(this.treeRoot);
     }
 
     private void setAccelerators() {
@@ -180,7 +160,7 @@ public class MainController implements Initializable {
             return;
         }
         JarDialogHelper.openJar(this);
-        updateClassViews();
+        refreshClasses();
 
     }
 
@@ -196,37 +176,25 @@ public class MainController implements Initializable {
         saveMappingsAsButton.setDisable(true);
         resetMappingsButton.setDisable(true);
 
-        Main.getMappingContext().clear();
-        Main.getMappingContext().setDirty(false);
+        Main.clearMappings();
 
-        updateClassViews();
+        refreshClasses();
     }
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        MappingsOpenDialogHelper.openMappings(false);
-        updateClassViews();
+        // TODO: save mappings if needed
+        MappingsDialogHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
+        refreshClasses();
     }
 
     public void mergeMappings(ActionEvent actionEvent) throws IOException {
-        MappingsOpenDialogHelper.openMappings(true);
-        updateClassViews();
+        MappingsDialogHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
+        refreshClasses();
     }
 
     public void resetMappings(ActionEvent actionEvent) {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        // TODO: save mappings if needed
+        /*
         Main.getMappingContext().getMappings().values().forEach(cm -> {
             Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
             JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
@@ -248,25 +216,21 @@ public class MainController implements Initializable {
                     member.setAndProcessText(member.getName());
                     member.setDeobfuscated(false);
                 }));
-        updateClassViews();
+        refreshClasses();
+        */
     }
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
-        MappingsSaveDialogHelper.saveMappings();
+        // TODO: reimplement old mappings save stuff
+        MappingsDialogHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
-        MappingsSaveDialogHelper.saveMappingsAs();
+        MappingsDialogHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void onClose(ActionEvent actionEvent) {
-        try {
-            if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-                return;
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        // TODO: save mappings if needed
         System.exit(0);
     }
 
@@ -296,78 +260,63 @@ public class MainController implements Initializable {
 
             RESTART_ALERT.showAndWait();
         }
-
     }
 
-    public void updateObfuscatedClassListView() {
-        if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) obfTree.getRoot()), true);
-            root.setExpanded(true);
-            obfTree.setRoot(root);
-        } else {
-            obfTree.setRoot(null);
-        }
+    public void refreshClasses() {
+        final List<String> expanded = this.getExpandedPackages(new ArrayList<>(), this.treeRoot);
+        this.treeRoot.getChildren().clear();
 
+        final Map<String, TreeItem<TreeElement>> packageCache = new HashMap<>();
+        Main.getLoadedJar().getClasses().forEach(entry -> {
+            final TopLevelClassMapping klass = Main.getMappings().getOrCreateTopLevelClassMapping(entry.getName());
+            this.getPackageItem(packageCache, klass.getDeobfuscatedPackage()).getChildren()
+                    .add(new TreeItem<>(new ClassElement(klass)));
+        });
+
+        // sort
+        packageCache.values().forEach(item -> {
+            item.getChildren().setAll(item.getChildren().sorted(Comparator.comparing(TreeItem::getValue)));
+        });
+        this.treeRoot.getChildren().setAll(this.treeRoot.getChildren().sorted(Comparator.comparing(TreeItem::getValue)));
+
+        // reopen packages
+        expanded.forEach(pkg -> {
+            final TreeItem<TreeElement> packageItem = packageCache.get(pkg);
+            if (packageItem == null) return;
+            packageItem.setExpanded(true);
+        });
     }
 
-    public void updateDeobfuscatedClassListView() {
-        if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) deobfTree.getRoot()), false);
-            root.setExpanded(true);
-            deobfTree.setRoot(root);
-        } else {
-            deobfTree.setRoot(null);
-        }
-    }
-
-    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded, final boolean checkLength) {
-        IdentifiableTreeItem treeItem;
-        if (element instanceof HierarchyNode) {
-            HierarchyNode node = (HierarchyNode) element;
-            treeItem = new IdentifiableTreeItem((node.isTerminal() ? "C" : "P") + node.getId(), node.getDisplayName());
-        } else {
-            treeItem = new IdentifiableTreeItem("//root", "(root)");
-        }
-
-        if (expanded.contains(treeItem.getId())) {
-            treeItem.setExpanded(true);
-        }
-
-        if (element instanceof Hierarchy
-                || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(element.getChildren().stream()
-                    .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
-        }
-        treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
-            boolean c1 = t1.getChildren().size() > 0;
-            boolean c2 = t2.getChildren().size() > 0;
-            if (c1 == c2) { // both either terminal or non-terminal
-                if (checkLength && t1.getValue().length() != t2.getValue().length()) {
-                    return t1.getValue().length() - t2.getValue().length();
-                }
-                return t1.getValue().compareTo(t2.getValue());
-            } else if (c1) { // first is non-terminal, second is terminal
-                return -1;
-            } else { // first is terminal, second is non-terminal
-                return 1;
+    private TreeItem<TreeElement> getPackageItem(final Map<String, TreeItem<TreeElement>> cache, final String packageName) {
+        if (packageName.isEmpty()) return this.treeRoot;
+        return cache.computeIfAbsent(packageName, name -> {
+            final TreeItem<TreeElement> parent;
+            if (name.lastIndexOf('/') != -1) {
+                parent = this.getPackageItem(cache, name.substring(0, name.lastIndexOf('/')));
             }
-        }));
-        return treeItem;
+            else {
+                parent = this.treeRoot;
+            }
+            final TreeItem<TreeElement> packageItem = new TreeItem<>(new PackageElement(name));
+            parent.getChildren().add(packageItem);
+            return packageItem;
+        });
     }
 
-    public void updateClassViews() {
-        updateObfuscatedClassListView();
-        updateDeobfuscatedClassListView();
+    private List<String> getExpandedPackages(final List<String> packages, final TreeItem<TreeElement> item) {
+        item.getChildren().filtered(TreeItem::isExpanded).forEach(pkg -> {
+            this.getExpandedPackages(packages, pkg);
+            if (pkg.getValue() instanceof PackageElement) {
+                packages.add(((PackageElement) pkg.getValue()).getName());
+            }
+        });
+        return packages;
     }
 
     private boolean deinitializeCurrentJar() throws IOException {
-        if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
-            return false;
-        }
-        Main.getMappingContext().clear();
-        closeAllTabs();
+        // TODO: save mappings if needed
+        Main.clearMappings();
+        this.closeAllTabs();
         Main.setLoadedJar(null);
         return true;
     }
@@ -381,11 +330,11 @@ public class MainController implements Initializable {
         CodeTab.CODE_TABS.clear();
     }
 
-    public void openTab(String className, String displayName) {
+    public void openTab(String className) {
         if (CodeTab.CODE_TABS.containsKey(className)) {
             tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
         } else {
-            CodeTab tab = new CodeTab(tabs, className, displayName);
+            CodeTab tab = new CodeTab(tabs, Main.getMappings().getOrCreateTopLevelClassMapping(className));
 
             Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
             checkArgument(clazz.isPresent(), "Cannot find class entry for " + className);
