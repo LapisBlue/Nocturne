@@ -5,8 +5,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //******************************************************************************
 
-package blue.lapis.nocturne.gui.io.mappings;
+package blue.lapis.nocturne.gui.io;
 
+import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.cadixdev.lorenz.MappingSet;
@@ -15,8 +19,6 @@ import org.cadixdev.lorenz.io.MappingFormats;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A helper class for reading and writing mappings to
@@ -25,9 +27,9 @@ import java.util.Map;
  * @author Jamie Mansfield
  * @since 0.1.0
  */
-public final class MappingsHelper {
+public final class MappingsDialogHelper {
 
-    private static final Map<FileChooser.ExtensionFilter, MappingFormat> FORMATS = new HashMap<>();
+    private static final BiMap<FileChooser.ExtensionFilter, MappingFormat> FORMATS = HashBiMap.create();
     private static final FileChooser FILE_CHOOSER = new FileChooser();
 
     private static void register(final FileChooser.ExtensionFilter filter,
@@ -43,13 +45,33 @@ public final class MappingsHelper {
         register(filter, format, false);
     }
 
+    private static void setFormat(final PropertiesHelper.Key key) {
+        final String lastFormat = Main.getPropertiesHelper().getProperty(key);
+        if (lastFormat != null && !lastFormat.isEmpty()) {
+            final MappingFormat format = MappingFormats.byId(lastFormat);
+            if (format != null) {
+                FILE_CHOOSER.setSelectedExtensionFilter(FORMATS.inverse().get(format));
+            }
+        }
+    }
+
     static {
+        // Register the formats Nocturne supports
         register(Formats.SRG, MappingFormats.SRG, true);
         register(Formats.CSRG, MappingFormats.CSRG);
         register(Formats.TSRG, MappingFormats.TSRG);
         register(Formats.ENIGMA, MappingFormats.byId("enigma"));
         register(Formats.JAM, MappingFormats.byId("jam"));
         register(Formats.KIN, MappingFormats.byId("kin"));
+
+        // Open up at the same directory
+        final String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
+        if (lastDir != null && !lastDir.isEmpty()) {
+            final File initialDir = new File(lastDir);
+            if (initialDir.exists()) {
+                FILE_CHOOSER.setInitialDirectory(initialDir);
+            }
+        }
     }
 
     /**
@@ -64,13 +86,19 @@ public final class MappingsHelper {
         // Setup the file chooser appropriately for the operation being done
         FILE_CHOOSER.setTitle("Load Mappings");
 
+        // Use the same format
+        setFormat(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT);
+
         // Gets the mappings
         final File mappingsPath = FILE_CHOOSER.showOpenDialog(window);
         if (mappingsPath == null) return false;
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, mappingsPath.getParent());
 
         // Reads from file
+        final MappingFormat format = FORMATS.get(FILE_CHOOSER.getSelectedExtensionFilter());
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, format.toString());
         try {
-            FORMATS.get(FILE_CHOOSER.getSelectedExtensionFilter()).read(mappings, mappingsPath.toPath());
+            format.read(mappings, mappingsPath.toPath());
         }
         catch (final IOException ex) {
             ex.printStackTrace();
@@ -92,13 +120,19 @@ public final class MappingsHelper {
         // Setup the file chooser appropriately for the operation being done
         FILE_CHOOSER.setTitle("Save Mappings");
 
+        // Use the same format
+        setFormat(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT);
+
         // Gets the mappings
         final File mappingsPath = FILE_CHOOSER.showSaveDialog(window);
         if (mappingsPath == null) return false;
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, mappingsPath.getParent());
 
         // Reads from file
+        final MappingFormat format = FORMATS.get(FILE_CHOOSER.getSelectedExtensionFilter());
+        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT, format.toString());
         try {
-            FORMATS.get(FILE_CHOOSER.getSelectedExtensionFilter()).write(mappings, mappingsPath.toPath());
+            format.write(mappings, mappingsPath.toPath());
         }
         catch (final IOException ex) {
             ex.printStackTrace();
@@ -108,7 +142,7 @@ public final class MappingsHelper {
         return true;
     }
 
-    private MappingsHelper() {
+    private MappingsDialogHelper() {
     }
 
     /**

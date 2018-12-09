@@ -42,13 +42,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.cadixdev.lorenz.MappingSet;
-import org.cadixdev.lorenz.io.MappingFormat;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Path;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
@@ -72,8 +70,6 @@ public class Main extends Application {
     private Scene scene;
 
     private MappingSet mappings = MappingSet.create();
-    private Path currentMappingsPath;
-    private MappingFormat currentMappingFormat;
     private ClassSet loadedJar;
 
     static {
@@ -229,22 +225,6 @@ public class Main extends Application {
 
     public static void clearMappings() {
         getInstance().mappings = MappingSet.create();
-    }
-
-    public static Path getCurrentMappingsPath() {
-        return getInstance().currentMappingsPath;
-    }
-
-    public static void setCurrentMappingsPath(Path path) {
-        getInstance().currentMappingsPath = path;
-    }
-
-    public static MappingFormat getCurrentMappingFormat() {
-        return getInstance().currentMappingFormat;
-    }
-
-    public static void setCurrentMappingFormat(MappingFormat currentWriterType) {
-        getInstance().currentMappingFormat = currentWriterType;
     }
 
     public static ClassSet getLoadedJar() {

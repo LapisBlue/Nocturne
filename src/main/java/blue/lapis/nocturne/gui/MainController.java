@@ -28,8 +28,8 @@ package blue.lapis.nocturne.gui;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
-import blue.lapis.nocturne.gui.io.mappings.MappingsHelper;
+import blue.lapis.nocturne.gui.io.JarDialogHelper;
+import blue.lapis.nocturne.gui.io.MappingsDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
@@ -201,12 +201,12 @@ public class MainController implements Initializable {
 
     public void loadMappings(ActionEvent actionEvent) throws IOException {
         // TODO: save mappings if needed
-        MappingsHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
+        MappingsDialogHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
         updateClassViews();
     }
 
     public void mergeMappings(ActionEvent actionEvent) throws IOException {
-        MappingsHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
+        MappingsDialogHelper.loadMappings(Main.getMainStage().getOwner(), Main.getMappings());
         updateClassViews();
     }
 
@@ -240,11 +240,11 @@ public class MainController implements Initializable {
 
     public void saveMappings(ActionEvent actionEvent) throws IOException {
         // TODO: reimplement old mappings save stuff
-        MappingsHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
+        MappingsDialogHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void saveMappingsAs(ActionEvent actionEvent) throws IOException {
-        MappingsHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
+        MappingsDialogHelper.saveMappingsAs(Main.getMainStage().getOwner(), Main.getMappings());
     }
 
     public void onClose(ActionEvent actionEvent) {
