@@ -71,7 +71,7 @@ processResources {
 }
 
 jar {
-    classifier = 'base'
+    archiveClassifier.set 'base'
 
     manifest {
         attributes(
@@ -83,7 +83,7 @@ jar {
 }
 
 shadowJar {
-    classifier = ''
+    archiveClassifier.set ''
 }
 
 // License header formatting
@@ -106,7 +106,6 @@ checkstyle {
 }
 
 task sourceJar(type: Jar) {
-    classifier = 'sources'
     from sourceSets.main.allJava
     from tasks.processResources
 }

@@ -1,6 +1,6 @@
 /*
  * Nocturne
- * Copyright (c) 2015-2018, Lapis <https://github.com/LapisBlue>
+ * Copyright (c) 2015-2019, Lapis <https://github.com/LapisBlue>
  *
  * The MIT License
  *
