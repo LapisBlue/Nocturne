@@ -44,8 +44,8 @@ public class FieldMapping extends MemberMapping {
     /**
      * Constructs a new {@link FieldMapping} with the given parameters.
      *
-     * @param parent The parent {@link ClassMapping}
-     * @param sig The obfuscated signature of the field
+     * @param parent    The parent {@link ClassMapping}
+     * @param sig       The obfuscated signature of the field
      * @param deobfName The deobfuscated name of the field
      */
     public FieldMapping(ClassMapping parent, FieldSignature sig, String deobfName) {

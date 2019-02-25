@@ -59,7 +59,7 @@ public class JarLoader {
      * @param jarFile The {@link InputStream} containing the JAR file to load
      * @return A {@link ClassSet} representing the JAR file
      * @throws IOException If an exception occurs while loading the provided
-     *     {@link File}
+     *                     {@link File}
      */
     public static ClassSet loadJar(String name, InputStream jarFile) throws IOException {
         IndexedClass.INDEXED_CLASSES.clear();

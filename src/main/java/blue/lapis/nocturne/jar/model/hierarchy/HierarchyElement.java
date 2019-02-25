@@ -47,7 +47,7 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      *
      * @param name The name of the child element
      * @return The child element if it exists, or {@link Optional#empty()}
-     *     otherwise
+     * otherwise
      */
     public Optional<HierarchyNode> getChild(String name, boolean terminal) {
         NodeKey nk = new NodeKey(name, terminal);
@@ -62,9 +62,9 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      * {@link HierarchyNode}.
      *
      * @return An {@link ImmutableSet} of all children of this
-     *     {@link HierarchyNode}
+     * {@link HierarchyNode}
      * @throws IllegalStateException If this element is
-     *     {@link HierarchyNode#isTerminal()}
+     *                               {@link HierarchyNode#isTerminal()}
      */
     public ImmutableList<HierarchyNode> getChildren() throws IllegalStateException {
         return ImmutableList.copyOf(children.values());
@@ -75,9 +75,9 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
      *
      * @param element The child element to add
      * @throws IllegalArgumentException If the current element is
-     *     {@link HierarchyNode#isTerminal() terminal}
-     * @throws IllegalStateException If an element by the given name is already
-     *     a child of the current one
+     *                                  {@link HierarchyNode#isTerminal() terminal}
+     * @throws IllegalStateException    If an element by the given name is already
+     *                                  a child of the current one
      */
     protected void addChild(HierarchyNode element) throws IllegalArgumentException, IllegalStateException {
         checkArgument(!getChild(element.getDisplayName(), element.isTerminal()).isPresent(),

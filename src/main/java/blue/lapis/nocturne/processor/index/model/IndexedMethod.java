@@ -56,9 +56,9 @@ public class IndexedMethod extends Hierarchical<IndexedClass> {
      */
     public enum Visibility {
 
-        PACKAGE  ((byte) 0b000),
-        PUBLIC   ((byte) 0b001),
-        PRIVATE  ((byte) 0b010),
+        PACKAGE((byte) 0b000),
+        PUBLIC((byte) 0b001),
+        PRIVATE((byte) 0b010),
         PROTECTED((byte) 0b100);
 
         private static Map<Byte, Visibility> visMap;

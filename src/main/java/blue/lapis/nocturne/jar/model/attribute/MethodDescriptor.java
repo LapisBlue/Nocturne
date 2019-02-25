@@ -51,9 +51,9 @@ public class MethodDescriptor {
      * parameter {@link Type}s.
      *
      * @param returnType The return {@link Type} of the new
-     *     {@link MethodDescriptor}
+     *                   {@link MethodDescriptor}
      * @param paramTypes The parameter {@link Type}s of the new
-     *     {@link MethodDescriptor}
+     *                   {@link MethodDescriptor}
      */
     public MethodDescriptor(Type returnType, Type... paramTypes) {
         this.returnType = returnType;
@@ -71,7 +71,7 @@ public class MethodDescriptor {
      *
      * @param descriptor The {@link CharSequence} representing the descriptor
      * @throws IllegalArgumentException If the provided {@link CharSequence} is
-     *     not a valid method descriptor
+     *                                  not a valid method descriptor
      */
     public static MethodDescriptor fromString(String descriptor) throws IllegalArgumentException {
         Preconditions.checkArgument(descriptor.charAt(0) == '(', "Not a valid method descriptor: " + descriptor);
@@ -114,7 +114,7 @@ public class MethodDescriptor {
      * Attempts to deobfuscate this {@link MethodDescriptor}.
      *
      * @param context The {@link MappingContext} to use for obtaining
-     *     deobfuscation mappings
+     *                deobfuscation mappings
      * @return The deobfuscated {@link MethodDescriptor}
      */
     public MethodDescriptor deobfuscate(MappingContext context) {

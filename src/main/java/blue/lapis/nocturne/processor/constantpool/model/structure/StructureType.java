@@ -55,9 +55,9 @@ public enum StructureType {
     private final int length;
 
     StructureType(int tag, int length) {
-        this.tag = (byte)tag;
+        this.tag = (byte) tag;
         this.length = length;
-        register((byte)tag);
+        register((byte) tag);
     }
 
     /**

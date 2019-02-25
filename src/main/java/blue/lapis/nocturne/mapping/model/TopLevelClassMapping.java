@@ -43,9 +43,9 @@ public class TopLevelClassMapping extends ClassMapping {
     /**
      * Constructs a new {@link TopLevelClassMapping} with the given parameters.
      *
-     * @param parent The parent {@link MappingContext} of this
-     *     {@link TopLevelClassMapping}
-     * @param obfName The obfuscated name of the class
+     * @param parent    The parent {@link MappingContext} of this
+     *                  {@link TopLevelClassMapping}
+     * @param obfName   The obfuscated name of the class
      * @param deobfName The deobfuscated name of the class
      */
     public TopLevelClassMapping(MappingContext parent, String obfName, String deobfName) {
@@ -102,9 +102,15 @@ public class TopLevelClassMapping extends ClassMapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof TopLevelClassMapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof TopLevelClassMapping)) {
+            return false;
+        }
         final TopLevelClassMapping that = (TopLevelClassMapping) obj;
         return super.equals(that);
     }

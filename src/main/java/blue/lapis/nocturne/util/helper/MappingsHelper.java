@@ -228,9 +228,9 @@ public final class MappingsHelper {
      * creating mappings for both outer and inner classes as needed if they do
      * not exist.
      *
-     * @param context The {@link MappingContext} to use
+     * @param context       The {@link MappingContext} to use
      * @param qualifiedName The fully-qualified name of the class to get a
-     *     mapping for
+     *                      mapping for
      * @return The retrieved or created {@link ClassMapping}
      */
     public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {

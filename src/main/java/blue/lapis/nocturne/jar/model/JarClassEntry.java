@@ -84,7 +84,7 @@ public class JarClassEntry {
      * Constructs a new {@link JarClassEntry} with the given name and byte
      * content.
      *
-     * @param name The name of the {@link JarClassEntry}.
+     * @param name    The name of the {@link JarClassEntry}.
      * @param content A byte array representing the raw content of the class
      */
     public JarClassEntry(String name, byte[] content) {
@@ -142,7 +142,7 @@ public class JarClassEntry {
      * Sets whether this {@link JarClassEntry} is marked as deobfuscated.
      *
      * @param deobfuscated Whether this {@link JarClassEntry} is marked as
-     *     deobfuscated
+     *                     deobfuscated
      */
     public void setDeobfuscated(boolean deobfuscated) {
         this.deobfuscated = deobfuscated;
@@ -205,8 +205,12 @@ public class JarClassEntry {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof JarClassEntry)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof JarClassEntry)) {
+            return false;
+        }
         final JarClassEntry that = (JarClassEntry) obj;
         return Objects.equals(this.name, that.name);
     }

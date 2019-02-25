@@ -26,6 +26,7 @@
 package blue.lapis.nocturne.processor.index.model.signature;
 
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
@@ -54,11 +55,15 @@ public class MethodSignature extends MemberSignature {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof MethodSignature)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof MethodSignature)) {
+            return false;
+        }
         final MethodSignature that = (MethodSignature) obj;
-        return Objects.equals(this.name, that.name) &&
-                Objects.equals(this.descriptor, that.descriptor);
+        return Objects.equals(this.name, that.name)
+                && Objects.equals(this.descriptor, that.descriptor);
     }
 
     @Override

@@ -83,9 +83,15 @@ public abstract class MemberMapping extends Mapping implements IMemberMapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof MemberMapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof MemberMapping)) {
+            return false;
+        }
 
         final MemberMapping that = (MemberMapping) obj;
         return Objects.equals(this.parent, that.parent);

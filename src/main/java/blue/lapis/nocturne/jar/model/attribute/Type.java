@@ -78,7 +78,7 @@ public class Type {
      * @param str The textual representation of the type
      * @return The new {@link Type}
      * @throws IllegalArgumentException If the given string is not a valid type
-     *     descriptor
+     *                                  descriptor
      */
     public static Type fromString(String str) throws IllegalArgumentException {
         int dims = 0;
@@ -159,7 +159,7 @@ public class Type {
      * Attempts to deobfuscate this {@link Type}.
      *
      * @param context The {@link MappingContext} to obtain the deobfuscated name
-     *     from
+     *                from
      * @return The deobfuscated {@link Type}
      */
     public Type deobfuscate(MappingContext context) {

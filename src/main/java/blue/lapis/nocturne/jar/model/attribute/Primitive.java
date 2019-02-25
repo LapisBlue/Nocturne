@@ -73,9 +73,9 @@ public enum Primitive {
      *
      * @param key The key character to match
      * @return The {@link Primitive} type associated with the given key
-     *     character
+     * character
      * @throws IllegalArgumentException If the provided character cannot be
-     *     matched to a {@link Primitive} type
+     *                                  matched to a {@link Primitive} type
      */
     public static Primitive getFromKey(char key) {
         Preconditions.checkArgument(KEY_MAP.containsKey(key), "Illegal primitive key: " + key);

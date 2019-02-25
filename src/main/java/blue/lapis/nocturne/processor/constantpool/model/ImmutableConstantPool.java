@@ -38,7 +38,7 @@ public class ImmutableConstantPool extends ConstantPool {
      * Instantiates a new {@link ImmutableConstantPool} with the given contents.
      *
      * @param contents The contents of the new {@link ConstantPool}
-     * @param length The length of the constant pool in bytes
+     * @param length   The length of the constant pool in bytes
      */
     public ImmutableConstantPool(List<ConstantStructure> contents, int length) {
         super(contents, length);
@@ -51,11 +51,11 @@ public class ImmutableConstantPool extends ConstantPool {
      * <p>Returns the structure at the given index of this
      * <strong>1-indexed</strong> constant pool.</p>
      *
-     * @param index The index of the structure to retrieve
+     * @param index     The index of the structure to retrieve
      * @param structure The replacement structure
      * @throws UnsupportedOperationException Always
-     * @throws IndexOutOfBoundsException If the given index is less than 1 or
-     *     greater than the value returned by {@link ConstantPool#size()}
+     * @throws IndexOutOfBoundsException     If the given index is less than 1 or
+     *                                       greater than the value returned by {@link ConstantPool#size()}
      */
     @Override
     public void set(int index, ConstantStructure structure)
@@ -69,7 +69,7 @@ public class ImmutableConstantPool extends ConstantPool {
      *
      * @param structure The replacement structure
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
-     *     greater than the value returned by {@link ConstantPool#size()}
+     *                                   greater than the value returned by {@link ConstantPool#size()}
      */
     @Override
     public void add(ConstantStructure structure) throws IndexOutOfBoundsException {

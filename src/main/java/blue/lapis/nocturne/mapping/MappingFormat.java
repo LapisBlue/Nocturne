@@ -34,6 +34,7 @@ import blue.lapis.nocturne.mapping.io.writer.EnigmaWriter;
 import blue.lapis.nocturne.mapping.io.writer.JamWriter;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
+
 import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
@@ -77,13 +78,13 @@ public enum MappingFormat {
     /**
      * Creates a new mapping format, given the constructor of it's parser, and writer.
      *
-     * @param extension The extension used by the format
+     * @param extension         The extension used by the format
      * @param parserConstructor The constructor of the mapping parser
      * @param writerConstructor The constructor of the mapping writer
      */
     MappingFormat(final String extension,
-            final Function<BufferedReader, MappingsReader> parserConstructor,
-            final Function<PrintWriter, MappingsWriter> writerConstructor) {
+                  final Function<BufferedReader, MappingsReader> parserConstructor,
+                  final Function<PrintWriter, MappingsWriter> writerConstructor) {
         this.extensionFilter = new FileChooser.ExtensionFilter(
                 Main.getResourceBundle().getString("filechooser.type_" + name().toLowerCase()),
                 "*." + extension);

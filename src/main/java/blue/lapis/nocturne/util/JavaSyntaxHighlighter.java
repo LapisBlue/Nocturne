@@ -43,7 +43,7 @@ public final class JavaSyntaxHighlighter {
     private JavaSyntaxHighlighter() {
     }
 
-    private static final String[] KEYWORDS = new String[] {
+    private static final String[] KEYWORDS = new String[]{
             "abstract", "assert", "boolean", "break", "byte",
             "case", "catch", "char", "class", "const",
             "continue", "default", "do", "double", "else",

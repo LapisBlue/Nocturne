@@ -27,6 +27,7 @@ package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
@@ -43,7 +44,7 @@ public abstract class Mapping {
     /**
      * Constructs a new mapping with the given parameters.
      *
-     * @param obfName The obfuscated name of the mapped member
+     * @param obfName   The obfuscated name of the mapped member
      * @param deobfName The deobfuscated name of the mapped member
      */
     protected Mapping(String obfName, String deobfName) {
@@ -128,11 +129,15 @@ public abstract class Mapping {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Mapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Mapping)) {
+            return false;
+        }
         final Mapping that = (Mapping) obj;
-        return Objects.equals(this.obf, that.obf) &&
-                Objects.equals(this.deobf, that.deobf);
+        return Objects.equals(this.obf, that.obf)
+                && Objects.equals(this.deobf, that.deobf);
     }
 
     @Override

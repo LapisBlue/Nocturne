@@ -99,7 +99,7 @@ public class ClassHierarchyBuilder {
                     .forEach(method -> {
                         method.getHierarchy().addAll(clazz.getHierarchy().stream()
                                 .filter(c -> c.getMethods().containsKey(method.getSignature())
-                                && HierarchyHelper.isVisible(
+                                        && HierarchyHelper.isVisible(
                                         clazz.getName(), c.getName(),
                                         c.getMethods().get(method.getSignature()).getVisibility()))
                                 .collect(Collectors.toSet()));

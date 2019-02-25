@@ -49,11 +49,11 @@ public class HierarchyNode extends HierarchyElement {
     /**
      * Constructs a new {@link HierarchyNode} with the given parameters.
      *
-     * @param id The internal id of the {@link HierarchyNode}
+     * @param id          The internal id of the {@link HierarchyNode}
      * @param displayName The display name of the {@link HierarchyNode}
-     * @param terminal Whether this element is terminal (terminal elements
-     *     may not contain children)
-     * @param parent The {@link HierarchyElement} parenting the new one
+     * @param terminal    Whether this element is terminal (terminal elements
+     *                    may not contain children)
+     * @param parent      The {@link HierarchyElement} parenting the new one
      */
     public HierarchyNode(String id, String displayName, boolean terminal, HierarchyElement parent) {
         this.id = id;
@@ -112,7 +112,7 @@ public class HierarchyNode extends HierarchyElement {
      * Returns the parent of this {@link HierarchyNode}, if applicable.
      *
      * @return The parent of this {@link HierarchyNode}, or
-     *     {@link Optional#empty()}
+     * {@link Optional#empty()}
      */
     public Optional<HierarchyElement> getParent() {
         return Optional.ofNullable(parent);

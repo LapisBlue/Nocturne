@@ -39,8 +39,8 @@ public class Hierarchy extends HierarchyElement {
     /**
      * Generates a hierarchy from the given string {@link Set}.
      *
-     * @param entries The {@link JarClassEntry entries} to generate a hierarchy
-     *     from
+     * @param entries      The {@link JarClassEntry entries} to generate a hierarchy
+     *                     from
      * @param deobfuscated Whether the entries are deobfuscated
      * @return The generated entry {@link HierarchyNode}
      */

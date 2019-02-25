@@ -28,6 +28,7 @@ package blue.lapis.nocturne.mapping.model;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
+
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
@@ -44,11 +45,11 @@ public class MethodParameterMapping extends Mapping {
     /**
      * Constructs a new {@link MethodParameterMapping} with the given parameters.
      *
-     * @param parent The parent method mapping
-     * @param index The index of the argument
+     * @param parent    The parent method mapping
+     * @param index     The index of the argument
      * @param deobfName The deobfuscated name of the mapped argument
      * @param propagate Whether to propagate this mapping to super- and
-     *     sub-classes
+     *                  sub-classes
      */
     public MethodParameterMapping(MethodMapping parent, int index, String deobfName, boolean propagate) {
         super(deobfName, deobfName);
@@ -115,9 +116,15 @@ public class MethodParameterMapping extends Mapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof MethodParameterMapping)) return false;
-        if (!super.equals(obj)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof MethodParameterMapping)) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
         final MethodParameterMapping that = (MethodParameterMapping) obj;
         return Objects.equals(this.index, that.index);
     }

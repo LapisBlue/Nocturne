@@ -35,6 +35,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.StringHelper;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
@@ -56,7 +57,7 @@ public abstract class ClassMapping extends Mapping {
     /**
      * Constructs a new {@link ClassMapping} with the given parameters.
      *
-     * @param obfName The obfuscated name of the class
+     * @param obfName   The obfuscated name of the class
      * @param deobfName The deobfuscated name of the class
      */
     protected ClassMapping(String obfName, String deobfName) {
@@ -117,9 +118,9 @@ public abstract class ClassMapping extends Mapping {
     /**
      * Adds the given {@link MethodMapping} to this {@link ClassMapping}.
      *
-     * @param mapping The {@link MethodMapping} to add
+     * @param mapping   The {@link MethodMapping} to add
      * @param propagate Whether to propagate this mapping to super- and
-     *     sub-classes
+     *                  sub-classes
      */
     void addMethodMapping(MethodMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
@@ -150,9 +151,9 @@ public abstract class ClassMapping extends Mapping {
      * Deobfuscates the given class name to the best of the given
      * {@link MappingContext}'s ability.
      *
-     * @param context The {@link MappingContext} to use
+     * @param context       The {@link MappingContext} to use
      * @param qualifiedName The fully-qualified name of the class to get a
-     *     mapping for
+     *                      mapping for
      * @return The retrieved or created {@link ClassMapping}
      */
     public static String deobfuscate(MappingContext context, String qualifiedName) {
@@ -221,13 +222,19 @@ public abstract class ClassMapping extends Mapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof ClassMapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof ClassMapping)) {
+            return false;
+        }
         final ClassMapping that = (ClassMapping) obj;
-        return Objects.equals(this.fieldMappings, that.fieldMappings) &&
-                Objects.equals(this.methodMappings, that.methodMappings) &&
-                Objects.equals(this.innerClassMappings, that.innerClassMappings);
+        return Objects.equals(this.fieldMappings, that.fieldMappings)
+                && Objects.equals(this.methodMappings, that.methodMappings)
+                && Objects.equals(this.innerClassMappings, that.innerClassMappings);
     }
 
     @Override

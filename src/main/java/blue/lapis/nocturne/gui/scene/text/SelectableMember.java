@@ -504,7 +504,7 @@ public class SelectableMember extends Text {
                 return false;
             }
             MemberKey key = (MemberKey) obj;
-            return     Objects.equals(type, key.type)
+            return Objects.equals(type, key.type)
                     && Objects.equals(qualName, key.qualName)
                     && Objects.equals(descriptor, key.descriptor);
         }

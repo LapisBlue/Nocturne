@@ -29,6 +29,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
@@ -129,7 +130,7 @@ public final class MappingsSaveDialogHelper {
      * Prompts the user to save the current mappings if dirty.
      *
      * @return {@code true} if the user cancelled the action, {@code false}
-     *     otherwise
+     * otherwise
      * @throws IOException If an exception occurs while saving the mappings
      */
     public static boolean doDirtyConfirmation() throws IOException {

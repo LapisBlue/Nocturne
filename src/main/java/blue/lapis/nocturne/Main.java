@@ -32,6 +32,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
+
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -149,7 +150,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         mainStage = primaryStage;
 
-        String[] icons = new String[] {
+        String[] icons = new String[]{
                 "icon-16", "icon-24", "icon-32", "icon-48",
                 "icon-64", "icon-128", "icon-256", "icon-512"
         };

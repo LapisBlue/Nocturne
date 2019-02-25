@@ -54,7 +54,7 @@ public class ClassSet {
      * {@link Set}.
      *
      * @param classes The {@link JarClassEntry JarClassEntries} to populate the
-     *     new {@link ClassSet} with
+     *                new {@link ClassSet} with
      */
     public ClassSet(String name, Set<JarClassEntry> classes) {
         this.name = name;
@@ -78,7 +78,7 @@ public class ClassSet {
      * this {@link ClassSet}.
      *
      * @return An {@link ImmutableSet} of all classes contained by this
-     *     this {@link ClassSet}
+     * this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getClasses() {
         return ImmutableSet.copyOf(classMap.values());
@@ -89,7 +89,7 @@ public class ClassSet {
      * this {@link ClassSet}.
      *
      * @return An {@link ImmutableSet} of all obfuscated classes contained by
-     *     this {@link ClassSet}
+     * this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getObfuscatedClasses() {
         return ImmutableSet.copyOf(getClasses().stream().filter(c -> !c.isDeobfuscated()).collect(Collectors.toSet()));
@@ -100,7 +100,7 @@ public class ClassSet {
      * this {@link ClassSet}.
      *
      * @return An {@link ImmutableSet} of all deobfuscated classes contained by
-     *     this {@link ClassSet}
+     * this {@link ClassSet}
      */
     public ImmutableSet<JarClassEntry> getDeobfuscatedClasses() {
         return ImmutableSet.copyOf(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
@@ -111,8 +111,8 @@ public class ClassSet {
      * Returns the {@link JarClassEntry} for the given FQ name, if it exists.
      *
      * @return The {@link JarClassEntry} for the given FQ name, or
-     *     {@link Optional#empty()} if it does not exist in this
-     *     {@link ClassSet}
+     * {@link Optional#empty()} if it does not exist in this
+     * {@link ClassSet}
      */
     public Optional<JarClassEntry> getClass(String name) {
         return classMap.containsKey(name) ? Optional.of(classMap.get(name)) : Optional.empty();
@@ -123,7 +123,7 @@ public class ClassSet {
      * obfuscated classes contained by this {@link ClassSet}.
      *
      * @return A {@link HierarchyNode} representing the structure of
-     *     obfuscated classes contained by this {@link ClassSet}
+     * obfuscated classes contained by this {@link ClassSet}
      */
     public Hierarchy getObfuscatedHierarchy() {
         return generateHierarchy(getObfuscatedClasses(), false);
@@ -134,7 +134,7 @@ public class ClassSet {
      * deobfuscated classes contained by this {@link ClassSet}.
      *
      * @return A {@link HierarchyNode} representing the structure of
-     *     deobfuscated classes contained by this {@link ClassSet}
+     * deobfuscated classes contained by this {@link ClassSet}
      */
     public Hierarchy getDeobfuscatedHierarchy() {
         return generateHierarchy(getDeobfuscatedClasses(), true);
@@ -145,7 +145,7 @@ public class ClassSet {
      * {@link Set}.
      *
      * @param entrySet The {@link JarClassEntry} {@link Set} to generate the
-     *     {@link HierarchyNode} from
+     *                 {@link HierarchyNode} from
      * @return The generated {@link HierarchyNode}
      */
     private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet, boolean deobfuscate) {

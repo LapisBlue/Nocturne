@@ -35,6 +35,7 @@ import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
@@ -55,11 +56,11 @@ public class MethodMapping extends MemberMapping {
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
-     * @param parent The parent {@link ClassMapping}
-     * @param sig The obfuscated signature of the method
+     * @param parent    The parent {@link ClassMapping}
+     * @param sig       The obfuscated signature of the method
      * @param deobfName The deobfuscated name of the method
      * @param propagate Whether to propagate this mapping to super- and
-     *     sub-classes
+     *                  sub-classes
      */
     public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName, boolean propagate) {
         super(parent, sig.getName(), deobfName);
@@ -72,8 +73,8 @@ public class MethodMapping extends MemberMapping {
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
-     * @param parent The parent {@link ClassMapping}
-     * @param sig The obfuscated signature of the method
+     * @param parent    The parent {@link ClassMapping}
+     * @param sig       The obfuscated signature of the method
      * @param deobfName The deobfuscated name of the method
      */
     public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName) {
@@ -96,9 +97,9 @@ public class MethodMapping extends MemberMapping {
     /**
      * Adds the given {@link MethodParameterMapping} to this {@link ClassMapping}.
      *
-     * @param mapping The {@link MethodParameterMapping} to add
+     * @param mapping   The {@link MethodParameterMapping} to add
      * @param propagate Whether to propagate this mapping to super- and
-     *     sub-classes
+     *                  sub-classes
      */
     void addParamMapping(MethodParameterMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
@@ -177,9 +178,15 @@ public class MethodMapping extends MemberMapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof MethodMapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof MethodMapping)) {
+            return false;
+        }
         final MethodMapping that = (MethodMapping) obj;
         return Objects.equals(this.sig, that.sig);
     }

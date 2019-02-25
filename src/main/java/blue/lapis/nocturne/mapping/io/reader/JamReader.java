@@ -149,7 +149,7 @@ public class JamReader extends MappingsReader {
             String owningClass = arr[1];
             String owningMethod = arr[2];
             String owningMethodDesc = arr[3]; //TODO: *stretching collar* oooooh...
-            Optional<ClassMapping>  classMapping = MappingsHelper.getClassMapping(context, owningClass);
+            Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(context, owningClass);
             if (!classMapping.isPresent()) {
                 Main.getLogger().warning("Discovered orphaned method parameter mapping (class) - ignoring");
                 continue;

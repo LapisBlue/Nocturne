@@ -52,7 +52,7 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
     private final ImmutableMap<MethodSignature, IndexedMethod> methods;
 
     public IndexedClass(String name, ImmutableConstantPool constantPool, String superClass, List<String> interfaces,
-            List<IndexedField> fields, List<IndexedMethod> methods) {
+                        List<IndexedField> fields, List<IndexedMethod> methods) {
         this.name = name;
         this.constantPool = constantPool;
         this.superClass = superClass;

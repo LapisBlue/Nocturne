@@ -50,8 +50,8 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
      * <p>The name should not include the parent class(es), just the name of the
      * inner class itself.</p>
      *
-     * @param parent The parent {@link ClassMapping}
-     * @param obfName The obfuscated name of the inner class
+     * @param parent    The parent {@link ClassMapping}
+     * @param obfName   The obfuscated name of the inner class
      * @param deobfName The deobfuscated name of the inner class
      */
     public InnerClassMapping(ClassMapping parent, String obfName, String deobfName) {
@@ -118,9 +118,15 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!super.equals(obj)) return false;
-        if (!(obj instanceof InnerClassMapping)) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof InnerClassMapping)) {
+            return false;
+        }
         final InnerClassMapping that = (InnerClassMapping) obj;
         return Objects.equals(this.parent, that.parent);
     }

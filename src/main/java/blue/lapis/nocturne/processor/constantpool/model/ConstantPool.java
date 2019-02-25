@@ -45,7 +45,7 @@ public class ConstantPool {
      * Instantiates a new {@link ConstantPool} with the given contents.
      *
      * @param contents The contents of the new {@link ConstantPool}
-     * @param length The length of the constant pool in bytes
+     * @param length   The length of the constant pool in bytes
      */
     public ConstantPool(List<ConstantStructure> contents, int length) {
         this.contents = Lists.newArrayList(contents);
@@ -84,7 +84,7 @@ public class ConstantPool {
      * @param index The index of the structure to retrieve
      * @return The retrieved structure
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
-     *     greater than the value returned by {@link ConstantPool#size()}
+     *                                   greater than the value returned by {@link ConstantPool#size()}
      */
     public ConstantStructure get(int index) throws IndexOutOfBoundsException {
         if (index < 1 || index > size()) {
@@ -97,10 +97,10 @@ public class ConstantPool {
      * Sets the structure at the given index of this <strong>1-indexed</strong>
      * constant pool.
      *
-     * @param index The index of the structure to set
+     * @param index     The index of the structure to set
      * @param structure The replacement structure
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
-     *     greater than the value returned by {@link ConstantPool#size()}
+     *                                   greater than the value returned by {@link ConstantPool#size()}
      */
     public void set(int index, ConstantStructure structure) throws IndexOutOfBoundsException {
         if (index < 1 || index > size()) {
@@ -115,7 +115,7 @@ public class ConstantPool {
      *
      * @param structure The replacement structure
      * @throws IndexOutOfBoundsException If the given index is less than 1 or
-     *     greater than the value returned by {@link ConstantPool#size()}
+     *                                   greater than the value returned by {@link ConstantPool#size()}
      */
     public void add(ConstantStructure structure) throws IndexOutOfBoundsException {
         length += structure.getBytes().length;

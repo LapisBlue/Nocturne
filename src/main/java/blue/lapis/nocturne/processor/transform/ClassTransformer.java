@@ -180,9 +180,9 @@ public class ClassTransformer extends ClassProcessor {
     /**
      * Processes member definitions.
      *
-     * @param buffer The buffer to read from
+     * @param buffer   The buffer to read from
      * @param isMethod Whether the member is a method (a value of {@link false}
-     *     for this parameter is taken to mean the member is a field)
+     *                 for this parameter is taken to mean the member is a field)
      * @return The new member definition bytes
      */
     public byte[] processMemberBytes(ByteBuffer buffer, boolean isMethod) throws IOException {
@@ -285,7 +285,7 @@ public class ClassTransformer extends ClassProcessor {
         if (!(cs instanceof IgnoredStructure)) {
             if (cs.getType() == StructureType.CLASS) {
                 handleClassMember(cs, index, processedPool);
-            } else if (  cs.getType() == StructureType.FIELDREF
+            } else if (cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
                 handleNonClassMember(cs, index, processedPool);
@@ -458,6 +458,7 @@ public class ClassTransformer extends ClassProcessor {
             }
             case "Synthetic": {
                 isSynthetic = true;
+                // fall-through is intentional
             }
             default: {
                 os.write(getBytes(attrLength));

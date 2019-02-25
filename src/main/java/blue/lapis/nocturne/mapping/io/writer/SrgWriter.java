@@ -28,7 +28,6 @@ package blue.lapis.nocturne.mapping.io.writer;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
-import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
 import java.io.ByteArrayOutputStream;
@@ -36,7 +35,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * The mappings writer, for the SRG format.
@@ -117,9 +115,17 @@ public class SrgWriter extends MappingsWriter {
                     classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
         }
 
-        classMapping.getInnerClassMappings().values().stream().sorted(ALPHABETISE_CLASSES).forEach(this::writeClassMapping);
-        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS).sorted(ALPHABETISE_FIELDS).forEach(this::writeFieldMapping);
-        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS).sorted(ALPHABETISE_METHODS).forEach(this::writeMethodMapping);
+        classMapping.getInnerClassMappings().values().stream()
+                .sorted(ALPHABETISE_CLASSES)
+                .forEach(this::writeClassMapping);
+        classMapping.getFieldMappings().values().stream()
+                .filter(NOT_USELESS)
+                .sorted(ALPHABETISE_FIELDS)
+                .forEach(this::writeFieldMapping);
+        classMapping.getMethodMappings().values().stream()
+                .filter(NOT_USELESS)
+                .sorted(ALPHABETISE_METHODS)
+                .forEach(this::writeMethodMapping);
     }
 
     /**

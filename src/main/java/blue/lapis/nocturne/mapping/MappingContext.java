@@ -49,7 +49,7 @@ public class MappingContext {
      * this {@link MappingContext}.
      *
      * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     *     this {@link MappingContext}
+     * this {@link MappingContext}
      */
     public ImmutableMap<String, TopLevelClassMapping> getMappings() {
         return ImmutableMap.copyOf(mappings);
@@ -58,7 +58,7 @@ public class MappingContext {
     /**
      * Adds the given {@link TopLevelClassMapping} to this {@link MappingContext}.
      *
-     * @param mapping The {@link TopLevelClassMapping} to add
+     * @param mapping          The {@link TopLevelClassMapping} to add
      * @param updateClassViews Whether to update the class views
      */
     public void addMapping(TopLevelClassMapping mapping, boolean updateClassViews) {

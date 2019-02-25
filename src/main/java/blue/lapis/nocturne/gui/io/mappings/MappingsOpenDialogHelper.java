@@ -31,6 +31,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -75,7 +76,8 @@ public final class MappingsOpenDialogHelper {
 
         Path selectedPath = selectedFile.toPath();
 
-        final MappingFormat mappingFormat = MappingFormat.fromExtensionFilter(fileChooser.getSelectedExtensionFilter()).get();
+        final MappingFormat mappingFormat
+                = MappingFormat.fromExtensionFilter(fileChooser.getSelectedExtensionFilter()).get();
         Main.getPropertiesHelper()
                 .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, mappingFormat.name());
         try (MappingsReader reader = mappingFormat.createParser(new BufferedReader(new FileReader(selectedFile)))) {

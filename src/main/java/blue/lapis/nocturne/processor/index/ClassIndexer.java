@@ -129,7 +129,7 @@ public class ClassIndexer extends ClassProcessor {
      * immediate start.
      *
      * @param buffer The buffer to read from
-     * @param pool The constant pool to read strings from
+     * @param pool   The constant pool to read strings from
      * @return A {@link List} of read {@link IndexedMethod}s
      */
     private List<IndexedMethod> indexMethods(ByteBuffer buffer, ConstantPool pool) {
