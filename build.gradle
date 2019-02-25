@@ -7,8 +7,8 @@ plugins {
 
     id 'net.minecrell.gitpatcher' version '0.9.0'
 
-    id 'net.minecrell.licenser' version '0.3'
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'net.minecrell.licenser' version '0.4.1'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
 }
 
 defaultTasks 'clean', 'licenseFormat', 'build'
@@ -124,6 +124,6 @@ artifacts {
     archives sourceJar
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.0'
+wrapper {
+    gradleVersion = '5.2.1'
 }
