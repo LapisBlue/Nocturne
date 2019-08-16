@@ -57,14 +57,14 @@ public class EnigmaWriter extends MappingsWriter {
 
     @Override
     public void write(MappingContext mappings) {
-        for (TopLevelClassMapping classMapping : mappings.getMappings().values()) {
-            this.writeClassMapping(classMapping, 0);
-        }
+        mappings.getMappings().values().stream()
+                .sorted(ALPHABETISE_CLASSES)
+                .forEach(klass -> this.writeClassMapping(klass, 0));
         out.close();
     }
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
-        boolean inner = classMapping instanceof InnerClassMapping;
+        final boolean inner = classMapping instanceof InnerClassMapping;
         if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
             if (!classMapping.getInnerClassMappings().isEmpty()) {
                 out.println(getIndentForDepth(depth) + "CLASS "
@@ -77,12 +77,17 @@ public class EnigmaWriter extends MappingsWriter {
                     + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
         }
 
-        classMapping.getInnerClassMappings().values().forEach(m -> this.writeClassMapping(m, depth + 1));
+        classMapping.getInnerClassMappings().values().stream()
+                .sorted(ALPHABETISE_CLASSES)
+                .forEach(m -> this.writeClassMapping(m, depth + 1));
 
-        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS)
+        classMapping.getFieldMappings().values().stream()
+                .filter(NOT_USELESS)
+                .sorted(ALPHABETISE_FIELDS)
                 .forEach(m -> this.writeFieldMapping(m, depth + 1));
 
-        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS)
+        classMapping.getMethodMappings().values().stream()
+                .sorted(ALPHABETISE_METHODS)
                 .forEach(m -> this.writeMethodMapping(m, depth + 1));
     }
 
@@ -102,9 +107,9 @@ public class EnigmaWriter extends MappingsWriter {
                     + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
         }
 
-        for (MethodParameterMapping methodParameterMapping : methodMapping.getParamMappings().values()) {
-            writeArgumentMapping(methodParameterMapping, depth + 1);
-        }
+        methodMapping.getParamMappings().values().stream()
+                .sorted(ALPHABETISE_PARAMS)
+                .forEach(param -> this.writeArgumentMapping(param, depth + 1));
     }
 
     protected void writeArgumentMapping(MethodParameterMapping argMapping, int depth) {

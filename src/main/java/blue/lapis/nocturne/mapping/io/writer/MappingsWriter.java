@@ -26,11 +26,17 @@
 package blue.lapis.nocturne.mapping.io.writer;
 
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Comparator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -40,6 +46,34 @@ public abstract class MappingsWriter implements Closeable {
 
     protected static final Predicate<Mapping> NOT_USELESS
             = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
+
+    protected static final Comparator<ClassMapping> ALPHABETISE_CLASSES =
+            comparingLength(ClassMapping::getFullObfuscatedName);
+
+    protected static final Comparator<FieldMapping> ALPHABETISE_FIELDS =
+            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedType());
+
+    protected static final Comparator<MethodMapping> ALPHABETISE_METHODS =
+            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor().toString());
+
+    protected static final Comparator<MethodParameterMapping> ALPHABETISE_PARAMS =
+            Comparator.comparingInt(MethodParameterMapping::getIndex);
+
+    private static <T> Comparator<T> comparingLength(final Function<? super T, String> keyExtractor) {
+        return (c1, c2) -> {
+            final String key1 = keyExtractor.apply(c1);
+            final String key2 = keyExtractor.apply(c2);
+
+            final String redacted1 = key1.contains("$") ? key1.substring(0, key1.indexOf('$')) : key1;
+            final String redacted2 = key1.contains("$") ? key2.substring(0, key2.indexOf('$')) : key2;
+
+            if (redacted1.length() != redacted2.length()) {
+                return redacted1.length() - redacted2.length();
+            }
+
+            return key1.compareTo(key2);
+        };
+    }
 
     protected final PrintWriter out;
 
