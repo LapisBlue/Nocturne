@@ -92,7 +92,7 @@ public class EnigmaReader extends MappingsReader {
                 indentLevel++;
             }
 
-            if (lastIndentLevel != -1 && indentLevel < lastIndentLevel) {
+            if (lastIndentLevel != -1 && indentLevel < lastIndentLevel && !classStack.empty()) {
                 classStack.pop();
             }
 
@@ -114,7 +114,7 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
-                    if (classStack.peek() == null) {
+                    if (classStack.empty() || classStack.peek() == null) {
                         continue;
                     }
 
@@ -137,7 +137,7 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
-                    if (classStack.peek() == null) {
+                    if (classStack.isEmpty() || classStack.peek() == null) {
                         continue;
                     }
 
@@ -167,7 +167,7 @@ public class EnigmaReader extends MappingsReader {
                     break;
                 }
                 case ARG_MAPPING_KEY: {
-                    if (classStack.peek() == null) {
+                    if (classStack.empty() || classStack.peek() == null) {
                         continue;
                     }
 
