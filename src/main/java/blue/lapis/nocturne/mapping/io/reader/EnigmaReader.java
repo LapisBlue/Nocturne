@@ -34,12 +34,15 @@ import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
 import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
+import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import java.io.BufferedReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -59,21 +62,21 @@ public class EnigmaReader extends MappingsReader {
 
     @Override
     public MappingContext read() {
-        MappingContext mappings = new MappingContext();
+        final MappingContext mappings = new MappingContext();
+        final Deque<Mapping> stack = new ArrayDeque<>();
 
-        Stack<ClassMapping> classStack = new Stack<>();
-        MethodMapping currentMethod = null;
         int lineNum = 0;
-        int lastIndentLevel = -1;
 
-        for (String line : reader.lines().collect(Collectors.toList())) {
+        for (final String rawLine : reader.lines().collect(Collectors.toList())) {
             lineNum++;
 
+            final int indentLevel = getIndentLevel(rawLine);
+
             // Remove comments
-            final int commentPos = line.indexOf('#');
-            if (commentPos >= 0) {
-                line = line.substring(0, commentPos);
-            }
+            final int commentPos = rawLine.indexOf('#');
+            final String line = commentPos >= 0 ?
+                    rawLine.substring(0, commentPos) :
+                    rawLine;
 
             final String[] arr = line.trim().split(" ");
 
@@ -82,18 +85,10 @@ public class EnigmaReader extends MappingsReader {
                 continue;
             }
 
-            // The indentation level of the line
-            int indentLevel = 0;
-            for (int i = 0; i < line.length(); i++) {
-                // Check if the char is a tab
-                if (line.charAt(i) != '\t') {
-                    break;
-                }
-                indentLevel++;
-            }
-
-            if (lastIndentLevel != -1 && indentLevel < lastIndentLevel) {
-                classStack.pop();
+            // If there is a change in the indentation level, we will need to pop the stack
+            // as needed
+            while (indentLevel < stack.size()) {
+                stack.pop();
             }
 
             switch (arr[0]) {
@@ -106,46 +101,30 @@ public class EnigmaReader extends MappingsReader {
                     String obf = removeNonePrefix(arr[1]);
                     String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
 
-                    if (lastIndentLevel != -1 && indentLevel > lastIndentLevel) {
-                        deobf = classStack.peek().getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
+                    if (!stack.isEmpty() && stack.peek() instanceof ClassMapping) {
+                        final ClassMapping parent = (ClassMapping) stack.peek();
+                        deobf = parent.getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
                     }
-                    classStack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
-                    currentMethod = null;
+
+                    stack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
-                    if (classStack.isEmpty()) {
-                        throw new IllegalArgumentException("Cannot parse file: found field mapping before initial "
-                                + "class mapping on line " + lineNum);
-                    }
-
-                    if (classStack.peek() == null) {
-                        continue;
-                    }
-
                     if (arr.length != 4) {
                         throw new IllegalArgumentException("Cannot parse file: malformed field mapping on line "
                                 + lineNum);
                     }
 
+                    final ClassMapping parent = peekClass(stack, lineNum);
+
                     String obf = arr[1];
                     String deobf = arr[2];
                     Type type = removeNonePrefix(Type.fromString(arr[3]));
-                    MappingsHelper.genFieldMapping(mappings, classStack.peek().getFullObfuscatedName(),
+                    MappingsHelper.genFieldMapping(mappings, parent.getFullObfuscatedName(),
                             new FieldSignature(obf, type), deobf);
-                    currentMethod = null;
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
-                    if (classStack.isEmpty()) {
-                        throw new IllegalArgumentException("Cannot parse file: found method mapping before initial "
-                                + "class mapping on line " + lineNum);
-                    }
-
-                    if (classStack.peek() == null) {
-                        continue;
-                    }
-
                     String obf = arr[1];
                     String deobf;
                     String descStr;
@@ -160,44 +139,71 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
+                    final ClassMapping parent = peekClass(stack, lineNum);
+
                     MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
 
-                    currentMethod = MappingsHelper.genMethodMapping(mappings, classStack.peek().getFullObfuscatedName(),
-                            new MethodSignature(obf, desc), deobf, true);
+                    stack.push(MappingsHelper.genMethodMapping(mappings, parent.getFullObfuscatedName(),
+                            new MethodSignature(obf, desc), deobf, true));
                     break;
                 }
                 case ARG_MAPPING_KEY: {
-                    if (currentMethod == null) {
-                        throw new IllegalArgumentException("Cannot parse file: found argument mapping before initial "
-                                + "method mapping on line " + lineNum);
-                    }
-
-                    if (classStack.peek() == null) {
-                        continue;
-                    }
-
                     if (arr.length != 3) {
                         throw new IllegalArgumentException("Cannot parse file: malformed argument mapping on line "
                                 + lineNum);
                     }
 
+                    final MethodMapping parent = peekMethod(stack, lineNum);
+
                     int index = Integer.parseInt(arr[1]);
                     String deobf = arr[2];
 
-                    MappingsHelper.genArgumentMapping(mappings, currentMethod, index, deobf);
+                    MappingsHelper.genArgumentMapping(mappings, parent, index, deobf);
                     break;
                 }
                 default: {
                     Main.getLogger().warning("Unrecognized mapping on line " + lineNum);
                 }
             }
-            lastIndentLevel = indentLevel;
         }
 
         return mappings;
     }
 
-    private String removeNonePrefix(String str) {
+    private static int getIndentLevel(final String line) {
+        int indentLevel = 0;
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) != '\t') break;
+            indentLevel++;
+        }
+        return indentLevel;
+    }
+
+    private static ClassMapping peekClass(final Deque<Mapping> stack, final int lineNum) {
+        if (stack.isEmpty()) {
+            throw new IllegalArgumentException("Cannot parse file: found member mapping before initial "
+                    + "class mapping on line " + lineNum);
+        }
+        if (!(stack.peek() instanceof ClassMapping)) {
+            throw new IllegalArgumentException("Cannot parse file: found member mapping with an incorrect/missing"
+                    + "parent mapping on line " + lineNum);
+        }
+        return (ClassMapping) stack.peek();
+    }
+
+    private static MethodMapping peekMethod(final Deque<Mapping> stack, final int lineNum) {
+        if (stack.isEmpty()) {
+            throw new IllegalArgumentException("Cannot parse file: found parameter mapping before initial "
+                    + "method mapping on line " + lineNum);
+        }
+        if (!(stack.peek() instanceof MethodMapping)) {
+            throw new IllegalArgumentException("Cannot parse file: found member mapping with an incorrect/missing"
+                    + "parent mapping on line " + lineNum);
+        }
+        return (MethodMapping) stack.peek();
+    }
+
+    private static String removeNonePrefix(String str) {
         if (str.length() < 6) {
             return str;
         }
@@ -209,11 +215,11 @@ public class EnigmaReader extends MappingsReader {
         return str;
     }
 
-    private Type removeNonePrefix(Type type) {
+    private static Type removeNonePrefix(Type type) {
         return type.isPrimitive() ? type : Type.fromString("L" + removeNonePrefix(type.getClassName()) + ";");
     }
 
-    private MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
+    private static MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
         Type[] params = new Type[desc.getParamTypes().length];
         for (int i = 0; i < params.length; i++) {
             params[i] = removeNonePrefix(desc.getParamTypes()[i]);
