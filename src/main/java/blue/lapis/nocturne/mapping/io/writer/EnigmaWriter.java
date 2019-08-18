@@ -39,6 +39,7 @@ import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 
 /**
  * The mappings writer, for the Enigma format.
@@ -64,17 +65,15 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
-        final boolean inner = classMapping instanceof InnerClassMapping;
-        if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
-            if (!classMapping.getInnerClassMappings().isEmpty()) {
-                out.println(getIndentForDepth(depth) + "CLASS "
-                        + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())));
-            }
-        } else {
-            out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName()))
-                    + " "
-                    + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
+        final String obfName = addNonePrefix(classMapping.getFullObfuscatedName());
+        if (!Objects.equals(classMapping.getDeobfuscatedName(), classMapping.getObfuscatedName())) { // hasDeobfName
+            final String deobfName = classMapping instanceof InnerClassMapping ?
+                    classMapping.getDeobfuscatedName() :
+                    addNonePrefix(classMapping.getDeobfuscatedName());
+            this.out.println(getIndentForDepth(depth) + "CLASS " + obfName + " " + deobfName);
+        }
+        else {
+            this.out.println(getIndentForDepth(depth) + "CLASS " + obfName);
         }
 
         classMapping.getInnerClassMappings().values().stream()
