@@ -64,8 +64,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -504,6 +506,8 @@ public class ClassTransformer extends ClassProcessor {
             }
         }
 
+        Set<String> seenParamNames = new HashSet<>();
+
         for (int i = 0; i < localCount; i++) {
             tempOutBuffer.write(getBytes(inBuffer.getShort())); // copy start_pc
             tempOutBuffer.write(getBytes(inBuffer.getShort())); // copy length
@@ -532,7 +536,15 @@ public class ClassTransformer extends ClassProcessor {
                         + discoveredType + " for local at index " + localIndex);
             }
 
-            String newName = getProcessedName(paramName, discoveredType, MemberType.ARG);
+            String fixedName = paramName;
+
+            if (seenParamNames.contains(paramName) || STUPID_PARAM_NAMES.contains(paramName)) {
+                fixedName = "param" + paramIndex;
+            } else {
+                seenParamNames.add(paramName);
+            }
+
+            String newName = getProcessedName(fixedName, discoveredType, MemberType.ARG);
 
             Utf8Structure newNameStruct = new Utf8Structure(newName);
             processedPool.add(newNameStruct);
