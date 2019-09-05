@@ -28,6 +28,7 @@ package blue.lapis.nocturne.processor.transform;
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
+import static blue.lapis.nocturne.util.helper.ByteHelper.asUint;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
 import static blue.lapis.nocturne.util.helper.ByteHelper.getBytes;
 import static blue.lapis.nocturne.util.helper.ByteHelper.readBytes;
@@ -36,6 +37,9 @@ import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
 import static blue.lapis.nocturne.util.helper.StringHelper.getUnprocessedName;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
+import blue.lapis.nocturne.jar.model.attribute.Primitive;
+import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
@@ -192,29 +196,24 @@ public class ClassTransformer extends ClassProcessor {
         os.write(getBytes((short) count));
 
         for (int m = 0; m < count; m++) {
-            final int memberStart = buffer.position();
-
             short access = buffer.getShort();
             os.write(getBytes(access));
             boolean isSynthetic = (access & 0x1000) != 0;
 
-            buffer.get(new byte[4]);
+            int nameIndex = asUshort(buffer.getShort());
+            int descIndex = asUshort(buffer.getShort());
+
             ByteArrayOutputStream attrOs = new ByteArrayOutputStream();
             int attrCount = asUshort(buffer.getShort());
             attrOs.write(getBytes((short) attrCount));
 
             for (int i = 0; i < attrCount; i++) {
-                Pair<byte[], Boolean> attr = processAttribute(buffer);
+                Pair<byte[], Boolean> attr = processAttribute(buffer, getString(nameIndex), getString(descIndex),
+                        (access & 0x8) != 0, descIndex);
                 attrOs.write(attr.first());
-                isSynthetic = attr.second();
+                isSynthetic |= attr.second();
             }
             final byte[] attrArr = attrOs.toByteArray();
-            final int memberEnd = buffer.position();
-
-            buffer.position(memberStart + 2);
-
-            int nameIndex = asUshort(buffer.getShort());
-            int descriptorIndex = asUshort(buffer.getShort());
 
             if (isSynthetic) {
                 (isMethod ? syntheticMethods : syntheticFields).add(getString(nameIndex));
@@ -228,7 +227,7 @@ public class ClassTransformer extends ClassProcessor {
                     } else {
                         String procName = getProcessedName(
                                 getClassName() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
-                                getString(descriptorIndex),
+                                getString(descIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
                         Utf8Structure nameStruct = new Utf8Structure(procName);
@@ -240,23 +239,22 @@ public class ClassTransformer extends ClassProcessor {
             os.write(getBytes((short) nameIndex));
 
             Map<Integer, Integer> map = isMethod ? processedMethodDescriptorMap : processedFieldDescriptorMap;
-            if (map.containsKey(descriptorIndex)) {
-                descriptorIndex = map.get(descriptorIndex);
+            if (map.containsKey(descIndex)) {
+                descIndex = map.get(descIndex);
             } else {
                 String procDesc = getProcessedDescriptor(
                         isMethod ? MemberType.METHOD : MemberType.FIELD,
-                        getString(descriptorIndex)
+                        getString(descIndex)
                 );
-                if (!procDesc.equals(getString(descriptorIndex))) {
+                if (!procDesc.equals(getString(descIndex))) {
                     Utf8Structure descStruct = new Utf8Structure(procDesc);
                     processedPool.add(descStruct);
-                    descriptorIndex = processedPool.size();
+                    descIndex = processedPool.size();
                 }
             }
-            os.write(getBytes((short) descriptorIndex));
+            os.write(getBytes((short) descIndex));
 
             os.write(attrArr);
-            buffer.position(memberEnd);
         }
 
         return os.toByteArray();
@@ -400,7 +398,8 @@ public class ClassTransformer extends ClassProcessor {
     }
 
     @SuppressWarnings("fallthrough")
-    private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer) throws IOException {
+    private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer, String memberName, String memberDesc,
+            boolean isStatic, int descIndex) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         boolean isSynthetic = false;
 
@@ -435,16 +434,23 @@ public class ClassTransformer extends ClassProcessor {
                     // now we're in a sub-attribute
                     int subAttrNameIndex = asUshort(buffer.getShort()); // read attribute_name_index
                     String subAttrName = getString(subAttrNameIndex);
-                    int subAttrLength = buffer.getInt(); // read attribute_length
+                    long subAttrLength = asUint(buffer.getInt()); // read attribute_length
 
                     if (subAttrName.equals("LocalVariableTable")) {
-                        attrLength -= subAttrLength + 6;
-                        readBytes(buffer, subAttrLength); // read and discard attribute body
+                        actualAttrCount++;
+                        try {
+                            subOs.write(getBytes((short) subAttrNameIndex)); // write attribute_name_index
+                            processLvt(buffer, subOs, codeLength, isStatic, descIndex);
+                        } catch (Throwable t) {
+                            throw new IllegalArgumentException("Failed to parse LocalVariableTable for method "
+                                    + memberName + memberDesc + " in class "
+                                    + className, t);
+                        }
                     } else {
                         actualAttrCount++;
                         subOs.write(getBytes((short) subAttrNameIndex)); // write attribute_name_index
-                        subOs.write(getBytes(subAttrLength)); // write attribute_length
-                        subOs.write(readBytes(buffer, subAttrLength)); // read and write attribute body
+                        subOs.write(getBytes((int) subAttrLength)); // write attribute_length
+                        subOs.write(readBytes(buffer, (int) subAttrLength)); // read and write attribute body
                     }
                 }
 
@@ -468,6 +474,78 @@ public class ClassTransformer extends ClassProcessor {
         }
 
         return new Pair<>(os.toByteArray(), isSynthetic);
+    }
+
+    private void processLvt(ByteBuffer inBuffer, ByteArrayOutputStream outBuffer,
+            int codeLength, boolean isStatic, int methodDescIndex) throws IOException {
+        MethodDescriptor md = MethodDescriptor.fromString(getString(methodDescIndex));
+        int paramCount = md.getParamTypes().length;
+
+        int localCount = asUshort(inBuffer.getShort());
+
+        int newLocalCount = localCount;
+
+        ByteArrayOutputStream tempOutBuffer = new ByteArrayOutputStream();
+
+        Map<Integer, Integer> localToParamIndexMap = new HashMap<>();
+        {
+            int localIndex = isStatic ? 0 : 1;
+            for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+                localToParamIndexMap.put(localIndex, paramIndex);
+
+                Type paramType = md.getParamTypes()[paramIndex];
+                if (paramType.isPrimitive()
+                        && (paramType.asPrimitive() == Primitive.LONG || paramType.asPrimitive() == Primitive.DOUBLE)
+                        && paramType.getArrayDimensions() == 0) {
+                    localIndex += 2;
+                } else {
+                    localIndex++;
+                }
+            }
+        }
+
+        for (int i = 0; i < localCount; i++) {
+            tempOutBuffer.write(getBytes(inBuffer.getShort())); // copy start_pc
+            tempOutBuffer.write(getBytes(inBuffer.getShort())); // copy length
+
+            int nameIndex = asUshort(inBuffer.getShort());
+            int paramDescIndex = asUshort(inBuffer.getShort());
+            int localIndex = asUshort(inBuffer.getShort());
+
+            Integer paramIndex = localToParamIndexMap.get(localIndex);
+
+            // skip any locals that haven't been mapped to parameters
+            if (paramIndex == null) {
+                tempOutBuffer.write(getBytes((short) nameIndex));
+                tempOutBuffer.write(getBytes((short) paramDescIndex));
+                tempOutBuffer.write(getBytes((short) localIndex));
+
+                continue;
+            }
+
+            String paramName = getString(nameIndex);
+            String discoveredType = getString(paramDescIndex);
+
+            // panic if the types don't match (they should)
+            if (!discoveredType.equals(md.getParamTypes()[paramIndex].toString())) {
+                throw new IllegalArgumentException("Expected " + md.getParamTypes()[paramIndex].toString() + ", got "
+                        + discoveredType + " for local at index " + localIndex);
+            }
+
+            String newName = getProcessedName(paramName, discoveredType, MemberType.ARG);
+
+            Utf8Structure newNameStruct = new Utf8Structure(newName);
+            processedPool.add(newNameStruct);
+            int newNameIndex = processedPool.size();
+
+            tempOutBuffer.write(getBytes((short) newNameIndex));
+            tempOutBuffer.write(getBytes((short) paramDescIndex));
+            tempOutBuffer.write(getBytes((short) localIndex));
+        }
+
+        outBuffer.write(getBytes(newLocalCount * 10 + 2));
+        outBuffer.write(getBytes((short) newLocalCount));
+        tempOutBuffer.writeTo(outBuffer);
     }
 
     private NameAndType getNameAndType(RefStructure rs) {

@@ -93,5 +93,10 @@ public final class Constants {
         public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
                 + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(DELIMITER) + "(.+?)"
                 + Pattern.quote(MEMBER_SUFFIX));
+
+        public static final String PARAM_PREFIX = "#NOCTURNE+";
+        public static final String PARAM_SUFFIX = "#";
+        public static final Pattern PARAM_REGEX = Pattern.compile(Pattern.quote(PARAM_PREFIX) + "(.+?)"
+                + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(PARAM_SUFFIX));
     }
 }

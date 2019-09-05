@@ -36,6 +36,8 @@ import static blue.lapis.nocturne.util.Constants.Processing.DELIMITER;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.PARAM_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.PARAM_SUFFIX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
@@ -51,13 +53,21 @@ import java.util.regex.Matcher;
  */
 public final class StringHelper {
 
-    // class format is ^NOCTURNE+name^
+    // class format is &NOCTURNE+name^
     // member format is %NOCTURNE+TYPE-name-descriptor%
+    // param format is #NOCTURNE+name-descriptor#
     public static String getProcessedName(String qualName, String descriptor, MemberType memberType) {
-        if (memberType == MemberType.CLASS) {
-            return CLASS_PREFIX + qualName + CLASS_SUFFIX;
+        switch (memberType) {
+            case CLASS:
+                return CLASS_PREFIX + qualName + CLASS_SUFFIX;
+            case FIELD:
+            case METHOD:
+                return MEMBER_PREFIX + memberType.name() + DELIMITER + qualName + DELIMITER + descriptor + MEMBER_SUFFIX;
+            case ARG:
+                return PARAM_PREFIX + qualName + DELIMITER + descriptor + PARAM_SUFFIX;
+            default:
+                throw new AssertionError("Unhandled case " + memberType.name());
         }
-        return MEMBER_PREFIX + memberType.name() + DELIMITER + qualName + DELIMITER + descriptor + MEMBER_SUFFIX;
     }
 
     public static String getProcessedDescriptor(MemberType memberType, String desc) {
