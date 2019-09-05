@@ -70,6 +70,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +79,8 @@ import java.util.stream.Collectors;
 public class SelectableMember extends Text {
 
     public static final Map<MemberKey, List<SelectableMember>> MEMBERS = new HashMap<>();
+
+    private static final Pattern LOOKS_DEOBFUSCATED_REGEX = Pattern.compile("(?:.{4,})|(?:[A-Z][a-z]{2})");
 
     private final CodeTab codeTab;
     private final MemberType type;
@@ -98,6 +101,7 @@ public class SelectableMember extends Text {
         this(codeTab, type, name, null, null);
     }
 
+    //TODO: this could stand to be broken into helper methods or just all-around restructured
     public SelectableMember(CodeTab codeTab, MemberType type, String name, String descriptor, String parentClass) {
         super(name);
         this.codeTab = codeTab;
@@ -266,7 +270,11 @@ public class SelectableMember extends Text {
         updateText();
 
         Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(!getName().equals(fullName) || (mapping.isPresent() && mapping.get().isAdHoc()));
+        setDeobfuscated(looksDeobfuscated(getName()) || (fullName != null && !getName().equals(fullName)) || (mapping.isPresent() && mapping.get().isAdHoc()));
+    }
+
+    private static boolean looksDeobfuscated(String id) {
+        return LOOKS_DEOBFUSCATED_REGEX.matcher(id).find();
     }
 
     private String getClassName() {
