@@ -36,7 +36,6 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
 import java.util.Objects;
@@ -131,7 +130,11 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     private Type addNonePrefix(Type type) {
-        return type.isPrimitive() ? type : Type.fromString("L" + addNonePrefix(type.getClassName()) + ";");
+        if (!type.isPrimitive() && !CLASS_PATH_SEPARATOR_PATTERN.matcher(type.getClassName()).find()) {
+            return new Type(ENIGMA_ROOT_PACKAGE_PREFIX + type.getClassName(), type.getArrayDimensions());
+        } else {
+            return type;
+        }
     }
 
     private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {
