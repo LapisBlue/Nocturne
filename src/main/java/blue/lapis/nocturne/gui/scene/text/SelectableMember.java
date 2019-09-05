@@ -266,7 +266,7 @@ public class SelectableMember extends Text {
         updateText();
 
         Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(!getName().equals(fullName) || (mapping.isPresent() && mapping.get().isAdHoc()));
+        setDeobfuscated((fullName != null && !getName().equals(fullName)) || (mapping.isPresent() && mapping.get().isAdHoc()));
     }
 
     private String getClassName() {
