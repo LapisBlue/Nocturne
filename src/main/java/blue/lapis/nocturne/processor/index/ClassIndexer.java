@@ -42,6 +42,7 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.signature.FieldSignature;

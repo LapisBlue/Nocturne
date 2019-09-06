@@ -31,6 +31,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 

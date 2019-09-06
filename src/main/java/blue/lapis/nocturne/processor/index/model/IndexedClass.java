@@ -26,6 +26,7 @@
 package blue.lapis.nocturne.processor.index.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.cadixdev.bombe.type.signature.FieldSignature;

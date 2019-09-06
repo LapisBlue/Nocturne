@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.test.mapping.io.reader;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -36,6 +37,7 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
@@ -162,26 +164,25 @@ class ReaderTestHelper {
         MethodMapping methodMapping = mapping.getMethodMappings().get(aSig);
         assertEquals("a", methodMapping.getObfuscatedName());
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
-        // TODO: reimplement
-        /*assertArrayEquals(
-                new Type[]{
-                        new Type(Primitive.INT, 0),
-                        new Type("a", 0),
-                        new Type(Primitive.INT, 0)
+        assertArrayEquals(
+                new FieldType[]{
+                        FieldType.of("I"),
+                        FieldType.of("La;"),
+                        FieldType.of("I")
                 },
-                methodMapping.getObfuscatedDescriptor().getParamTypes());*/
+                methodMapping.getObfuscatedDescriptor().getParamTypes().toArray()
+        );
         assertEquals(new ObjectType("a"), methodMapping.getObfuscatedDescriptor().getReturnType());
 
         MethodDescriptor deobfSig = methodMapping.getDeobfuscatedDescriptor();
-        // TODO: reimplement
-        /*assertArrayEquals(
-                new Type[]{
-                        new Type(Primitive.INT, 0),
-                        new Type(EXAMPLE_PACKAGE + "/Example", 0),
-                        new Type(Primitive.INT, 0)
+        assertArrayEquals(
+                new FieldType[]{
+                        FieldType.of("I"),
+                        FieldType.of("L" + EXAMPLE_PACKAGE + "/Example;"),
+                        FieldType.of("I")
                 },
-                deobfSig.getParamTypes()
-        );*/
+                deobfSig.getParamTypes().toArray()
+        );
         assertEquals(new ObjectType(EXAMPLE_PACKAGE + "/Example"), deobfSig.getReturnType());
     }
 

@@ -35,6 +35,7 @@ import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
@@ -130,6 +131,7 @@ public class EnigmaWriter extends MappingsWriter {
         return str;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Type> T addNonePrefix(T type) {
         if (type instanceof ObjectType) {
             final ObjectType obj = (ObjectType) type;

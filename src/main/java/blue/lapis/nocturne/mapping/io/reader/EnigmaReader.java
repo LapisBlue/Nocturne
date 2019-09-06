@@ -34,6 +34,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
@@ -213,6 +214,7 @@ public class EnigmaReader extends MappingsReader {
         return str;
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Type> T removeNonePrefix(T type) {
         if (type instanceof ObjectType) {
             final ObjectType obj = (ObjectType) type;

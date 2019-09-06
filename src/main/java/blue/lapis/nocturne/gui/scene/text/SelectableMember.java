@@ -47,6 +47,7 @@ import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
+
 import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -70,7 +71,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**

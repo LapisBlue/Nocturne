@@ -37,6 +37,7 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
+
 import org.cadixdev.bombe.type.ArrayType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
@@ -246,11 +247,12 @@ public final class MappingsHelper {
         return new ObjectType(typeMapping.map(ClassMapping::getFullDeobfuscatedName).orElse(objType.getClassName()));
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Type> T deobfuscate(final MappingContext ctx, final T obfuscatedType) {
         if (obfuscatedType instanceof ObjectType) {
             return (T) deobfuscateObject(ctx, (ObjectType) obfuscatedType);
-        }
-        else if (obfuscatedType instanceof ArrayType && ((ArrayType) obfuscatedType).getComponent() instanceof ObjectType) {
+        } else if (obfuscatedType instanceof ArrayType
+                && ((ArrayType) obfuscatedType).getComponent() instanceof ObjectType) {
             final ArrayType arr = (ArrayType) obfuscatedType;
             final ObjectType obj = (ObjectType) arr.getComponent();
             return (T) new ArrayType(arr.getDimCount(), deobfuscateObject(ctx, obj));

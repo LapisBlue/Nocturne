@@ -32,6 +32,7 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.signature.FieldSignature;

@@ -39,6 +39,7 @@ import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.util.MemberType;
+
 import org.cadixdev.bombe.type.ArrayType;
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
@@ -87,37 +88,40 @@ public final class StringHelper {
                             final ObjectType obj = (ObjectType) arr.getComponent();
 
                             if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
-                                final ObjectType newObj = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
+                                final ObjectType newObj = new ObjectType(
+                                        getProcessedName(obj.getClassName(), null, MemberType.CLASS)
+                                );
                                 newParams.add(new ArrayType(arr.getDimCount(), newObj));
-                            }
-                            else {
-                                newParams.add(param);
-                            }
-                        }
-                        else if (param instanceof ObjectType) {
-                            final ObjectType obj = (ObjectType) param;
-                            final String typeClass = obj.getClassName();
-                            if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                                newParams.add(new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS)));
                             } else {
                                 newParams.add(param);
                             }
-                        }
-                        else {
+                        } else if (param instanceof ObjectType) {
+                            final ObjectType obj = (ObjectType) param;
+                            if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                                newParams.add(new ObjectType(
+                                        getProcessedName(obj.getClassName(), null, MemberType.CLASS)
+                                ));
+                            } else {
+                                newParams.add(param);
+                            }
+                        } else {
                             newParams.add(param);
                         }
                     }
+
                     Type returnType = md.getReturnType();
-                    if (returnType instanceof ArrayType && ((ArrayType) returnType).getComponent() instanceof ObjectType) {
+                    if (returnType instanceof ArrayType
+                            && ((ArrayType) returnType).getComponent() instanceof ObjectType) {
                         final ArrayType arr = (ArrayType) returnType;
                         final ObjectType obj = (ObjectType) arr.getComponent();
 
                         if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
-                            final ObjectType newObj = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
+                            final ObjectType newObj = new ObjectType(
+                                    getProcessedName(obj.getClassName(), null, MemberType.CLASS)
+                            );
                             returnType = new ArrayType(arr.getDimCount(), newObj);
                         }
-                    }
-                    else if (returnType instanceof ObjectType) {
+                    } else if (returnType instanceof ObjectType) {
                         final ObjectType obj = (ObjectType) returnType;
                         final String typeClass = obj.getClassName();
                         if (Main.getLoadedJar().getClass(typeClass).isPresent()) {

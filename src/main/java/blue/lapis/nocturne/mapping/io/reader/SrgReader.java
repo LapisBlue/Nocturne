@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.signature.FieldSignature;

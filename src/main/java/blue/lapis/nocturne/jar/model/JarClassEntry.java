@@ -39,6 +39,7 @@ import blue.lapis.nocturne.processor.index.ClassIndexer;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
+
 import com.google.common.base.MoreObjects;
 import javafx.scene.control.Dialog;
 import org.cadixdev.bombe.type.signature.FieldSignature;
