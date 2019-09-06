@@ -34,6 +34,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.decompile.NoopResultSaver;
 import blue.lapis.nocturne.decompile.SimpleBytecodeProvider;
 import blue.lapis.nocturne.decompile.SimpleFernflowerLogger;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
@@ -116,7 +117,12 @@ public class JarClassEntry {
 
     public String getDeobfuscatedName() {
         checkArgument(isDeobfuscated(), "Cannot get deobfuscated name from non-deobfuscated class entry");
-        return Main.getMappingContext().getMappings().get(name).getDeobfuscatedName();
+        TopLevelClassMapping mapping = Main.getMappingContext().getMappings().get(name);
+        if (mapping != null) {
+            return mapping.getDeobfuscatedName();
+        } else {
+            return getName();
+        }
     }
 
     /**

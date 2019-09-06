@@ -31,6 +31,7 @@ import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
@@ -78,8 +79,6 @@ import java.util.stream.Collectors;
 public class SelectableMember extends Text {
 
     public static final Map<MemberKey, List<SelectableMember>> MEMBERS = new HashMap<>();
-
-    private static final Pattern LOOKS_DEOBFUSCATED_REGEX = Pattern.compile("(?:.{4,})|(?:[A-Z][a-z]{2})");
 
     private final CodeTab codeTab;
     private final MemberType type;
@@ -269,11 +268,9 @@ public class SelectableMember extends Text {
         updateText();
 
         Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(looksDeobfuscated(getName()) || (fullName != null && !getName().equals(fullName)) || (mapping.isPresent() && mapping.get().isAdHoc()));
-    }
-
-    private static boolean looksDeobfuscated(String id) {
-        return LOOKS_DEOBFUSCATED_REGEX.matcher(id).find();
+        setDeobfuscated(looksDeobfuscated(getName())
+                || (fullName != null && !getName().equals(fullName))
+                || (mapping.isPresent() && mapping.get().isAdHoc()));
     }
 
     private String getClassName() {

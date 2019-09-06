@@ -25,6 +25,8 @@
 
 package blue.lapis.nocturne.jar.model;
 
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
+
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
@@ -59,6 +61,10 @@ public class ClassSet {
     public ClassSet(String name, Set<JarClassEntry> classes) {
         this.name = name;
         classes.forEach(cl -> {
+            if (looksDeobfuscated(cl.getName())) {
+                cl.setDeobfuscated(true);
+            }
+
             classMap.put(cl.getName(), cl);
             getCurrentNames().put(cl.getName(), cl.getName());
         });
