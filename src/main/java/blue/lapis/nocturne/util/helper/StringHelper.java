@@ -45,11 +45,14 @@ import blue.lapis.nocturne.util.MemberType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Static utility class for certain string manipulator functions.
  */
 public final class StringHelper {
+
+    private static final Pattern LOOKS_DEOBFUSCATED_REGEX = Pattern.compile("(?:.{4,})|(?:[A-Z][a-z]{2})");
 
     // class format is ^NOCTURNE+name^
     // member format is %NOCTURNE+TYPE-name-descriptor%
@@ -158,6 +161,10 @@ public final class StringHelper {
         }
 
         return true;
+    }
+
+    public static boolean looksDeobfuscated(String id) {
+        return LOOKS_DEOBFUSCATED_REGEX.matcher(id).find();
     }
 
 }
