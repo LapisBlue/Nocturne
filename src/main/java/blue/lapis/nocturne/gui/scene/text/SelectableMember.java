@@ -180,7 +180,8 @@ public class SelectableMember extends Text {
                                 .removeParamMapping(mapping.get().getObfuscatedName());
                     }
                 }
-                MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(false));
+                MEMBERS.get(key).forEach(sm ->
+                        sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false));
             }
             switch (getType()) {
                 case CLASS: {
@@ -193,7 +194,7 @@ public class SelectableMember extends Text {
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                         mapping.get().setAdHoc(false);
-                        setDeobfuscated(false);
+                        setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
                     }
                     fullName = getName();
                     break;
@@ -216,7 +217,7 @@ public class SelectableMember extends Text {
                                 parent.get().removeMethodMapping((MethodSignature) sig);
                             }
                             MEMBERS.get(key).forEach(sm -> {
-                                sm.setDeobfuscated(false);
+                                sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
                                 sm.updateText();
                             });
                         }
@@ -236,7 +237,7 @@ public class SelectableMember extends Text {
             // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
             boolean shouldDeobf = !this.deobfuscated;
             genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
-            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf));
+            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf, false));
         });
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
@@ -271,7 +272,7 @@ public class SelectableMember extends Text {
         Optional<? extends Mapping> mapping = getMapping();
         setDeobfuscated(looksDeobfuscated(getName())
                 || (fullName != null && !getName().equals(fullName))
-                || (mapping.isPresent() && mapping.get().isAdHoc()));
+                || (mapping.isPresent() && mapping.get().isAdHoc()), false);
     }
 
     private String getClassName() {
@@ -525,7 +526,11 @@ public class SelectableMember extends Text {
         return getType() == MemberType.CLASS && getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
     }
 
-    public void setDeobfuscated(boolean deobfuscated) {
+    public void setDeobfuscated(boolean deobfuscated, boolean soft) {
+        if (this.deobfuscated && !deobfuscated && soft) {
+            return;
+        }
+
         this.deobfuscated = deobfuscated;
         getStyleClass().clear();
         if (deobfuscated) {
