@@ -64,7 +64,7 @@ public class FieldMapping extends MemberMapping {
      * @return The {@link FieldType} of this field
      */
     public FieldType getObfuscatedType() {
-        return sig.getType().get(); // TODO: Nocturne's reader guarantees the type is present
+        return sig.getType().orElse(null);
     }
 
     /**
@@ -82,7 +82,7 @@ public class FieldMapping extends MemberMapping {
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
-                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null))); // TODO: Handle better
+                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null)));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class FieldMapping extends MemberMapping {
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
         return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(),
-                sig.getType().isPresent() ? sig.getType().get().toString() : null); //TODO: handle this better
+                sig.getType().map(FieldType::toString).orElse(null));
     }
 
     private String getQualifiedName() {

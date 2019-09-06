@@ -311,7 +311,7 @@ public class SelectableMember extends Text {
             case FIELD: {
                 JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
                 FieldSignature newSig = new FieldSignature(newName,
-                        ((FieldSignature) sig).getType().get()); // TODO: Nocturne's reader guarantees types
+                        ((FieldSignature) sig).getType().orElse(null));
                 if (jce.getCurrentFields().containsValue(newSig)) {
                     showDupeAlert(false);
                     return false;

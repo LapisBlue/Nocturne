@@ -141,7 +141,7 @@ public final class MappingsHelper {
             return fieldMapping;
         } else {
             FieldSignature finalSig = sig;
-            if (sig.getType() == null) {
+            if (!sig.getType().isPresent()) {
                 List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
                         .stream().filter(s -> s.getName().equals(sig.getName())).collect(Collectors.toList());
                 if (sigList.size() > 1) {
