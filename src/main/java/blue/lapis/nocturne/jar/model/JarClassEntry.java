@@ -158,7 +158,7 @@ public class JarClassEntry {
         );
         try {
             LazyLoader ll = new LazyLoader(SimpleBytecodeProvider.getInstance());
-            String procName = StringHelper.getProcessedName(getName(), null, MemberType.CLASS);
+            String procName = StringHelper.getProcessedName(MemberType.CLASS, getName(), null);
             ll.addClassLink(procName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, procName));
             StructClass sc = new StructClass(
                     SimpleBytecodeProvider.getInstance().getBytecode(null, procName),
@@ -171,7 +171,7 @@ public class JarClassEntry {
             for (JarClassEntry jce : Main.getLoadedJar().getClasses().stream()
                     .filter(entry -> entry.getName().startsWith(getName() + INNER_CLASS_SEPARATOR_CHAR))
                     .collect(Collectors.toList())) {
-                String innerProcName = StringHelper.getProcessedName(jce.getName(), null, MemberType.CLASS);
+                String innerProcName = StringHelper.getProcessedName(MemberType.CLASS, jce.getName(), null);
                 ll.addClassLink(innerProcName, new LazyLoader.Link(LazyLoader.Link.CLASS, null, innerProcName));
                 StructClass innerSc = new StructClass(
                         SimpleBytecodeProvider.getInstance().getBytecode(null, innerProcName),

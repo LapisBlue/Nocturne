@@ -169,9 +169,14 @@ public class JamReader extends MappingsReader {
                 continue;
             }
 
-            String deobf = arr[5];
+            String deobf;
+            if (arr.length == 7) {
+                deobf = arr[6];
+            } else {
+                deobf = arr[5];
+            }
 
-            MappingsHelper.genArgumentMapping(context, methodMapping, index, deobf);
+            MappingsHelper.genParamMapping(context, methodMapping, index, deobf);
         }
     }
 

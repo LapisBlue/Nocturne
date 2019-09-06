@@ -29,7 +29,11 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.PARAM_PREFIX;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.genClassMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.genParamMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
 
 import blue.lapis.nocturne.Main;
@@ -42,6 +46,7 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
+import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
@@ -53,6 +58,8 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
 import com.google.common.collect.Sets;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -73,6 +80,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a selectable member in code.
  */
@@ -89,6 +98,7 @@ public class SelectableMember extends Text {
 
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
+    private final IntegerProperty indexProperty = new SimpleIntegerProperty(this, "index");
     private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
 
     private final MemberSignature sig;
@@ -98,26 +108,34 @@ public class SelectableMember extends Text {
     private String fullName = null; // only used for classes
 
     public SelectableMember(CodeTab codeTab, MemberType type, String name) {
-        this(codeTab, type, name, null, null);
+        this(codeTab, type, name, null, null, null);
     }
 
     //TODO: this could stand to be broken into helper methods or just all-around restructured
-    public SelectableMember(CodeTab codeTab, MemberType type, String name, String descriptor, String parentClass) {
+    public SelectableMember(CodeTab codeTab, MemberType type, String name, String descriptor, @Nullable Integer index,
+            String parent) {
         super(name);
         this.codeTab = codeTab;
         this.type = type;
         this.nameProperty.set(name);
         this.descriptorProperty.set(descriptor);
+        this.indexProperty.set(index != null ? index : 0);
 
         if (type == MemberType.FIELD) {
             this.sig = new FieldSignature(name, Type.fromString(descriptor));
         } else if (type == MemberType.METHOD) {
             this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
+        } else if (type == MemberType.PARAM) {
+            this.sig = MethodSignature.fromString(parent.substring(parent.indexOf(".") + 1));
         } else {
             this.sig = null;
         }
 
-        this.parentClassProperty.set(parentClass);
+        if (type == MemberType.PARAM) {
+            this.parentClassProperty.set(parent.substring(0, parent.indexOf(".")));
+        } else {
+            this.parentClassProperty.set(parent);
+        }
 
         if (type == MemberType.CLASS) {
             fullName = getName();
@@ -168,17 +186,17 @@ public class SelectableMember extends Text {
                 if (mapping.isPresent()) {
                     mapping.get().setAdHoc(false);
                     if (mapping.get() instanceof MemberMapping) {
-                        ClassMapping parent = ((MemberMapping) mapping.get()).getParent();
+                        ClassMapping parentClassMapping = ((MemberMapping) mapping.get()).getParent();
                         if (mapping.get() instanceof FieldMapping) {
                             //noinspection ConstantConditions
-                            parent.removeFieldMapping((FieldSignature) sig);
+                            parentClassMapping.removeFieldMapping((FieldSignature) sig);
                         } else {
                             //noinspection ConstantConditions
-                            parent.removeMethodMapping((MethodSignature) sig);
+                            parentClassMapping.removeMethodMapping((MethodSignature) sig);
                         }
                     } else if (mapping.get() instanceof MethodParameterMapping) {
-                        ((MethodParameterMapping) mapping.get()).getParent()
-                                .removeParamMapping(mapping.get().getObfuscatedName());
+                        MethodParameterMapping mpMapping = (MethodParameterMapping) mapping.get();
+                        mpMapping.getParent().removeParamMapping(mpMapping.getIndex());
                     }
                 }
                 MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(false));
@@ -201,9 +219,9 @@ public class SelectableMember extends Text {
                 }
                 case FIELD:
                 case METHOD: {
-                    Optional<ClassMapping> parent
+                    Optional<ClassMapping> parentClassMappingOpt
                             = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
-                    if (parent.isPresent()) {
+                    if (parentClassMappingOpt.isPresent()) {
                         Optional<? extends Mapping> mapping = getMapping();
                         if (mapping.isPresent()) {
                             if (!checkMemberDupe(mapping.get().getObfuscatedName())) {
@@ -211,10 +229,10 @@ public class SelectableMember extends Text {
                             }
                             if (getType() == MemberType.FIELD) {
                                 //noinspection ConstantConditions
-                                parent.get().removeFieldMapping((FieldSignature) sig);
+                                parentClassMappingOpt.get().removeFieldMapping((FieldSignature) sig);
                             } else {
                                 //noinspection ConstantConditions
-                                parent.get().removeMethodMapping((MethodSignature) sig);
+                                parentClassMappingOpt.get().removeMethodMapping((MethodSignature) sig);
                             }
                             MEMBERS.get(key).forEach(sm -> {
                                 sm.setDeobfuscated(false);
@@ -224,8 +242,22 @@ public class SelectableMember extends Text {
                     }
                     break;
                 }
+                case PARAM:
+                    MethodMapping parentMethodMapping = getParentMethodMapping();
+
+                    if (parentMethodMapping != null) {
+                        Optional<? extends Mapping> mapping = getMapping();
+                        if (mapping.isPresent()) {
+                            parentMethodMapping.removeParamMapping(this.indexProperty.get());
+                            MEMBERS.get(key).forEach(sm -> {
+                                sm.setDeobfuscated(false);
+                                sm.updateText();
+                            });
+                        }
+                    }
+                    break;
                 default: {
-                    throw new AssertionError();
+                    throw new AssertionError("Unhandled type " + type.name());
                 }
             }
 
@@ -337,8 +369,20 @@ public class SelectableMember extends Text {
                 }
                 return true;
             }
+            case PARAM: {
+                MethodMapping parentMethodMapping = getParentMethodMapping();
+                if (parentMethodMapping != null) {
+                    for (MethodParameterMapping paramMapping : parentMethodMapping.getParamMappings().values()) {
+                        if (paramMapping.getDeobfuscatedName().equals(newName)) {
+                            showDupeAlert(false);
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
             default: {
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + type.name());
             }
         }
     }
@@ -392,8 +436,36 @@ public class SelectableMember extends Text {
                 }
                 break;
             }
+            case PARAM: {
+                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+                Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
+                classes.add(clazz);
+
+                for (IndexedClass ic : classes) {
+                    //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
+                    if (ic.getMethods().containsKey(sig)) {
+                        Optional<ClassMapping> classMappingOpt
+                                = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+                        ClassMapping classMapping = classMappingOpt.orElseGet(() ->
+                                genClassMapping(Main.getMappingContext(), parentClassProperty.get(),
+                                        parentClassProperty.get(), false)
+                        );
+
+                        assert sig instanceof MethodSignature;
+                        MethodMapping methodMapping = classMapping.getMethodMappings().get(sig);
+                        if (methodMapping == null) {
+                            methodMapping = genMethodMapping(Main.getMappingContext(), ic.getName(),
+                                    (MethodSignature) sig, sig.getName(), true);
+                        }
+
+                        genParamMapping(Main.getMappingContext(), methodMapping, indexProperty.get(), mapping);
+                    }
+                }
+
+                break;
+            }
             default: {
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + type.name());
             }
         }
     }
@@ -445,7 +517,7 @@ public class SelectableMember extends Text {
                 }
                 break;
             case FIELD:
-            case METHOD:
+            case METHOD: {
                 deobf = getName();
 
                 Optional<ClassMapping> classMapping
@@ -462,31 +534,58 @@ public class SelectableMember extends Text {
                     }
                 }
                 break;
+            }
+            case PARAM: {
+                deobf = getName();
+
+                MethodMapping methodMapping = getParentMethodMapping();
+                if (methodMapping != null) {
+                    MethodParameterMapping paramMapping = methodMapping.getParamMappings().get(indexProperty.get());
+                    if (paramMapping != null) {
+                        deobf = paramMapping.getDeobfuscatedName();
+                    }
+                }
+                break;
+            }
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + type.name());
         }
 
         setAndProcessText(deobf);
     }
 
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
-        MemberType type = matcher.group().startsWith(CLASS_PREFIX)
-                ? MemberType.CLASS
-                : MemberType.valueOf(matcher.group(1));
-
-        if (type == MemberType.CLASS) {
-            return new SelectableMember(codeTab, type, matcher.group(1));
+        MemberType type;
+        if (matcher.group().startsWith(CLASS_PREFIX)) {
+            type = MemberType.CLASS;
+        } else if (matcher.group().startsWith(MEMBER_PREFIX)) {
+            type = MemberType.valueOf(matcher.group(1));
+        } else if (matcher.group().startsWith(PARAM_PREFIX)) {
+            type = MemberType.PARAM;
         } else {
-            String qualName = matcher.group(2);
-            String descriptor = matcher.group(3);
-            int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
-            String simpleName = qualName.substring(offset + 1);
-            String parentClass = qualName.substring(0, offset);
-            try {
-                return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
-            } catch (IllegalArgumentException ex) {
-                return null;
-            }
+            throw new AssertionError("Failed to deduce matcher for processed name " + matcher.group());
+        }
+
+        switch (type) {
+            case CLASS:
+                return new SelectableMember(codeTab, MemberType.CLASS, matcher.group(1));
+            case FIELD:
+            case METHOD:
+                String qualName = matcher.group(2);
+                String descriptor = matcher.group(3);
+                int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+                String simpleName = qualName.substring(offset + 1);
+                String parentClass = qualName.substring(0, offset);
+                try {
+                    return new SelectableMember(codeTab, type, simpleName, descriptor, null, parentClass);
+                } catch (IllegalArgumentException ex) {
+                    return null;
+                }
+            case PARAM:
+                return new SelectableMember(codeTab, MemberType.PARAM, matcher.group(3), matcher.group(4),
+                        Integer.parseInt(matcher.group(2)), matcher.group(1));
+            default:
+                throw new AssertionError("Unhandled case " + type.name());
         }
     }
 
@@ -584,6 +683,7 @@ public class SelectableMember extends Text {
         IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
         switch (type) {
             case CLASS:
+            case PARAM:
                 qualName = getName();
                 break;
             case FIELD:
@@ -613,10 +713,21 @@ public class SelectableMember extends Text {
                 qualName = parent + CLASS_PATH_SEPARATOR_CHAR + getName();
                 break;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + type.name());
         }
 
         return qualName;
+    }
+
+    private MethodMapping getParentMethodMapping() {
+        Optional<ClassMapping> classMapping
+                = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
+        if (!classMapping.isPresent()) {
+            return null;
+        }
+
+        assert sig instanceof MethodSignature;
+        return classMapping.get().getMethodMappings().get(sig);
     }
 
 }

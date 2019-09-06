@@ -47,6 +47,7 @@ repositories {
 // Project dependencies
 dependencies {
     compile 'com.google.guava:guava:19.0'
+    compile 'com.google.code.findbugs:jsr305:3.0.2'
     compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'

@@ -33,6 +33,6 @@ public enum MemberType {
     CLASS,
     FIELD,
     METHOD,
-    ARG
+    PARAM
 
 }

@@ -28,6 +28,7 @@ package blue.lapis.nocturne.gui.scene.control;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
+import static blue.lapis.nocturne.util.Constants.Processing.PARAM_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
@@ -146,6 +147,7 @@ public class CodeTab extends Tab {
 
         parseItems(nodes, CLASS_REGEX, 1);
         parseItems(nodes, MEMBER_REGEX, 2);
+        parseItems(nodes, PARAM_REGEX, 1);
 
         JavaSyntaxHighlighter.highlight(nodes);
 
@@ -218,7 +220,7 @@ public class CodeTab extends Tab {
                     return SelectableMemberType.FIELD;
                 case METHOD:
                     return SelectableMemberType.METHOD;
-                case ARG:
+                case PARAM:
                     return SelectableMemberType.ARG;
                 default:
                     throw new AssertionError();

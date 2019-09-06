@@ -210,8 +210,8 @@ public class ClassTransformer extends ClassProcessor {
             attrOs.write(getBytes((short) attrCount));
 
             for (int i = 0; i < attrCount; i++) {
-                Pair<byte[], Boolean> attr = processAttribute(buffer, getString(nameIndex), getString(descIndex),
-                        (access & 0x8) != 0, descIndex);
+                Pair<byte[], Boolean> attr = processAttribute(buffer, nameIndex, descIndex,
+                        (access & 0x8) != 0);
                 attrOs.write(attr.first());
                 isSynthetic |= attr.second();
             }
@@ -228,9 +228,9 @@ public class ClassTransformer extends ClassProcessor {
                         nameIndex = map.get(nameIndex);
                     } else {
                         String procName = getProcessedName(
+                                isMethod ? MemberType.METHOD : MemberType.FIELD,
                                 getClassName() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
-                                getString(descIndex),
-                                isMethod ? MemberType.METHOD : MemberType.FIELD
+                                getString(descIndex)
                         );
                         Utf8Structure nameStruct = new Utf8Structure(procName);
                         processedPool.add(nameStruct);
@@ -300,7 +300,7 @@ public class ClassTransformer extends ClassProcessor {
             return;
         }
 
-        String newName = getProcessedName(name, null, MemberType.CLASS);
+        String newName = getProcessedName(MemberType.CLASS, name, null);
         byte[] strBytes = newName.getBytes(StandardCharsets.UTF_8);
         ByteBuffer strBuffer = ByteBuffer.allocate(strBytes.length + 3);
         strBuffer.put(StructureType.UTF_8.getTag());
@@ -352,8 +352,7 @@ public class ClassTransformer extends ClassProcessor {
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
         if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
-            String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
-                    memberType);
+            String newName = getProcessedName(memberType, className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);
             ByteBuffer nameBuffer = ByteBuffer.allocate(newNameBytes.length + 3);
             nameBuffer.put(StructureType.UTF_8.getTag());
@@ -400,8 +399,8 @@ public class ClassTransformer extends ClassProcessor {
     }
 
     @SuppressWarnings("fallthrough")
-    private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer, String memberName, String memberDesc,
-            boolean isStatic, int descIndex) throws IOException {
+    private Pair<byte[], Boolean> processAttribute(ByteBuffer buffer, int memberNameIndex, int memberDescIndex,
+            boolean isStatic) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         boolean isSynthetic = false;
 
@@ -442,10 +441,10 @@ public class ClassTransformer extends ClassProcessor {
                         actualAttrCount++;
                         try {
                             subOs.write(getBytes((short) subAttrNameIndex)); // write attribute_name_index
-                            processLvt(buffer, subOs, codeLength, isStatic, descIndex);
+                            processLvt(buffer, subOs, codeLength, isStatic, memberNameIndex, memberDescIndex);
                         } catch (Throwable t) {
                             throw new IllegalArgumentException("Failed to parse LocalVariableTable for method "
-                                    + memberName + memberDesc + " in class "
+                                    + getString(memberNameIndex) + getString(memberDescIndex) + " in class "
                                     + className, t);
                         }
                     } else {
@@ -479,7 +478,7 @@ public class ClassTransformer extends ClassProcessor {
     }
 
     private void processLvt(ByteBuffer inBuffer, ByteArrayOutputStream outBuffer,
-            int codeLength, boolean isStatic, int methodDescIndex) throws IOException {
+            int codeLength, boolean isStatic, int methodNameIndex, int methodDescIndex) throws IOException {
         MethodDescriptor md = MethodDescriptor.fromString(getString(methodDescIndex));
         int paramCount = md.getParamTypes().length;
 
@@ -544,7 +543,8 @@ public class ClassTransformer extends ClassProcessor {
                 seenParamNames.add(paramName);
             }
 
-            String newName = getProcessedName(fixedName, discoveredType, MemberType.ARG);
+            String newName = getProcessedName(MemberType.PARAM, fixedName, discoveredType,
+                    className + "." + getString(methodNameIndex), getString(methodDescIndex), paramIndex);
 
             Utf8Structure newNameStruct = new Utf8Structure(newName);
             processedPool.add(newNameStruct);

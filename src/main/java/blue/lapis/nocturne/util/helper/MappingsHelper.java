@@ -174,8 +174,7 @@ public final class MappingsHelper {
         }
     }
 
-    public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index,
-                                          String deobf) {
+    public static void genParamMapping(MappingContext context, MethodMapping methodMapping, int index, String deobf) {
         if (!StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered argument mapping with illegal name - ignoring");
             return;

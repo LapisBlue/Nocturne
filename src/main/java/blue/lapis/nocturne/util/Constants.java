@@ -85,18 +85,22 @@ public final class Constants {
 
         public static final String CLASS_PREFIX = "&NOCTURNE+";
         public static final String CLASS_SUFFIX = "&";
-        public static final Pattern CLASS_REGEX = Pattern.compile(Pattern.quote(CLASS_PREFIX) + "(.+?)"
-                + Pattern.quote(CLASS_SUFFIX));
+        public static final Pattern CLASS_REGEX = Pattern.compile(Pattern.quote(CLASS_PREFIX)
+                + "(.+?)" + Pattern.quote(CLASS_SUFFIX));
 
         public static final String MEMBER_PREFIX = "%NOCTURNE+";
         public static final String MEMBER_SUFFIX = "%";
-        public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX) + "(.+?)"
-                + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(DELIMITER) + "(.+?)"
-                + Pattern.quote(MEMBER_SUFFIX));
+        public static final Pattern MEMBER_REGEX = Pattern.compile(Pattern.quote(MEMBER_PREFIX)
+                + "(.+?)" + Pattern.quote(DELIMITER)
+                + "(.+?)" + Pattern.quote(DELIMITER)
+                + "(.+?)" + Pattern.quote(MEMBER_SUFFIX));
 
         public static final String PARAM_PREFIX = "#NOCTURNE+";
         public static final String PARAM_SUFFIX = "#";
-        public static final Pattern PARAM_REGEX = Pattern.compile(Pattern.quote(PARAM_PREFIX) + "(.+?)"
-                + Pattern.quote(DELIMITER) + "(.+?)" + Pattern.quote(PARAM_SUFFIX));
+        public static final Pattern PARAM_REGEX = Pattern.compile(Pattern.quote(PARAM_PREFIX)
+                + "(.+?)" + Pattern.quote(DELIMITER)
+                + "([0-9]+?)" + Pattern.quote(DELIMITER)
+                + "(.+?)" + Pattern.quote(DELIMITER)
+                + "(.+?)" + Pattern.quote(PARAM_SUFFIX));
     }
 }

@@ -53,7 +53,7 @@ public class MethodParameterMapping extends Mapping {
      */
     public MethodParameterMapping(MethodMapping parent, int index, String deobfName, boolean propagate) {
         super(deobfName, deobfName);
-        this.memberKey = new SelectableMember.MemberKey(MemberType.ARG, "", ""); // TODO: Use actual values
+        this.memberKey = new SelectableMember.MemberKey(MemberType.PARAM, "", ""); // TODO: Use actual values
         this.parent = parent;
         this.index = index;
 

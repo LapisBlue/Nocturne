@@ -49,7 +49,7 @@ import java.util.Objects;
 public class MethodMapping extends MemberMapping {
 
     //TODO: this needs to have integers as keys. it doesn't make sense with strings.
-    private final Map<String, MethodParameterMapping> argumentMappings = new HashMap<>();
+    private final Map<Integer, MethodParameterMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodSignature sig;
 
@@ -90,7 +90,7 @@ public class MethodMapping extends MemberMapping {
      *
      * @return A clone of the {@link MethodParameterMapping}s
      */
-    public ImmutableMap<String, MethodParameterMapping> getParamMappings() {
+    public ImmutableMap<Integer, MethodParameterMapping> getParamMappings() {
         return ImmutableMap.copyOf(this.argumentMappings);
     }
 
@@ -103,11 +103,11 @@ public class MethodMapping extends MemberMapping {
      */
     void addParamMapping(MethodParameterMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
-        argumentMappings.put(mapping.getObfuscatedName(), mapping);
+        argumentMappings.put(mapping.getIndex(), mapping);
     }
 
-    public void removeParamMapping(String name) {
-        argumentMappings.remove(name);
+    public void removeParamMapping(int index) {
+        argumentMappings.remove(index);
     }
 
     /**

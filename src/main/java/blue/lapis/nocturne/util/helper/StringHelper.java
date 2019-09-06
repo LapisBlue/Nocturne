@@ -37,6 +37,7 @@ import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_SUFFIX;
 import static blue.lapis.nocturne.util.Constants.Processing.PARAM_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.PARAM_REGEX;
 import static blue.lapis.nocturne.util.Constants.Processing.PARAM_SUFFIX;
 
 import blue.lapis.nocturne.Main;
@@ -47,24 +48,33 @@ import blue.lapis.nocturne.util.MemberType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 /**
  * Static utility class for certain string manipulator functions.
  */
 public final class StringHelper {
 
+    public static String getProcessedName(MemberType memberType, String qualName, @Nullable String descriptor) {
+        return getProcessedName(memberType, qualName, descriptor, null, null, null);
+    }
+
     // class format is &NOCTURNE+name^
     // member format is %NOCTURNE+TYPE-name-descriptor%
-    // param format is #NOCTURNE+name-descriptor#
-    public static String getProcessedName(String qualName, String descriptor, MemberType memberType) {
+    // param format is #NOCTURNE+qualified_method_name_and_descriptor-index-name-descriptor#
+    public static String getProcessedName(MemberType memberType, String qualName, String descriptor,
+            @Nullable String parentName, @Nullable String parentDescriptor, @Nullable Integer index) {
         switch (memberType) {
             case CLASS:
                 return CLASS_PREFIX + qualName + CLASS_SUFFIX;
             case FIELD:
             case METHOD:
                 return MEMBER_PREFIX + memberType.name() + DELIMITER + qualName + DELIMITER + descriptor + MEMBER_SUFFIX;
-            case ARG:
-                return PARAM_PREFIX + qualName + DELIMITER + descriptor + PARAM_SUFFIX;
+            case PARAM:
+                return PARAM_PREFIX + parentName + parentDescriptor + DELIMITER + index + DELIMITER
+                        + qualName + DELIMITER + descriptor + PARAM_SUFFIX;
             default:
                 throw new AssertionError("Unhandled case " + memberType.name());
         }
@@ -76,7 +86,7 @@ public final class StringHelper {
                 if (desc.startsWith("L") && desc.endsWith(";")) {
                     String typeClass = desc.substring(1, desc.length() - 1);
                     if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                        return "L" + getProcessedName(typeClass, null, MemberType.CLASS) + ";";
+                        return "L" + getProcessedName(MemberType.CLASS, typeClass, null) + ";";
                     }
                 }
                 break;
@@ -91,7 +101,7 @@ public final class StringHelper {
                         } else {
                             String typeClass = param.getClassName();
                             if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                                newParams.add(new Type(getProcessedName(typeClass, null, MemberType.CLASS),
+                                newParams.add(new Type(getProcessedName(MemberType.CLASS, typeClass, null),
                                         param.getArrayDimensions()));
                             } else {
                                 newParams.add(param);
@@ -102,7 +112,7 @@ public final class StringHelper {
                     if (!returnType.isPrimitive()) {
                         String typeClass = returnType.getClassName();
                         if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
-                            returnType = new Type(getProcessedName(typeClass, null, MemberType.CLASS),
+                            returnType = new Type(getProcessedName(MemberType.CLASS, typeClass, null),
                                     returnType.getArrayDimensions());
                         }
                     }
@@ -122,12 +132,27 @@ public final class StringHelper {
     }
 
     public static String getUnprocessedName(String processed) {
-        boolean clazz = processed.startsWith(CLASS_PREFIX);
-        Matcher matcher = (clazz ? CLASS_REGEX : MEMBER_REGEX).matcher(processed);
+        int group;
+        Pattern pattern;
+        if (processed.startsWith(CLASS_PREFIX)) {
+            pattern = CLASS_REGEX;
+            group = 1;
+        } else if (processed.startsWith(MEMBER_PREFIX)) {
+            pattern = MEMBER_REGEX;
+            group = 2;
+        } else if (processed.startsWith(PARAM_PREFIX)) {
+            pattern = PARAM_REGEX;
+             group = 1;
+        } else {
+            throw new AssertionError("Unrecognized processed name " + processed);
+        }
+
+        Matcher matcher = pattern.matcher(processed);
         if (!matcher.find()) {
             throw new IllegalArgumentException("String " + processed + " is not a processed member name");
         }
-        return matcher.group(clazz ? 1 : 2);
+
+        return matcher.group(group);
     }
 
     public static String resolvePackageName(String qualifiedClassName) {

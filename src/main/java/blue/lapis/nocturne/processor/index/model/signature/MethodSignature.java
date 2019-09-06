@@ -71,4 +71,17 @@ public class MethodSignature extends MemberSignature {
         return Objects.hash(this.name, this.descriptor);
     }
 
+    public static MethodSignature fromString(String str) {
+        if (!str.contains("(")) {
+            throw new IllegalArgumentException("Invalid method signature");
+        }
+
+        String[] arr = str.split("\\(");
+
+        String name = arr[0];
+        MethodDescriptor desc = MethodDescriptor.fromString("(" + arr[1]);
+
+        return new MethodSignature(name, desc);
+    }
+
 }

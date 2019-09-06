@@ -184,7 +184,7 @@ public class EnigmaReader extends MappingsReader {
                     int index = Integer.parseInt(arr[1]);
                     String deobf = arr[2];
 
-                    MappingsHelper.genArgumentMapping(mappings, currentMethod, index, deobf);
+                    MappingsHelper.genParamMapping(mappings, currentMethod, index, deobf);
                     break;
                 }
                 default: {
