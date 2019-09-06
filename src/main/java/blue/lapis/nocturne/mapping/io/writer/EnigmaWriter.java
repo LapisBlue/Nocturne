@@ -36,9 +36,9 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 
 /**
  * The mappings writer, for the Enigma format.
@@ -57,32 +57,35 @@ public class EnigmaWriter extends MappingsWriter {
 
     @Override
     public void write(MappingContext mappings) {
-        for (TopLevelClassMapping classMapping : mappings.getMappings().values()) {
-            this.writeClassMapping(classMapping, 0);
-        }
+        mappings.getMappings().values().stream()
+                .sorted(ALPHABETISE_CLASSES)
+                .forEach(klass -> this.writeClassMapping(klass, 0));
         out.close();
     }
 
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
-        boolean inner = classMapping instanceof InnerClassMapping;
-        if (classMapping.getDeobfuscatedName().equals(classMapping.getObfuscatedName())) {
-            if (!classMapping.getInnerClassMappings().isEmpty()) {
-                out.println(getIndentForDepth(depth) + "CLASS "
-                        + (inner ? classMapping.getObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName())));
-            }
-        } else {
-            out.println(getIndentForDepth(depth) + "CLASS "
-                    + (inner ? classMapping.getFullObfuscatedName() : addNonePrefix(classMapping.getObfuscatedName()))
-                    + " "
-                    + (inner ? classMapping.getDeobfuscatedName() : addNonePrefix(classMapping.getDeobfuscatedName())));
+        final String obfName = addNonePrefix(classMapping.getFullObfuscatedName());
+        if (!Objects.equals(classMapping.getDeobfuscatedName(), classMapping.getObfuscatedName())) { // hasDeobfName
+            final String deobfName = classMapping instanceof InnerClassMapping ?
+                    classMapping.getDeobfuscatedName() :
+                    addNonePrefix(classMapping.getDeobfuscatedName());
+            this.out.println(getIndentForDepth(depth) + "CLASS " + obfName + " " + deobfName);
+        }
+        else {
+            this.out.println(getIndentForDepth(depth) + "CLASS " + obfName);
         }
 
-        classMapping.getInnerClassMappings().values().forEach(m -> this.writeClassMapping(m, depth + 1));
+        classMapping.getInnerClassMappings().values().stream()
+                .sorted(ALPHABETISE_CLASSES)
+                .forEach(m -> this.writeClassMapping(m, depth + 1));
 
-        classMapping.getFieldMappings().values().stream().filter(NOT_USELESS)
+        classMapping.getFieldMappings().values().stream()
+                .filter(NOT_USELESS)
+                .sorted(ALPHABETISE_FIELDS)
                 .forEach(m -> this.writeFieldMapping(m, depth + 1));
 
-        classMapping.getMethodMappings().values().stream().filter(NOT_USELESS)
+        classMapping.getMethodMappings().values().stream()
+                .sorted(ALPHABETISE_METHODS)
                 .forEach(m -> this.writeMethodMapping(m, depth + 1));
     }
 
@@ -102,9 +105,9 @@ public class EnigmaWriter extends MappingsWriter {
                     + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
         }
 
-        for (MethodParameterMapping methodParameterMapping : methodMapping.getParamMappings().values()) {
-            writeArgumentMapping(methodParameterMapping, depth + 1);
-        }
+        methodMapping.getParamMappings().values().stream()
+                .sorted(ALPHABETISE_PARAMS)
+                .forEach(param -> this.writeArgumentMapping(param, depth + 1));
     }
 
     protected void writeArgumentMapping(MethodParameterMapping argMapping, int depth) {
@@ -127,7 +130,11 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     private Type addNonePrefix(Type type) {
-        return type.isPrimitive() ? type : Type.fromString("L" + addNonePrefix(type.getClassName()) + ";");
+        if (!type.isPrimitive() && !CLASS_PATH_SEPARATOR_PATTERN.matcher(type.getClassName()).find()) {
+            return new Type(ENIGMA_ROOT_PACKAGE_PREFIX + type.getClassName(), type.getArrayDimensions());
+        } else {
+            return type;
+        }
     }
 
     private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {

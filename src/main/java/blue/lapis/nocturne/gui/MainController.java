@@ -327,8 +327,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded,
-            final boolean checkLength) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded, final boolean checkLength) {
         IdentifiableTreeItem treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
