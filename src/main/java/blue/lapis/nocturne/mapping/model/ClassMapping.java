@@ -197,7 +197,7 @@ public abstract class ClassMapping extends Mapping {
         String unqualName = this instanceof InnerClassMapping ? name : StringHelper.unqualify(name);
         memberList.forEach(member -> {
             member.setText(unqualName);
-            member.setDeobfuscated(!name.equals(member.getName()));
+            member.setDeobfuscated(!name.equals(member.getName()), true);
         });
 
         if (updateClassViews) {

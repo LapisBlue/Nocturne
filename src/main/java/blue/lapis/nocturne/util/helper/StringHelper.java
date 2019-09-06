@@ -57,11 +57,13 @@ import javax.annotation.Nullable;
  */
 public final class StringHelper {
 
+    private static final Pattern LOOKS_DEOBFUSCATED_REGEX = Pattern.compile("(?:.{4,})|(?:[A-Z][a-z]{2})");
+
     public static String getProcessedName(MemberType memberType, String qualName, @Nullable String descriptor) {
         return getProcessedName(memberType, qualName, descriptor, null, null, null);
     }
 
-    // class format is &NOCTURNE+name^
+    // class format is ^NOCTURNE+name^
     // member format is %NOCTURNE+TYPE-name-descriptor%
     // param format is #NOCTURNE+qualified_method_name_and_descriptor-index-name-descriptor#
     public static String getProcessedName(MemberType memberType, String qualName, String descriptor,
@@ -193,6 +195,10 @@ public final class StringHelper {
         }
 
         return true;
+    }
+
+    public static boolean looksDeobfuscated(String id) {
+        return LOOKS_DEOBFUSCATED_REGEX.matcher(id).find();
     }
 
 }

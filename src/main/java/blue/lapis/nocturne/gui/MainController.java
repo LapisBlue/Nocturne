@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.gui;
 
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
@@ -131,6 +132,9 @@ public class MainController implements Initializable {
     }
 
     private void initTreeViews() {
+        this.obfTree.setShowRoot(false);
+        this.deobfTree.setShowRoot(false);
+
         BiConsumer<InputEvent, TreeView<String>> clickHandler = (event, treeView) -> {
             if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
                     || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
@@ -247,7 +251,7 @@ public class MainController implements Initializable {
         SelectableMember.MEMBERS.values()
                 .forEach(list -> list.forEach(member -> {
                     member.setAndProcessText(member.getName());
-                    member.setDeobfuscated(false);
+                    member.setDeobfuscated(looksDeobfuscated(member.getName()), false);
                 }));
         updateClassViews();
     }

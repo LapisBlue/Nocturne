@@ -35,6 +35,7 @@ import static blue.lapis.nocturne.util.helper.MappingsHelper.genClassMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genParamMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
@@ -88,8 +89,6 @@ import javax.annotation.Nullable;
 public class SelectableMember extends Text {
 
     public static final Map<MemberKey, List<SelectableMember>> MEMBERS = new HashMap<>();
-
-    private static final Pattern LOOKS_DEOBFUSCATED_REGEX = Pattern.compile("(?:.{4,})|(?:[A-Z][a-z]{2})");
 
     private final CodeTab codeTab;
     private final MemberType type;
@@ -199,7 +198,8 @@ public class SelectableMember extends Text {
                         mpMapping.getParent().removeParamMapping(mpMapping.getIndex());
                     }
                 }
-                MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(false));
+                MEMBERS.get(key).forEach(sm ->
+                        sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false));
             }
             switch (getType()) {
                 case CLASS: {
@@ -212,7 +212,7 @@ public class SelectableMember extends Text {
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                         mapping.get().setAdHoc(false);
-                        setDeobfuscated(false);
+                        setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
                     }
                     fullName = getName();
                     break;
@@ -235,7 +235,7 @@ public class SelectableMember extends Text {
                                 parentClassMappingOpt.get().removeMethodMapping((MethodSignature) sig);
                             }
                             MEMBERS.get(key).forEach(sm -> {
-                                sm.setDeobfuscated(false);
+                                sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
                                 sm.updateText();
                             });
                         }
@@ -269,7 +269,7 @@ public class SelectableMember extends Text {
             // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
             boolean shouldDeobf = !this.deobfuscated;
             genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
-            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf));
+            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf, false));
         });
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
@@ -302,11 +302,9 @@ public class SelectableMember extends Text {
         updateText();
 
         Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(looksDeobfuscated(getName()) || (fullName != null && !getName().equals(fullName)) || (mapping.isPresent() && mapping.get().isAdHoc()));
-    }
-
-    private static boolean looksDeobfuscated(String id) {
-        return LOOKS_DEOBFUSCATED_REGEX.matcher(id).find();
+        setDeobfuscated(looksDeobfuscated(getName())
+                || (fullName != null && !getName().equals(fullName))
+                || (mapping.isPresent() && mapping.get().isAdHoc()), false);
     }
 
     private String getClassName() {
@@ -627,7 +625,11 @@ public class SelectableMember extends Text {
         return getType() == MemberType.CLASS && getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
     }
 
-    public void setDeobfuscated(boolean deobfuscated) {
+    public void setDeobfuscated(boolean deobfuscated, boolean soft) {
+        if (this.deobfuscated && !deobfuscated && soft) {
+            return;
+        }
+
         this.deobfuscated = deobfuscated;
         getStyleClass().clear();
         if (deobfuscated) {
