@@ -78,7 +78,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -98,7 +97,7 @@ public class SelectableMember extends Text {
     private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
     private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
     private final IntegerProperty indexProperty = new SimpleIntegerProperty(this, "index");
-    private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
+    private final StringProperty parentProperty = new SimpleStringProperty(this, "parentClass");
 
     private final MemberSignature sig;
 
@@ -120,21 +119,24 @@ public class SelectableMember extends Text {
         this.descriptorProperty.set(descriptor);
         this.indexProperty.set(index != null ? index : 0);
 
-        if (type == MemberType.FIELD) {
-            this.sig = new FieldSignature(name, Type.fromString(descriptor));
-        } else if (type == MemberType.METHOD) {
-            this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
-        } else if (type == MemberType.PARAM) {
-            this.sig = MethodSignature.fromString(parent.substring(parent.indexOf(".") + 1));
-        } else {
-            this.sig = null;
+        switch (type) {
+            case CLASS:
+                this.sig = null;
+                break;
+            case FIELD:
+                this.sig = new FieldSignature(name, Type.fromString(descriptor));
+                break;
+            case METHOD:
+                this.sig = new MethodSignature(name, MethodDescriptor.fromString(descriptor));
+                break;
+            case PARAM:
+                this.sig = MethodSignature.fromString(parent.substring(parent.indexOf(".") + 1));
+                break;
+            default:
+                throw new AssertionError("Unhandled case " + type.name());
         }
 
-        if (type == MemberType.PARAM) {
-            this.parentClassProperty.set(parent.substring(0, parent.indexOf(".")));
-        } else {
-            this.parentClassProperty.set(parent);
-        }
+        this.parentProperty.set(parent);
 
         if (type == MemberType.CLASS) {
             fullName = getName();
@@ -250,7 +252,7 @@ public class SelectableMember extends Text {
                         if (mapping.isPresent()) {
                             parentMethodMapping.removeParamMapping(this.indexProperty.get());
                             MEMBERS.get(key).forEach(sm -> {
-                                sm.setDeobfuscated(false);
+                                sm.setDeobfuscated(looksDeobfuscated(sm.fullName), false);
                                 sm.updateText();
                             });
                         }
@@ -435,7 +437,8 @@ public class SelectableMember extends Text {
                 break;
             }
             case PARAM: {
-                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
+                String className = parentProperty.get().substring(0, parentProperty.get().lastIndexOf("."));
+                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(className);
                 Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
                 classes.add(clazz);
 
@@ -445,8 +448,7 @@ public class SelectableMember extends Text {
                         Optional<ClassMapping> classMappingOpt
                                 = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
                         ClassMapping classMapping = classMappingOpt.orElseGet(() ->
-                                genClassMapping(Main.getMappingContext(), parentClassProperty.get(),
-                                        parentClassProperty.get(), false)
+                                genClassMapping(Main.getMappingContext(), className, className, false)
                         );
 
                         assert sig instanceof MethodSignature;
@@ -485,8 +487,8 @@ public class SelectableMember extends Text {
         return descriptorProperty;
     }
 
-    public StringProperty getParentClassProperty() {
-        return parentClassProperty;
+    public StringProperty getParentProperty() {
+        return parentProperty;
     }
 
     public MemberType getType() {
@@ -502,7 +504,7 @@ public class SelectableMember extends Text {
     }
 
     public String getParentClass() {
-        return getParentClassProperty().get();
+        return getParentProperty().get();
     }
 
     private void updateText() {
@@ -674,8 +676,12 @@ public class SelectableMember extends Text {
             case METHOD: {
                 return Optional.ofNullable(classMapping.get().getMethodMappings().get(sig));
             }
+            case PARAM: {
+                return Optional.ofNullable(classMapping.get().getMethodMappings().get(sig)
+                        .getParamMappings().get(fullName));
+            }
             default: {
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + getType().name());
             }
         }
     }
@@ -685,8 +691,7 @@ public class SelectableMember extends Text {
         IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
         switch (type) {
             case CLASS:
-            case PARAM:
-                qualName = getName();
+                qualName = fullName;
                 break;
             case FIELD:
                 //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
@@ -713,6 +718,9 @@ public class SelectableMember extends Text {
                     throw new IllegalArgumentException(); //TODO
                 }
                 qualName = parent + CLASS_PATH_SEPARATOR_CHAR + getName();
+                break;
+            case PARAM:
+                qualName = parentProperty.get() + "." + indexProperty.get();
                 break;
             default:
                 throw new AssertionError("Unhandled case " + type.name());

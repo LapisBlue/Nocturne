@@ -31,6 +31,7 @@ import blue.lapis.nocturne.util.MemberType;
 
 import com.google.common.base.MoreObjects;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -53,7 +54,9 @@ public class MethodParameterMapping extends Mapping {
      */
     public MethodParameterMapping(MethodMapping parent, int index, String deobfName, boolean propagate) {
         super(deobfName, deobfName);
-        this.memberKey = new SelectableMember.MemberKey(MemberType.PARAM, "", ""); // TODO: Use actual values
+        this.memberKey = new SelectableMember.MemberKey(MemberType.PARAM,
+                parent.getParent().getFullObfuscatedName() + "." + parent.getObfuscatedName()
+                        + parent.getObfuscatedDescriptor().toString() + "." + index, null);
         this.parent = parent;
         this.index = index;
 
@@ -97,8 +100,17 @@ public class MethodParameterMapping extends Mapping {
         setDeobfuscatedName(name, true);
     }
 
-    public void setDeobfuscatedName(String deobf, boolean propagate) {
-        super.setDeobfuscatedName(deobf);
+    public void setDeobfuscatedName(String name, boolean propagate) {
+        super.setDeobfuscatedName(name);
+
+        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
+        if (memberList == null) {
+            return;
+        }
+        memberList.forEach(member -> {
+            member.setText(name);
+            member.setDeobfuscated(!name.equals(member.getName()), true);
+        });
 
         // TODO: propagate
     }

@@ -48,7 +48,6 @@ import java.util.Objects;
  */
 public class MethodMapping extends MemberMapping {
 
-    //TODO: this needs to have integers as keys. it doesn't make sense with strings.
     private final Map<Integer, MethodParameterMapping> argumentMappings = new HashMap<>();
     private final SelectableMember.MemberKey memberKey;
     private final MethodSignature sig;
@@ -138,7 +137,7 @@ public class MethodMapping extends MemberMapping {
         return memberKey;
     }
 
-    private String getQualifiedName() {
+    public String getQualifiedName() {
         return getParent().getFullObfuscatedName() + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
     }
 
