@@ -38,6 +38,7 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 
+import org.cadixdev.bombe.type.BaseType;
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
@@ -166,9 +167,9 @@ class ReaderTestHelper {
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
         assertArrayEquals(
                 new FieldType[]{
-                        FieldType.of("I"),
-                        FieldType.of("La;"),
-                        FieldType.of("I")
+                        BaseType.INT,
+                        new ObjectType("a"),
+                        BaseType.INT
                 },
                 methodMapping.getObfuscatedDescriptor().getParamTypes().toArray()
         );
@@ -177,9 +178,9 @@ class ReaderTestHelper {
         MethodDescriptor deobfSig = methodMapping.getDeobfuscatedDescriptor();
         assertArrayEquals(
                 new FieldType[]{
-                        FieldType.of("I"),
-                        FieldType.of("L" + EXAMPLE_PACKAGE + "/Example;"),
-                        FieldType.of("I")
+                        BaseType.INT,
+                        new ObjectType(EXAMPLE_PACKAGE + "/Example"),
+                        BaseType.INT
                 },
                 deobfSig.getParamTypes().toArray()
         );
