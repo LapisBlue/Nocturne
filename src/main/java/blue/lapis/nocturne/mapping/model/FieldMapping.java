@@ -92,7 +92,8 @@ public class FieldMapping extends MemberMapping {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), sig.getType().toString());
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(),
+                sig.getType().isPresent() ? sig.getType().get().toString() : null); //TODO: handle this better
     }
 
     private String getQualifiedName() {
