@@ -181,7 +181,8 @@ public class SelectableMember extends Text {
                     }
                 }
                 MEMBERS.get(key).forEach(sm ->
-                        sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false));
+                        sm.setDeobfuscated(mapping.isPresent()
+                                && looksDeobfuscated(mapping.get().getObfuscatedName()), false));
             }
             switch (getType()) {
                 case CLASS: {
