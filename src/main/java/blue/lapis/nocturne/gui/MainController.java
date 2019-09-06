@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.gui;
 
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
@@ -250,7 +251,7 @@ public class MainController implements Initializable {
         SelectableMember.MEMBERS.values()
                 .forEach(list -> list.forEach(member -> {
                     member.setAndProcessText(member.getName());
-                    member.setDeobfuscated(false);
+                    member.setDeobfuscated(looksDeobfuscated(member.getName()), false);
                 }));
         updateClassViews();
     }
@@ -326,8 +327,7 @@ public class MainController implements Initializable {
         }
     }
 
-    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded,
-            final boolean checkLength) {
+    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded, final boolean checkLength) {
         IdentifiableTreeItem treeItem;
         if (element instanceof HierarchyNode) {
             HierarchyNode node = (HierarchyNode) element;
