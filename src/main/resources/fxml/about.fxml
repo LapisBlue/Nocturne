@@ -28,7 +28,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 <TextFlow xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40">
-    <Text styleClass="copyright" text="%about.copyright"/><Text styleClass="copyright" text=" (c) 2015-2018 Lapis."/>
+    <Text styleClass="copyright" text="%about.copyright"/><Text styleClass="copyright" text=" (c) 2015-2019 Lapis."/>
     <Text text="&#10;&#10;"/>
     <Text text="%about.description"/>
     <Text text="&#10;&#10;"/>
