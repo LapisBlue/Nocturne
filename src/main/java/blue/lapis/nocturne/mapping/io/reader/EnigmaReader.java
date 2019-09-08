@@ -219,16 +219,22 @@ public class EnigmaReader extends MappingsReader {
         return str;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Type> T removeNonePrefix(T type) {
-        if (type instanceof ObjectType) {
-            final ObjectType obj = (ObjectType) type;
-            return (T) new ObjectType(removeNonePrefix(obj.getClassName()));
+    private static Type removeNonePrefix(final Type type) {
+        if (type instanceof FieldType) {
+            return removeNonePrefix((FieldType) type);
         }
         return type;
     }
 
-    private MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
+    private static FieldType removeNonePrefix(final FieldType type) {
+        if (type instanceof ObjectType) {
+            final ObjectType obj = (ObjectType) type;
+            return new ObjectType(removeNonePrefix(obj.getClassName()));
+        }
+        return type;
+    }
+
+    private static MethodDescriptor removeNonePrefixes(final MethodDescriptor desc) {
         final List<FieldType> params = new ArrayList<>(desc.getParamTypes().size());
         for (final FieldType param : desc.getParamTypes()) {
             params.add(removeNonePrefix(param));

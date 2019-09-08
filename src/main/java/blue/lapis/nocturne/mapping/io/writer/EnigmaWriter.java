@@ -127,23 +127,29 @@ public class EnigmaWriter extends MappingsWriter {
         return builder.toString();
     }
 
-    private String addNonePrefix(String str) {
+    private static String addNonePrefix(final String str) {
         if (!CLASS_PATH_SEPARATOR_PATTERN.matcher(str).find()) {
             return ENIGMA_ROOT_PACKAGE_PREFIX + str;
         }
         return str;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Type> T addNonePrefix(T type) {
-        if (type instanceof ObjectType) {
-            final ObjectType obj = (ObjectType) type;
-            return (T) new ObjectType(addNonePrefix(obj.getClassName()));
+    private static Type addNonePrefix(final Type type) {
+        if (type instanceof FieldType) {
+            return addNonePrefix((FieldType) type);
         }
         return type;
     }
 
-    private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {
+    private static FieldType addNonePrefix(final FieldType type) {
+        if (type instanceof ObjectType) {
+            final ObjectType obj = (ObjectType) type;
+            return new ObjectType(addNonePrefix(obj.getClassName()));
+        }
+        return type;
+    }
+
+    private static MethodDescriptor addNonePrefixes(final MethodDescriptor desc) {
         final List<FieldType> params = new ArrayList<>(desc.getParamTypes().size());
         for (final FieldType param : desc.getParamTypes()) {
             params.add(addNonePrefix(param));
