@@ -30,20 +30,24 @@ import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.ObjectType;
+import org.cadixdev.bombe.type.Type;
+import org.cadixdev.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.signature.MethodSignature;
+
 import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -119,7 +123,7 @@ public class EnigmaReader extends MappingsReader {
 
                     String obf = arr[1];
                     String deobf = arr[2];
-                    Type type = removeNonePrefix(Type.fromString(arr[3]));
+                    FieldType type = removeNonePrefix(FieldType.of(arr[3]));
                     MappingsHelper.genFieldMapping(mappings, parent.getFullObfuscatedName(),
                             new FieldSignature(obf, type), deobf);
                     break;
@@ -141,7 +145,7 @@ public class EnigmaReader extends MappingsReader {
 
                     final ClassMapping parent = peekClass(stack, lineNum);
 
-                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.fromString(descStr));
+                    MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.of(descStr));
 
                     stack.push(MappingsHelper.genMethodMapping(mappings, parent.getFullObfuscatedName(),
                             new MethodSignature(obf, desc), deobf, true));
@@ -215,17 +219,28 @@ public class EnigmaReader extends MappingsReader {
         return str;
     }
 
-    private static Type removeNonePrefix(Type type) {
-        return type.isPrimitive() ? type : Type.fromString("L" + removeNonePrefix(type.getClassName()) + ";");
+    private static Type removeNonePrefix(final Type type) {
+        if (type instanceof FieldType) {
+            return removeNonePrefix((FieldType) type);
+        }
+        return type;
     }
 
-    private static MethodDescriptor removeNonePrefixes(MethodDescriptor desc) {
-        Type[] params = new Type[desc.getParamTypes().length];
-        for (int i = 0; i < params.length; i++) {
-            params[i] = removeNonePrefix(desc.getParamTypes()[i]);
+    private static FieldType removeNonePrefix(final FieldType type) {
+        if (type instanceof ObjectType) {
+            final ObjectType obj = (ObjectType) type;
+            return new ObjectType(removeNonePrefix(obj.getClassName()));
         }
-        Type returnType = removeNonePrefix(desc.getReturnType());
-        return new MethodDescriptor(returnType, params);
+        return type;
+    }
+
+    private static MethodDescriptor removeNonePrefixes(final MethodDescriptor desc) {
+        final List<FieldType> params = new ArrayList<>(desc.getParamTypes().size());
+        for (final FieldType param : desc.getParamTypes()) {
+            params.add(removeNonePrefix(param));
+        }
+        final Type returnType = removeNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(params, returnType);
     }
 
 }

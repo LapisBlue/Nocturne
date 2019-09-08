@@ -29,9 +29,11 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.attribute.Type;
-import blue.lapis.nocturne.processor.index.model.signature.FieldSignature;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
+
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.signature.FieldSignature;
 
 /**
  * Represents a {@link Mapping} for a field.
@@ -57,21 +59,21 @@ public class FieldMapping extends MemberMapping {
     }
 
     /**
-     * Returns the {@link Type} of this field.
+     * Returns the {@link FieldType} of this field.
      *
-     * @return The {@link Type} of this field
+     * @return The {@link FieldType} of this field
      */
-    public Type getObfuscatedType() {
-        return sig.getType();
+    public FieldType getObfuscatedType() {
+        return sig.getType().orElse(null);
     }
 
     /**
-     * Returns the deobfuscated {@link Type} of this field.
+     * Returns the deobfuscated {@link FieldType} of this field.
      *
-     * @return The deobfuscated {@link Type} of this field
+     * @return The deobfuscated {@link FieldType} of this field
      */
-    public Type getDeobfuscatedType() {
-        return getObfuscatedType().deobfuscate(getParent().getContext());
+    public FieldType getDeobfuscatedType() {
+        return MappingsHelper.deobfuscate(getParent().getContext(), getObfuscatedType());
     }
 
     @Override
@@ -80,7 +82,7 @@ public class FieldMapping extends MemberMapping {
 
         Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
-                : new FieldSignature(getDeobfuscatedName(), sig.getType()));
+                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null)));
     }
 
     @Override
@@ -90,7 +92,8 @@ public class FieldMapping extends MemberMapping {
 
     @Override
     protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(), sig.getType().toString());
+        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(),
+                sig.getType().map(FieldType::toString).orElse(null));
     }
 
     private String getQualifiedName() {

@@ -28,8 +28,6 @@ package blue.lapis.nocturne.mapping.io.writer;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
 import static blue.lapis.nocturne.util.Constants.ENIGMA_ROOT_PACKAGE_PREFIX;
 
-import blue.lapis.nocturne.jar.model.attribute.MethodDescriptor;
-import blue.lapis.nocturne.jar.model.attribute.Type;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -37,7 +35,14 @@ import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 
+import org.cadixdev.bombe.type.FieldType;
+import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.ObjectType;
+import org.cadixdev.bombe.type.Type;
+
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -122,28 +127,35 @@ public class EnigmaWriter extends MappingsWriter {
         return builder.toString();
     }
 
-    private String addNonePrefix(String str) {
+    private static String addNonePrefix(final String str) {
         if (!CLASS_PATH_SEPARATOR_PATTERN.matcher(str).find()) {
             return ENIGMA_ROOT_PACKAGE_PREFIX + str;
         }
         return str;
     }
 
-    private Type addNonePrefix(Type type) {
-        if (!type.isPrimitive() && !CLASS_PATH_SEPARATOR_PATTERN.matcher(type.getClassName()).find()) {
-            return new Type(ENIGMA_ROOT_PACKAGE_PREFIX + type.getClassName(), type.getArrayDimensions());
-        } else {
-            return type;
+    private static Type addNonePrefix(final Type type) {
+        if (type instanceof FieldType) {
+            return addNonePrefix((FieldType) type);
         }
+        return type;
     }
 
-    private MethodDescriptor addNonePrefixes(MethodDescriptor desc) {
-        Type[] params = new Type[desc.getParamTypes().length];
-        for (int i = 0; i < params.length; i++) {
-            params[i] = addNonePrefix(desc.getParamTypes()[i]);
+    private static FieldType addNonePrefix(final FieldType type) {
+        if (type instanceof ObjectType) {
+            final ObjectType obj = (ObjectType) type;
+            return new ObjectType(addNonePrefix(obj.getClassName()));
         }
-        Type returnType = addNonePrefix(desc.getReturnType());
-        return new MethodDescriptor(returnType, params);
+        return type;
+    }
+
+    private static MethodDescriptor addNonePrefixes(final MethodDescriptor desc) {
+        final List<FieldType> params = new ArrayList<>(desc.getParamTypes().size());
+        for (final FieldType param : desc.getParamTypes()) {
+            params.add(addNonePrefix(param));
+        }
+        final Type returnType = addNonePrefix(desc.getReturnType());
+        return new MethodDescriptor(params, returnType);
     }
 
 }

@@ -27,7 +27,8 @@ package blue.lapis.nocturne.mapping.model;
 
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.processor.index.model.signature.MemberSignature;
+
+import org.cadixdev.bombe.type.signature.MemberSignature;
 
 import java.util.List;
 import java.util.Objects;

@@ -31,7 +31,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
-import blue.lapis.nocturne.processor.index.model.signature.MethodSignature;
+
+import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.Set;
 import java.util.stream.Collectors;

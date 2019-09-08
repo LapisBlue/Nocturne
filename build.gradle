@@ -47,6 +47,7 @@ repositories {
 // Project dependencies
 dependencies {
     compile 'com.google.guava:guava:19.0'
+    compile 'org.cadixdev:bombe:0.3.0'
     compile project('FernFlower')
 
     testCompile 'junit:junit:4.12'
