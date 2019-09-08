@@ -342,8 +342,23 @@ public class MainController implements Initializable {
 
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(element.getChildren().stream()
-                    .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
+            if (element.getChildren().size() == 1 &&
+                    !element.getChildren().get(0).isTerminal()) {
+                HierarchyNode e = element.getChildren().get(0);
+                do {
+                    treeItem.setValue(treeItem.getValue() + "." + e.getDisplayName());
+                    e = e.getChildren().get(0);
+                }
+                while (e.getChildren().size() == 1 && !e.getChildren().get(0).isTerminal());
+                treeItem.setValue(treeItem.getValue() + "." + e.getDisplayName());
+
+                treeItem.getChildren().addAll(e.getChildren().stream()
+                        .map(el -> this.generateTreeItem(el, expanded, checkLength)).collect(Collectors.toList()));
+            }
+            else {
+                treeItem.getChildren().addAll(element.getChildren().stream()
+                        .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
+            }
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
             boolean c1 = t1.getChildren().size() > 0;
