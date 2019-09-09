@@ -32,6 +32,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
+import blue.lapis.nocturne.gui.scene.control.ClassesTreeView;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
 import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
@@ -98,8 +99,8 @@ public class MainController implements Initializable {
 
     public TabPane tabs;
 
-    public TreeView<String> obfTree;
-    public TreeView<String> deobfTree;
+    public ClassesTreeView obfTree;
+    public ClassesTreeView deobfTree;
 
     public MainController() {
         INSTANCE = this;
@@ -122,51 +123,13 @@ public class MainController implements Initializable {
             }
         }
 
-        setAccelerators();
 
-        this.initTreeViews();
+
+        setAccelerators();
 
         RESTART_ALERT.setTitle(Main.getResourceBundle().getString("dialog.restart.title"));
         RESTART_ALERT.setHeaderText(null);
         RESTART_ALERT.setContentText(Main.getResourceBundle().getString("dialog.restart.content"));
-    }
-
-    private void initTreeViews() {
-        this.obfTree.setShowRoot(false);
-        this.deobfTree.setShowRoot(false);
-
-        BiConsumer<InputEvent, TreeView<String>> clickHandler = (event, treeView) -> {
-            if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
-                    || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
-                TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
-                if (selected == null) {
-                    return;
-                }
-
-                if (selected.getChildren().isEmpty()) {
-                    String className = ((IdentifiableTreeItem) selected).getId().substring(1);
-                    if (Main.getLoadedJar() != null) {
-                        openTab(className, selected.getValue());
-                    }
-                } else {
-                    if (event instanceof MouseEvent == selected.isExpanded()) {
-                        selected.setExpanded(true);
-                        while (selected.getChildren().size() == 1) {
-                            selected = selected.getChildren().get(0);
-                            selected.setExpanded(true);
-                        }
-                    } else {
-                        selected.setExpanded(false);
-                    }
-                }
-            }
-        };
-
-        obfTree.setOnMouseClicked(event -> clickHandler.accept(event, obfTree));
-        deobfTree.setOnMouseClicked(event -> clickHandler.accept(event, deobfTree));
-
-        obfTree.setOnKeyReleased(event -> clickHandler.accept(event, obfTree));
-        deobfTree.setOnKeyReleased(event -> clickHandler.accept(event, deobfTree));
     }
 
     private void setAccelerators() {
@@ -304,68 +267,9 @@ public class MainController implements Initializable {
 
     }
 
-    public void updateObfuscatedClassListView() {
-        if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getObfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) obfTree.getRoot()), true);
-            root.setExpanded(true);
-            obfTree.setRoot(root);
-        } else {
-            obfTree.setRoot(null);
-        }
-
-    }
-
-    public void updateDeobfuscatedClassListView() {
-        if (Main.getLoadedJar() != null) {
-            TreeItem<String> root = generateTreeItem(Main.getLoadedJar().getDeobfuscatedHierarchy(),
-                    getExpandedIds((IdentifiableTreeItem) deobfTree.getRoot()), false);
-            root.setExpanded(true);
-            deobfTree.setRoot(root);
-        } else {
-            deobfTree.setRoot(null);
-        }
-    }
-
-    public TreeItem<String> generateTreeItem(HierarchyElement element, Set<String> expanded,
-            final boolean checkLength) {
-        IdentifiableTreeItem treeItem;
-        if (element instanceof HierarchyNode) {
-            HierarchyNode node = (HierarchyNode) element;
-            treeItem = new IdentifiableTreeItem((node.isTerminal() ? "C" : "P") + node.getId(), node.getDisplayName());
-        } else {
-            treeItem = new IdentifiableTreeItem("//root", "(root)");
-        }
-
-        if (expanded.contains(treeItem.getId())) {
-            treeItem.setExpanded(true);
-        }
-
-        if (element instanceof Hierarchy
-                || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(element.getChildren().stream()
-                    .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
-        }
-        treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
-            boolean c1 = t1.getChildren().size() > 0;
-            boolean c2 = t2.getChildren().size() > 0;
-            if (c1 == c2) { // both either terminal or non-terminal
-                if (checkLength && t1.getValue().length() != t2.getValue().length()) {
-                    return t1.getValue().length() - t2.getValue().length();
-                }
-                return t1.getValue().compareTo(t2.getValue());
-            } else if (c1) { // first is non-terminal, second is terminal
-                return -1;
-            } else { // first is terminal, second is non-terminal
-                return 1;
-            }
-        }));
-        return treeItem;
-    }
-
     public void updateClassViews() {
-        updateObfuscatedClassListView();
-        updateDeobfuscatedClassListView();
+        this.obfTree.update(Main.getLoadedJar().getObfuscatedHierarchy());
+        this.deobfTree.update(Main.getLoadedJar().getDeobfuscatedHierarchy());
     }
 
     private boolean deinitializeCurrentJar() throws IOException {
@@ -401,28 +305,6 @@ public class MainController implements Initializable {
 
     public static boolean isInitialized() {
         return INSTANCE != null;
-    }
-
-    private static Map<String, IdentifiableTreeItem> flatten(IdentifiableTreeItem tree) {
-        Map<String, IdentifiableTreeItem> map = new HashMap<>();
-        map.put(tree.getId(), tree);
-        if (tree.getChildren().isEmpty()) {
-            return map;
-        }
-
-        for (TreeItem<String> child : tree.getChildren()) {
-            map.putAll(flatten((IdentifiableTreeItem) child));
-        }
-        return map;
-    }
-
-    private static Set<String> getExpandedIds(IdentifiableTreeItem tree) {
-        if (tree == null) {
-            return Collections.emptySet();
-        }
-
-        return flatten(tree).entrySet().stream().filter(e -> e.getValue().isExpanded()).map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
     }
 
 }
