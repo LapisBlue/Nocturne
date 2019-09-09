@@ -48,7 +48,6 @@ import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
-import com.google.common.collect.Sets;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -65,6 +64,7 @@ import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -379,7 +379,7 @@ public class SelectableMember extends Text {
             }
             case METHOD: {
                 IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-                Set<IndexedClass> classes = Sets.newHashSet(clazz.getHierarchy());
+                Set<IndexedClass> classes = new HashSet<>(clazz.getHierarchy());
                 classes.add(clazz);
 
                 for (IndexedClass ic : classes) {

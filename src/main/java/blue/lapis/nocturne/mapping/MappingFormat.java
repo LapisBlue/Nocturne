@@ -35,12 +35,12 @@ import blue.lapis.nocturne.mapping.io.writer.JamWriter;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
 import blue.lapis.nocturne.mapping.io.writer.SrgWriter;
 
-import com.google.common.collect.Maps;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -55,7 +55,7 @@ public enum MappingFormat {
     ENIGMA("*", EnigmaReader::new, EnigmaWriter::new),
     ;
 
-    private static final Map<FileChooser.ExtensionFilter, MappingFormat> FILTER_TO_FORMAT = Maps.newHashMap();
+    private static final Map<FileChooser.ExtensionFilter, MappingFormat> FILTER_TO_FORMAT = new HashMap<>();
 
     static {
         Arrays.asList(values()).forEach(t -> FILTER_TO_FORMAT.put(t.getExtensionFilter(), t));

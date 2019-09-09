@@ -29,10 +29,10 @@ import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
-
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,10 +41,10 @@ import java.util.stream.Collectors;
  */
 public class ClassHierarchyBuilder {
 
-    private final ImmutableMap<String, IndexedClass> classes;
+    private final Map<String, IndexedClass> classes;
 
     public ClassHierarchyBuilder(Set<IndexedClass> classes) {
-        this.classes = ImmutableMap.copyOf(classes.stream().collect(Collectors.toMap(IndexedClass::getName, c -> c)));
+        this.classes = new HashMap<>(classes.stream().collect(Collectors.toMap(IndexedClass::getName, c -> c)));
     }
 
     public void buildHierarchies() {
@@ -77,19 +77,18 @@ public class ClassHierarchyBuilder {
     }
 
     private Set<IndexedClass> getParents(IndexedClass clazz, boolean returnEmpty) {
-        Set<IndexedClass> parents = new HashSet<>();
-
-        Set<String> parentNames = Sets.newHashSet(clazz.getInterfaces());
+        Set<String> parentNames = new HashSet<>(clazz.getInterfaces());
         parentNames.add(clazz.getSuperclass());
         Set<IndexedClass> directParents = parentNames.stream().filter(classes::containsKey)
                 .map(classes::get).collect(Collectors.toSet());
-        parents.addAll(directParents);
+
+        Set<IndexedClass> parents = new HashSet<>(directParents);
 
         for (IndexedClass ic : directParents) {
             parents.addAll(getParents(ic, false));
         }
 
-        return !parents.isEmpty() ? parents : returnEmpty ? new HashSet<>() : Sets.newHashSet(clazz);
+        return !parents.isEmpty() ? parents : returnEmpty ? Collections.emptySet() : Collections.singleton(clazz);
     }
 
     private void buildMethodHierarchies() {

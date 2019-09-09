@@ -27,10 +27,9 @@ package blue.lapis.nocturne.processor.constantpool.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStructure;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,7 +47,7 @@ public class ConstantPool {
      * @param length   The length of the constant pool in bytes
      */
     public ConstantPool(List<ConstantStructure> contents, int length) {
-        this.contents = Lists.newArrayList(contents);
+        this.contents = new ArrayList<>(contents);
         this.length = length;
     }
 
@@ -127,8 +126,8 @@ public class ConstantPool {
      *
      * @return The current contents of the constant pool
      */
-    public ImmutableList<ConstantStructure> getContents() {
-        return ImmutableList.copyOf(contents);
+    public List<ConstantStructure> getContents() {
+        return Collections.unmodifiableList(contents);
     }
 
     public byte[] getBytes() {

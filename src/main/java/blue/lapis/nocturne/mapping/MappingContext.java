@@ -30,8 +30,7 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
-import com.google.common.collect.ImmutableMap;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,14 +44,14 @@ public class MappingContext {
     private boolean dirty;
 
     /**
-     * Returns an {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     * this {@link MappingContext}.
+     * Returns an unmodifiable {@link Map} of all {@link TopLevelClassMapping}s
+     * contained by this {@link MappingContext}.
      *
-     * @return An {@link ImmutableMap} of all {@link TopLevelClassMapping}s contained by
-     * this {@link MappingContext}
+     * @return An unmodifiable {@link Map} of all {@link TopLevelClassMapping}s
+     * contained by this {@link MappingContext}
      */
-    public ImmutableMap<String, TopLevelClassMapping> getMappings() {
-        return ImmutableMap.copyOf(mappings);
+    public Map<String, TopLevelClassMapping> getMappings() {
+        return Collections.unmodifiableMap(mappings);
     }
 
     /**

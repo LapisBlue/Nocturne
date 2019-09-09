@@ -28,7 +28,7 @@ package blue.lapis.nocturne.processor.index;
 import static blue.lapis.nocturne.util.Constants.CLASS_FORMAT_CONSTANT_POOL_OFFSET;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.helper.ByteHelper.asUshort;
-import static com.google.common.base.Preconditions.checkArgument;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;

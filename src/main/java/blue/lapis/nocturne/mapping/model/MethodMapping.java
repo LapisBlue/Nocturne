@@ -34,11 +34,10 @@ import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -90,8 +89,8 @@ public class MethodMapping extends MemberMapping {
      *
      * @return A clone of the {@link MethodParameterMapping}s
      */
-    public ImmutableMap<String, MethodParameterMapping> getParamMappings() {
-        return ImmutableMap.copyOf(this.argumentMappings);
+    public Map<String, MethodParameterMapping> getParamMappings() {
+        return Collections.unmodifiableMap(this.argumentMappings);
     }
 
     /**
@@ -171,9 +170,12 @@ public class MethodMapping extends MemberMapping {
     }
 
     @Override
-    protected MoreObjects.ToStringHelper buildToString() {
-        return super.buildToString()
-                .add("signature", this.sig);
+    public String toString() {
+        return "{"
+                + "obfName=" + this.getObfuscatedName() + ";"
+                + "deobfName=" + this.getDeobfuscatedName() + ";"
+                + "signature=" + this.sig
+                + "}";
     }
 
     @Override

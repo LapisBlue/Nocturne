@@ -34,9 +34,8 @@ import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
+import blue.lapis.nocturne.util.helper.collections.CollectionsHelper;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -48,6 +47,7 @@ import javafx.scene.text.TextFlow;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
  */
 public class CodeTab extends Tab {
 
-    public static final Map<String, CodeTab> CODE_TABS = Maps.newHashMap();
+    public static final Map<String, CodeTab> CODE_TABS = new HashMap<>();
 
     private final String className;
 
@@ -142,7 +142,7 @@ public class CodeTab extends Tab {
     public void setCode(String code) {
         this.code.getChildren().clear();
 
-        List<Node> nodes = Lists.newArrayList(new Text(code));
+        List<Node> nodes = CollectionsHelper.newList(new Text(code));
 
         parseItems(nodes, CLASS_REGEX, 1);
         parseItems(nodes, MEMBER_REGEX, 2);

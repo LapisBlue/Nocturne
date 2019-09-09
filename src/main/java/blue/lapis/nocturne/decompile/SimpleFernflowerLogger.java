@@ -26,10 +26,11 @@
 package blue.lapis.nocturne.decompile;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.helper.collections.MapBuilder;
 
-import com.google.common.collect.ImmutableBiMap;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -47,12 +48,12 @@ public class SimpleFernflowerLogger extends IFernflowerLogger {
         INSTANCE = this;
     }
 
-    private static final ImmutableBiMap<Severity, Level> LEVEL_MAP = ImmutableBiMap.<Severity, Level>builder()
+    private static final Map<Severity, Level> LEVEL_MAP = new MapBuilder<Severity, Level>()
             .put(Severity.TRACE, Level.FINE)
             .put(Severity.INFO, Level.INFO)
             .put(Severity.WARN, Level.WARNING)
             .put(Severity.ERROR, Level.SEVERE)
-            .build();
+            .buildUnmodifiable();
 
     @Override
     public void writeMessage(String message, Severity severity) {

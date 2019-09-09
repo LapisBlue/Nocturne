@@ -31,11 +31,9 @@ import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableSet;
-
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +47,7 @@ public class ClassSet {
 
     private final String name;
     private final Map<String, JarClassEntry> classMap = new HashMap<>();
-    private final BiMap<String, String> names = HashBiMap.create();
+    private final Map<String, String> names = new HashMap<>();
 
     /**
      * Constructs a new {@link ClassSet} from the given {@link JarClassEntry}
@@ -80,36 +78,36 @@ public class ClassSet {
     }
 
     /**
-     * Returns an {@link ImmutableSet} of all classes contained by this
-     * this {@link ClassSet}.
+     * Returns an unmodifiable {@link Set} of all classes contained by this
+     * {@link ClassSet}.
      *
-     * @return An {@link ImmutableSet} of all classes contained by this
-     * this {@link ClassSet}
+     * @return An unmodifiable {@link Set} of all classes contained by this
+     * {@link ClassSet}
      */
-    public ImmutableSet<JarClassEntry> getClasses() {
-        return ImmutableSet.copyOf(classMap.values());
+    public Set<JarClassEntry> getClasses() {
+        return Collections.unmodifiableSet(new HashSet<>(classMap.values()));
     }
 
     /**
-     * Returns an {@link ImmutableSet} of all obfuscated classes contained by
-     * this {@link ClassSet}.
+     * Returns an unmodifiable {@link Set} of all obfuscated classes contained
+     * by this {@link ClassSet}.
      *
-     * @return An {@link ImmutableSet} of all obfuscated classes contained by
-     * this {@link ClassSet}
+     * @return An unmodifiable {@link Set} of all obfuscated classes contained
+     * by this {@link ClassSet}
      */
-    public ImmutableSet<JarClassEntry> getObfuscatedClasses() {
-        return ImmutableSet.copyOf(getClasses().stream().filter(c -> !c.isDeobfuscated()).collect(Collectors.toSet()));
+    public Set<JarClassEntry> getObfuscatedClasses() {
+        return Collections.unmodifiableSet(getClasses().stream().filter(c -> !c.isDeobfuscated()).collect(Collectors.toSet()));
     }
 
     /**
-     * Returns an {@link ImmutableSet} of all deobfuscated classes contained by
-     * this {@link ClassSet}.
+     * Returns an unmodifiable {@link Set} of all deobfuscated classes contained
+     * by this {@link ClassSet}.
      *
-     * @return An {@link ImmutableSet} of all deobfuscated classes contained by
-     * this {@link ClassSet}
+     * @return An unmodifiable {@link Set} of all deobfuscated classes contained
+     * by this {@link ClassSet}
      */
-    public ImmutableSet<JarClassEntry> getDeobfuscatedClasses() {
-        return ImmutableSet.copyOf(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
+    public Set<JarClassEntry> getDeobfuscatedClasses() {
+        return Collections.unmodifiableSet(getClasses().stream().filter(JarClassEntry::isDeobfuscated)
                 .collect(Collectors.toSet()));
     }
 
@@ -161,7 +159,7 @@ public class ClassSet {
                 .collect(Collectors.toSet()), deobfuscate);
     }
 
-    public BiMap<String, String> getCurrentNames() {
+    public Map<String, String> getCurrentNames() {
         return names;
     }
 

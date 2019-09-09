@@ -26,11 +26,12 @@
 package blue.lapis.nocturne.util;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.util.helper.ObjectsHelper;
+import blue.lapis.nocturne.util.helper.collections.MapBuilder;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -64,15 +65,15 @@ public final class Constants {
     // side-note: I'm really proud of this thing. I wrote it in like 2 minutes and it works exactly how I want it to.
     public static final Pattern TYPE_SEQUENCE_REGEX = Pattern.compile("(\\[*(?:(?:L.+?;)|.))");
 
-    public static final ImmutableMap<String, Object> FF_OPTIONS = ImmutableMap.<String, Object>builder()
+    public static final Map<String, Object> FF_OPTIONS = new MapBuilder<String, Object>()
             .put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1")
             .put(IFernflowerPreferences.INDENT_STRING, "    ")
-            .build();
+            .buildUnmodifiable();
 
     public static final String ENIGMA_ROOT_PACKAGE_PREFIX = "none/";
 
     static {
-        VERSION = MoreObjects.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
+        VERSION = ObjectsHelper.firstNonNull(Main.class.getPackage().getImplementationVersion(), "UNKNOWN");
     }
 
     private Constants() {

@@ -25,8 +25,8 @@
 
 package blue.lapis.nocturne.gui;
 
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
 import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
-import static com.google.common.base.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.io.jar.JarDialogHelper;

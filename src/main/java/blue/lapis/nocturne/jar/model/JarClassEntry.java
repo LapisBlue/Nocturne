@@ -28,7 +28,7 @@ package blue.lapis.nocturne.jar.model;
 import static blue.lapis.nocturne.processor.index.model.IndexedClass.INDEXED_CLASSES;
 import static blue.lapis.nocturne.util.Constants.FF_OPTIONS;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
-import static com.google.common.base.Preconditions.checkArgument;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.decompile.NoopResultSaver;
@@ -40,7 +40,6 @@ import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
-import com.google.common.base.MoreObjects;
 import javafx.scene.control.Dialog;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
@@ -228,10 +227,14 @@ public class JarClassEntry {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("name", this.name)
-                .add("deobfuscated", this.deobfuscated)
-                .toString();
+        return "{" +
+                "name=" +
+                this.name +
+                ";" +
+                "deobfuscated" +
+                "=" +
+                this.deobfuscated +
+                "}";
     }
 
     private static void showDecompileDialog() {

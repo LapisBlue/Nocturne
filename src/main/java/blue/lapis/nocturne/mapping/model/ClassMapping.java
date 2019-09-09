@@ -34,11 +34,10 @@ import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableMap;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +72,8 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link FieldMapping}s
      */
-    public ImmutableMap<FieldSignature, FieldMapping> getFieldMappings() {
-        return ImmutableMap.copyOf(this.fieldMappings);
+    public Map<FieldSignature, FieldMapping> getFieldMappings() {
+        return Collections.unmodifiableMap(this.fieldMappings);
     }
 
     /**
@@ -82,8 +81,8 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link MethodMapping}s
      */
-    public ImmutableMap<MethodSignature, MethodMapping> getMethodMappings() {
-        return ImmutableMap.copyOf(this.methodMappings);
+    public Map<MethodSignature, MethodMapping> getMethodMappings() {
+        return Collections.unmodifiableMap(this.methodMappings);
     }
 
     /**
@@ -91,8 +90,8 @@ public abstract class ClassMapping extends Mapping {
      *
      * @return A clone of the {@link InnerClassMapping}s
      */
-    public ImmutableMap<String, InnerClassMapping> getInnerClassMappings() {
-        return ImmutableMap.copyOf(this.innerClassMappings);
+    public Map<String, InnerClassMapping> getInnerClassMappings() {
+        return Collections.unmodifiableMap(this.innerClassMappings);
     }
 
     /**
@@ -213,11 +212,14 @@ public abstract class ClassMapping extends Mapping {
     }
 
     @Override
-    protected MoreObjects.ToStringHelper buildToString() {
-        return super.buildToString()
-                .add("fields", this.getFieldMappings())
-                .add("methods", this.getMethodMappings())
-                .add("innerClasses", this.getInnerClassMappings());
+    public String toString() {
+        return "{"
+                + "obfName=" + this.getObfuscatedName() + ";"
+                + "deobfName=" + this.getDeobfuscatedName() + ";"
+                + "fields=" + this.getFieldMappings() + ";"
+                + "methods=" + this.getMethodMappings() + ";"
+                + "innerClasses=" + this.getInnerClassMappings()
+                + "}";
     }
 
     @Override

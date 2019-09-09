@@ -23,33 +23,27 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.processor.index.model;
-
-import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
+package blue.lapis.nocturne.util.helper.collections;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Represents a hierarchical structure.
- */
-public class Hierarchical<T extends Hierarchical> {
+public class SetBuilder<T> {
 
-    private Set<T> hierarchy = new HashSet<>();
-    private boolean isHierarchyFinalized = false;
+    private final Set<T> storage = new HashSet<>();
 
-    public Set<T> getHierarchy() {
-        return hierarchy;
+    public SetBuilder<T> add(T item) {
+        storage.add(item);
+        return this;
     }
 
-    public void finalizeHierarchy() {
-        checkState(!isHierarchyFinalized, "Cannot finalize hierarchy more than once");
-        //noinspection SuspiciousMethodCalls
-        getHierarchy().remove(this);
-        hierarchy = Collections.unmodifiableSet(hierarchy);
+    public Set<T> build() {
+        return new HashSet<>(storage);
+    }
 
-        isHierarchyFinalized = true;
+    public Set<T> buildUnmodifiable() {
+        return Collections.unmodifiableSet(storage);
     }
 
 }

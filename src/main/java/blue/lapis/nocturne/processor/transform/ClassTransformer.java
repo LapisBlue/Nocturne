@@ -50,9 +50,8 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.collections.SetBuilder;
 import blue.lapis.nocturne.util.tuple.Pair;
-
-import com.google.common.collect.ImmutableList;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,6 +61,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -82,10 +82,13 @@ public class ClassTransformer extends ClassProcessor {
     private final Map<Integer, Integer> processedMethodNameMap = new HashMap<>();
     private final Map<Integer, Integer> processedMethodDescriptorMap = new HashMap<>();
 
-    private static final ImmutableList<String> STUPID_PARAM_NAMES = ImmutableList.<String>builder()
-            .add("\u2603").build();
-    private static final ImmutableList<String> IGNORED_METHODS = ImmutableList.<String>builder()
-            .add("<init>").add("<clinit>").build();
+    private static final Set<String> STUPID_PARAM_NAMES = new SetBuilder<String>()
+            .add("\u2603")
+            .buildUnmodifiable();
+    private static final Set<String> IGNORED_METHODS = new SetBuilder<String>()
+            .add("<init>")
+            .add("<clinit>")
+            .buildUnmodifiable();
 
     public ClassTransformer(String className, byte[] bytes) {
         super(className, bytes);

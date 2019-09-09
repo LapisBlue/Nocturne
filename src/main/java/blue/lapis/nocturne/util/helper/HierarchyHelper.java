@@ -26,8 +26,8 @@
 package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.processor.index.model.IndexedClass.INDEXED_CLASSES;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
 import static blue.lapis.nocturne.util.helper.StringHelper.resolvePackageName;
-import static com.google.common.base.Preconditions.checkState;
 
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;

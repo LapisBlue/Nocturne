@@ -28,8 +28,6 @@ package blue.lapis.nocturne.mapping.model;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 
-import com.google.common.base.MoreObjects;
-
 import java.util.Objects;
 
 /**
@@ -115,17 +113,6 @@ public abstract class Mapping {
     public abstract MappingContext getContext();
 
     protected abstract SelectableMember.MemberKey getMemberKey();
-
-    protected MoreObjects.ToStringHelper buildToString() {
-        return MoreObjects.toStringHelper(this)
-                .add("obfName", this.obf)
-                .add("deobfName", this.deobf);
-    }
-
-    @Override
-    public String toString() {
-        return this.buildToString().toString();
-    }
 
     @Override
     public boolean equals(Object obj) {

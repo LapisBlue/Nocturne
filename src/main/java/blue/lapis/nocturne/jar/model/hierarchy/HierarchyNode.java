@@ -25,14 +25,13 @@
 
 package blue.lapis.nocturne.jar.model.hierarchy;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
 
 import blue.lapis.nocturne.util.Constants;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -125,7 +124,7 @@ public class HierarchyNode extends HierarchyElement {
     }
 
     @Override
-    public ImmutableList<HierarchyNode> getChildren() throws IllegalStateException {
+    public List<HierarchyNode> getChildren() throws IllegalStateException {
         checkState(!isTerminal(), "getChildren called on terminal HierarchyNode");
         return super.getChildren();
     }

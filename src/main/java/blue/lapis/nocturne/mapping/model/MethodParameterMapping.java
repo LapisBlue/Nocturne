@@ -29,8 +29,6 @@ import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.MemberType;
 
-import com.google.common.base.MoreObjects;
-
 import java.util.Objects;
 
 /**
@@ -104,9 +102,12 @@ public class MethodParameterMapping extends Mapping {
     }
 
     @Override
-    protected MoreObjects.ToStringHelper buildToString() {
-        return super.buildToString()
-                .add("index", this.index);
+    public String toString() {
+        return "{"
+                + "obfName=" + this.getObfuscatedName() + ";"
+                + "deobfName=" + this.getDeobfuscatedName() + ";"
+                + "index=" + this.index
+                + "}";
     }
 
     @Override

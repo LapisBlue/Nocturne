@@ -25,13 +25,13 @@
 
 package blue.lapis.nocturne.jar.model.hierarchy;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,16 +58,16 @@ public abstract class HierarchyElement implements Iterable<HierarchyNode> {
     }
 
     /**
-     * Returns an {@link ImmutableSet} of all children of this
+     * Returns an unmodifiable {@link List} of all children of this
      * {@link HierarchyNode}.
      *
-     * @return An {@link ImmutableSet} of all children of this
+     * @return An unmodifiable {@link List} of all children of this
      * {@link HierarchyNode}
      * @throws IllegalStateException If this element is
      *                               {@link HierarchyNode#isTerminal()}
      */
-    public ImmutableList<HierarchyNode> getChildren() throws IllegalStateException {
-        return ImmutableList.copyOf(children.values());
+    public List<HierarchyNode> getChildren() throws IllegalStateException {
+        return Collections.unmodifiableList(new ArrayList<>(children.values()));
     }
 
     /**

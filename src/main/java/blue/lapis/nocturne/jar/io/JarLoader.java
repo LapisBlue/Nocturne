@@ -35,7 +35,6 @@ import blue.lapis.nocturne.processor.index.ClassHierarchyBuilder;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.Constants;
 
-import com.google.common.collect.Sets;
 import javafx.scene.control.Alert;
 
 import java.io.ByteArrayOutputStream;
@@ -121,7 +120,7 @@ public class JarLoader {
         ClassSet cs = new ClassSet(name, classes);
         Main.setLoadedJar(cs);
         cs.getClasses().forEach(JarClassEntry::index);
-        new ClassHierarchyBuilder(Sets.newHashSet(INDEXED_CLASSES.values())).buildHierarchies();
+        new ClassHierarchyBuilder(new HashSet<>(INDEXED_CLASSES.values())).buildHierarchies();
         cs.getClasses().forEach(JarClassEntry::process);
         INDEXED_CLASSES.values().forEach(IndexedClass::clearPool);
         return cs;

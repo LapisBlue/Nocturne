@@ -26,8 +26,8 @@
 package blue.lapis.nocturne.decompile;
 
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_REGEX;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
+import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
@@ -62,6 +62,7 @@ public class SimpleBytecodeProvider implements IBytecodeProvider {
         String name = matcher.group(1);
         checkState(Main.getLoadedJar() != null, "JAR is not loaded");
         Optional<JarClassEntry> entry = Main.getLoadedJar().getClass(name);
+
         checkArgument(entry.isPresent(), "Class not found");
         return entry.get().getContent();
     }

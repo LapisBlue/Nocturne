@@ -23,33 +23,39 @@
  * THE SOFTWARE.
  */
 
-package blue.lapis.nocturne.processor.index.model;
+package blue.lapis.nocturne.util.helper;
 
-import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
+public class Preconditions {
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-/**
- * Represents a hierarchical structure.
- */
-public class Hierarchical<T extends Hierarchical> {
-
-    private Set<T> hierarchy = new HashSet<>();
-    private boolean isHierarchyFinalized = false;
-
-    public Set<T> getHierarchy() {
-        return hierarchy;
+    public static <T> T checkNotNull(T object, Object errorMessage) {
+        if (object == null) {
+            throw new NullPointerException(String.valueOf(errorMessage));
+        }
+        return object;
     }
 
-    public void finalizeHierarchy() {
-        checkState(!isHierarchyFinalized, "Cannot finalize hierarchy more than once");
-        //noinspection SuspiciousMethodCalls
-        getHierarchy().remove(this);
-        hierarchy = Collections.unmodifiableSet(hierarchy);
+    public static void checkArgument(boolean condition, Object errorMessage) {
+        if (!condition) {
+            throw new IllegalArgumentException(String.valueOf(errorMessage));
+        }
+    }
 
-        isHierarchyFinalized = true;
+    public static void checkArgument(boolean condition) {
+        if (!condition) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public static void checkState(boolean condition, Object errorMessage) {
+        if (!condition) {
+            throw new IllegalStateException(String.valueOf(errorMessage));
+        }
+    }
+
+    public static void checkState(boolean condition) {
+        if (!condition) {
+            throw new IllegalStateException();
+        }
     }
 
 }

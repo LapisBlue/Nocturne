@@ -27,11 +27,10 @@ package blue.lapis.nocturne.processor.index.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,19 +46,19 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
     private final String name;
     private ImmutableConstantPool constantPool;
     private final String superClass;
-    private final ImmutableList<String> interfaces;
-    private final ImmutableMap<FieldSignature, IndexedField> fields;
-    private final ImmutableMap<MethodSignature, IndexedMethod> methods;
+    private final List<String> interfaces;
+    private final Map<FieldSignature, IndexedField> fields;
+    private final Map<MethodSignature, IndexedMethod> methods;
 
     public IndexedClass(String name, ImmutableConstantPool constantPool, String superClass, List<String> interfaces,
                         List<IndexedField> fields, List<IndexedMethod> methods) {
         this.name = name;
         this.constantPool = constantPool;
         this.superClass = superClass;
-        this.interfaces = ImmutableList.copyOf(interfaces);
-        this.fields = ImmutableMap.copyOf(
+        this.interfaces = Collections.unmodifiableList(interfaces);
+        this.fields = Collections.unmodifiableMap(
                 fields.stream().collect(Collectors.toMap(IndexedField::getSignature, f -> f)));
-        this.methods = ImmutableMap.copyOf(
+        this.methods = Collections.unmodifiableMap(
                 methods.stream().collect(Collectors.toMap(IndexedMethod::getSignature, m -> m))
         );
     }
@@ -76,15 +75,15 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
         return superClass;
     }
 
-    public ImmutableList<String> getInterfaces() {
+    public List<String> getInterfaces() {
         return interfaces;
     }
 
-    public ImmutableMap<FieldSignature, IndexedField> getFields() {
+    public Map<FieldSignature, IndexedField> getFields() {
         return fields;
     }
 
-    public ImmutableMap<MethodSignature, IndexedMethod> getMethods() {
+    public Map<MethodSignature, IndexedMethod> getMethods() {
         return methods;
     }
 
