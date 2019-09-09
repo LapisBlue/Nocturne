@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.util.helper.collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,7 @@ public class CollectionsHelper {
 
     @SafeVarargs
     public static <T> List<T> newList(T... items) {
-        return Arrays.asList(items);
+        return new ArrayList<>(Arrays.asList(items));
     }
 
     @SafeVarargs

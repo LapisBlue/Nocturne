@@ -51,6 +51,9 @@ public final class Constants {
 
     public static final Pattern DOT_PATTERN = Pattern.compile(".", Pattern.LITERAL);
 
+    public static final char CLASS_MEMBER_SEPARATOR_CHAR = '.';
+    public static final Pattern CLASS_MEMBER_SEPARATOR_PATTERN = DOT_PATTERN;
+
     public static final Pattern SPACE_PATTERN = Pattern.compile(" ", Pattern.LITERAL);
 
     public static final String CLASS_FILE_NAME_TAIL = ".class";

@@ -25,10 +25,12 @@
 
 package blue.lapis.nocturne.gui.scene.text;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_MEMBER_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.doesRemappedNameClash;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
 import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
@@ -47,6 +49,7 @@ import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
+import blue.lapis.nocturne.util.tuple.Pair;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -117,7 +120,7 @@ public class SelectableMember extends Text {
 
         this.parentClassProperty.set(parentClass);
 
-        if (type == MemberType.CLASS) {
+        if (type == MemberType.CLASS || type == MemberType.INNER_CLASS) {
             fullName = getName();
         }
 
@@ -132,18 +135,36 @@ public class SelectableMember extends Text {
 
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
         renameItem.setOnAction(event -> {
-            String dispText = this.getText();
-            if (getType() == MemberType.CLASS && !isInnerClass()) {
+            String dispText;
+            if (getType() == MemberType.CLASS) {
                 dispText = fullName;
+            } else {
+                dispText = this.getText();
             }
             TextInputDialog textInputDialog = new TextInputDialog(dispText);
             textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
 
             Optional<String> result = textInputDialog.showAndWait();
             if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
-                if ((getType() == MemberType.CLASS && !isInnerClass() && !checkClassDupe(result.get()))
-                        || ((getType() != MemberType.CLASS || isInnerClass()) && !checkMemberDupe(result.get()))) {
-                    return;
+
+                String qualifiedName;
+                switch (getType()) {
+                    case CLASS:
+                    case INNER_CLASS:
+                        qualifiedName = getQualifiedName();
+                        break;
+                    case FIELD:
+                    case METHOD:
+                        qualifiedName = getClassName() + CLASS_MEMBER_SEPARATOR_CHAR + getName();
+                        break;
+                    default:
+                        throw new AssertionError("Unhandled case " + getType().name());
+                }
+
+                Pair<Boolean, Boolean> dupe
+                        = doesRemappedNameClash(Main.getLoadedJar(), qualifiedName, sig, result.get(), getType());
+                if (dupe.first()) {
+                    showDupeAlert(dupe.second());
                 }
 
                 String res = result.get();
@@ -184,13 +205,14 @@ public class SelectableMember extends Text {
                                 && looksDeobfuscated(mapping.get().getObfuscatedName()), false));
             }
             switch (getType()) {
-                case CLASS: {
+                case CLASS:
+                case INNER_CLASS: {
                     Optional<? extends Mapping> mapping = getMapping();
                     if (mapping.isPresent()
                             && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName())) {
-                        if ((!isInnerClass() && !checkClassDupe(mapping.get().getObfuscatedName()))
-                                || (isInnerClass() && !checkMemberDupe(mapping.get().getObfuscatedName()))) {
-                            break;
+                        if (doesRemappedNameClash(Main.getLoadedJar(),
+                                fullName, null, mapping.get().getObfuscatedName(), getType()).first()) {
+                            showDupeAlert(false);
                         }
                         mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
                         mapping.get().setAdHoc(false);
@@ -206,9 +228,16 @@ public class SelectableMember extends Text {
                     if (parent.isPresent()) {
                         Optional<? extends Mapping> mapping = getMapping();
                         if (mapping.isPresent()) {
-                            if (!checkMemberDupe(mapping.get().getObfuscatedName())) {
+                            Pair<Boolean, Boolean> dupe
+                                    = doesRemappedNameClash(Main.getLoadedJar(),
+                                    parent.get().getFullObfuscatedName() + CLASS_MEMBER_SEPARATOR_CHAR + name, sig,
+                                    mapping.get().getObfuscatedName(), getType());
+
+                            if (dupe.first()) {
+                                showDupeAlert(dupe.second());
                                 return;
                             }
+
                             if (getType() == MemberType.FIELD) {
                                 //noinspection ConstantConditions
                                 parent.get().removeFieldMapping((FieldSignature) sig);
@@ -283,64 +312,6 @@ public class SelectableMember extends Text {
         return className;
     }
 
-    private boolean checkClassDupe(String newName) {
-        if (Main.getLoadedJar().getCurrentNames().containsValue(newName)) {
-            showDupeAlert(false);
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    private boolean checkMemberDupe(String newName) {
-        switch (getType()) {
-            case CLASS: {
-                assert getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
-                Optional<JarClassEntry> jce = Main.getLoadedJar().getClass(getName()
-                        .substring(0, getName().lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
-                if (jce.isPresent()) {
-                    if (jce.get().getCurrentInnerClassNames().containsValue(newName)) {
-                        showDupeAlert(false);
-                        return false;
-                    } else {
-                        return true;
-                    }
-                } else {
-                    return true;
-                }
-            }
-            case FIELD: {
-                JarClassEntry jce = Main.getLoadedJar().getClass(getParentClass()).get();
-                FieldSignature newSig = new FieldSignature(newName,
-                        ((FieldSignature) sig).getType().orElse(null));
-                if (jce.getCurrentFields().containsValue(newSig)) {
-                    showDupeAlert(false);
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-            case METHOD: {
-                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(getParentClass(),
-                        (MethodSignature) sig)
-                        .stream().filter(c -> Main.getLoadedJar().getClass(c).isPresent())
-                        .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
-                for (JarClassEntry jce : hierarchy) {
-                    MethodSignature newSig
-                            = new MethodSignature(newName, ((MethodSignature) sig).getDescriptor());
-                    if (jce.getCurrentMethods().containsValue(newSig)) {
-                        showDupeAlert(!jce.getName().equals(getName()));
-                        return false;
-                    }
-                }
-                return true;
-            }
-            default: {
-                throw new AssertionError();
-            }
-        }
-    }
-
     private void showDupeAlert(boolean hierarchical) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(Main.getResourceBundle().getString("rename.dupe.title"));
@@ -362,13 +333,16 @@ public class SelectableMember extends Text {
     public void setMapping(String mapping) {
         switch (type) {
             case CLASS: {
-                if (fullName.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-                    mapping = MappingsHelper.getOrCreateClassMapping(
-                            Main.getMappingContext(),
-                            fullName.substring(0, fullName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1)
-                    ).getFullDeobfuscatedName() + '$' + mapping;
-                }
                 MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping, true);
+                fullName = mapping;
+                break;
+            }
+            case INNER_CLASS: {
+                mapping = MappingsHelper.getOrCreateClassMapping(
+                        Main.getMappingContext(),
+                        getParentClass()
+                ).getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + mapping;
+                MappingsHelper.genClassMapping(Main.getMappingContext(), getQualifiedName(), mapping, true);
                 fullName = mapping;
                 break;
             }
@@ -438,9 +412,10 @@ public class SelectableMember extends Text {
         switch (this.getType()) {
             case CLASS:
                 deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
-                if (!isInnerClass()) {
-                    fullName = deobf;
-                }
+                fullName = deobf;
+                break;
+            case INNER_CLASS:
+                deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
                 break;
             case FIELD:
             case METHOD:
@@ -471,13 +446,27 @@ public class SelectableMember extends Text {
         MemberType type = matcher.group().startsWith(CLASS_PREFIX)
                 ? MemberType.CLASS
                 : MemberType.valueOf(matcher.group(1));
+        if (type == MemberType.CLASS && matcher.group().contains(Character.toString(INNER_CLASS_SEPARATOR_CHAR))) {
+            type = MemberType.INNER_CLASS;
+        }
 
         if (type == MemberType.CLASS) {
             return new SelectableMember(codeTab, type, matcher.group(1));
         } else {
-            String qualName = matcher.group(2);
-            String descriptor = matcher.group(3);
-            int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+            String qualName;
+            String descriptor;
+            int offset;
+
+            if (type == MemberType.INNER_CLASS) {
+                qualName = matcher.group(1);
+                descriptor = null;
+                offset = qualName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR);
+            } else {
+                qualName = matcher.group(2);
+                descriptor = matcher.group(3);
+                offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+            }
+
             String simpleName = qualName.substring(offset + 1);
             String parentClass = qualName.substring(0, offset);
             try {
@@ -522,10 +511,6 @@ public class SelectableMember extends Text {
 
     }
 
-    public boolean isInnerClass() {
-        return getType() == MemberType.CLASS && getName().contains(INNER_CLASS_SEPARATOR_CHAR + "");
-    }
-
     public void setDeobfuscated(boolean deobfuscated, boolean soft) {
         if (this.deobfuscated && !deobfuscated && soft) {
             return;
@@ -542,7 +527,8 @@ public class SelectableMember extends Text {
 
     private Mapping genMapping() {
         switch (getType()) {
-            case CLASS: {
+            case CLASS:
+            case INNER_CLASS: {
                 return getOrCreateClassMapping(Main.getMappingContext(), getClassName());
             }
             case FIELD: {
@@ -566,7 +552,8 @@ public class SelectableMember extends Text {
             return classMapping;
         }
         switch (getType()) {
-            case CLASS: {
+            case CLASS:
+            case INNER_CLASS: {
                 return classMapping;
             }
             case FIELD: {
@@ -587,6 +574,9 @@ public class SelectableMember extends Text {
         switch (type) {
             case CLASS:
                 qualName = getName();
+                break;
+            case INNER_CLASS:
+                qualName = getParentClass() + INNER_CLASS_SEPARATOR_CHAR + getName();
                 break;
             case FIELD:
                 //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
@@ -615,7 +605,7 @@ public class SelectableMember extends Text {
                 qualName = parent + CLASS_PATH_SEPARATOR_CHAR + getName();
                 break;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unhandled case " + type);
         }
 
         return qualName;

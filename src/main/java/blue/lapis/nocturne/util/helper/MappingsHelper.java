@@ -25,10 +25,13 @@
 
 package blue.lapis.nocturne.util.helper;
 
+import static blue.lapis.nocturne.util.Constants.CLASS_MEMBER_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.ClassSet;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
@@ -37,6 +40,8 @@ import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
+import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.tuple.Pair;
 
 import org.cadixdev.bombe.type.ArrayType;
 import org.cadixdev.bombe.type.FieldType;
@@ -44,11 +49,15 @@ import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.Type;
 import org.cadixdev.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.signature.MemberSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * Static utility class for assisting with mapping retrieval and creation.
@@ -56,7 +65,7 @@ import java.util.stream.Collectors;
 public final class MappingsHelper {
 
     public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf,
-                                               boolean updateClassViews) {
+            boolean updateClassViews) {
         if (!Main.getLoadedJar().getClass(obf).isPresent()) {
             Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
             return null;
@@ -125,7 +134,7 @@ public final class MappingsHelper {
     }
 
     public static FieldMapping genFieldMapping(MappingContext context, String owningClass, final FieldSignature sig,
-                                               String deobf) {
+            String deobf) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -159,7 +168,7 @@ public final class MappingsHelper {
     }
 
     public static MethodMapping genMethodMapping(MappingContext context, String owningClass, MethodSignature sig,
-                                                 String deobf, boolean acceptInitializer) {
+            String deobf, boolean acceptInitializer) {
         if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
             Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
                     + "\" - ignoring");
@@ -181,7 +190,7 @@ public final class MappingsHelper {
     }
 
     public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index,
-                                          String deobf) {
+            String deobf) {
         if (!StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered argument mapping with illegal name - ignoring");
             return;
@@ -197,7 +206,7 @@ public final class MappingsHelper {
     }
 
     private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
-                                                          boolean create) {
+            boolean create) {
         String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
 
         ClassMapping mapping = context.getMappings().get(arr[0]);
@@ -272,6 +281,60 @@ public final class MappingsHelper {
                 obfDesc.getParamTypes().stream().map(type -> deobfuscateField(ctx, type)).collect(Collectors.toList()),
                 deobfuscate(ctx, obfDesc.getReturnType())
         );
+    }
+
+    /**
+     * Returns whether an item with the given remapped name already exists.
+     *
+     * @param classes The {@link ClassSet} to search
+     * @param originalQualifiedName The original, fully qualified name of the
+     *     item
+     * @param signature The signature of the item
+     * @param remappedName The prospective remapped name of the item
+     * @param type The item's type
+     * @return Whether the remapped name clashes, and whether that clash occurs
+     *     within the same class or in the class hierarchy
+     */
+    public static Pair<Boolean, Boolean> doesRemappedNameClash(ClassSet classes, String originalQualifiedName,
+            @Nullable MemberSignature signature, String remappedName, MemberType type) {
+        switch (type) {
+            case CLASS:
+                return Pair.of(classes.getCurrentNames().containsValue(remappedName), false);
+            case INNER_CLASS:
+                assert originalQualifiedName.contains(INNER_CLASS_SEPARATOR_CHAR + "");
+                return Pair.of(Main.getLoadedJar()
+                        .getClass(originalQualifiedName
+                                .substring(0, originalQualifiedName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)))
+                        .map(jarClassEntry -> jarClassEntry.getCurrentInnerClassNames().containsValue(remappedName))
+                        .orElse(false),
+                        false);
+            case FIELD: {
+                String parentClass = originalQualifiedName
+                        .substring(0, originalQualifiedName.lastIndexOf(CLASS_MEMBER_SEPARATOR_CHAR));
+                JarClassEntry jce = Main.getLoadedJar().getClass(parentClass).get();
+                FieldSignature newSig = new FieldSignature(remappedName,
+                        ((FieldSignature) signature).getType().orElse(null));
+                return Pair.of(jce.getCurrentFields().containsValue(newSig), false);
+            }
+            case METHOD: {
+                String parentClass = originalQualifiedName
+                        .substring(0, originalQualifiedName.lastIndexOf(CLASS_MEMBER_SEPARATOR_CHAR));
+                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(parentClass,
+                        (MethodSignature) signature)
+                        .stream().filter(c -> Main.getLoadedJar().getClass(c).isPresent())
+                        .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
+                for (JarClassEntry jce : hierarchy) {
+                    MethodSignature newSig
+                            = new MethodSignature(remappedName, ((MethodSignature) signature).getDescriptor());
+                    if (jce.getCurrentMethods().containsValue(newSig)) {
+                        return Pair.of(true, !jce.getName().equals(parentClass));
+                    }
+                }
+                return Pair.of(false, false);
+            }
+            default:
+                throw new AssertionError("Unhandled type " + type);
+        }
     }
 
 }

@@ -213,6 +213,7 @@ public class CodeTab extends Tab {
         public static SelectableMemberType fromMemberType(MemberType type) {
             switch (type) {
                 case CLASS:
+                case INNER_CLASS:
                     return SelectableMemberType.CLASS;
                 case FIELD:
                     return SelectableMemberType.FIELD;

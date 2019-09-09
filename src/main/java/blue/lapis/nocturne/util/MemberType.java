@@ -31,6 +31,7 @@ package blue.lapis.nocturne.util;
 public enum MemberType {
 
     CLASS,
+    INNER_CLASS,
     FIELD,
     METHOD,
     ARG

@@ -49,6 +49,8 @@ dependencies {
     compile 'org.cadixdev:bombe:0.3.0'
     compile project('FernFlower')
 
+    compile 'com.google.code.findbugs:jsr305:3.0.2'
+
     testCompile 'junit:junit:4.12'
 }
 
