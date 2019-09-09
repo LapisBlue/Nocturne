@@ -227,14 +227,10 @@ public class JarClassEntry {
 
     @Override
     public String toString() {
-        return "{" +
-                "name=" +
-                this.name +
-                ";" +
-                "deobfuscated" +
-                "=" +
-                this.deobfuscated +
-                "}";
+        return "{"
+                + "name=" + this.name + ";"
+                + "deobfuscated" + "=" + this.deobfuscated
+                + "}";
     }
 
     private static void showDecompileDialog() {

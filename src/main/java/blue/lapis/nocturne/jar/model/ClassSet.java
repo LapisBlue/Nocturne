@@ -96,7 +96,9 @@ public class ClassSet {
      * by this {@link ClassSet}
      */
     public Set<JarClassEntry> getObfuscatedClasses() {
-        return Collections.unmodifiableSet(getClasses().stream().filter(c -> !c.isDeobfuscated()).collect(Collectors.toSet()));
+        return Collections.unmodifiableSet(getClasses().stream()
+                .filter(c -> !c.isDeobfuscated())
+                .collect(Collectors.toSet()));
     }
 
     /**

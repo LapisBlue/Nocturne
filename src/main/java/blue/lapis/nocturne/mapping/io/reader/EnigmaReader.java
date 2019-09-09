@@ -44,10 +44,10 @@ import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -78,9 +78,9 @@ public class EnigmaReader extends MappingsReader {
 
             // Remove comments
             final int commentPos = rawLine.indexOf('#');
-            final String line = commentPos >= 0 ?
-                    rawLine.substring(0, commentPos) :
-                    rawLine;
+            final String line = commentPos >= 0
+                    ? rawLine.substring(0, commentPos)
+                    : rawLine;
 
             final String[] arr = line.trim().split(" ");
 
@@ -177,7 +177,10 @@ public class EnigmaReader extends MappingsReader {
     private static int getIndentLevel(final String line) {
         int indentLevel = 0;
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) != '\t') break;
+            if (line.charAt(i) != '\t') {
+                break;
+            }
+
             indentLevel++;
         }
         return indentLevel;

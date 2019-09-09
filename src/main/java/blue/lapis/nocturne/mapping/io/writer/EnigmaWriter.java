@@ -71,12 +71,11 @@ public class EnigmaWriter extends MappingsWriter {
     protected void writeClassMapping(ClassMapping classMapping, int depth) {
         final String obfName = addNonePrefix(classMapping.getFullObfuscatedName());
         if (!Objects.equals(classMapping.getDeobfuscatedName(), classMapping.getObfuscatedName())) { // hasDeobfName
-            final String deobfName = classMapping instanceof InnerClassMapping ?
-                    classMapping.getDeobfuscatedName() :
-                    addNonePrefix(classMapping.getDeobfuscatedName());
+            final String deobfName = classMapping instanceof InnerClassMapping
+                    ? classMapping.getDeobfuscatedName()
+                    : addNonePrefix(classMapping.getDeobfuscatedName());
             this.out.println(getIndentForDepth(depth) + "CLASS " + obfName + " " + deobfName);
-        }
-        else {
+        } else {
             this.out.println(getIndentForDepth(depth) + "CLASS " + obfName);
         }
 
