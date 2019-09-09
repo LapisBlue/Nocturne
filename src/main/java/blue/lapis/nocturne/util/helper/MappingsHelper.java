@@ -39,6 +39,7 @@ import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 
 import org.cadixdev.bombe.type.ArrayType;
+import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.Type;
@@ -247,22 +248,28 @@ public final class MappingsHelper {
         return new ObjectType(typeMapping.map(ClassMapping::getFullDeobfuscatedName).orElse(objType.getClassName()));
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Type> T deobfuscate(final MappingContext ctx, final T obfuscatedType) {
-        if (obfuscatedType instanceof ObjectType) {
-            return (T) deobfuscateObject(ctx, (ObjectType) obfuscatedType);
-        } else if (obfuscatedType instanceof ArrayType
-                && ((ArrayType) obfuscatedType).getComponent() instanceof ObjectType) {
-            final ArrayType arr = (ArrayType) obfuscatedType;
+    public static FieldType deobfuscateField(final MappingContext ctx, final FieldType fieldType) {
+        if (fieldType instanceof ObjectType) {
+            return deobfuscateObject(ctx, (ObjectType) fieldType);
+        } else if (fieldType instanceof ArrayType
+                && ((ArrayType) fieldType).getComponent() instanceof ObjectType) {
+            final ArrayType arr = (ArrayType) fieldType;
             final ObjectType obj = (ObjectType) arr.getComponent();
-            return (T) new ArrayType(arr.getDimCount(), deobfuscateObject(ctx, obj));
+            return new ArrayType(arr.getDimCount(), deobfuscateObject(ctx, obj));
+        }
+        return fieldType;
+    }
+
+    public static Type deobfuscate(final MappingContext ctx, final Type obfuscatedType) {
+        if (obfuscatedType instanceof FieldType) {
+            return deobfuscateField(ctx, (FieldType) obfuscatedType);
         }
         return obfuscatedType;
     }
 
     public static MethodDescriptor deobfuscate(final MappingContext ctx, final MethodDescriptor obfDesc) {
         return new MethodDescriptor(
-                obfDesc.getParamTypes().stream().map(type -> deobfuscate(ctx, type)).collect(Collectors.toList()),
+                obfDesc.getParamTypes().stream().map(type -> deobfuscateField(ctx, type)).collect(Collectors.toList()),
                 deobfuscate(ctx, obfDesc.getReturnType())
         );
     }

@@ -73,7 +73,7 @@ public class FieldMapping extends MemberMapping {
      * @return The deobfuscated {@link FieldType} of this field
      */
     public FieldType getDeobfuscatedType() {
-        return MappingsHelper.deobfuscate(getParent().getContext(), getObfuscatedType());
+        return MappingsHelper.deobfuscateField(getParent().getContext(), getObfuscatedType());
     }
 
     @Override
