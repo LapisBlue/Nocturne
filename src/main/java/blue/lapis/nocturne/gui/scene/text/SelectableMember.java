@@ -111,9 +111,9 @@ public class SelectableMember extends Text {
         this.descriptorProperty.set(descriptor);
 
         if (type == MemberType.FIELD) {
-            this.sig = new FieldSignature(name, FieldType.of(descriptor));
+            this.sig = FieldSignature.of(name, descriptor);
         } else if (type == MemberType.METHOD) {
-            this.sig = new MethodSignature(name, MethodDescriptor.of(descriptor));
+            this.sig = MethodSignature.of(name, descriptor);
         } else {
             this.sig = null;
         }
