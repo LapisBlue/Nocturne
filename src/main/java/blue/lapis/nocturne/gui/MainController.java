@@ -127,8 +127,6 @@ public class MainController implements Initializable {
             }
         }
 
-
-
         setAccelerators();
 
         RESTART_ALERT.setTitle(Main.getResourceBundle().getString("dialog.restart.title"));

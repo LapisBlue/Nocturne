@@ -1,19 +1,14 @@
 package blue.lapis.nocturne.util.helper;
 
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.helper.Preconditions.checkArgument;
 
-import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.util.tuple.Pair;
 
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.reference.ClassReference;
-import org.cadixdev.bombe.type.reference.FieldReference;
 import org.cadixdev.bombe.type.reference.InnerClassReference;
 import org.cadixdev.bombe.type.reference.MemberReference;
 import org.cadixdev.bombe.type.reference.MethodParameterReference;
-import org.cadixdev.bombe.type.reference.MethodReference;
 import org.cadixdev.bombe.type.reference.QualifiedReference;
 import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
@@ -71,9 +66,22 @@ public class ReferenceHelper {
         return createClassReference(classType.getClassName());
     }
 
+    public static String getDisplayName(QualifiedReference reference, @Nullable String paramName) {
+        String res = getName(reference, paramName);
+        if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+            res = StringHelper.unqualify(res);
+        }
+        return res;
+    }
+
+    public static String getDisplayName(QualifiedReference reference) {
+        return getDisplayName(reference, null);
+    }
+
     public static String getName(QualifiedReference reference, @Nullable String paramName) {
         switch (reference.getType()) {
             case TOP_LEVEL_CLASS:
+                return ((ClassReference) reference).getClassType().getClassName();
             case INNER_CLASS:
                 return StringHelper.unqualify(((ClassReference) reference).getClassType().getClassName());
             case FIELD:
@@ -88,7 +96,7 @@ public class ReferenceHelper {
     }
 
     public static String getName(QualifiedReference reference) {
-        return getName(reference, null);
+        return getDisplayName(reference, null);
     }
 
     public static TopLevelClassReference getRootClass(QualifiedReference ref) {

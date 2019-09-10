@@ -26,6 +26,8 @@
 package blue.lapis.nocturne.util.helper;
 
 import static blue.lapis.nocturne.util.helper.ReferenceHelper.createClassReference;
+import static blue.lapis.nocturne.util.helper.ReferenceHelper.getDisplayName;
+import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.ClassSet;
@@ -181,7 +183,6 @@ public final class MappingsHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static Optional<? extends Mapping<?>> getMapping(MappingContext context, QualifiedReference ref,
             boolean create) {
         switch (ref.getType()) {
@@ -203,6 +204,10 @@ public final class MappingsHelper {
         }
     }
 
+    public static Mapping<?> getOrCreateMapping(MappingContext context, QualifiedReference ref) {
+        return getMapping(context, ref, true).get();
+    }
+
     public static Optional<ClassMapping<?>> getClassMapping(MappingContext context, ClassReference classRef,
             boolean create) {
         if (classRef.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
@@ -211,6 +216,7 @@ public final class MappingsHelper {
             TopLevelClassMapping mapping = context.getMappings().get(classRef);
             if (mapping == null && create) {
                 mapping = new TopLevelClassMapping(context, (TopLevelClassReference) classRef, null);
+                context.addMapping(mapping);
             }
 
             return Optional.ofNullable(mapping);
@@ -374,4 +380,19 @@ public final class MappingsHelper {
         return mappingOpt.map(Mapping::getDeobfuscatedName);
     }
 
+    public static boolean isDeobfuscated(QualifiedReference ref) {
+        //TODO: is this method too much of a hack?
+
+        Optional<? extends Mapping<?>> mapping = MappingsHelper.getMapping(Main.getMappingContext(), ref, false);
+
+        if (mapping.isPresent()) {
+            return mapping.get().isAdHoc() || !getDisplayName(ref).equals(mapping.get().getDeobfuscatedName());
+        }
+
+        if (ref.getType() == QualifiedReference.Type.METHOD_PARAMETER) {
+            return false;
+        }
+
+        return looksDeobfuscated(getDisplayName(ref));
+    }
 }

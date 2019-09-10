@@ -25,25 +25,24 @@
 
 package blue.lapis.nocturne.gui.scene.text;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_MEMBER_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
 import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.doesRemappedNameClash;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.getMapping;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
+import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateMapping;
 import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
-import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
-import blue.lapis.nocturne.mapping.model.MemberMapping;
-import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.ReferenceHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -86,15 +85,9 @@ public class SelectableMember extends Text {
 
     public static final Map<QualifiedReference, List<SelectableMember>> MEMBERS = new HashMap<>();
 
-    private static void updateView(QualifiedReference ref, @Nullable String paramName) {
-        String deobf = MappingsHelper.getDeobfuscatedName(Main.getMappingContext(), ref)
-                .orElse(ReferenceHelper.getName(ref, paramName));
-        if (ref instanceof ClassReference) {
-            deobf = StringHelper.unqualify(deobf);
-        }
-        String deobfF = deobf;
-
-        MEMBERS.get(ref).forEach(sm -> sm.setText(deobfF));
+    private static void updateView(QualifiedReference ref, String newName) {
+        MEMBERS.get(ref).forEach(sm -> sm.setText(newName));
+        //TODO: toggle deobfuscation
     }
 
     public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
@@ -139,7 +132,7 @@ public class SelectableMember extends Text {
     private boolean deobfuscated;
 
     public SelectableMember(CodeTab codeTab, QualifiedReference reference, @Nullable String name) {
-        super(ReferenceHelper.getName(reference, name));
+        super(ReferenceHelper.getDisplayName(reference, name));
         this.codeTab = codeTab;
         this.reference = reference;
 
@@ -213,40 +206,43 @@ public class SelectableMember extends Text {
     }
 
     private void setMappedName(String newName) {
-        switch (reference.getType()) {
-            case TOP_LEVEL_CLASS:
-            case INNER_CLASS: {
-                MappingsHelper.genClassMapping(Main.getMappingContext(), (TopLevelClassReference) reference, newName);
-                break;
-            }
-            case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappingContext(), (FieldReference) reference, newName);
-                break;
-            }
-            case METHOD: {
-                MethodReference methodRef = (MethodReference) reference;
+        if (reference.getType() == QualifiedReference.Type.METHOD) {
+            MethodReference methodRef = (MethodReference) reference;
 
-                IndexedClass owningClass
-                        = IndexedClass.INDEXED_CLASSES.get((methodRef).getOwningClass());
+            IndexedClass owningClass
+                    = IndexedClass.INDEXED_CLASSES.get((methodRef).getOwningClass());
 
-                Set<IndexedClass> classes = new HashSet<>(owningClass.getHierarchy());
-                classes.add(owningClass);
+            Set<IndexedClass> classes = new HashSet<>(owningClass.getHierarchy());
+            classes.add(owningClass);
 
-                for (IndexedClass ic : classes) {
-                    //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                    if (ic.getMethods().containsKey(methodRef.getSignature())) {
-                        genMethodMapping(Main.getMappingContext(),
-                                new MethodReference(ic.getReference(), methodRef.getSignature()), newName, false);
-                    }
+            for (IndexedClass ic : classes) {
+                if (ic.getMethods().containsKey(methodRef.getSignature())) {
+                    genMethodMapping(Main.getMappingContext(),
+                            new MethodReference(ic.getReference(), methodRef.getSignature()), newName, false);
                 }
-                break;
             }
-            default: {
-                throw new AssertionError();
-            }
+        } else {
+            Mapping<?> mapping = getOrCreateMapping(Main.getMappingContext(), reference);
+            mapping.setDeobfuscatedName(newName);
         }
 
-        updateView(reference, origName);
+        if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+            updateView(reference, StringHelper.unqualify(newName));
+
+            MainController.INSTANCE.updateClassViews();
+
+            if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
+                assert reference instanceof TopLevelClassReference;
+                Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass((TopLevelClassReference) reference);
+                if (!newName.equals(origName)) {
+                    classEntry.ifPresent(jce -> jce.setDeobfuscated(!reference.toJvmsIdentifier().equals(newName)));
+                }
+            }
+        } else {
+            updateView(reference, newName);
+        }
+
+        updateCodeTab();
     }
 
     private void updateCodeTab() {
@@ -288,7 +284,13 @@ public class SelectableMember extends Text {
     private void handleRenameAction() {
         String dispText;
         if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
-            dispText = ((TopLevelClassReference) reference).getClassType().getClassName();
+            Optional<ClassMapping<?>> mapping = MappingsHelper.getClassMapping(Main.getMappingContext(),
+                    (ClassReference) reference, false);
+            if (mapping.isPresent()) {
+                dispText = mapping.get().getDeobfuscatedName();
+            } else {
+                dispText = ((TopLevelClassReference) reference).getClassType().getClassName();
+            }
         } else {
             dispText = this.getText();
         }
@@ -313,6 +315,7 @@ public class SelectableMember extends Text {
                 showIllegalAlert();
                 return;
             }
+
             this.setMappedName(res);
         }
     }

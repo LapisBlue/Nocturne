@@ -38,6 +38,7 @@ import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.ClassIndexer;
 import blue.lapis.nocturne.processor.transform.ClassTransformer;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.MappingsHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
 import javafx.scene.control.Dialog;
@@ -146,7 +147,7 @@ public class JarClassEntry {
      * @return Whether this {@link JarClassEntry} is marked as deobfuscated
      */
     public boolean isDeobfuscated() {
-        return deobfuscated;
+        return MappingsHelper.isDeobfuscated(ref);
     }
 
     /**

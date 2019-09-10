@@ -25,16 +25,12 @@
 
 package blue.lapis.nocturne.jar.model;
 
-import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
-
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
-import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
 import org.cadixdev.bombe.type.reference.ClassReference;
 import org.cadixdev.bombe.type.reference.QualifiedReference;
-import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,7 +66,7 @@ public class ClassSet {
             }*/
 
             classMap.put(cl.getReference(), cl);
-            getCurrentNames().put(cl.getReference(), ReferenceHelper.getName(cl.getReference(), null));
+            getCurrentNames().put(cl.getReference(), ReferenceHelper.getDisplayName(cl.getReference(), null));
         });
     }
 
