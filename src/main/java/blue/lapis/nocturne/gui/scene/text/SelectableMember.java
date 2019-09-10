@@ -59,6 +59,7 @@ import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.reference.ClassReference;
 import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
 import org.cadixdev.bombe.type.reference.MethodParameterReference;
 import org.cadixdev.bombe.type.reference.MethodReference;
 import org.cadixdev.bombe.type.reference.QualifiedReference;
@@ -226,23 +227,64 @@ public class SelectableMember extends Text {
             mapping.setDeobfuscatedName(newName);
         }
 
+        updateJarClassEntry(newName);
+
         if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
             updateView(reference, StringHelper.unqualify(newName));
 
             MainController.INSTANCE.updateClassViews();
-
-            if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
-                assert reference instanceof TopLevelClassReference;
-                Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass((TopLevelClassReference) reference);
-                if (!newName.equals(origName)) {
-                    classEntry.ifPresent(jce -> jce.setDeobfuscated(!reference.toJvmsIdentifier().equals(newName)));
-                }
-            }
         } else {
             updateView(reference, newName);
         }
 
         updateCodeTab();
+    }
+
+    private void updateJarClassEntry(String newName) {
+        if (Main.getInstance() == null || Main.getLoadedJar() == null) { // first check is to fix stupid unit tests
+            return;
+        }
+
+        switch (reference.getType()) {
+            case TOP_LEVEL_CLASS: {
+                assert reference instanceof TopLevelClassReference;
+                Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass((TopLevelClassReference) reference);
+                if (!newName.equals(origName)) {
+                    classEntry.ifPresent(jce -> jce.setDeobfuscated(!reference.toJvmsIdentifier().equals(newName)));
+                }
+                break;
+            }
+            case INNER_CLASS: {
+                assert reference instanceof InnerClassReference;
+                //TODO
+                break;
+            }
+            case FIELD: {
+                assert reference instanceof FieldReference;
+                Optional<JarClassEntry> classEntry
+                        = Main.getLoadedJar().getClass(((FieldReference) reference).getOwningClass());
+                classEntry.ifPresent(jce -> jce.getCurrentFields().put(
+                        ((FieldReference) reference).getSignature(),
+                        new FieldSignature(newName, ((FieldReference) reference).getSignature().getType().orElse(null))
+                ));
+                break;
+            }
+            case METHOD: {
+                assert reference instanceof MethodReference;
+                Optional<JarClassEntry> classEntry
+                        = Main.getLoadedJar().getClass(((MethodReference) reference).getOwningClass());
+                classEntry.ifPresent(jce -> jce.getCurrentMethods().put(
+                        ((MethodReference) reference).getSignature(),
+                        new MethodSignature(newName, ((MethodReference) reference).getSignature().getDescriptor())
+                ));
+                break;
+            }
+            case METHOD_PARAMETER: {
+                assert reference instanceof MethodParameterReference;
+                //TODO
+                break;
+            }
+        }
     }
 
     private void updateCodeTab() {
@@ -302,12 +344,14 @@ public class SelectableMember extends Text {
             Pair<Boolean, Boolean> dupe = doesRemappedNameClash(Main.getLoadedJar(), reference, result.get());
             if (dupe.first()) {
                 showDupeAlert(dupe.second());
+                return;
             }
 
             String res = result.get();
             if (reference instanceof ClassReference) {
                 if (!StringHelper.isJavaClassIdentifier(res)) {
                     showIllegalAlert();
+                    return;
                 }
 
                 res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");

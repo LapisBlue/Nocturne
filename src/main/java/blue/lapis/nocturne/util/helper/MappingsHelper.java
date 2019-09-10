@@ -61,6 +61,7 @@ import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MemberSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -349,18 +350,18 @@ public final class MappingsHelper {
                 ClassReference owningClass = fieldRef.getOwningClass();
                 JarClassEntry jce = Main.getLoadedJar().getClass(owningClass).get();
 
-                FieldSignature newSig = new FieldSignature(remappedName,
-                        fieldRef.getSignature().getType().orElse(null));
-                return Pair.of(jce.getCurrentFields().containsValue(newSig), false);
+                return Pair.of(jce.getCurrentFields().values().stream()
+                        .anyMatch(sig -> sig.getName().equals(remappedName)), false);
             }
             case METHOD: {
                 MethodReference methodRef = (MethodReference) ref;
 
                 ClassReference owningClass = methodRef.getOwningClass();
-                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(owningClass,
+                Set<JarClassEntry> hierarchy = new HashSet<>(HierarchyHelper.getClassesInHierarchy(owningClass,
                         methodRef.getSignature())
                         .stream().filter(c -> Main.getLoadedJar().getClass(c).isPresent())
-                        .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
+                        .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet()));
+                hierarchy.add(Main.getLoadedJar().getClass(owningClass).orElseThrow(AssertionError::new));
                 for (JarClassEntry jce : hierarchy) {
                     MethodSignature newSig
                             = new MethodSignature(remappedName, methodRef.getSignature().getDescriptor());
