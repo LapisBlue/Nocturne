@@ -161,9 +161,7 @@ public class SelectableMember extends Text {
         toggleDeobf.setOnAction(event -> handleToggleDeobfAction());
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
-        jumpToDefItem.setOnAction(event -> {
-            handleJumpToDefAction();
-        });
+        jumpToDefItem.setOnAction(event -> handleJumpToDefAction());
 
         ContextMenu contextMenu = new ContextMenu();
         contextMenu.getItems().add(renameItem);
@@ -175,10 +173,12 @@ public class SelectableMember extends Text {
 
         MEMBERS.computeIfAbsent(reference, ref -> new ArrayList<>()).add(this);
 
-        //TODO: figure out how to do this
-        /*setDeobfuscated(looksDeobfuscated(getName())
-                || (fullName != null && !getName().equals(fullName))
-                || (mapping.isPresent() && mapping.get().isAdHoc()), false);*/
+        Optional<? extends Mapping<?>> mapping = MappingsHelper.getMapping(Main.getMappingContext(), reference, false);
+        setDeobfuscated(
+                looksDeobfuscated(origName)
+                        || (mapping.isPresent()
+                        && (!origName.equals(mapping.get().getDeobfuscatedName()) || mapping.get().isAdHoc())),
+                false);
     }
 
     public SelectableMember(CodeTab codeTab, QualifiedReference reference) {
@@ -249,7 +249,7 @@ public class SelectableMember extends Text {
         updateView(reference, origName);
     }
 
-    public void updateCodeTab() {
+    private void updateCodeTab() {
         CodeTab.SelectableMemberType sType = CodeTab.SelectableMemberType.fromReferenceType(reference.getType());
         this.codeTab.setMemberType(sType);
         this.codeTab.setMemberIdentifier(this.getText());
@@ -271,7 +271,7 @@ public class SelectableMember extends Text {
         }
     }
 
-    public void setDeobfuscated(boolean deobfuscated, boolean soft) {
+    private void setDeobfuscated(boolean deobfuscated, boolean soft) {
         if (this.deobfuscated && !deobfuscated && soft) {
             return;
         }

@@ -31,6 +31,8 @@ import org.cadixdev.bombe.type.reference.QualifiedReference;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a single obfuscation mapping for a particular member.
  */
@@ -46,7 +48,7 @@ public abstract class Mapping<T extends QualifiedReference> {
      * @param reference A {@link QualifiedReference reference} to the item
      * @param deobfName The deobfuscated name of the mapped item
      */
-    protected Mapping(T reference, String deobfName) {
+    protected Mapping(T reference, @Nullable String deobfName) {
         this.ref = reference;
         this.deobf = deobfName;
     }
@@ -79,7 +81,7 @@ public abstract class Mapping<T extends QualifiedReference> {
      * @param name The new deobfuscated name of this {@link Mapping}
      */
     public void setDeobfuscatedName(String name) {
-        if (this.deobf.equals(name)) {
+        if (name == null || name.equals(this.deobf)) {
             this.setAdHoc(false);
         }
         this.deobf = name;

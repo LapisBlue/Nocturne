@@ -66,6 +66,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 /**
  * Static utility class for assisting with mapping retrieval and creation.
  */
@@ -73,7 +75,7 @@ public final class MappingsHelper {
 
     public static ClassMapping<?> genClassMapping(MappingContext context, ClassReference ref, String deobf) {
         if (!StringHelper.isJavaClassIdentifier(ref.toJvmsIdentifier())
-                || !StringHelper.isJavaClassIdentifier(deobf)) {
+                || (deobf != null && !StringHelper.isJavaClassIdentifier(deobf))) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
             return null;
         }
@@ -84,13 +86,13 @@ public final class MappingsHelper {
         return mapping;
     }
 
-    public static FieldMapping genFieldMapping(MappingContext context, FieldReference ref, String deobf) {
+    public static FieldMapping genFieldMapping(MappingContext context, FieldReference ref, @Nullable String deobf) {
         if (!Main.getLoadedJar().getClass(ref.getOwningClass()).isPresent()) {
             Main.getLogger().warning("Discovered mapping for field in non-existent class \""
                     + ref.getOwningClass().toJvmsIdentifier() + "\" - ignoring");
             return null;
         } else if (!StringHelper.isJavaIdentifier(ref.getSignature().getName())
-                || !StringHelper.isJavaIdentifier(deobf)) {
+                || (deobf != null && !StringHelper.isJavaIdentifier(deobf))) {
             Main.getLogger().warning("Discovered field mapping with illegal name - ignoring");
             return null;
         }

@@ -50,6 +50,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Stack;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a {@link Mapping} for a class.
  */
@@ -65,7 +67,7 @@ public abstract class ClassMapping<T extends ClassReference> extends Mapping<T> 
      * @param ref A reference to the mapped item
      * @param deobfName The deobfuscated name of the class
      */
-    protected ClassMapping(T ref, String deobfName) {
+    protected ClassMapping(T ref, @Nullable String deobfName) {
         super(ref, deobfName);
     }
 

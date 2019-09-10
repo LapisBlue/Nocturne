@@ -30,6 +30,8 @@ import blue.lapis.nocturne.util.helper.MappingsHelper;
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.reference.FieldReference;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a {@link Mapping} for a field.
  */
@@ -42,7 +44,7 @@ public class FieldMapping extends MemberMapping<FieldReference> {
      * @param ref A reference to the mapped field
      * @param deobfName The deobfuscated name of the field
      */
-    public FieldMapping(ClassMapping<?> parent, FieldReference ref, String deobfName) {
+    public FieldMapping(ClassMapping<?> parent, FieldReference ref, @Nullable String deobfName) {
         super(parent, ref, deobfName);
 
         parent.addFieldMapping(this);
@@ -58,7 +60,7 @@ public class FieldMapping extends MemberMapping<FieldReference> {
     }
 
     @Override
-    public void setDeobfuscatedName(String deobf) {
+    public void setDeobfuscatedName(@Nullable String deobf) {
         super.setDeobfuscatedName(deobf);
 
         //TODO: moving this logic soon

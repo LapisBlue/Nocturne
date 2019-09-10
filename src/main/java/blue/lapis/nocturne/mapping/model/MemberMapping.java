@@ -31,6 +31,8 @@ import org.cadixdev.bombe.type.reference.MemberReference;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 /**
  * Represents a mapping for a class member.
  */
@@ -44,7 +46,7 @@ public abstract class MemberMapping<T extends MemberReference<?>> extends Mappin
      * @param ref A reference to the mapped member
      * @param deobfName The deobfuscated name of the mapped member
      */
-    protected MemberMapping(ClassMapping<?> parent, T ref, String deobfName) {
+    protected MemberMapping(ClassMapping<?> parent, T ref, @Nullable String deobfName) {
         super(ref, deobfName);
         this.parent = parent;
     }
@@ -54,18 +56,8 @@ public abstract class MemberMapping<T extends MemberReference<?>> extends Mappin
     }
 
     @Override
-    public void setDeobfuscatedName(String name) {
+    public void setDeobfuscatedName(@Nullable String name) {
         super.setDeobfuscatedName(name);
-
-        //TODO: moving this logic soon
-        /*List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
-        if (memberList == null) {
-            return;
-        }
-        memberList.forEach(member -> {
-            member.setText(name);
-            member.setDeobfuscated(!name.equals(member.getName()), true);
-        });*/
     }
 
     @Override
