@@ -25,6 +25,7 @@
 
 package blue.lapis.nocturne.util.helper;
 
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.helper.ReferenceHelper.createClassReference;
 import static blue.lapis.nocturne.util.helper.ReferenceHelper.getDisplayName;
 import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
@@ -81,6 +82,10 @@ public final class MappingsHelper {
                 || (deobf != null && !StringHelper.isJavaClassIdentifier(deobf))) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
             return null;
+        }
+
+        if (deobf != null && ref.getType() == QualifiedReference.Type.INNER_CLASS) {
+            deobf = deobf.substring(deobf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1);
         }
 
         ClassMapping<?> mapping = getOrCreateClassMapping(context, ref);
@@ -341,7 +346,8 @@ public final class MappingsHelper {
                 //TODO: this is broken
                 return Pair.of(Main.getLoadedJar()
                                 .getClass(((InnerClassReference) ref).getParentClass())
-                                .map(jarClassEntry -> jarClassEntry.getCurrentInnerClassNames().containsValue(remappedName))
+                                .map(jarClassEntry ->
+                                        jarClassEntry.getCurrentInnerClassNames().containsValue(remappedName))
                                 .orElse(false),
                         false);
             case FIELD: {

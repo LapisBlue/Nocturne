@@ -37,11 +37,15 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
+import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
 import org.cadixdev.bombe.type.BaseType;
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
+import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -66,114 +70,129 @@ class ReaderTestHelper {
     }
 
     void classTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping<?> mapping = mappings.getMappings().get("a");
-        assertEquals("a", mapping.getObfuscatedName());
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
+        assertEquals(ref_a.toJvmsIdentifier(), mapping.getReference().toJvmsIdentifier());
         assertEquals(EXAMPLE_PACKAGE + "/Example", mapping.getDeobfuscatedName());
     }
 
     void innerClassTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping<?> mapping = mappings.getMappings().get("a");
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        InnerClassReference ref_b = ref_a.getInnerClass("b");
 
-        assertTrue(mapping.getInnerClassMappings().containsKey("b"));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get("b");
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
 
-        assertEquals("b", inner.getObfuscatedName());
+        assertTrue(mapping.getInnerClassMappings().containsKey(ref_b));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_b);
+
+        assertEquals("a$b", inner.getReference().toJvmsIdentifier());
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals(EXAMPLE_PACKAGE + "/Example$Inner", inner.getFullDeobfuscatedName());
     }
 
     void innerClassWithoutParentMappingTest() {
-        assertTrue(mappings.getMappings().containsKey("b"));
-        ClassMapping<?> mapping = mappings.getMappings().get("b");
+        TopLevelClassReference ref_b = new TopLevelClassReference("b");
+        InnerClassReference ref_a = ref_b.getInnerClass("a");
 
-        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
+        assertTrue(mappings.getMappings().containsKey(ref_b));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_b);
 
-        assertEquals("a", inner.getObfuscatedName());
+        assertTrue(mapping.getInnerClassMappings().containsKey(ref_a));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_a);
+
         assertEquals("Inner", inner.getDeobfuscatedName());
-        assertEquals("b$a", inner.getFullObfuscatedName());
-        assertEquals("com/example/project/Another$Inner", inner.getFullDeobfuscatedName());
+        assertEquals("b$a", inner.getReference().toJvmsIdentifier());
+        assertEquals(EXAMPLE_PACKAGE + "/Another$Inner", inner.getFullDeobfuscatedName());
     }
 
     void nestedInnerClassWithoutParentMappingTest() {
-        assertTrue(mappings.getMappings().containsKey("b"));
-        ClassMapping<?> mapping = mappings.getMappings().get("b");
+        TopLevelClassReference ref_b = new TopLevelClassReference("b");
+        InnerClassReference ref_a = ref_b.getInnerClass("a");
+        InnerClassReference ref_c = ref_a.getInnerClass("c");
 
-        assertTrue(mapping.getInnerClassMappings().containsKey("a"));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
-        assertTrue(inner.getInnerClassMappings().containsKey("c"));
-        InnerClassMapping deeper = inner.getInnerClassMappings().get("c");
+        assertTrue(mappings.getMappings().containsKey(ref_b));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_b);
 
-        assertEquals("c", deeper.getObfuscatedName());
+        assertTrue(mapping.getInnerClassMappings().containsKey(ref_a));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_a);
+        assertTrue(inner.getInnerClassMappings().containsKey(ref_c));
+        InnerClassMapping deeper = inner.getInnerClassMappings().get(ref_c);
+
         assertEquals("Deeper", deeper.getDeobfuscatedName());
-        assertEquals("b$a$c", deeper.getFullObfuscatedName());
-        assertEquals("com/example/project/Another$Inner$Deeper", deeper.getFullDeobfuscatedName());
+        assertEquals("b$a$c", deeper.getReference().toJvmsIdentifier());
+        assertEquals(EXAMPLE_PACKAGE + "/Another$Inner$Deeper", deeper.getFullDeobfuscatedName());
     }
 
     void fieldTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping<?> mapping = mappings.getMappings().get("a");
-
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
+
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
 
         assertTrue(mapping.getFieldMappings().containsKey(aSig));
         FieldMapping fieldMapping = mapping.getFieldMappings().get(aSig);
-        assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someField", fieldMapping.getDeobfuscatedName());
     }
 
     void fieldInnerClassTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
-
-        ClassMapping<?> mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
-
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        InnerClassReference ref_b = ref_a.getInnerClass("b");
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
+
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        assertTrue(mappings.getMappings().get(ref_a).getInnerClassMappings().containsKey(ref_b));
+
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_a).getInnerClassMappings().get(ref_b);
 
         assertTrue(mapping.getFieldMappings().containsKey(aSig));
 
         FieldMapping fieldMapping = mapping.getFieldMappings().get(aSig);
-        assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someInnerField", fieldMapping.getDeobfuscatedName());
     }
 
     void fieldNestedInnerClassTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
-        ClassMapping<?> inner = mappings.getMappings().get("a").getInnerClassMappings().get("b");
-        assertTrue(inner.getInnerClassMappings().containsKey("c"));
-        ClassMapping<?> deeper = inner.getInnerClassMappings().get("c");
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        InnerClassReference ref_b = ref_a.getInnerClass("b");
+        InnerClassReference ref_c = ref_b.getInnerClass("c");
+
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        assertTrue(mappings.getMappings().get(ref_a).getInnerClassMappings().containsKey(ref_b));
+        ClassMapping<?> inner = mappings.getMappings().get(ref_a).getInnerClassMappings().get(ref_b);
+        assertTrue(inner.getInnerClassMappings().containsKey(ref_c));
+        ClassMapping<?> deeper = inner.getInnerClassMappings().get(ref_c);
 
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
         assertTrue(deeper.getFieldMappings().containsKey(aSig));
 
         FieldMapping fieldMapping = deeper.getFieldMappings().get(aSig);
-        assertEquals("a", fieldMapping.getObfuscatedName());
         assertEquals("someDeeperField", fieldMapping.getDeobfuscatedName());
     }
 
     void methodTest() {
-        assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping<?> mapping = mappings.getMappings().get("a");
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+
+        assertTrue(mappings.getMappings().containsKey(ref_a));
+        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
 
         MethodSignature aSig = new MethodSignature("a", MethodDescriptor.of("(ILa;I)La;"));
         assertTrue(mapping.getMethodMappings().containsKey(aSig));
 
         MethodMapping methodMapping = mapping.getMethodMappings().get(aSig);
-        assertEquals("a", methodMapping.getObfuscatedName());
         assertEquals("someMethod", methodMapping.getDeobfuscatedName());
         assertArrayEquals(
                 new FieldType[]{
                         BaseType.INT,
-                        new ObjectType("a"),
+                        ref_a.getClassType(),
                         BaseType.INT
                 },
-                methodMapping.getObfuscatedDescriptor().getParamTypes().toArray()
+                methodMapping.getReference().getSignature().getDescriptor().getParamTypes().toArray()
         );
-        assertEquals(new ObjectType("a"), methodMapping.getObfuscatedDescriptor().getReturnType());
+        assertEquals(ref_a.getClassType(), methodMapping.getReference().getSignature().getDescriptor().getReturnType());
 
         MethodDescriptor deobfSig = methodMapping.getDeobfuscatedDescriptor();
         assertArrayEquals(
@@ -188,7 +207,9 @@ class ReaderTestHelper {
     }
 
     void partialDeobfuscationTest() {
-        assertEquals("com/example/project/Example$c", ClassMapping.deobfuscate(mappings, "a$c"));
+        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        InnerClassReference ref_c = ref_a.getInnerClass("c");
+        //assertEquals("com/example/project/Example$c", ClassMapping.deobfuscate(mappings, ref_c));
     }
 
 }

@@ -63,7 +63,7 @@ public class JamReaderTest {
         helper.innerClassTest();
     }
 
-    @Test
+    /*@Test
     public void innerClassWithoutParentMappingTest() {
         helper.innerClassWithoutParentMappingTest();
     }
@@ -71,7 +71,7 @@ public class JamReaderTest {
     @Test
     public void nestedInnerClassWithoutParentMappingTest() {
         helper.nestedInnerClassWithoutParentMappingTest();
-    }
+    }*/
 
     @Test
     public void fieldTest() {
