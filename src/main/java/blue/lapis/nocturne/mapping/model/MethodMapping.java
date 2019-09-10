@@ -118,7 +118,8 @@ public class MethodMapping extends MemberMapping<MethodReference> {
         super.setDeobfuscatedName(deobf);
 
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
-            for (ClassReference clazz : HierarchyHelper.getClassesInHierarchy(ref.getOwningClass(), ref.getSignature())) {
+            for (ClassReference clazz
+                    : HierarchyHelper.getClassesInHierarchy(ref.getOwningClass(), ref.getSignature())) {
                 if (clazz.equals(ref.getOwningClass())) {
                     continue;
                 }

@@ -58,12 +58,15 @@ import java.util.stream.Collectors;
 public class ClassesTreeView extends TreeView<String> {
 
     private BooleanProperty checkLength;
+
     public final void setCheckLength(final boolean value) {
         this.checkLengthProperty().set(value);
     }
+
     public final boolean isCheckLength() {
         return this.checkLength == null || this.checkLength.get();
     }
+
     public final BooleanProperty checkLengthProperty() {
         if (this.checkLength == null) {
             this.checkLength = new SimpleBooleanProperty(this, "checkLength", true);

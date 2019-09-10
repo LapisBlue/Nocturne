@@ -70,23 +70,23 @@ class ReaderTestHelper {
     }
 
     void classTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
-        assertEquals(ref_a.toJvmsIdentifier(), mapping.getReference().toJvmsIdentifier());
+        assertTrue(mappings.getMappings().containsKey(refA));
+        ClassMapping<?> mapping = mappings.getMappings().get(refA);
+        assertEquals(refA.toJvmsIdentifier(), mapping.getReference().toJvmsIdentifier());
         assertEquals(EXAMPLE_PACKAGE + "/Example", mapping.getDeobfuscatedName());
     }
 
     void innerClassTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
-        InnerClassReference ref_b = ref_a.getInnerClass("b");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
+        InnerClassReference refB = refA.getInnerClass("b");
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
+        assertTrue(mappings.getMappings().containsKey(refA));
+        ClassMapping<?> mapping = mappings.getMappings().get(refA);
 
-        assertTrue(mapping.getInnerClassMappings().containsKey(ref_b));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_b);
+        assertTrue(mapping.getInnerClassMappings().containsKey(refB));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(refB);
 
         assertEquals("a$b", inner.getReference().toJvmsIdentifier());
         assertEquals("Inner", inner.getDeobfuscatedName());
@@ -94,14 +94,14 @@ class ReaderTestHelper {
     }
 
     void innerClassWithoutParentMappingTest() {
-        TopLevelClassReference ref_b = new TopLevelClassReference("b");
-        InnerClassReference ref_a = ref_b.getInnerClass("a");
+        TopLevelClassReference refB = new TopLevelClassReference("b");
+        InnerClassReference refA = refB.getInnerClass("a");
 
-        assertTrue(mappings.getMappings().containsKey(ref_b));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_b);
+        assertTrue(mappings.getMappings().containsKey(refB));
+        ClassMapping<?> mapping = mappings.getMappings().get(refB);
 
-        assertTrue(mapping.getInnerClassMappings().containsKey(ref_a));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_a);
+        assertTrue(mapping.getInnerClassMappings().containsKey(refA));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(refA);
 
         assertEquals("Inner", inner.getDeobfuscatedName());
         assertEquals("b$a", inner.getReference().toJvmsIdentifier());
@@ -109,17 +109,17 @@ class ReaderTestHelper {
     }
 
     void nestedInnerClassWithoutParentMappingTest() {
-        TopLevelClassReference ref_b = new TopLevelClassReference("b");
-        InnerClassReference ref_a = ref_b.getInnerClass("a");
-        InnerClassReference ref_c = ref_a.getInnerClass("c");
+        TopLevelClassReference refB = new TopLevelClassReference("b");
+        InnerClassReference refA = refB.getInnerClass("a");
+        InnerClassReference refC = refA.getInnerClass("c");
 
-        assertTrue(mappings.getMappings().containsKey(ref_b));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_b);
+        assertTrue(mappings.getMappings().containsKey(refB));
+        ClassMapping<?> mapping = mappings.getMappings().get(refB);
 
-        assertTrue(mapping.getInnerClassMappings().containsKey(ref_a));
-        InnerClassMapping inner = mapping.getInnerClassMappings().get(ref_a);
-        assertTrue(inner.getInnerClassMappings().containsKey(ref_c));
-        InnerClassMapping deeper = inner.getInnerClassMappings().get(ref_c);
+        assertTrue(mapping.getInnerClassMappings().containsKey(refA));
+        InnerClassMapping inner = mapping.getInnerClassMappings().get(refA);
+        assertTrue(inner.getInnerClassMappings().containsKey(refC));
+        InnerClassMapping deeper = inner.getInnerClassMappings().get(refC);
 
         assertEquals("Deeper", deeper.getDeobfuscatedName());
         assertEquals("b$a$c", deeper.getReference().toJvmsIdentifier());
@@ -127,11 +127,11 @@ class ReaderTestHelper {
     }
 
     void fieldTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
+        assertTrue(mappings.getMappings().containsKey(refA));
+        ClassMapping<?> mapping = mappings.getMappings().get(refA);
 
         assertTrue(mapping.getFieldMappings().containsKey(aSig));
         FieldMapping fieldMapping = mapping.getFieldMappings().get(aSig);
@@ -139,14 +139,14 @@ class ReaderTestHelper {
     }
 
     void fieldInnerClassTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
-        InnerClassReference ref_b = ref_a.getInnerClass("b");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
+        InnerClassReference refB = refA.getInnerClass("b");
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        assertTrue(mappings.getMappings().get(ref_a).getInnerClassMappings().containsKey(ref_b));
+        assertTrue(mappings.getMappings().containsKey(refA));
+        assertTrue(mappings.getMappings().get(refA).getInnerClassMappings().containsKey(refB));
 
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_a).getInnerClassMappings().get(ref_b);
+        ClassMapping<?> mapping = mappings.getMappings().get(refA).getInnerClassMappings().get(refB);
 
         assertTrue(mapping.getFieldMappings().containsKey(aSig));
 
@@ -155,15 +155,15 @@ class ReaderTestHelper {
     }
 
     void fieldNestedInnerClassTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
-        InnerClassReference ref_b = ref_a.getInnerClass("b");
-        InnerClassReference ref_c = ref_b.getInnerClass("c");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
+        InnerClassReference refB = refA.getInnerClass("b");
+        InnerClassReference refC = refB.getInnerClass("c");
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        assertTrue(mappings.getMappings().get(ref_a).getInnerClassMappings().containsKey(ref_b));
-        ClassMapping<?> inner = mappings.getMappings().get(ref_a).getInnerClassMappings().get(ref_b);
-        assertTrue(inner.getInnerClassMappings().containsKey(ref_c));
-        ClassMapping<?> deeper = inner.getInnerClassMappings().get(ref_c);
+        assertTrue(mappings.getMappings().containsKey(refA));
+        assertTrue(mappings.getMappings().get(refA).getInnerClassMappings().containsKey(refB));
+        ClassMapping<?> inner = mappings.getMappings().get(refA).getInnerClassMappings().get(refB);
+        assertTrue(inner.getInnerClassMappings().containsKey(refC));
+        ClassMapping<?> deeper = inner.getInnerClassMappings().get(refC);
 
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
@@ -174,10 +174,10 @@ class ReaderTestHelper {
     }
 
     void methodTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
+        TopLevelClassReference refA = new TopLevelClassReference("a");
 
-        assertTrue(mappings.getMappings().containsKey(ref_a));
-        ClassMapping<?> mapping = mappings.getMappings().get(ref_a);
+        assertTrue(mappings.getMappings().containsKey(refA));
+        ClassMapping<?> mapping = mappings.getMappings().get(refA);
 
         MethodSignature aSig = new MethodSignature("a", MethodDescriptor.of("(ILa;I)La;"));
         assertTrue(mapping.getMethodMappings().containsKey(aSig));
@@ -187,12 +187,12 @@ class ReaderTestHelper {
         assertArrayEquals(
                 new FieldType[]{
                         BaseType.INT,
-                        ref_a.getClassType(),
+                        refA.getClassType(),
                         BaseType.INT
                 },
                 methodMapping.getReference().getSignature().getDescriptor().getParamTypes().toArray()
         );
-        assertEquals(ref_a.getClassType(), methodMapping.getReference().getSignature().getDescriptor().getReturnType());
+        assertEquals(refA.getClassType(), methodMapping.getReference().getSignature().getDescriptor().getReturnType());
 
         MethodDescriptor deobfSig = methodMapping.getDeobfuscatedDescriptor();
         assertArrayEquals(
@@ -207,9 +207,9 @@ class ReaderTestHelper {
     }
 
     void partialDeobfuscationTest() {
-        TopLevelClassReference ref_a = new TopLevelClassReference("a");
-        InnerClassReference ref_c = ref_a.getInnerClass("c");
-        //assertEquals("com/example/project/Example$c", ClassMapping.deobfuscate(mappings, ref_c));
+        TopLevelClassReference refA = new TopLevelClassReference("a");
+        InnerClassReference refC = refA.getInnerClass("c");
+        //assertEquals("com/example/project/Example$c", ClassMapping.deobfuscate(mappings, refC));
     }
 
 }

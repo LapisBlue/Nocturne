@@ -58,7 +58,7 @@ public abstract class Mapping<T extends QualifiedReference> {
     }
 
     /**
-     * Returns a reference to the mapped item
+     * Returns a reference to the mapped item.
      *
      * @return A reference to the mapped item
      */

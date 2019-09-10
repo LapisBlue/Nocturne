@@ -284,6 +284,8 @@ public class SelectableMember extends Text {
                 //TODO
                 break;
             }
+            default:
+                throw new AssertionError("Unhandled case " + reference.getType().name());
         }
     }
 
@@ -305,6 +307,9 @@ public class SelectableMember extends Text {
                     MethodParameterReference paramRef = (MethodParameterReference) reference;
                     this.codeTab.setMemberInfo(paramRef.getParentMethod().getSignature().getDescriptor()
                             .getParamTypes().get(paramRef.getParameterIndex()).toString());
+                    break;
+                default:
+                    throw new AssertionError("Unhandled case " + reference.getType().name());
             }
         }
     }

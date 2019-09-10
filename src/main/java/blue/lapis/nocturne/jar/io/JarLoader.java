@@ -126,7 +126,8 @@ public class JarLoader {
                     }
                 }
 
-                if (mapping != null && !mapping.getReference().toJvmsIdentifier().equals(mapping.getFullDeobfuscatedName())) {
+                if (mapping != null
+                        && !mapping.getReference().toJvmsIdentifier().equals(mapping.getFullDeobfuscatedName())) {
                     classEntry.setDeobfuscated(true);
                 }
                 classes.add(classEntry);
