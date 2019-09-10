@@ -29,6 +29,8 @@ import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,10 +43,10 @@ import java.util.stream.Collectors;
  */
 public class ClassHierarchyBuilder {
 
-    private final Map<String, IndexedClass> classes;
+    private final Map<ClassReference, IndexedClass> classes;
 
     public ClassHierarchyBuilder(Set<IndexedClass> classes) {
-        this.classes = new HashMap<>(classes.stream().collect(Collectors.toMap(IndexedClass::getName, c -> c)));
+        this.classes = new HashMap<>(classes.stream().collect(Collectors.toMap(IndexedClass::getReference, c -> c)));
     }
 
     public void buildHierarchies() {
@@ -77,7 +79,7 @@ public class ClassHierarchyBuilder {
     }
 
     private Set<IndexedClass> getParents(IndexedClass clazz, boolean returnEmpty) {
-        Set<String> parentNames = new HashSet<>(clazz.getInterfaces());
+        Set<ClassReference> parentNames = new HashSet<>(clazz.getInterfaces());
         parentNames.add(clazz.getSuperclass());
         Set<IndexedClass> directParents = parentNames.stream().filter(classes::containsKey)
                 .map(classes::get).collect(Collectors.toSet());
@@ -99,7 +101,7 @@ public class ClassHierarchyBuilder {
                         method.getHierarchy().addAll(clazz.getHierarchy().stream()
                                 .filter(c -> c.getMethods().containsKey(method.getSignature())
                                         && HierarchyHelper.isVisible(
-                                        clazz.getName(), c.getName(),
+                                        clazz.getReference(), c.getReference(),
                                         c.getMethods().get(method.getSignature()).getVisibility()))
                                 .collect(Collectors.toSet()));
                     });

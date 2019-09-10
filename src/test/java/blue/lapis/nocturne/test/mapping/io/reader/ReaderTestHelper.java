@@ -67,14 +67,14 @@ class ReaderTestHelper {
 
     void classTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping mapping = mappings.getMappings().get("a");
+        ClassMapping<?> mapping = mappings.getMappings().get("a");
         assertEquals("a", mapping.getObfuscatedName());
         assertEquals(EXAMPLE_PACKAGE + "/Example", mapping.getDeobfuscatedName());
     }
 
     void innerClassTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping mapping = mappings.getMappings().get("a");
+        ClassMapping<?> mapping = mappings.getMappings().get("a");
 
         assertTrue(mapping.getInnerClassMappings().containsKey("b"));
         InnerClassMapping inner = mapping.getInnerClassMappings().get("b");
@@ -86,7 +86,7 @@ class ReaderTestHelper {
 
     void innerClassWithoutParentMappingTest() {
         assertTrue(mappings.getMappings().containsKey("b"));
-        ClassMapping mapping = mappings.getMappings().get("b");
+        ClassMapping<?> mapping = mappings.getMappings().get("b");
 
         assertTrue(mapping.getInnerClassMappings().containsKey("a"));
         InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
@@ -99,7 +99,7 @@ class ReaderTestHelper {
 
     void nestedInnerClassWithoutParentMappingTest() {
         assertTrue(mappings.getMappings().containsKey("b"));
-        ClassMapping mapping = mappings.getMappings().get("b");
+        ClassMapping<?> mapping = mappings.getMappings().get("b");
 
         assertTrue(mapping.getInnerClassMappings().containsKey("a"));
         InnerClassMapping inner = mapping.getInnerClassMappings().get("a");
@@ -114,7 +114,7 @@ class ReaderTestHelper {
 
     void fieldTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping mapping = mappings.getMappings().get("a");
+        ClassMapping<?> mapping = mappings.getMappings().get("a");
 
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
@@ -128,7 +128,7 @@ class ReaderTestHelper {
         assertTrue(mappings.getMappings().containsKey("a"));
         assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
 
-        ClassMapping mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
+        ClassMapping<?> mapping = mappings.getMappings().get("a").getInnerClassMappings().get("b");
 
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
@@ -142,9 +142,9 @@ class ReaderTestHelper {
     void fieldNestedInnerClassTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
         assertTrue(mappings.getMappings().get("a").getInnerClassMappings().containsKey("b"));
-        ClassMapping inner = mappings.getMappings().get("a").getInnerClassMappings().get("b");
+        ClassMapping<?> inner = mappings.getMappings().get("a").getInnerClassMappings().get("b");
         assertTrue(inner.getInnerClassMappings().containsKey("c"));
-        ClassMapping deeper = inner.getInnerClassMappings().get("c");
+        ClassMapping<?> deeper = inner.getInnerClassMappings().get("c");
 
         FieldSignature aSig = new FieldSignature("a", FieldType.of("I"));
 
@@ -157,7 +157,7 @@ class ReaderTestHelper {
 
     void methodTest() {
         assertTrue(mappings.getMappings().containsKey("a"));
-        ClassMapping mapping = mappings.getMappings().get("a");
+        ClassMapping<?> mapping = mappings.getMappings().get("a");
 
         MethodSignature aSig = new MethodSignature("a", MethodDescriptor.of("(ILa;I)La;"));
         assertTrue(mapping.getMethodMappings().containsKey(aSig));

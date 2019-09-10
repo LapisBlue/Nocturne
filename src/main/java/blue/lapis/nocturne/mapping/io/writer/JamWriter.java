@@ -88,10 +88,10 @@ public class JamWriter extends MappingsWriter {
      *
      * @param classMapping The {@link ClassMapping} to write
      */
-    protected void writeClassMapping(ClassMapping classMapping) {
+    protected void writeClassMapping(ClassMapping<?> classMapping) {
         if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL %s %s\n",
-                    classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
+                    classMapping.getReference().toJvmsIdentifier(), classMapping.getFullDeobfuscatedName());
         }
 
         classMapping.getInnerClassMappings().values().stream()
@@ -115,9 +115,9 @@ public class JamWriter extends MappingsWriter {
      */
     protected void writeFieldMapping(FieldMapping fieldMapping) {
         fdWriter.format("FD %s %s %s %s\n",
-                fieldMapping.getParent().getFullObfuscatedName(),
-                fieldMapping.getObfuscatedName(),
-                fieldMapping.getObfuscatedType().toString(),
+                fieldMapping.getParent().getReference().toJvmsIdentifier(),
+                fieldMapping.getReference().getSignature().getName(),
+                fieldMapping.getReference().getSignature().getType().orElse(null).toString(),
                 fieldMapping.getDeobfuscatedName());
     }
 
@@ -128,20 +128,20 @@ public class JamWriter extends MappingsWriter {
      * @param mapping The {@link MethodMapping} to write
      */
     protected void writeMethodMapping(MethodMapping mapping) {
-        if (!mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) {
+        if (!mapping.getReference().getSignature().getName().equals(mapping.getDeobfuscatedName())) {
             mdWriter.format("MD %s %s %s %s\n",
-                    mapping.getParent().getFullObfuscatedName(),
-                    mapping.getObfuscatedName(),
-                    mapping.getObfuscatedDescriptor(),
+                    mapping.getParent().getReference().toJvmsIdentifier(),
+                    mapping.getReference().getSignature().getName(),
+                    mapping.getReference().getSignature().getDescriptor().toString(),
                     mapping.getDeobfuscatedName());
         }
         mapping.getParamMappings().values().stream()
                 .sorted(ALPHABETISE_PARAMS)
                 .forEach(param -> mpWriter.format("MP %s %s %s %s %s\n",
-                        param.getParent().getParent().getFullObfuscatedName(),
-                        param.getParent().getObfuscatedName(),
-                        param.getParent().getObfuscatedDescriptor(),
-                        param.getIndex(),
+                        param.getParent().getParent().getReference().toJvmsIdentifier(),
+                        param.getParent().getReference().getSignature().getName(),
+                        param.getParent().getReference().getSignature().getDescriptor().toString(),
+                        param.getReference().getParameterIndex(),
                         param.getDeobfuscatedName()));
     }
 }

@@ -31,7 +31,9 @@ import static blue.lapis.nocturne.util.helper.Preconditions.checkState;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 
 import java.io.IOException;
@@ -59,9 +61,9 @@ public class SimpleBytecodeProvider implements IBytecodeProvider {
         if (!matcher.find()) {
             throw new IllegalArgumentException("Class not found");
         }
-        String name = matcher.group(1);
+        ClassReference classRef = ReferenceHelper.createClassReference(matcher.group(1));
         checkState(Main.getLoadedJar() != null, "JAR is not loaded");
-        Optional<JarClassEntry> entry = Main.getLoadedJar().getClass(name);
+        Optional<JarClassEntry> entry = Main.getLoadedJar().getClass(classRef);
 
         checkArgument(entry.isPresent(), "Class not found");
         return entry.get().getContent();

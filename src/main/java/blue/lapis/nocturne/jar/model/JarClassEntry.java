@@ -41,6 +41,9 @@ import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
 
 import javafx.scene.control.Dialog;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 import org.jetbrains.java.decompiler.main.Fernflower;
@@ -60,14 +63,6 @@ public class JarClassEntry {
 
     private static Dialog<Boolean> decompileDialog;
 
-    private final String name;
-    private byte[] content;
-    private boolean deobfuscated;
-
-    private final Map<String, String> classNames = new HashMap<>();
-    private final Map<FieldSignature, FieldSignature> fields = new HashMap<>();
-    private final Map<MethodSignature, MethodSignature> methods = new HashMap<>();
-
     static {
         if (!Main.getInstance().testingEnv) {
             decompileDialog = new Dialog<>();
@@ -80,48 +75,59 @@ public class JarClassEntry {
         }
     }
 
+    private final ClassReference ref;
+    private byte[] content;
+    private boolean deobfuscated;
+
+    private final Map<InnerClassReference, String> classNames = new HashMap<>();
+    private final Map<FieldSignature, FieldSignature> fields = new HashMap<>();
+    private final Map<MethodSignature, MethodSignature> methods = new HashMap<>();
+
     /**
-     * Constructs a new {@link JarClassEntry} with the given name and byte
-     * content.
+     * Constructs a new JarClassEntry with the given name and byte content.
      *
-     * @param name    The name of the {@link JarClassEntry}.
+     * @param ref A reference to the class represented by this entry
      * @param content A byte array representing the raw content of the class
      */
-    public JarClassEntry(String name, byte[] content) {
-        this.name = name;
+    public JarClassEntry(ClassReference ref, byte[] content) {
+        this.ref = ref;
         this.content = new byte[content.length];
         System.arraycopy(content, 0, this.content, 0, content.length);
     }
 
     public void index() {
-        INDEXED_CLASSES.put(getName(), new ClassIndexer(this).index());
+        INDEXED_CLASSES.put(ref, new ClassIndexer(this).index());
     }
 
     public void process() {
         try {
-            content = new ClassTransformer(getName(), getContent()).process();
+            content = new ClassTransformer(getReference(), getContent()).process();
         } catch (IOException ex) {
-            Main.getLogger().severe("Failed to process class " + getName());
+            Main.getLogger().severe("Failed to process class " + getReference().toJvmsIdentifier());
             ex.printStackTrace();
         }
     }
 
     /**
-     * Returns the name of this {@link JarClassEntry}.
+     * Returns a reference backing this {@link JarClassEntry}.
      *
-     * @return The name of this {@link JarClassEntry}
+     * @return A reference backing this {@link JarClassEntry}
      */
-    public String getName() {
-        return name;
+    public ClassReference getReference() {
+        return ref;
+    }
+
+    private String getName() {
+        return ref.toJvmsIdentifier();
     }
 
     public String getDeobfuscatedName() {
         checkArgument(isDeobfuscated(), "Cannot get deobfuscated name from non-deobfuscated class entry");
-        TopLevelClassMapping mapping = Main.getMappingContext().getMappings().get(name);
+        TopLevelClassMapping mapping = Main.getMappingContext().getMappings().get(ref);
         if (mapping != null) {
             return mapping.getDeobfuscatedName();
         } else {
-            return getName();
+            return getReference().toJvmsIdentifier();
         }
     }
 
@@ -196,7 +202,7 @@ public class JarClassEntry {
         }
     }
 
-    public Map<String, String> getCurrentInnerClassNames() {
+    public Map<InnerClassReference, String> getCurrentInnerClassNames() {
         return classNames;
     }
 
@@ -217,18 +223,18 @@ public class JarClassEntry {
             return false;
         }
         final JarClassEntry that = (JarClassEntry) obj;
-        return Objects.equals(this.name, that.name);
+        return Objects.equals(this.ref, that.ref);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name, this.deobfuscated);
+        return Objects.hash(this.ref, this.deobfuscated);
     }
 
     @Override
     public String toString() {
         return "{"
-                + "name=" + this.name + ";"
+                + "ref=" + this.ref + ";"
                 + "deobfuscated" + "=" + this.deobfuscated
                 + "}";
     }

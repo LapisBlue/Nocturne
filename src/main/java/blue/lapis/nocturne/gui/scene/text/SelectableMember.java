@@ -28,17 +28,15 @@ package blue.lapis.nocturne.gui.scene.text;
 import static blue.lapis.nocturne.util.Constants.CLASS_MEMBER_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.DOT_PATTERN;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 import static blue.lapis.nocturne.util.Constants.Processing.CLASS_PREFIX;
+import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_PREFIX;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.doesRemappedNameClash;
 import static blue.lapis.nocturne.util.helper.MappingsHelper.genMethodMapping;
-import static blue.lapis.nocturne.util.helper.MappingsHelper.getOrCreateClassMapping;
 import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
-import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
@@ -46,23 +44,27 @@ import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
-import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
 import blue.lapis.nocturne.util.tuple.Pair;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.text.Text;
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.MethodParameterReference;
+import org.cadixdev.bombe.type.reference.MethodReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
-import org.cadixdev.bombe.type.signature.MemberSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.ArrayList;
@@ -74,58 +76,74 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents a selectable member in code.
  */
 public class SelectableMember extends Text {
 
-    public static final Map<MemberKey, List<SelectableMember>> MEMBERS = new HashMap<>();
+    public static final Map<QualifiedReference, List<SelectableMember>> MEMBERS = new HashMap<>();
+
+    private static void updateView(QualifiedReference ref, @Nullable String paramName) {
+        String deobf = MappingsHelper.getDeobfuscatedName(Main.getMappingContext(), ref)
+                .orElse(ReferenceHelper.getName(ref, paramName));
+        if (ref instanceof ClassReference) {
+            deobf = StringHelper.unqualify(deobf);
+        }
+        String deobfF = deobf;
+
+        MEMBERS.get(ref).forEach(sm -> sm.setText(deobfF));
+    }
+
+    public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
+        QualifiedReference.Type type;
+
+        //TODO: handle params
+        if (matcher.group().startsWith(CLASS_PREFIX)) {
+            String qualClassName = matcher.group(1);
+            return new SelectableMember(codeTab, ReferenceHelper.createClassReference(qualClassName));
+        } else if (matcher.group().startsWith(MEMBER_PREFIX)) {
+            type = QualifiedReference.Type.valueOf(matcher.group(1));
+
+            String qualName = matcher.group(2);
+            String descriptor = matcher.group(3);
+
+            int offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
+
+            String simpleName = qualName.substring(offset + 1);
+            String parentClassName = qualName.substring(0, offset);
+
+            ClassReference classRef = ReferenceHelper.createClassReference(parentClassName);
+
+            if (type == QualifiedReference.Type.FIELD) {
+                FieldSignature fieldSig = new FieldSignature(simpleName, FieldType.of(descriptor));
+                return new SelectableMember(codeTab, new FieldReference(classRef, fieldSig));
+            } else if (type == QualifiedReference.Type.METHOD) {
+                MethodSignature methodSig = new MethodSignature(simpleName, MethodDescriptor.of(descriptor));
+                return new SelectableMember(codeTab, new MethodReference(classRef, methodSig));
+            } else {
+                throw new AssertionError("Unhandled case " + type.name());
+            }
+        } else {
+            throw new AssertionError("Don't know how to handle transformed identifier " + matcher.group());
+        }
+    }
 
     private final CodeTab codeTab;
-    private final MemberType type;
 
-    private final MemberKey key;
-
-    private final StringProperty nameProperty = new SimpleStringProperty(this, "name");
-    private final StringProperty descriptorProperty = new SimpleStringProperty(this, "descriptor");
-    private final StringProperty parentClassProperty = new SimpleStringProperty(this, "parentClass");
-
-    private final MemberSignature sig;
+    private final QualifiedReference reference;
+    private final String origName;
 
     private boolean deobfuscated;
 
-    private String fullName = null; // only used for classes
-
-    public SelectableMember(CodeTab codeTab, MemberType type, String name) {
-        this(codeTab, type, name, null, null);
-    }
-
-    //TODO: this could stand to be broken into helper methods or just all-around restructured
-    public SelectableMember(CodeTab codeTab, MemberType type, String name, String descriptor, String parentClass) {
-        super(name);
+    public SelectableMember(CodeTab codeTab, QualifiedReference reference, @Nullable String name) {
+        super(ReferenceHelper.getName(reference, name));
         this.codeTab = codeTab;
-        this.type = type;
-        this.nameProperty.set(name);
-        this.descriptorProperty.set(descriptor);
+        this.reference = reference;
 
-        if (type == MemberType.FIELD) {
-            this.sig = FieldSignature.of(name, descriptor);
-        } else if (type == MemberType.METHOD) {
-            this.sig = MethodSignature.of(name, descriptor);
-        } else {
-            this.sig = null;
-        }
-
-        this.parentClassProperty.set(parentClass);
-
-        if (type == MemberType.CLASS || type == MemberType.INNER_CLASS) {
-            fullName = getName();
-        }
-
-        this.key = new MemberKey(type, getQualifiedName(),
-                type == MemberType.FIELD || type == MemberType.METHOD ? descriptor : null);
+        this.origName = super.getText();
 
         this.setOnMouseClicked(event1 -> {
             if (event1.getButton() == MouseButton.PRIMARY) {
@@ -134,146 +152,17 @@ public class SelectableMember extends Text {
         });
 
         MenuItem renameItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.rename"));
-        renameItem.setOnAction(event -> {
-            String dispText;
-            if (getType() == MemberType.CLASS) {
-                dispText = fullName;
-            } else {
-                dispText = this.getText();
-            }
-            TextInputDialog textInputDialog = new TextInputDialog(dispText);
-            textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
-
-            Optional<String> result = textInputDialog.showAndWait();
-            if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
-
-                String qualifiedName;
-                switch (getType()) {
-                    case CLASS:
-                    case INNER_CLASS:
-                        qualifiedName = getQualifiedName();
-                        break;
-                    case FIELD:
-                    case METHOD:
-                        qualifiedName = getClassName() + CLASS_MEMBER_SEPARATOR_CHAR + getName();
-                        break;
-                    default:
-                        throw new AssertionError("Unhandled case " + getType().name());
-                }
-
-                Pair<Boolean, Boolean> dupe
-                        = doesRemappedNameClash(Main.getLoadedJar(), qualifiedName, sig, result.get(), getType());
-                if (dupe.first()) {
-                    showDupeAlert(dupe.second());
-                }
-
-                String res = result.get();
-                if (getType() == MemberType.CLASS) {
-                    res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");
-                }
-                if ((getType() == MemberType.CLASS && !StringHelper.isJavaClassIdentifier(res))
-                        || (getType() != MemberType.CLASS && !StringHelper.isJavaIdentifier(res))) {
-                    showIllegalAlert();
-                    return;
-                }
-                this.setMapping(res);
-            }
-        });
+        renameItem.setOnAction(event -> handleRenameAction());
 
         MenuItem resetItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.reset"));
-        resetItem.setOnAction(event -> {
-            if (getText().equals(getName())) {
-                Optional<? extends Mapping> mapping = getMapping();
-                if (mapping.isPresent()) {
-                    mapping.get().setAdHoc(false);
-                    if (mapping.get() instanceof MemberMapping) {
-                        ClassMapping parent = ((MemberMapping) mapping.get()).getParent();
-                        if (mapping.get() instanceof FieldMapping) {
-                            //noinspection ConstantConditions
-                            parent.removeFieldMapping((FieldSignature) sig);
-                        } else {
-                            //noinspection ConstantConditions
-                            parent.removeMethodMapping((MethodSignature) sig);
-                        }
-                    } else if (mapping.get() instanceof MethodParameterMapping) {
-                        ((MethodParameterMapping) mapping.get()).getParent()
-                                .removeParamMapping(mapping.get().getObfuscatedName());
-                    }
-                }
-                MEMBERS.get(key).forEach(sm ->
-                        sm.setDeobfuscated(mapping.isPresent()
-                                && looksDeobfuscated(mapping.get().getObfuscatedName()), false));
-            }
-            switch (getType()) {
-                case CLASS:
-                case INNER_CLASS: {
-                    Optional<? extends Mapping> mapping = getMapping();
-                    if (mapping.isPresent()
-                            && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName())) {
-                        if (doesRemappedNameClash(Main.getLoadedJar(),
-                                fullName, null, mapping.get().getObfuscatedName(), getType()).first()) {
-                            showDupeAlert(false);
-                        }
-                        mapping.get().setDeobfuscatedName(mapping.get().getObfuscatedName());
-                        mapping.get().setAdHoc(false);
-                        setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
-                    }
-                    fullName = getName();
-                    break;
-                }
-                case FIELD:
-                case METHOD: {
-                    Optional<ClassMapping> parent
-                            = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
-                    if (parent.isPresent()) {
-                        Optional<? extends Mapping> mapping = getMapping();
-                        if (mapping.isPresent()) {
-                            Pair<Boolean, Boolean> dupe
-                                    = doesRemappedNameClash(Main.getLoadedJar(),
-                                    parent.get().getFullObfuscatedName() + CLASS_MEMBER_SEPARATOR_CHAR + name, sig,
-                                    mapping.get().getObfuscatedName(), getType());
-
-                            if (dupe.first()) {
-                                showDupeAlert(dupe.second());
-                                return;
-                            }
-
-                            if (getType() == MemberType.FIELD) {
-                                //noinspection ConstantConditions
-                                parent.get().removeFieldMapping((FieldSignature) sig);
-                            } else {
-                                //noinspection ConstantConditions
-                                parent.get().removeMethodMapping((MethodSignature) sig);
-                            }
-                            MEMBERS.get(key).forEach(sm -> {
-                                sm.setDeobfuscated(looksDeobfuscated(mapping.get().getObfuscatedName()), false);
-                                sm.updateText();
-                            });
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    throw new AssertionError();
-                }
-            }
-
-            this.updateCodeTab();
-        });
+        resetItem.setOnAction(event -> handleResetAction(name));
 
         MenuItem toggleDeobf = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.toggleDeobf"));
-        toggleDeobf.setOnAction(event -> {
-            // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
-            boolean shouldDeobf = !this.deobfuscated;
-            genMapping().setAdHoc(!this.deobfuscated); // set as ad hoc if we need to mark it as deobfuscated
-            MEMBERS.get(key).forEach(sm -> sm.setDeobfuscated(shouldDeobf, false));
-        });
+        toggleDeobf.setOnAction(event -> handleToggleDeobfAction());
 
         MenuItem jumpToDefItem = new MenuItem(Main.getResourceBundle().getString("member.contextmenu.jumpToDef"));
         jumpToDefItem.setOnAction(event -> {
-            String className = getClassName();
-            Optional<ClassMapping> cm = MappingsHelper.getClassMapping(Main.getMappingContext(), className);
-            MainController.INSTANCE.openTab(className, cm.isPresent() ? cm.get().getDeobfuscatedName() : className);
+            handleJumpToDefAction();
         });
 
         ContextMenu contextMenu = new ContextMenu();
@@ -282,34 +171,27 @@ public class SelectableMember extends Text {
         contextMenu.getItems().add(toggleDeobf);
         contextMenu.getItems().add(jumpToDefItem);
 
-        this.setOnContextMenuRequested(event -> {
-            Optional<? extends Mapping> mapping = getMapping();
-            toggleDeobf.setDisable(mapping.isPresent()
-                    && !mapping.get().getObfuscatedName().equals(mapping.get().getDeobfuscatedName()));
+        this.setOnContextMenuRequested(event -> showContextMenu(toggleDeobf, contextMenu, event));
 
-            contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY());
+        MEMBERS.computeIfAbsent(reference, ref -> new ArrayList<>()).add(this);
 
-        });
-
-        if (!MEMBERS.containsKey(key)) {
-            MEMBERS.put(key, new ArrayList<>());
-        }
-        MEMBERS.get(key).add(this);
-
-        updateText();
-
-        Optional<? extends Mapping> mapping = getMapping();
-        setDeobfuscated(looksDeobfuscated(getName())
+        //TODO: figure out how to do this
+        /*setDeobfuscated(looksDeobfuscated(getName())
                 || (fullName != null && !getName().equals(fullName))
-                || (mapping.isPresent() && mapping.get().isAdHoc()), false);
+                || (mapping.isPresent() && mapping.get().isAdHoc()), false);*/
     }
 
-    private String getClassName() {
-        String className = getType() == MemberType.CLASS ? getName() : getParentClass();
-        if (className.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-            className = className.substring(0, className.indexOf(INNER_CLASS_SEPARATOR_CHAR));
-        }
-        return className;
+    public SelectableMember(CodeTab codeTab, QualifiedReference reference) {
+        this(codeTab, reference, null);
+    }
+
+    public QualifiedReference getReference() {
+        return reference;
+    }
+
+    public void resetName() {
+        setText(origName);
+        //TODO: check if deobfuscated
     }
 
     private void showDupeAlert(boolean hierarchical) {
@@ -330,36 +212,31 @@ public class SelectableMember extends Text {
         alert.showAndWait();
     }
 
-    public void setMapping(String mapping) {
-        switch (type) {
-            case CLASS: {
-                MappingsHelper.genClassMapping(Main.getMappingContext(), getName(), mapping, true);
-                fullName = mapping;
-                break;
-            }
+    private void setMappedName(String newName) {
+        switch (reference.getType()) {
+            case TOP_LEVEL_CLASS:
             case INNER_CLASS: {
-                mapping = MappingsHelper.getOrCreateClassMapping(
-                        Main.getMappingContext(),
-                        getParentClass()
-                ).getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + mapping;
-                MappingsHelper.genClassMapping(Main.getMappingContext(), getQualifiedName(), mapping, true);
-                fullName = mapping;
+                MappingsHelper.genClassMapping(Main.getMappingContext(), (TopLevelClassReference) reference, newName);
                 break;
             }
             case FIELD: {
-                MappingsHelper.genFieldMapping(Main.getMappingContext(), getParentClass(), (FieldSignature) sig,
-                        mapping);
+                MappingsHelper.genFieldMapping(Main.getMappingContext(), (FieldReference) reference, newName);
                 break;
             }
             case METHOD: {
-                IndexedClass clazz = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-                Set<IndexedClass> classes = new HashSet<>(clazz.getHierarchy());
-                classes.add(clazz);
+                MethodReference methodRef = (MethodReference) reference;
+
+                IndexedClass owningClass
+                        = IndexedClass.INDEXED_CLASSES.get((methodRef).getOwningClass());
+
+                Set<IndexedClass> classes = new HashSet<>(owningClass.getHierarchy());
+                classes.add(owningClass);
 
                 for (IndexedClass ic : classes) {
                     //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                    if (ic.getMethods().containsKey(sig)) {
-                        genMethodMapping(Main.getMappingContext(), ic.getName(), (MethodSignature) sig, mapping, false);
+                    if (ic.getMethods().containsKey(methodRef.getSignature())) {
+                        genMethodMapping(Main.getMappingContext(),
+                                new MethodReference(ic.getReference(), methodRef.getSignature()), newName, false);
                     }
                 }
                 break;
@@ -368,147 +245,30 @@ public class SelectableMember extends Text {
                 throw new AssertionError();
             }
         }
+
+        updateView(reference, origName);
     }
 
     public void updateCodeTab() {
-        CodeTab.SelectableMemberType sType = CodeTab.SelectableMemberType.fromMemberType(this.type);
+        CodeTab.SelectableMemberType sType = CodeTab.SelectableMemberType.fromReferenceType(reference.getType());
         this.codeTab.setMemberType(sType);
         this.codeTab.setMemberIdentifier(this.getText());
         if (sType.isInfoEnabled()) {
-            this.codeTab.setMemberInfo(this.getDescriptor());
-        }
-    }
-
-    public StringProperty getNameProperty() {
-        return nameProperty;
-    }
-
-    public StringProperty getDescriptorProperty() {
-        return descriptorProperty;
-    }
-
-    public StringProperty getParentClassProperty() {
-        return parentClassProperty;
-    }
-
-    public MemberType getType() {
-        return type;
-    }
-
-    public String getName() {
-        return getNameProperty().get();
-    }
-
-    public String getDescriptor() {
-        return getDescriptorProperty().get();
-    }
-
-    public String getParentClass() {
-        return getParentClassProperty().get();
-    }
-
-    private void updateText() {
-        String deobf;
-        switch (this.getType()) {
-            case CLASS:
-                deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
-                fullName = deobf;
-                break;
-            case INNER_CLASS:
-                deobf = ClassMapping.deobfuscate(Main.getMappingContext(), getName());
-                break;
-            case FIELD:
-            case METHOD:
-                deobf = getName();
-
-                Optional<ClassMapping> classMapping
-                        = MappingsHelper.getClassMapping(Main.getMappingContext(), getParentClass());
-                if (classMapping.isPresent()) {
-                    Map<? extends MemberSignature, ? extends Mapping> mappings = getType() == MemberType.FIELD
-                            ? classMapping.get().getFieldMappings()
-                            : classMapping.get().getMethodMappings();
-                    Mapping mapping = mappings.get(getType() == MemberType.METHOD
-                            ? new MethodSignature(getName(), MethodDescriptor.of(getDescriptor()))
-                            : new FieldSignature(getName(), FieldType.of(getDescriptor())));
-                    if (mapping != null) {
-                        deobf = mapping.getDeobfuscatedName();
-                    }
-                }
-                break;
-            default:
-                throw new AssertionError();
-        }
-
-        setAndProcessText(deobf);
-    }
-
-    public static SelectableMember fromMatcher(CodeTab codeTab, Matcher matcher) {
-        MemberType type = matcher.group().startsWith(CLASS_PREFIX)
-                ? MemberType.CLASS
-                : MemberType.valueOf(matcher.group(1));
-        if (type == MemberType.CLASS && matcher.group().contains(Character.toString(INNER_CLASS_SEPARATOR_CHAR))) {
-            type = MemberType.INNER_CLASS;
-        }
-
-        if (type == MemberType.CLASS) {
-            return new SelectableMember(codeTab, type, matcher.group(1));
-        } else {
-            String qualName;
-            String descriptor;
-            int offset;
-
-            if (type == MemberType.INNER_CLASS) {
-                qualName = matcher.group(1);
-                descriptor = null;
-                offset = qualName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR);
-            } else {
-                qualName = matcher.group(2);
-                descriptor = matcher.group(3);
-                offset = qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR);
-            }
-
-            String simpleName = qualName.substring(offset + 1);
-            String parentClass = qualName.substring(0, offset);
-            try {
-                return new SelectableMember(codeTab, type, simpleName, descriptor, parentClass);
-            } catch (IllegalArgumentException ex) {
-                return null;
+            switch (reference.getType()) {
+                case FIELD:
+                    this.codeTab.setMemberInfo(
+                            Objects.toString(((FieldReference) reference).getSignature().getType().orElse(null))
+                    );
+                    break;
+                case METHOD:
+                    this.codeTab.setMemberInfo(((MethodReference) reference).getSignature().getDescriptor().toString());
+                    break;
+                case METHOD_PARAMETER:
+                    MethodParameterReference paramRef = (MethodParameterReference) reference;
+                    this.codeTab.setMemberInfo(paramRef.getParentMethod().getSignature().getDescriptor()
+                            .getParamTypes().get(paramRef.getParameterIndex()).toString());
             }
         }
-    }
-
-    public void setAndProcessText(String text) {
-        setText(getType() == MemberType.CLASS ? StringHelper.unqualify(text) : text);
-    }
-
-    public static final class MemberKey {
-
-        private final MemberType type;
-        private final String qualName;
-        private final String descriptor;
-
-        public MemberKey(MemberType type, String qualifiedName, String descriptor) {
-            this.type = type;
-            this.qualName = qualifiedName;
-            this.descriptor = descriptor;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof MemberKey)) {
-                return false;
-            }
-            MemberKey key = (MemberKey) obj;
-            return Objects.equals(type, key.type)
-                    && Objects.equals(qualName, key.qualName)
-                    && Objects.equals(descriptor, key.descriptor);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(type, qualName, descriptor);
-        }
-
     }
 
     public void setDeobfuscated(boolean deobfuscated, boolean soft) {
@@ -525,90 +285,63 @@ public class SelectableMember extends Text {
         }
     }
 
-    private Mapping genMapping() {
-        switch (getType()) {
-            case CLASS:
-            case INNER_CLASS: {
-                return getOrCreateClassMapping(Main.getMappingContext(), getClassName());
+    private void handleRenameAction() {
+        String dispText;
+        if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+            dispText = ((TopLevelClassReference) reference).getClassType().getClassName();
+        } else {
+            dispText = this.getText();
+        }
+        TextInputDialog textInputDialog = new TextInputDialog(dispText);
+        textInputDialog.setHeaderText(Main.getResourceBundle().getString("member.contextmenu.rename"));
+
+        Optional<String> result = textInputDialog.showAndWait();
+        if (result.isPresent() && !result.get().equals("") && !result.get().equals(getText())) {
+            Pair<Boolean, Boolean> dupe = doesRemappedNameClash(Main.getLoadedJar(), reference, result.get());
+            if (dupe.first()) {
+                showDupeAlert(dupe.second());
             }
-            case FIELD: {
-                return MappingsHelper.genFieldMapping(Main.getMappingContext(), getClassName(), (FieldSignature) sig,
-                        getName());
+
+            String res = result.get();
+            if (reference instanceof ClassReference) {
+                if (!StringHelper.isJavaClassIdentifier(res)) {
+                    showIllegalAlert();
+                }
+
+                res = DOT_PATTERN.matcher(res).replaceAll(CLASS_PATH_SEPARATOR_CHAR + "");
+            } else if (!StringHelper.isJavaIdentifier(res)) {
+                showIllegalAlert();
+                return;
             }
-            case METHOD: {
-                return MappingsHelper.genMethodMapping(Main.getMappingContext(), getClassName(), (MethodSignature) sig,
-                        getName(), false);
-            }
-            default: {
-                throw new AssertionError();
-            }
+            this.setMappedName(res);
         }
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
-    private Optional<? extends Mapping> getMapping() {
-        Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(Main.getMappingContext(), getClassName());
-        if (!classMapping.isPresent()) {
-            return classMapping;
-        }
-        switch (getType()) {
-            case CLASS:
-            case INNER_CLASS: {
-                return classMapping;
-            }
-            case FIELD: {
-                return Optional.ofNullable(classMapping.get().getFieldMappings().get(sig));
-            }
-            case METHOD: {
-                return Optional.ofNullable(classMapping.get().getMethodMappings().get(sig));
-            }
-            default: {
-                throw new AssertionError();
-            }
-        }
+    private void handleResetAction(String origName) {
+        //TODO: rewrite this completely
     }
 
-    private String getQualifiedName() {
-        String qualName;
-        IndexedClass ic = IndexedClass.INDEXED_CLASSES.get(getParentClass());
-        switch (type) {
-            case CLASS:
-                qualName = getName();
-                break;
-            case INNER_CLASS:
-                qualName = getParentClass() + INNER_CLASS_SEPARATOR_CHAR + getName();
-                break;
-            case FIELD:
-                //noinspection SuspiciousMethodCalls: sig must be a FieldSignature object
-                if (!ic.getFields().containsKey(sig)) {
-                    throw new IllegalArgumentException();
-                }
-                qualName = getParentClass() + CLASS_PATH_SEPARATOR_CHAR + getName();
-                break;
-            case METHOD:
-                String parent = null;
-                //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                if (ic.getMethods().containsKey(sig)) {
-                    parent = getParentClass();
-                } else {
-                    for (IndexedClass hc : ic.getHierarchy()) {
-                        //noinspection SuspiciousMethodCalls: sig must be a MethodSignature object
-                        if (hc.getMethods().containsKey(sig)) {
-                            parent = hc.getName();
-                            break;
-                        }
-                    }
-                }
-                if (parent == null) {
-                    throw new IllegalArgumentException(); //TODO
-                }
-                qualName = parent + CLASS_PATH_SEPARATOR_CHAR + getName();
-                break;
-            default:
-                throw new AssertionError("Unhandled case " + type);
-        }
+    private void handleToggleDeobfAction() {
+        // I know this is gross but it's a hell of a lot easier than fixing the problem the "proper" way
+        boolean shouldDeobf = !this.deobfuscated;
+        // set as ad hoc if we need to mark it as deobfuscated
+        MappingsHelper.getMapping(Main.getMappingContext(), reference, true).get().setAdHoc(!this.deobfuscated);
+        MEMBERS.get(reference).forEach(sm -> sm.setDeobfuscated(shouldDeobf, false));
+    }
 
-        return qualName;
+    private void handleJumpToDefAction() {
+        TopLevelClassReference classRef = ReferenceHelper.getRootClass(reference);
+        Optional<ClassMapping<?>> cm = MappingsHelper.getClassMapping(Main.getMappingContext(), classRef, false);
+        MainController.INSTANCE.openTab(classRef,
+                cm.isPresent() ? cm.get().getDeobfuscatedName() : classRef.toJvmsIdentifier());
+    }
+
+    private void showContextMenu(MenuItem toggleDeobf, ContextMenu contextMenu, ContextMenuEvent event) {
+        Optional<? extends Mapping> mapping = MappingsHelper.getMapping(Main.getMappingContext(), reference, false);
+        toggleDeobf.setDisable(mapping.isPresent()
+                && !reference.toJvmsIdentifier().equals(mapping.get().getDeobfuscatedName()));
+
+        contextMenu.show(SelectableMember.this, event.getScreenX(), event.getScreenY());
     }
 
 }

@@ -32,9 +32,12 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.MethodReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -117,7 +120,7 @@ public class JamReader extends MappingsReader {
             String[] arr = SPACE_PATTERN.split(mapping);
             String obf = arr[1];
             String deobf = arr[2];
-            MappingsHelper.genClassMapping(context, obf, deobf, false);
+            MappingsHelper.genClassMapping(context, ReferenceHelper.createClassReference(obf), deobf);
         }
     }
 
@@ -128,7 +131,8 @@ public class JamReader extends MappingsReader {
             String obf = arr[2];
             String desc = arr[3];
             String deobf = arr[4];
-            MappingsHelper.genFieldMapping(context, owningClass, new FieldSignature(obf, FieldType.of(desc)), deobf);
+            MappingsHelper.genFieldMapping(context,
+                    ReferenceHelper.createClassReference(owningClass).getField(obf, FieldType.of(desc)), deobf);
         }
     }
 
@@ -139,8 +143,9 @@ public class JamReader extends MappingsReader {
             String obf = arr[2];
             String desc = arr[3];
             String deobf = arr[4];
-            MappingsHelper.genMethodMapping(context, owningClass,
-                    new MethodSignature(obf, MethodDescriptor.of(desc)), deobf, false);
+            MappingsHelper.genMethodMapping(context,
+                    ReferenceHelper.createClassReference(owningClass).getMethod(obf, MethodDescriptor.of(desc)),
+                    deobf, false);
         }
     }
 
@@ -150,7 +155,8 @@ public class JamReader extends MappingsReader {
             String owningClass = arr[1];
             String owningMethod = arr[2];
             String owningMethodDesc = arr[3]; //TODO: *stretching collar* oooooh...
-            Optional<ClassMapping> classMapping = MappingsHelper.getClassMapping(context, owningClass);
+            Optional<ClassMapping<?>> classMapping
+                    = MappingsHelper.getClassMapping(context, ReferenceHelper.createClassReference(owningClass), false);
             if (!classMapping.isPresent()) {
                 Main.getLogger().warning("Discovered orphaned method parameter mapping (class) - ignoring");
                 continue;
@@ -159,8 +165,9 @@ public class JamReader extends MappingsReader {
                     .get(new MethodSignature(owningMethod, MethodDescriptor.of(owningMethodDesc)));
             if (methodMapping == null) {
                 methodMapping = new MethodMapping(classMapping.get(),
-                        new MethodSignature(owningMethod, MethodDescriptor.of(owningMethodDesc)), owningMethod,
-                        false);
+                        classMapping.get().getReference().getMethod(owningMethod,
+                                MethodDescriptor.of(owningMethodDesc)),
+                        owningMethod);
             }
             int index;
             try {
@@ -172,7 +179,7 @@ public class JamReader extends MappingsReader {
 
             String deobf = arr[5];
 
-            MappingsHelper.genArgumentMapping(context, methodMapping, index, deobf);
+            MappingsHelper.genMethodParamMapping(context, methodMapping.getReference().getParameter(index), deobf);
         }
     }
 

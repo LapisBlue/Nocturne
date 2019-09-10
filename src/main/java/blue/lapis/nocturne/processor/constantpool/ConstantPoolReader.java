@@ -34,6 +34,8 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.ConstantStruct
 import blue.lapis.nocturne.processor.constantpool.model.structure.DummyStructure;
 import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ import java.util.List;
  */
 public class ConstantPoolReader extends ClassProcessor {
 
-    public ConstantPoolReader(String className, byte[] bytes) {
+    public ConstantPoolReader(ClassReference className, byte[] bytes) {
         super(className, bytes);
     }
 

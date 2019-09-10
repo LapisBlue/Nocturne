@@ -35,11 +35,15 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.Type;
+import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.MethodParameterReference;
+import org.cadixdev.bombe.type.reference.MethodReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -102,15 +106,16 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    String obf = removeNonePrefix(arr[1]);
-                    String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : obf;
+                    String className = removeNonePrefix(arr[1]);
+                    String deobf = arr.length == 3 ? removeNonePrefix(arr[2]) : className;
 
                     if (!stack.isEmpty() && stack.peek() instanceof ClassMapping) {
-                        final ClassMapping parent = (ClassMapping) stack.peek();
+                        final ClassMapping<?> parent = (ClassMapping) stack.peek();
                         deobf = parent.getFullDeobfuscatedName() + INNER_CLASS_SEPARATOR_CHAR + deobf;
                     }
 
-                    stack.push(MappingsHelper.genClassMapping(mappings, obf, deobf, false));
+                    stack.push(MappingsHelper.genClassMapping(mappings,
+                            ReferenceHelper.createClassReference(className), deobf));
                     break;
                 }
                 case FIELD_MAPPING_KEY: {
@@ -119,13 +124,12 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    final ClassMapping parent = peekClass(stack, lineNum);
+                    final ClassMapping<?> parent = peekClass(stack, lineNum);
 
                     String obf = arr[1];
                     String deobf = arr[2];
                     FieldType type = removeNonePrefix(FieldType.of(arr[3]));
-                    MappingsHelper.genFieldMapping(mappings, parent.getFullObfuscatedName(),
-                            new FieldSignature(obf, type), deobf);
+                    MappingsHelper.genFieldMapping(mappings, parent.getReference().getField(obf, type), deobf);
                     break;
                 }
                 case METHOD_MAPPING_KEY: {
@@ -143,12 +147,12 @@ public class EnigmaReader extends MappingsReader {
                                 + lineNum);
                     }
 
-                    final ClassMapping parent = peekClass(stack, lineNum);
+                    final ClassMapping<?> parent = peekClass(stack, lineNum);
 
                     MethodDescriptor desc = removeNonePrefixes(MethodDescriptor.of(descStr));
 
-                    stack.push(MappingsHelper.genMethodMapping(mappings, parent.getFullObfuscatedName(),
-                            new MethodSignature(obf, desc), deobf, true));
+                    stack.push(MappingsHelper.genMethodMapping(mappings, parent.getReference().getMethod(obf, desc),
+                            deobf, true));
                     break;
                 }
                 case ARG_MAPPING_KEY: {
@@ -162,7 +166,8 @@ public class EnigmaReader extends MappingsReader {
                     int index = Integer.parseInt(arr[1]);
                     String deobf = arr[2];
 
-                    MappingsHelper.genArgumentMapping(mappings, parent, index, deobf);
+                    MappingsHelper.genMethodParamMapping(mappings,
+                            parent.getReference().getParameter(index), deobf);
                     break;
                 }
                 default: {
@@ -186,7 +191,7 @@ public class EnigmaReader extends MappingsReader {
         return indentLevel;
     }
 
-    private static ClassMapping peekClass(final Deque<Mapping> stack, final int lineNum) {
+    private static ClassMapping<?> peekClass(final Deque<Mapping> stack, final int lineNum) {
         if (stack.isEmpty()) {
             throw new IllegalArgumentException("Cannot parse file: found member mapping before initial "
                     + "class mapping on line " + lineNum);

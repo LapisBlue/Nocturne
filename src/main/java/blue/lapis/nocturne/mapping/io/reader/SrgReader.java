@@ -30,6 +30,7 @@ import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
@@ -108,7 +109,7 @@ public class SrgReader extends MappingsReader {
             String[] arr = mapping.split(" ");
             String obf = arr[1];
             String deobf = arr[2];
-            MappingsHelper.genClassMapping(context, obf, deobf, false);
+            MappingsHelper.genClassMapping(context, ReferenceHelper.createClassReference(obf), deobf);
         }
     }
 
@@ -120,7 +121,8 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String deobf = arr[2].substring(arr[2].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
             // SRG doesn't support field types so we just pass a null type arg and let the helper method figure it out
-            MappingsHelper.genFieldMapping(context, owningClass, new FieldSignature(obf, (FieldType) null), deobf);
+            MappingsHelper.genFieldMapping(context,
+                    ReferenceHelper.createClassReference(owningClass).getField(obf, (FieldType) null), deobf);
         }
     }
 
@@ -132,8 +134,9 @@ public class SrgReader extends MappingsReader {
             String obf = arr[1].substring(lastIndex + 1);
             String descriptor = arr[2];
             String deobf = arr[3].substring(arr[3].lastIndexOf(CLASS_PATH_SEPARATOR_CHAR) + 1);
-            MappingsHelper.genMethodMapping(context, owningClass,
-                    new MethodSignature(obf, MethodDescriptor.of(descriptor)), deobf, false);
+            MappingsHelper.genMethodMapping(context,
+                    ReferenceHelper.createClassReference(owningClass).getMethod(obf, MethodDescriptor.of(descriptor)),
+                    deobf, false);
         }
     }
 

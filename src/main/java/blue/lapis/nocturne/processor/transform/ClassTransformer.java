@@ -53,6 +53,8 @@ import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.collections.SetBuilder;
 import blue.lapis.nocturne.util.tuple.Pair;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -90,10 +92,11 @@ public class ClassTransformer extends ClassProcessor {
             .add("<clinit>")
             .buildUnmodifiable();
 
-    public ClassTransformer(String className, byte[] bytes) {
-        super(className, bytes);
-        assert IndexedClass.INDEXED_CLASSES.containsKey(getClassName());
-        constantPool = IndexedClass.INDEXED_CLASSES.get(getClassName()).getConstantPool();
+    public ClassTransformer(ClassReference classRef, byte[] bytes) {
+        super(classRef, bytes);
+
+        assert IndexedClass.INDEXED_CLASSES.containsKey(classRef);
+        constantPool = IndexedClass.INDEXED_CLASSES.get(classRef).getConstantPool();
         processedPool = new ConstantPool(constantPool.getContents(), constantPool.length());
     }
 
@@ -230,7 +233,7 @@ public class ClassTransformer extends ClassProcessor {
                         nameIndex = map.get(nameIndex);
                     } else {
                         String procName = getProcessedName(
-                                getClassName() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
+                                classRef.toJvmsIdentifier() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
                                 getString(descriptorIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
@@ -299,7 +302,7 @@ public class ClassTransformer extends ClassProcessor {
     private void handleClassMember(ConstantStructure cs, int index, ConstantPool pool) {
         String name = getString(((ClassStructure) cs).getNameIndex());
 
-        if (!Main.getLoadedJar().getClass(name).isPresent()) {
+        if (!Main.getLoadedJar().getClass(classRef).isPresent()) {
             return;
         }
 
@@ -354,7 +357,7 @@ public class ClassTransformer extends ClassProcessor {
         boolean isSynthetic
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
-        if (Main.getLoadedJar().getClass(className).isPresent() && !isSynthetic && !ignored) {
+        if (Main.getLoadedJar().getClass(classRef).isPresent() && !isSynthetic && !ignored) {
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);

@@ -42,7 +42,9 @@ import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
 import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
+import blue.lapis.nocturne.util.helper.StringHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -62,6 +64,8 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.io.IOException;
 import java.net.URL;
@@ -196,26 +200,26 @@ public class MainController implements Initializable {
             throw new RuntimeException(ex);
         }
         Main.getMappingContext().getMappings().values().forEach(cm -> {
-            Main.getLoadedJar().getCurrentNames().put(cm.getObfuscatedName(), cm.getObfuscatedName());
-            JarClassEntry jce = Main.getLoadedJar().getClass(cm.getObfuscatedName()).orElse(null);
+            Main.getLoadedJar().getCurrentNames().put(cm.getReference(), cm.getReference().toJvmsIdentifier());
+            JarClassEntry jce = Main.getLoadedJar().getClass(cm.getReference()).orElse(null);
             if (jce == null) {
                 return;
             }
             cm.getInnerClassMappings().values()
-                    .forEach(im -> jce.getCurrentInnerClassNames().put(im.getObfuscatedName(), im.getObfuscatedName()));
-            cm.getFieldMappings().values()
-                    .forEach(fm -> jce.getCurrentFields().put(fm.getSignature(), fm.getSignature()));
-            cm.getMethodMappings().values()
-                    .forEach(mm -> jce.getCurrentMethods().put(mm.getSignature(), mm.getSignature()));
+                    .forEach(im -> jce.getCurrentInnerClassNames()
+                            .put(im.getReference(), StringHelper.unqualify(im.getReference().toJvmsIdentifier()))
+                    );
+            cm.getFieldMappings().values().stream()
+                    .map(mm -> mm.getReference().getSignature())
+                    .forEach(sig -> jce.getCurrentFields().put(sig, sig));
+            cm.getMethodMappings().values().stream()
+                    .map(mm -> mm.getReference().getSignature())
+                    .forEach(sig -> jce.getCurrentMethods().put(sig, sig));
         });
         Main.getMappingContext().clear();
         Main.getLoadedJar().getClasses().forEach(jce -> jce.setDeobfuscated(false));
         CodeTab.CODE_TABS.values().forEach(CodeTab::resetClassName);
-        SelectableMember.MEMBERS.values()
-                .forEach(list -> list.forEach(member -> {
-                    member.setAndProcessText(member.getName());
-                    member.setDeobfuscated(looksDeobfuscated(member.getName()), false);
-                }));
+        SelectableMember.MEMBERS.values().forEach(list -> list.forEach(SelectableMember::resetName));
         updateClassViews();
     }
 
@@ -291,14 +295,14 @@ public class MainController implements Initializable {
         CodeTab.CODE_TABS.clear();
     }
 
-    public void openTab(String className, String displayName) {
-        if (CodeTab.CODE_TABS.containsKey(className)) {
-            tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(className));
+    public void openTab(TopLevelClassReference classRef, String displayName) {
+        if (CodeTab.CODE_TABS.containsKey(classRef)) {
+            tabs.getSelectionModel().select(CodeTab.CODE_TABS.get(classRef));
         } else {
-            CodeTab tab = new CodeTab(tabs, className, displayName);
+            CodeTab tab = new CodeTab(tabs, classRef, displayName);
 
-            Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(className);
-            checkArgument(clazz.isPresent(), "Cannot find class entry for " + className);
+            Optional<JarClassEntry> clazz = Main.getLoadedJar().getClass(classRef);
+            checkArgument(clazz.isPresent(), "Cannot find class entry for " + classRef.toJvmsIdentifier());
             tab.setCode(clazz.get().decompile());
         }
     }

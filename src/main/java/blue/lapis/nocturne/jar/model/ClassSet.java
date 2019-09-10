@@ -30,6 +30,11 @@ import static blue.lapis.nocturne.util.helper.StringHelper.looksDeobfuscated;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
+
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +50,9 @@ import java.util.stream.Collectors;
  */
 public class ClassSet {
 
-    private final String name;
-    private final Map<String, JarClassEntry> classMap = new HashMap<>();
-    private final Map<String, String> names = new HashMap<>();
+    private final String setName;
+    private final Map<ClassReference, JarClassEntry> classMap = new HashMap<>();
+    private final Map<ClassReference, String> names = new HashMap<>();
 
     /**
      * Constructs a new {@link ClassSet} from the given {@link JarClassEntry}
@@ -56,15 +61,16 @@ public class ClassSet {
      * @param classes The {@link JarClassEntry JarClassEntries} to populate the
      *                new {@link ClassSet} with
      */
-    public ClassSet(String name, Set<JarClassEntry> classes) {
-        this.name = name;
+    public ClassSet(String setName, Set<JarClassEntry> classes) {
+        this.setName = setName;
         classes.forEach(cl -> {
-            if (looksDeobfuscated(cl.getName())) {
+            //TODO: move
+            /*if (looksDeobfuscated(cl.getName())) {
                 cl.setDeobfuscated(true);
-            }
+            }*/
 
-            classMap.put(cl.getName(), cl);
-            getCurrentNames().put(cl.getName(), cl.getName());
+            classMap.put(cl.getReference(), cl);
+            getCurrentNames().put(cl.getReference(), ReferenceHelper.getName(cl.getReference(), null));
         });
     }
 
@@ -74,7 +80,7 @@ public class ClassSet {
      * @return The name of this {@link ClassSet}
      */
     public String getName() {
-        return name;
+        return setName;
     }
 
     /**
@@ -120,8 +126,8 @@ public class ClassSet {
      * {@link Optional#empty()} if it does not exist in this
      * {@link ClassSet}
      */
-    public Optional<JarClassEntry> getClass(String name) {
-        return classMap.containsKey(name) ? Optional.of(classMap.get(name)) : Optional.empty();
+    public Optional<JarClassEntry> getClass(ClassReference reference) {
+        return classMap.containsKey(reference) ? Optional.of(classMap.get(reference)) : Optional.empty();
     }
 
     /**
@@ -156,12 +162,12 @@ public class ClassSet {
      */
     private Hierarchy generateHierarchy(Set<JarClassEntry> entrySet, boolean deobfuscate) {
         return Hierarchy.fromSet(entrySet.stream()
-                .filter(e -> !e.getName().contains(Constants.INNER_CLASS_SEPARATOR_CHAR + ""))
+                .filter(e -> e.getReference().getType() != QualifiedReference.Type.INNER_CLASS)
                 //.map(deobfuscate ? JarClassEntry::getDeobfuscatedName : JarClassEntry::getName)
                 .collect(Collectors.toSet()), deobfuscate);
     }
 
-    public Map<String, String> getCurrentNames() {
+    public Map<ClassReference, String> getCurrentNames() {
         return names;
     }
 

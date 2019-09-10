@@ -27,22 +27,19 @@ package blue.lapis.nocturne.mapping.model;
 
 import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
 
-import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.MemberType;
+
+import org.cadixdev.bombe.type.reference.InnerClassReference;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Represents a {@link Mapping} for an inner class, i.e. a class parented by
  * another class.
  */
-public class InnerClassMapping extends ClassMapping implements IMemberMapping {
+public class InnerClassMapping extends ClassMapping<InnerClassReference> {
 
-    private final ClassMapping parent;
+    private final ClassMapping<?> parent;
 
     /**
      * Constructs a new {@link InnerClassMapping} with the given parameters.
@@ -50,33 +47,19 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
      * <p>The name should not include the parent class(es), just the name of the
      * inner class itself.</p>
      *
-     * @param parent    The parent {@link ClassMapping}
-     * @param obfName   The obfuscated name of the inner class
+     * @param parent The parent {@link ClassMapping}
+     * @param ref A reference to the mapped class
      * @param deobfName The deobfuscated name of the inner class
      */
-    public InnerClassMapping(ClassMapping parent, String obfName, String deobfName) {
-        super(obfName, deobfName);
+    public InnerClassMapping(ClassMapping<?> parent, InnerClassReference ref, String deobfName) {
+        super(ref, deobfName);
         this.parent = parent;
 
         parent.addInnerClassMapping(this);
     }
 
-    @Override
-    public ClassMapping getParent() {
+    public ClassMapping<?> getParent() {
         return parent;
-    }
-
-    /**
-     * Returns the full obfuscated name of this inner class.
-     *
-     * @return The full obfuscated name of this inner class
-     */
-    @Override
-    public String getFullObfuscatedName() {
-        return (parent instanceof InnerClassMapping
-                ? parent.getFullObfuscatedName()
-                : parent.getObfuscatedName())
-                + INNER_CLASS_SEPARATOR_CHAR + getObfuscatedName();
     }
 
     /**
@@ -99,21 +82,17 @@ public class InnerClassMapping extends ClassMapping implements IMemberMapping {
 
     @Override
     public void setDeobfuscatedName(String deobf) {
-        Optional<JarClassEntry> jarClassEntry = Main.getLoadedJar().getClass(getParent().getFullObfuscatedName());
+        //TODO: moving this logic soon
+        /*Optional<JarClassEntry> jarClassEntry = Main.getLoadedJar().getClass(ref.getParentClass());
         if (jarClassEntry.isPresent()) {
             jarClassEntry.get().getCurrentInnerClassNames().put(getObfuscatedName(), deobf);
         } else {
             // log and skip
             Main.getLogger().severe("Invalid obfuscated name: " + getParent().getFullObfuscatedName());
             return;
-        }
+        }*/
 
         super.setDeobfuscatedName(deobf, false);
-    }
-
-    @Override
-    protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.CLASS, getFullObfuscatedName(), null);
     }
 
     @Override

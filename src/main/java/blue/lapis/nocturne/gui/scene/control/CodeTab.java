@@ -44,6 +44,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,9 +60,9 @@ import java.util.regex.Pattern;
  */
 public class CodeTab extends Tab {
 
-    public static final Map<String, CodeTab> CODE_TABS = new HashMap<>();
+    public static final Map<TopLevelClassReference, CodeTab> CODE_TABS = new HashMap<>();
 
-    private final String className;
+    private final TopLevelClassReference classRef;
 
     public Label memberIdentifierLabel;
     public Label memberInfoLabel;
@@ -68,8 +70,8 @@ public class CodeTab extends Tab {
     public Label memberInfo;
     public TextFlow code;
 
-    public CodeTab(TabPane pane, String className, String displayName) {
-        this.className = className;
+    public CodeTab(TabPane pane, TopLevelClassReference classRef, String displayName) {
+        this.classRef = classRef;
         this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(displayName).replaceAll("."));
 
         pane.getTabs().add(this);
@@ -85,18 +87,18 @@ public class CodeTab extends Tab {
             e.printStackTrace();
         }
 
-        CODE_TABS.put(className, this);
+        CODE_TABS.put(classRef, this);
         getTabPane().getSelectionModel().select(this);
 
-        this.setOnClosed(event -> CODE_TABS.remove(this.getClassName()));
+        this.setOnClosed(event -> CODE_TABS.remove(this.classRef));
     }
 
-    public String getClassName() {
-        return className;
+    public TopLevelClassReference getClassRef() {
+        return classRef;
     }
 
     public void resetClassName() {
-        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(className).replaceAll("."));
+        this.setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(classRef.toJvmsIdentifier()).replaceAll("."));
     }
 
     /**
@@ -159,10 +161,10 @@ public class CodeTab extends Tab {
     }
 
     public enum SelectableMemberType {
+        CLASS("codetab.identifier.class"),
         FIELD("codetab.identifier.field", "codetab.identifier.type"),
         METHOD("codetab.identifier.method", "codetab.identifier.descriptor"),
-        ARG("codetab.identifier.param", "codetab.identifier.type"),
-        CLASS("codetab.identifier.class"),
+        METHOD_PARAM("codetab.identifier.param", "codetab.identifier.type"),
         ;
 
         private final String identifierLabel;
@@ -210,17 +212,17 @@ public class CodeTab extends Tab {
             return infoEnabled;
         }
 
-        public static SelectableMemberType fromMemberType(MemberType type) {
+        public static SelectableMemberType fromReferenceType(QualifiedReference.Type type) {
             switch (type) {
-                case CLASS:
+                case TOP_LEVEL_CLASS:
                 case INNER_CLASS:
                     return SelectableMemberType.CLASS;
                 case FIELD:
                     return SelectableMemberType.FIELD;
                 case METHOD:
                     return SelectableMemberType.METHOD;
-                case ARG:
-                    return SelectableMemberType.ARG;
+                case METHOD_PARAMETER:
+                    return SelectableMemberType.METHOD_PARAM;
                 default:
                     throw new AssertionError();
             }

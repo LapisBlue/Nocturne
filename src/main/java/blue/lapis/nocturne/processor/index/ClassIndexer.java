@@ -42,9 +42,15 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedField;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
+import blue.lapis.nocturne.util.tuple.Pair;
 
 import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -61,7 +67,7 @@ public class ClassIndexer extends ClassProcessor {
     private final JarClassEntry jce;
 
     public ClassIndexer(JarClassEntry clazz) {
-        super(clazz.getName(), clazz.getContent());
+        super(clazz.getReference(), clazz.getContent());
         this.jce = clazz;
     }
 
@@ -72,34 +78,40 @@ public class ClassIndexer extends ClassProcessor {
      * @return The created index of the class
      */
     public IndexedClass index() {
-        ImmutableConstantPool pool = new ConstantPoolReader(getClassName(), getOriginalBytes()).read(); // get the pool
+        // get the pool
+        ImmutableConstantPool pool = new ConstantPoolReader(getClassReference(), getOriginalBytes()).read();
 
         ByteBuffer buffer = ByteBuffer.wrap(bytes); // create a buffer for the bytecode
         buffer.position(CLASS_FORMAT_CONSTANT_POOL_OFFSET + pool.length() + 4); // position the buffer
 
-        final String superClass = getClassNameFromIndex(pool, asUshort(buffer.getShort())); // read the superclass name
+        // read the superclass name
+        final ClassReference superClass
+                = ReferenceHelper.createClassReference(getClassNameFromIndex(pool, asUshort(buffer.getShort())));
 
         int interfaceCount = asUshort(buffer.getShort()); // read the interface count
-        List<String> interfaces = new ArrayList<>();
+        List<ClassReference> interfaces = new ArrayList<>();
         for (int i = 0; i < interfaceCount; i++) {
-            interfaces.add(getClassNameFromIndex(pool, buffer.getShort())); // read each interface name
+            // read each interface name
+            interfaces.add(ReferenceHelper.createClassReference(getClassNameFromIndex(pool, buffer.getShort())));
         }
 
-        if (getClassName().contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-            int lastIndex = getClassName().lastIndexOf(INNER_CLASS_SEPARATOR_CHAR);
-            Optional<JarClassEntry> parent = Main.getLoadedJar()
+        if (getClassReference().getType() == QualifiedReference.Type.INNER_CLASS) {
+            //TODO: fix this
+            /*Optional<JarClassEntry> parent = Main.getLoadedJar()
                     .getClass(getClassName().substring(0, lastIndex));
             if (parent.isPresent()) {
                 String simpleName = getClassName().substring(lastIndex + 1);
                 parent.get().getCurrentInnerClassNames().put(simpleName, simpleName);
             }
+            String simpleName = ReferenceHelper.getName(curRef, null);
+            curEntry.get().getCurrentInnerClassNames().put(curRef, simpleName);*/
         }
 
         List<IndexedField> fields = indexFields(buffer, pool);
 
         List<IndexedMethod> methods = indexMethods(buffer, pool);
 
-        return new IndexedClass(getClassName(), pool, superClass, interfaces, fields, methods);
+        return new IndexedClass(getClassReference(), pool, superClass, interfaces, fields, methods);
     }
 
     /**

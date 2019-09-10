@@ -30,6 +30,8 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
@@ -38,6 +40,8 @@ import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,9 +86,10 @@ public class ClassesTreeView extends TreeView<String> {
             }
 
             if (selected.getChildren().isEmpty()) {
-                String className = ((IdentifiableTreeItem) selected).getId().substring(1);
+                TopLevelClassReference classRef
+                        = new TopLevelClassReference(((IdentifiableTreeItem) selected).getId().substring(1));
                 if (Main.getLoadedJar() != null) {
-                    MainController.INSTANCE.openTab(className, selected.getValue());
+                    MainController.INSTANCE.openTab(classRef, selected.getValue());
                 }
             } else {
                 if (event instanceof MouseEvent == selected.isExpanded()) {

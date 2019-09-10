@@ -45,6 +45,7 @@ import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.Type;
+import org.cadixdev.bombe.type.reference.ClassReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public final class StringHelper {
             case FIELD: {
                 if (desc.startsWith("L") && desc.endsWith(";")) {
                     String typeClass = desc.substring(1, desc.length() - 1);
-                    if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                    if (Main.getLoadedJar().getClass(ReferenceHelper.createClassReference(typeClass)).isPresent()) {
                         return "L" + getProcessedName(typeClass, null, MemberType.CLASS) + ";";
                     }
                 }
@@ -87,7 +88,7 @@ public final class StringHelper {
                             final ArrayType arr = (ArrayType) param;
                             final ObjectType obj = (ObjectType) arr.getComponent();
 
-                            if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                            if (Main.getLoadedJar().getClass(ReferenceHelper.createClassReference(obj)).isPresent()) {
                                 final ObjectType newObj = new ObjectType(
                                         getProcessedName(obj.getClassName(), null, MemberType.CLASS)
                                 );
@@ -97,7 +98,7 @@ public final class StringHelper {
                             }
                         } else if (param instanceof ObjectType) {
                             final ObjectType obj = (ObjectType) param;
-                            if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                            if (Main.getLoadedJar().getClass(ReferenceHelper.createClassReference(obj)).isPresent()) {
                                 newParams.add(new ObjectType(
                                         getProcessedName(obj.getClassName(), null, MemberType.CLASS)
                                 ));
@@ -115,7 +116,7 @@ public final class StringHelper {
                         final ArrayType arr = (ArrayType) returnType;
                         final ObjectType obj = (ObjectType) arr.getComponent();
 
-                        if (Main.getLoadedJar().getClass(obj.getClassName()).isPresent()) {
+                        if (Main.getLoadedJar().getClass(ReferenceHelper.createClassReference(obj)).isPresent()) {
                             final ObjectType newObj = new ObjectType(
                                     getProcessedName(obj.getClassName(), null, MemberType.CLASS)
                             );
@@ -123,8 +124,7 @@ public final class StringHelper {
                         }
                     } else if (returnType instanceof ObjectType) {
                         final ObjectType obj = (ObjectType) returnType;
-                        final String typeClass = obj.getClassName();
-                        if (Main.getLoadedJar().getClass(typeClass).isPresent()) {
+                        if (Main.getLoadedJar().getClass(ReferenceHelper.createClassReference(obj)).isPresent()) {
                             returnType = new ObjectType(getProcessedName(obj.getClassName(), null, MemberType.CLASS));
                         }
                     }
@@ -150,9 +150,10 @@ public final class StringHelper {
         return matcher.group(clazz ? 1 : 2);
     }
 
-    public static String resolvePackageName(String qualifiedClassName) {
-        return qualifiedClassName.indexOf(CLASS_PATH_SEPARATOR_CHAR) != -1
-                ? qualifiedClassName.substring(0, qualifiedClassName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR))
+    public static String resolvePackageName(ClassReference classRef) {
+        String qualName = classRef.toJvmsIdentifier();
+        return qualName.indexOf(CLASS_PATH_SEPARATOR_CHAR) != -1
+                ? qualName.substring(0, qualName.lastIndexOf(CLASS_PATH_SEPARATOR_CHAR))
                 : "";
     }
 

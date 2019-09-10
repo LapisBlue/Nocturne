@@ -25,17 +25,14 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-
-import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import org.cadixdev.bombe.type.MethodDescriptor;
-import org.cadixdev.bombe.type.signature.MethodSignature;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.MethodParameterReference;
+import org.cadixdev.bombe.type.reference.MethodReference;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,39 +42,33 @@ import java.util.Objects;
 /**
  * Represents a {@link Mapping} for a method.
  */
-public class MethodMapping extends MemberMapping {
+public class MethodMapping extends MemberMapping<MethodReference> {
 
-    //TODO: this needs to have integers as keys. it doesn't make sense with strings.
-    private final Map<String, MethodParameterMapping> argumentMappings = new HashMap<>();
-    private final SelectableMember.MemberKey memberKey;
-    private final MethodSignature sig;
+    private final Map<MethodParameterReference, MethodParameterMapping> paramMappings = new HashMap<>();
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
-     * @param parent    The parent {@link ClassMapping}
-     * @param sig       The obfuscated signature of the method
+     * @param parent The parent {@link ClassMapping}
+     * @param ref A reference to the mapped method
      * @param deobfName The deobfuscated name of the method
      * @param propagate Whether to propagate this mapping to super- and
-     *                  sub-classes
+     *     sub-classes
      */
-    public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName, boolean propagate) {
-        super(parent, sig.getName(), deobfName);
-        this.sig = sig;
-        memberKey = new SelectableMember.MemberKey(MemberType.METHOD, getQualifiedName(),
-                getObfuscatedDescriptor().toString());
+    public MethodMapping(ClassMapping<?> parent, MethodReference ref, String deobfName, boolean propagate) {
+        super(parent, ref, deobfName);
         parent.addMethodMapping(this, propagate);
     }
 
     /**
      * Constructs a new {@link MethodMapping} with the given parameters.
      *
-     * @param parent    The parent {@link ClassMapping}
-     * @param sig       The obfuscated signature of the method
+     * @param parent The parent {@link ClassMapping}
+     * @param ref A reference to the mapped method
      * @param deobfName The deobfuscated name of the method
      */
-    public MethodMapping(ClassMapping parent, MethodSignature sig, String deobfName) {
-        this(parent, sig, deobfName, true);
+    public MethodMapping(ClassMapping<?> parent, MethodReference ref, String deobfName) {
+        this(parent, ref, deobfName, true);
     }
 
     public void initialize(boolean propagate) {
@@ -89,8 +80,8 @@ public class MethodMapping extends MemberMapping {
      *
      * @return A clone of the {@link MethodParameterMapping}s
      */
-    public Map<String, MethodParameterMapping> getParamMappings() {
-        return Collections.unmodifiableMap(this.argumentMappings);
+    public Map<MethodParameterReference, MethodParameterMapping> getParamMappings() {
+        return Collections.unmodifiableMap(this.paramMappings);
     }
 
     /**
@@ -102,20 +93,11 @@ public class MethodMapping extends MemberMapping {
      */
     void addParamMapping(MethodParameterMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
-        argumentMappings.put(mapping.getObfuscatedName(), mapping);
+        paramMappings.put(mapping.getReference(), mapping);
     }
 
-    public void removeParamMapping(String name) {
-        argumentMappings.remove(name);
-    }
-
-    /**
-     * Returns the {@link MethodDescriptor} of this method.
-     *
-     * @return The {@link MethodDescriptor} of this method
-     */
-    public MethodDescriptor getObfuscatedDescriptor() {
-        return sig.getDescriptor();
+    public void removeParamMapping(MethodParameterReference paramRef) {
+        paramMappings.remove(paramRef);
     }
 
     /**
@@ -124,21 +106,7 @@ public class MethodMapping extends MemberMapping {
      * @return The deobfuscated {@link MethodDescriptor} of this method
      */
     public MethodDescriptor getDeobfuscatedDescriptor() {
-        return MappingsHelper.deobfuscate(getParent().getContext(), getObfuscatedDescriptor());
-    }
-
-    @Override
-    public MethodSignature getSignature() {
-        return sig;
-    }
-
-    @Override
-    protected SelectableMember.MemberKey getMemberKey() {
-        return memberKey;
-    }
-
-    private String getQualifiedName() {
-        return getParent().getFullObfuscatedName() + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
+        return MappingsHelper.deobfuscate(getParent().getContext(), getReference().getSignature().getDescriptor());
     }
 
     @Override
@@ -150,31 +118,32 @@ public class MethodMapping extends MemberMapping {
         super.setDeobfuscatedName(deobf);
 
         if (propagate && !IndexedClass.INDEXED_CLASSES.isEmpty()) {
-            for (String clazz : HierarchyHelper.getClassesInHierarchy(getParent().getFullObfuscatedName(), sig)) {
-                if (clazz.equals(getParent().getObfuscatedName())) {
+            for (ClassReference clazz : HierarchyHelper.getClassesInHierarchy(ref.getOwningClass(), ref.getSignature())) {
+                if (clazz.equals(ref.getOwningClass())) {
                     continue;
                 }
 
-                ClassMapping cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
-                if (cm.getMethodMappings().containsKey(getSignature())) {
-                    cm.getMethodMappings().get(getSignature()).setDeobfuscatedName(deobf, false);
+                //TODO: moving this logic soon
+                /*ClassMapping<?> cm = MappingsHelper.getOrCreateClassMapping(getContext(), clazz);
+                if (cm.getMethodMappings().containsKey(ref.getSignature())) {
+                    cm.getMethodMappings().get(ref.getSignature()).setDeobfuscatedName(deobf, false);
                 } else {
-                    new MethodMapping(cm, getSignature(), deobf, false);
-                }
+                    new MethodMapping(cm, ref, deobf, false);
+                }*/
             }
         }
 
-        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
+        //TODO: moving this logic soon
+        /*Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentMethods().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
-                : new MethodSignature(getDeobfuscatedName(), sig.getDescriptor()));
+                : new MethodSignature(getDeobfuscatedName(), sig.getDescriptor()));*/
     }
 
     @Override
     public String toString() {
         return "{"
-                + "obfName=" + this.getObfuscatedName() + ";"
+                + "ref=" + this.getReference() + ";"
                 + "deobfName=" + this.getDeobfuscatedName() + ";"
-                + "signature=" + this.sig
                 + "}";
     }
 
@@ -190,12 +159,12 @@ public class MethodMapping extends MemberMapping {
             return false;
         }
         final MethodMapping that = (MethodMapping) obj;
-        return Objects.equals(this.sig, that.sig);
+        return Objects.equals(this.ref, that.ref);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.sig);
+        return Objects.hash(super.hashCode(), this.ref);
     }
 
 }

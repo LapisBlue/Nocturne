@@ -30,6 +30,8 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ import java.util.Map;
  */
 public class MappingContext {
 
-    private final Map<String, TopLevelClassMapping> mappings = new HashMap<>();
+    private final Map<TopLevelClassReference, TopLevelClassMapping> mappings = new HashMap<>();
 
     private boolean dirty;
 
@@ -50,7 +52,7 @@ public class MappingContext {
      * @return An unmodifiable {@link Map} of all {@link TopLevelClassMapping}s
      * contained by this {@link MappingContext}
      */
-    public Map<String, TopLevelClassMapping> getMappings() {
+    public Map<TopLevelClassReference, TopLevelClassMapping> getMappings() {
         return Collections.unmodifiableMap(mappings);
     }
 
@@ -58,11 +60,9 @@ public class MappingContext {
      * Adds the given {@link TopLevelClassMapping} to this {@link MappingContext}.
      *
      * @param mapping          The {@link TopLevelClassMapping} to add
-     * @param updateClassViews Whether to update the class views
      */
-    public void addMapping(TopLevelClassMapping mapping, boolean updateClassViews) {
-        mappings.put(mapping.getObfuscatedName(), mapping);
-        mapping.initialize(updateClassViews);
+    public void addMapping(TopLevelClassMapping mapping) {
+        mappings.put(mapping.getReference(), mapping);
     }
 
     //TODO: probably add a removeMapping method at some point

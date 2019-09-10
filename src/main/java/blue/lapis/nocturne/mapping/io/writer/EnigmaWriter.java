@@ -68,9 +68,10 @@ public class EnigmaWriter extends MappingsWriter {
         out.close();
     }
 
-    protected void writeClassMapping(ClassMapping classMapping, int depth) {
-        final String obfName = addNonePrefix(classMapping.getFullObfuscatedName());
-        if (!Objects.equals(classMapping.getDeobfuscatedName(), classMapping.getObfuscatedName())) { // hasDeobfName
+    protected void writeClassMapping(ClassMapping<?> classMapping, int depth) {
+        String className = classMapping.getReference().toJvmsIdentifier();
+        final String obfName = addNonePrefix(className);
+        if (!Objects.equals(classMapping.getDeobfuscatedName(), className)) { // hasDeobfName
             final String deobfName = classMapping instanceof InnerClassMapping
                     ? classMapping.getDeobfuscatedName()
                     : addNonePrefix(classMapping.getDeobfuscatedName());
@@ -94,19 +95,20 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     protected void writeFieldMapping(FieldMapping fieldMapping, int depth) {
-        out.println(getIndentForDepth(depth) + "FIELD " + fieldMapping.getObfuscatedName() + " "
+        out.println(getIndentForDepth(depth) + "FIELD " + fieldMapping.getReference().getSignature().getName() + " "
                 + fieldMapping.getDeobfuscatedName() + " "
-                + addNonePrefix(fieldMapping.getObfuscatedType()).toString());
+                + addNonePrefix(fieldMapping.getReference().getSignature().getType().orElse(null)).toString());
     }
 
     protected void writeMethodMapping(MethodMapping methodMapping, int depth) {
-        if (methodMapping.getDeobfuscatedName().equals(methodMapping.getObfuscatedName())) {
-            out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " "
-                    + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
+        String name = methodMapping.getReference().getSignature().getName();
+        if (methodMapping.getDeobfuscatedName().equals(name)) {
+            out.println(getIndentForDepth(depth) + "METHOD " + name + " "
+                    + addNonePrefixes(methodMapping.getReference().getSignature().getDescriptor()).toString());
         } else {
-            out.println(getIndentForDepth(depth) + "METHOD " + methodMapping.getObfuscatedName() + " "
+            out.println(getIndentForDepth(depth) + "METHOD " + name + " "
                     + methodMapping.getDeobfuscatedName() + " "
-                    + addNonePrefixes(methodMapping.getObfuscatedDescriptor()).toString());
+                    + addNonePrefixes(methodMapping.getReference().getSignature().getDescriptor()).toString());
         }
 
         methodMapping.getParamMappings().values().stream()
@@ -115,7 +117,8 @@ public class EnigmaWriter extends MappingsWriter {
     }
 
     protected void writeArgumentMapping(MethodParameterMapping argMapping, int depth) {
-        out.println(getIndentForDepth(depth) + "ARG " + argMapping.getIndex() + " " + argMapping.getDeobfuscatedName());
+        out.println(getIndentForDepth(depth) + "ARG " + argMapping.getReference().getParameterIndex()
+                + " " + argMapping.getDeobfuscatedName());
     }
 
     private String getIndentForDepth(int depth) {

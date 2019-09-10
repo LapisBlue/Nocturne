@@ -48,7 +48,7 @@ public class Hierarchy extends HierarchyElement {
         Hierarchy root = new Hierarchy();
 
         for (JarClassEntry jce : entries) {
-            String id = jce.getName();
+            String id = jce.getReference().toJvmsIdentifier();
             String fullName = (deobfuscated ? jce.getDeobfuscatedName() : id);
             String[] arr = CLASS_PATH_SEPARATOR_PATTERN.split(fullName);
 

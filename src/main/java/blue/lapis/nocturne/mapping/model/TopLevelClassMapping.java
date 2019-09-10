@@ -25,36 +25,29 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_PATTERN;
-
 import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.scene.control.CodeTab;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.MemberType;
+
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 /**
  * Represents a top-level {@link ClassMapping} (i.e. not an inner class).
  */
-public class TopLevelClassMapping extends ClassMapping {
+public class TopLevelClassMapping extends ClassMapping<TopLevelClassReference> {
 
     private MappingContext parent;
 
     /**
      * Constructs a new {@link TopLevelClassMapping} with the given parameters.
      *
-     * @param parent    The parent {@link MappingContext} of this
-     *                  {@link TopLevelClassMapping}
-     * @param obfName   The obfuscated name of the class
+     * @param parent The parent {@link MappingContext} of this
+     *     {@link TopLevelClassMapping}
+     * @param ref A reference to the mapped class
      * @param deobfName The deobfuscated name of the class
      */
-    public TopLevelClassMapping(MappingContext parent, String obfName, String deobfName) {
-        super(obfName, deobfName);
+    public TopLevelClassMapping(MappingContext parent, TopLevelClassReference ref, String deobfName) {
+        super(ref, deobfName);
         this.parent = parent;
-    }
-
-    public void initialize(boolean updateClassViews) {
-        this.setDeobfuscatedName(getDeobfuscatedName(), updateClassViews);
     }
 
     @Override
@@ -64,11 +57,6 @@ public class TopLevelClassMapping extends ClassMapping {
 
     public void setContext(MappingContext context) {
         this.parent = context;
-    }
-
-    @Override
-    public String getFullObfuscatedName() {
-        return getObfuscatedName();
     }
 
     @Override
@@ -84,19 +72,16 @@ public class TopLevelClassMapping extends ClassMapping {
     @Override
     public void setDeobfuscatedName(String deobfuscatedName, boolean updateClassViews) {
         super.setDeobfuscatedName(deobfuscatedName, updateClassViews);
-        if (CodeTab.CODE_TABS.containsKey(getObfuscatedName())) {
+
+        //TODO: moving logic this soon
+        /*if (CodeTab.CODE_TABS.containsKey(getObfuscatedName())) {
             CodeTab.CODE_TABS.get(getObfuscatedName())
                     .setText(CLASS_PATH_SEPARATOR_PATTERN.matcher(deobfuscatedName).replaceAll("."));
-        }
+        }*/
 
         if (Main.getLoadedJar() != null) {
-            Main.getLoadedJar().getCurrentNames().put(getObfuscatedName(), deobfuscatedName);
+            Main.getLoadedJar().getCurrentNames().put(ref, deobfuscatedName);
         }
-    }
-
-    @Override
-    protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.CLASS, getObfuscatedName(), null);
     }
 
 

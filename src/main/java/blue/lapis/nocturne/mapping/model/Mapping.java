@@ -25,28 +25,29 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
+
+import org.cadixdev.bombe.type.reference.QualifiedReference;
 
 import java.util.Objects;
 
 /**
  * Represents a single obfuscation mapping for a particular member.
  */
-public abstract class Mapping {
+public abstract class Mapping<T extends QualifiedReference> {
 
-    private final String obf;
-    private String deobf;
-    private boolean adHoc;
+    protected final T ref;
+    protected String deobf;
+    protected boolean adHoc;
 
     /**
      * Constructs a new mapping with the given parameters.
      *
-     * @param obfName   The obfuscated name of the mapped member
-     * @param deobfName The deobfuscated name of the mapped member
+     * @param reference A {@link QualifiedReference reference} to the item
+     * @param deobfName The deobfuscated name of the mapped item
      */
-    protected Mapping(String obfName, String deobfName) {
-        this.obf = obfName;
+    protected Mapping(T reference, String deobfName) {
+        this.ref = reference;
         this.deobf = deobfName;
     }
 
@@ -55,12 +56,12 @@ public abstract class Mapping {
     }
 
     /**
-     * Returns the obfuscated name of this {@link Mapping}.
+     * Returns a reference to the mapped item
      *
-     * @return The obfuscated name of this {@link Mapping}
+     * @return A reference to the mapped item
      */
-    public String getObfuscatedName() {
-        return obf;
+    public T getReference() {
+        return ref;
     }
 
     /**
@@ -112,8 +113,6 @@ public abstract class Mapping {
      */
     public abstract MappingContext getContext();
 
-    protected abstract SelectableMember.MemberKey getMemberKey();
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -123,13 +122,13 @@ public abstract class Mapping {
             return false;
         }
         final Mapping that = (Mapping) obj;
-        return Objects.equals(this.obf, that.obf)
+        return Objects.equals(this.ref, that.ref)
                 && Objects.equals(this.deobf, that.deobf);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.obf, this.deobf);
+        return Objects.hash(this.ref, this.deobf);
     }
 
 }

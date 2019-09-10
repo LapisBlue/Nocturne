@@ -25,9 +25,7 @@
 
 package blue.lapis.nocturne.util.helper;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_MEMBER_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.helper.ReferenceHelper.createClassReference;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.jar.model.ClassSet;
@@ -36,11 +34,12 @@ import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.InnerClassMapping;
+import blue.lapis.nocturne.mapping.model.Mapping;
+import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
 import blue.lapis.nocturne.mapping.model.TopLevelClassMapping;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
-import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.tuple.Pair;
 
 import org.cadixdev.bombe.type.ArrayType;
@@ -48,6 +47,14 @@ import org.cadixdev.bombe.type.FieldType;
 import org.cadixdev.bombe.type.MethodDescriptor;
 import org.cadixdev.bombe.type.ObjectType;
 import org.cadixdev.bombe.type.Type;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.FieldReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.MemberReference;
+import org.cadixdev.bombe.type.reference.MethodParameterReference;
+import org.cadixdev.bombe.type.reference.MethodReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MemberSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
@@ -55,105 +62,54 @@ import org.cadixdev.bombe.type.signature.MethodSignature;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 /**
  * Static utility class for assisting with mapping retrieval and creation.
  */
 public final class MappingsHelper {
 
-    public static ClassMapping genClassMapping(MappingContext context, String obf, String deobf,
-            boolean updateClassViews) {
-        if (!Main.getLoadedJar().getClass(obf).isPresent()) {
-            Main.getLogger().warning("Discovered mapping for non-existent class \"" + obf + "\" - ignoring");
-            return null;
-        } else if (!StringHelper.isJavaClassIdentifier(obf) || !StringHelper.isJavaClassIdentifier(deobf)) {
+    public static ClassMapping<?> genClassMapping(MappingContext context, ClassReference ref, String deobf) {
+        if (!StringHelper.isJavaClassIdentifier(ref.toJvmsIdentifier())
+                || !StringHelper.isJavaClassIdentifier(deobf)) {
             Main.getLogger().warning("Discovered class mapping with illegal name - ignoring");
             return null;
         }
 
-        if (obf.contains(INNER_CLASS_SEPARATOR_CHAR + "")) {
-            String[] obfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(obf);
-            String[] deobfSplit = INNER_CLASS_SEPARATOR_PATTERN.split(deobf);
-            if (obfSplit.length != deobfSplit.length) { // non-inner mapped to inner or vice versa
-                Main.getLogger().warning("Unsupported mapping: " + obf + " -> " + deobf);
-                return null; // ignore it
-            }
+        ClassMapping<?> mapping = getOrCreateClassMapping(context, ref);
+        mapping.setDeobfuscatedName(deobf);
 
-            // get the direct parent class to this inner class
-            ClassMapping parent = getOrCreateClassMapping(context,
-                    obf.substring(0, obf.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)));
-
-            // atomic validation pass
-            ClassMapping next = parent;
-            for (int i = deobfSplit.length - 2; i >= 0; i--) {
-                if (!next.getObfuscatedName().equals(next.getDeobfuscatedName())
-                        && !next.getDeobfuscatedName().equals(deobfSplit[i])) {
-                    Main.getLogger().warning("Nonsense mapping " + obf + " -> " + deobf
-                            + " - conflicts with outer class mapping. Ignoring...");
-                    return null;
-                }
-                if (next instanceof InnerClassMapping) {
-                    next = ((InnerClassMapping) next).getParent();
-                }
-            }
-
-            // application pass
-            next = parent;
-            for (int i = deobfSplit.length - 2; i >= 0; i--) {
-                if (next.getObfuscatedName().equals(next.getDeobfuscatedName())) {
-                    next.setDeobfuscatedName(deobfSplit[i]);
-                }
-                if (next instanceof InnerClassMapping) {
-                    next = ((InnerClassMapping) next).getParent();
-                }
-            }
-
-            String baseObfName = obfSplit[obfSplit.length - 1];
-            String baseDeobfname = deobfSplit[deobfSplit.length - 1];
-            if (parent.getInnerClassMappings().containsKey(baseObfName)) {
-                InnerClassMapping mapping = parent.getInnerClassMappings().get(baseObfName);
-                mapping.setDeobfuscatedName(baseDeobfname);
-                return mapping;
-            } else {
-                return new InnerClassMapping(parent, baseObfName, baseDeobfname);
-            }
-        } else {
-            if (context.getMappings().containsKey(obf)) {
-                TopLevelClassMapping mapping = context.getMappings().get(obf);
-                mapping.setDeobfuscatedName(deobf);
-                return mapping;
-            } else {
-                TopLevelClassMapping mapping = new TopLevelClassMapping(context, obf, deobf);
-                context.addMapping(mapping, updateClassViews);
-                return mapping;
-            }
-        }
+        return mapping;
     }
 
-    public static FieldMapping genFieldMapping(MappingContext context, String owningClass, final FieldSignature sig,
-            String deobf) {
-        if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
-            Main.getLogger().warning("Discovered mapping for field in non-existent class \"" + owningClass
-                    + "\" - ignoring");
+    public static FieldMapping genFieldMapping(MappingContext context, FieldReference ref, String deobf) {
+        if (!Main.getLoadedJar().getClass(ref.getOwningClass()).isPresent()) {
+            Main.getLogger().warning("Discovered mapping for field in non-existent class \""
+                    + ref.getOwningClass().toJvmsIdentifier() + "\" - ignoring");
             return null;
-        } else if (!StringHelper.isJavaIdentifier(sig.getName()) || !StringHelper.isJavaIdentifier(deobf)) {
+        } else if (!StringHelper.isJavaIdentifier(ref.getSignature().getName())
+                || !StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered field mapping with illegal name - ignoring");
             return null;
         }
 
-        ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getFieldMappings().containsKey(sig)) {
-            final FieldMapping fieldMapping = parent.getFieldMappings().get(sig);
-            fieldMapping.setDeobfuscatedName(deobf);
-            return fieldMapping;
+        ClassMapping<?> parent = getOrCreateClassMapping(context, ref.getOwningClass());
+
+        final Optional<FieldMapping> fieldMapping = parent.getFieldMapping(ref.getSignature());
+        if (fieldMapping.isPresent()) {
+            fieldMapping.get().setDeobfuscatedName(deobf);
+            return fieldMapping.get();
         } else {
-            FieldSignature finalSig = sig;
-            if (!sig.getType().isPresent()) {
-                List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(owningClass).getFields().keySet()
-                        .stream().filter(s -> s.getName().equals(sig.getName())).collect(Collectors.toList());
+            if (ref.getSignature().getType().isPresent()) {
+                return new FieldMapping(parent, ref, deobf);
+            } else {
+                List<FieldSignature> sigList = IndexedClass.INDEXED_CLASSES.get(ref.getOwningClass()).getFields()
+                        .keySet()
+                        .stream()
+                        .filter(s -> s.getName().equals(ref.getSignature().getName()))
+                        .collect(Collectors.toList());
                 if (sigList.size() > 1) {
                     Main.getLogger().warning("Discovered ambiguous field mapping! Ignoring...");
                     return null;
@@ -161,99 +117,174 @@ public final class MappingsHelper {
                     Main.getLogger().warning("Discovered field mapping for non-existent field - ignoring...");
                     return null;
                 }
-                finalSig = sigList.get(0);
+                return new FieldMapping(parent, new FieldReference(ref.getOwningClass(), sigList.get(0)), deobf);
             }
-            return new FieldMapping(parent, finalSig, deobf);
         }
     }
 
-    public static MethodMapping genMethodMapping(MappingContext context, String owningClass, MethodSignature sig,
+    public static MethodMapping genMethodMapping(MappingContext context, MethodReference ref,
             String deobf, boolean acceptInitializer) {
-        if (!Main.getLoadedJar().getClass(owningClass).isPresent()) {
-            Main.getLogger().warning("Discovered mapping for method in non-existent class \"" + owningClass
-                    + "\" - ignoring");
+        if (!Main.getLoadedJar().getClass(ref.getOwningClass()).isPresent()) {
+            Main.getLogger().warning("Discovered mapping for method in non-existent class \""
+                    + ref.getOwningClass().toJvmsIdentifier() + "\" - ignoring");
             return null;
-        } else if (!(sig.getName().equals("<init>") && acceptInitializer && sig.getName().equals(deobf))
-                && (!StringHelper.isJavaIdentifier(sig.getName()) || !StringHelper.isJavaIdentifier(deobf))) {
+        } else if (!(
+                ref.getSignature().getName().equals("<init>")
+                        && acceptInitializer
+                        && ref.getSignature().getName().equals(deobf))
+                && (
+                !StringHelper.isJavaIdentifier(ref.getSignature().getName())
+                        || !StringHelper.isJavaIdentifier(deobf))) {
             Main.getLogger().warning("Discovered method mapping with illegal name - ignoring");
             return null;
         }
 
-        ClassMapping parent = getOrCreateClassMapping(context, owningClass);
-        if (parent.getMethodMappings().containsKey(sig)) {
-            final MethodMapping methodMapping = parent.getMethodMappings().get(sig);
-            methodMapping.setDeobfuscatedName(deobf);
-            return methodMapping;
+        ClassMapping<?> parent = getOrCreateClassMapping(context, ref.getOwningClass());
+        Optional<MethodMapping> methodMapping = parent.getMethodMapping(ref.getSignature());
+        if (methodMapping.isPresent()) {
+            methodMapping.get().setDeobfuscatedName(deobf);
+            return methodMapping.get();
         } else {
-            return new MethodMapping(parent, sig, deobf);
+            return new MethodMapping(parent, ref, deobf);
         }
     }
 
-    public static void genArgumentMapping(MappingContext context, MethodMapping methodMapping, int index,
+    public static MethodParameterMapping genMethodParamMapping(MappingContext context, MethodParameterReference ref,
             String deobf) {
         if (!StringHelper.isJavaIdentifier(deobf)) {
             Main.getLogger().warning("Discovered argument mapping with illegal name - ignoring");
-            return;
+            return null;
+        }
+
+        ClassMapping<?> classMapping = getOrCreateClassMapping(context, ref.getParentMethod().getOwningClass());
+
+        MethodMapping methodMapping;
+        if (classMapping.getMethodMappings().containsKey(ref.getParentMethod().getSignature())) {
+            methodMapping = classMapping.getMethodMappings().get(ref.getParentMethod().getSignature());
+        } else {
+            methodMapping = genMethodMapping(context, ref.getParentMethod(), null, true);
+
+            if (methodMapping == null) {
+                return null;
+            }
         }
 
         Optional<MethodParameterMapping> mapping = methodMapping.getParamMappings().values().stream()
-                .filter(argumentMapping -> argumentMapping.getIndex() == index).findFirst();
+                .filter(paramMapping -> paramMapping.getReference().equals(ref)).findFirst();
         if (mapping.isPresent()) {
             mapping.get().setDeobfuscatedName(deobf);
+            return mapping.get();
         } else {
-            new MethodParameterMapping(methodMapping, index, deobf, true);
+            return new MethodParameterMapping(methodMapping, ref, deobf, true);
         }
     }
 
-    private static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName,
+    @SuppressWarnings("unchecked")
+    public static Optional<? extends Mapping<?>> getMapping(MappingContext context, QualifiedReference ref,
             boolean create) {
-        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
+        switch (ref.getType()) {
+            case TOP_LEVEL_CLASS:
+            case INNER_CLASS:
+                assert ref instanceof ClassReference;
+                return getClassMapping(context, (ClassReference) ref, create);
+            case FIELD:
+                assert ref instanceof FieldReference;
+                return getFieldMapping(context, (FieldReference) ref, create);
+            case METHOD:
+                assert ref instanceof MethodReference;
+                return getMethodMapping(context, (MethodReference) ref, create);
+            case METHOD_PARAMETER:
+                assert ref instanceof MethodParameterReference;
+                return getMethodParamMapping(context, (MethodParameterReference) ref, create);
+            default:
+                throw new AssertionError("Unhandled case " + ref.getType().name());
+        }
+    }
 
-        ClassMapping mapping = context.getMappings().get(arr[0]);
-        if (mapping == null) {
-            if (create) {
-                mapping = new TopLevelClassMapping(context, arr[0], arr[0]);
-                context.addMapping((TopLevelClassMapping) mapping, false);
-            } else {
+    public static Optional<ClassMapping<?>> getClassMapping(MappingContext context, ClassReference classRef,
+            boolean create) {
+        if (classRef.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+            assert classRef instanceof TopLevelClassReference;
+
+            TopLevelClassMapping mapping = context.getMappings().get(classRef);
+            if (mapping == null && create) {
+                mapping = new TopLevelClassMapping(context, (TopLevelClassReference) classRef, null);
+            }
+
+            return Optional.ofNullable(mapping);
+        } else {
+            assert classRef.getType() == QualifiedReference.Type.INNER_CLASS;
+            assert classRef instanceof InnerClassReference;
+
+            InnerClassReference innerClassRef = (InnerClassReference) classRef;
+
+            Optional<ClassMapping<?>> parentMapping
+                    = getClassMapping(context, (innerClassRef).getParentClass(), create);
+
+            if (!parentMapping.isPresent()) {
                 return Optional.empty();
             }
-        }
 
-        for (int i = 1; i < arr.length; i++) {
-            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
-            if (child == null) {
-                if (create) {
-                    child = new InnerClassMapping(mapping, arr[i], arr[i]);
-                } else {
-                    return Optional.empty();
-                }
+            Optional<InnerClassMapping> mapping = parentMapping.get().getInnerClassMapping(innerClassRef);
+
+            if (!mapping.isPresent() && create) {
+                return Optional.of(new InnerClassMapping(parentMapping.get(), (InnerClassReference) classRef, null));
+            } else {
+                return Optional.ofNullable(mapping.orElse(null));
             }
-            mapping = child;
+        }
+    }
+
+    public static ClassMapping<?> getOrCreateClassMapping(MappingContext context, ClassReference owningClass) {
+        Optional<ClassMapping<?>> mapping = getClassMapping(context, owningClass, true);
+        assert mapping.isPresent();
+        return mapping.get();
+    }
+
+    public static Optional<FieldMapping> getFieldMapping(MappingContext context, FieldReference ref,
+            boolean create) {
+        return getMemberMapping(context, ref, create, ClassMapping::getFieldMapping,
+                fr -> genFieldMapping(context, fr, null));
+    }
+
+    public static Optional<MethodMapping> getMethodMapping(MappingContext context, MethodReference ref,
+            boolean create) {
+        return getMemberMapping(context, ref, false, ClassMapping::getMethodMapping,
+                fr -> genMethodMapping(context, fr, null, true));
+    }
+
+    private static <S extends MemberSignature, R extends MemberReference<S>, M extends MemberMapping<R>>
+    Optional<M> getMemberMapping(MappingContext context, R ref, boolean create,
+            BiFunction<ClassMapping<?>, S, Optional<M>> getter, Function<R, M> genner) {
+        Optional<ClassMapping<?>> classMapping
+                = getClassMapping(context, ref.getOwningClass(), create);
+        if (!classMapping.isPresent()) {
+            return Optional.empty();
         }
 
-        return Optional.of(mapping);
+        Optional<M> mapping = getter.apply(classMapping.get(), ref.getSignature());
+
+        if (mapping.isPresent()) {
+            return mapping;
+        } else if (create) {
+            return Optional.ofNullable(genner.apply(ref));
+        } else {
+            return Optional.empty();
+        }
     }
 
-    public static Optional<ClassMapping> getClassMapping(MappingContext context, String qualifiedName) {
-        return getClassMapping(context, qualifiedName, false);
-    }
+    public static Optional<MethodParameterMapping> getMethodParamMapping(MappingContext context,
+            MethodParameterReference ref, boolean create) {
+        Optional<MethodMapping> methodMapping = getMethodMapping(context, ref.getParentMethod(), create);
+        if (!methodMapping.isPresent()) {
+            return Optional.empty();
+        }
 
-    /**
-     * Gets the {@link ClassMapping} for the given qualified name, iteratively
-     * creating mappings for both outer and inner classes as needed if they do
-     * not exist.
-     *
-     * @param context       The {@link MappingContext} to use
-     * @param qualifiedName The fully-qualified name of the class to get a
-     *                      mapping for
-     * @return The retrieved or created {@link ClassMapping}
-     */
-    public static ClassMapping getOrCreateClassMapping(MappingContext context, String qualifiedName) {
-        return getClassMapping(context, qualifiedName, true).get();
+        return Optional.ofNullable(genMethodParamMapping(context, ref, null));
     }
 
     private static ObjectType deobfuscateObject(final MappingContext ctx, final ObjectType objType) {
-        final Optional<ClassMapping> typeMapping = getClassMapping(ctx, objType.getClassName());
+        final Optional<ClassMapping<?>> typeMapping = getClassMapping(ctx, createClassReference(objType), false);
         return new ObjectType(typeMapping.map(ClassMapping::getFullDeobfuscatedName).orElse(objType.getClassName()));
     }
 
@@ -287,54 +318,58 @@ public final class MappingsHelper {
      * Returns whether an item with the given remapped name already exists.
      *
      * @param classes The {@link ClassSet} to search
-     * @param originalQualifiedName The original, fully qualified name of the
-     *     item
-     * @param signature The signature of the item
+     * @param ref A reference to the item being remapped
      * @param remappedName The prospective remapped name of the item
-     * @param type The item's type
      * @return Whether the remapped name clashes, and whether that clash occurs
      *     within the same class or in the class hierarchy
      */
-    public static Pair<Boolean, Boolean> doesRemappedNameClash(ClassSet classes, String originalQualifiedName,
-            @Nullable MemberSignature signature, String remappedName, MemberType type) {
-        switch (type) {
-            case CLASS:
+    public static Pair<Boolean, Boolean> doesRemappedNameClash(ClassSet classes, QualifiedReference ref,
+            String remappedName) {
+        switch (ref.getType()) {
+            case TOP_LEVEL_CLASS:
                 return Pair.of(classes.getCurrentNames().containsValue(remappedName), false);
             case INNER_CLASS:
-                assert originalQualifiedName.contains(INNER_CLASS_SEPARATOR_CHAR + "");
+                //TODO: this is broken
                 return Pair.of(Main.getLoadedJar()
-                        .getClass(originalQualifiedName
-                                .substring(0, originalQualifiedName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR)))
-                        .map(jarClassEntry -> jarClassEntry.getCurrentInnerClassNames().containsValue(remappedName))
-                        .orElse(false),
+                                .getClass(((InnerClassReference) ref).getParentClass())
+                                .map(jarClassEntry -> jarClassEntry.getCurrentInnerClassNames().containsValue(remappedName))
+                                .orElse(false),
                         false);
             case FIELD: {
-                String parentClass = originalQualifiedName
-                        .substring(0, originalQualifiedName.lastIndexOf(CLASS_MEMBER_SEPARATOR_CHAR));
-                JarClassEntry jce = Main.getLoadedJar().getClass(parentClass).get();
+                FieldReference fieldRef = (FieldReference) ref;
+
+                ClassReference owningClass = fieldRef.getOwningClass();
+                JarClassEntry jce = Main.getLoadedJar().getClass(owningClass).get();
+
                 FieldSignature newSig = new FieldSignature(remappedName,
-                        ((FieldSignature) signature).getType().orElse(null));
+                        fieldRef.getSignature().getType().orElse(null));
                 return Pair.of(jce.getCurrentFields().containsValue(newSig), false);
             }
             case METHOD: {
-                String parentClass = originalQualifiedName
-                        .substring(0, originalQualifiedName.lastIndexOf(CLASS_MEMBER_SEPARATOR_CHAR));
-                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(parentClass,
-                        (MethodSignature) signature)
+                MethodReference methodRef = (MethodReference) ref;
+
+                ClassReference owningClass = methodRef.getOwningClass();
+                Set<JarClassEntry> hierarchy = HierarchyHelper.getClassesInHierarchy(owningClass,
+                        methodRef.getSignature())
                         .stream().filter(c -> Main.getLoadedJar().getClass(c).isPresent())
                         .map(c -> Main.getLoadedJar().getClass(c).get()).collect(Collectors.toSet());
                 for (JarClassEntry jce : hierarchy) {
                     MethodSignature newSig
-                            = new MethodSignature(remappedName, ((MethodSignature) signature).getDescriptor());
+                            = new MethodSignature(remappedName, methodRef.getSignature().getDescriptor());
                     if (jce.getCurrentMethods().containsValue(newSig)) {
-                        return Pair.of(true, !jce.getName().equals(parentClass));
+                        return Pair.of(true, !jce.getReference().equals(methodRef.getOwningClass()));
                     }
                 }
                 return Pair.of(false, false);
             }
             default:
-                throw new AssertionError("Unhandled type " + type);
+                throw new AssertionError("Unhandled type " + ref.getType());
         }
+    }
+
+    public static Optional<String> getDeobfuscatedName(MappingContext context, QualifiedReference ref) {
+        Optional<? extends Mapping> mappingOpt = getMapping(context, ref, false);
+        return mappingOpt.map(Mapping::getDeobfuscatedName);
     }
 
 }

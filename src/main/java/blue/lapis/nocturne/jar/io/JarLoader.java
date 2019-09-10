@@ -34,14 +34,21 @@ import blue.lapis.nocturne.mapping.model.ClassMapping;
 import blue.lapis.nocturne.processor.index.ClassHierarchyBuilder;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
+import blue.lapis.nocturne.util.tuple.Pair;
 
 import javafx.scene.control.Alert;
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -95,11 +102,31 @@ public class JarLoader {
                     className = className.substring(0, className.length() - Constants.CLASS_FILE_NAME_TAIL.length());
                 }
 
-                JarClassEntry classEntry = new JarClassEntry(className, bytes);
+                //TODO: handle inner classes
+                ClassReference classRef = ReferenceHelper.createClassReference(className);
+                JarClassEntry classEntry = new JarClassEntry(classRef, bytes);
 
                 //TODO: detect whether class is already deobfuscated (e.g. this is usually the case for entry classes)
-                ClassMapping mapping = Main.getMappingContext().getMappings().get(className);
-                if (mapping != null && !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName())) {
+                ClassMapping<?> mapping;
+                if (classRef.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+                    assert classRef instanceof TopLevelClassReference;
+                    mapping = Main.getMappingContext().getMappings().get(classRef);
+                } else {
+                    Pair<TopLevelClassReference, List<InnerClassReference>> explodedClassRef
+                            = ReferenceHelper.explodeScopedClasses(classRef);
+
+                    mapping = Main.getMappingContext().getMappings()
+                            .get(explodedClassRef.first());
+                    for (InnerClassReference innerRef : explodedClassRef.second()) {
+                        if (mapping == null) {
+                            break;
+                        }
+
+                        mapping = mapping.getInnerClassMapping(innerRef).orElse(null);
+                    }
+                }
+
+                if (mapping != null && !mapping.getReference().toJvmsIdentifier().equals(mapping.getFullDeobfuscatedName())) {
                     classEntry.setDeobfuscated(true);
                 }
                 classes.add(classEntry);

@@ -25,34 +25,31 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
 
-import org.cadixdev.bombe.type.signature.MemberSignature;
+import org.cadixdev.bombe.type.reference.MemberReference;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * Represents a mapping for a class member.
  */
-public abstract class MemberMapping extends Mapping implements IMemberMapping {
+public abstract class MemberMapping<T extends MemberReference<?>> extends Mapping<T> {
 
-    private final ClassMapping parent;
+    private final ClassMapping<?> parent;
 
     /**
      * Constructs a new mapping with the given parameters.
      *
-     * @param obfName   The obfuscated name of the mapped member
+     * @param ref A reference to the mapped member
      * @param deobfName The deobfuscated name of the mapped member
      */
-    protected MemberMapping(ClassMapping parent, String obfName, String deobfName) {
-        super(obfName, deobfName);
+    protected MemberMapping(ClassMapping<?> parent, T ref, String deobfName) {
+        super(ref, deobfName);
         this.parent = parent;
     }
 
-    @Override
-    public ClassMapping getParent() {
+    public ClassMapping<?> getParent() {
         return parent;
     }
 
@@ -60,22 +57,16 @@ public abstract class MemberMapping extends Mapping implements IMemberMapping {
     public void setDeobfuscatedName(String name) {
         super.setDeobfuscatedName(name);
 
-        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
+        //TODO: moving this logic soon
+        /*List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
         if (memberList == null) {
             return;
         }
         memberList.forEach(member -> {
             member.setText(name);
             member.setDeobfuscated(!name.equals(member.getName()), true);
-        });
+        });*/
     }
-
-    /**
-     * Gets the signature of this {@link MemberMapping}.
-     *
-     * @return The signature of this {@link MemberMapping}
-     */
-    public abstract MemberSignature getSignature();
 
     @Override
     public MappingContext getContext() {

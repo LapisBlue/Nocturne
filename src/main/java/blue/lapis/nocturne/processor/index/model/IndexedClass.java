@@ -27,6 +27,7 @@ package blue.lapis.nocturne.processor.index.model;
 
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -41,18 +42,18 @@ import java.util.stream.Collectors;
  */
 public class IndexedClass extends Hierarchical<IndexedClass> {
 
-    public static final Map<String, IndexedClass> INDEXED_CLASSES = new HashMap<>();
+    public static final Map<ClassReference, IndexedClass> INDEXED_CLASSES = new HashMap<>();
 
-    private final String name;
+    private final ClassReference ref;
     private ImmutableConstantPool constantPool;
-    private final String superClass;
-    private final List<String> interfaces;
+    private final ClassReference superClass;
+    private final List<ClassReference> interfaces;
     private final Map<FieldSignature, IndexedField> fields;
     private final Map<MethodSignature, IndexedMethod> methods;
 
-    public IndexedClass(String name, ImmutableConstantPool constantPool, String superClass, List<String> interfaces,
-                        List<IndexedField> fields, List<IndexedMethod> methods) {
-        this.name = name;
+    public IndexedClass(ClassReference ref, ImmutableConstantPool constantPool, ClassReference superClass,
+            List<ClassReference> interfaces, List<IndexedField> fields, List<IndexedMethod> methods) {
+        this.ref = ref;
         this.constantPool = constantPool;
         this.superClass = superClass;
         this.interfaces = Collections.unmodifiableList(interfaces);
@@ -63,19 +64,19 @@ public class IndexedClass extends Hierarchical<IndexedClass> {
         );
     }
 
-    public String getName() {
-        return name;
+    public ClassReference getReference() {
+        return ref;
     }
 
     public ImmutableConstantPool getConstantPool() {
         return constantPool;
     }
 
-    public String getSuperclass() {
+    public ClassReference getSuperclass() {
         return superClass;
     }
 
-    public List<String> getInterfaces() {
+    public List<ClassReference> getInterfaces() {
         return interfaces;
     }
 

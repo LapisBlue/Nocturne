@@ -25,46 +25,27 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import static blue.lapis.nocturne.util.Constants.CLASS_PATH_SEPARATOR_CHAR;
-
-import blue.lapis.nocturne.Main;
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.MappingsHelper;
 
 import org.cadixdev.bombe.type.FieldType;
-import org.cadixdev.bombe.type.signature.FieldSignature;
+import org.cadixdev.bombe.type.reference.FieldReference;
 
 /**
  * Represents a {@link Mapping} for a field.
  */
-public class FieldMapping extends MemberMapping {
-
-    private final ClassMapping parent;
-    private final FieldSignature sig;
+public class FieldMapping extends MemberMapping<FieldReference> {
 
     /**
      * Constructs a new {@link FieldMapping} with the given parameters.
      *
-     * @param parent    The parent {@link ClassMapping}
-     * @param sig       The obfuscated signature of the field
+     * @param parent The parent {@link ClassMapping}
+     * @param ref A reference to the mapped field
      * @param deobfName The deobfuscated name of the field
      */
-    public FieldMapping(ClassMapping parent, FieldSignature sig, String deobfName) {
-        super(parent, sig.getName(), deobfName);
-        this.parent = parent;
-        this.sig = sig;
+    public FieldMapping(ClassMapping<?> parent, FieldReference ref, String deobfName) {
+        super(parent, ref, deobfName);
 
         parent.addFieldMapping(this);
-    }
-
-    /**
-     * Returns the {@link FieldType} of this field.
-     *
-     * @return The {@link FieldType} of this field
-     */
-    public FieldType getObfuscatedType() {
-        return sig.getType().orElse(null);
     }
 
     /**
@@ -73,34 +54,17 @@ public class FieldMapping extends MemberMapping {
      * @return The deobfuscated {@link FieldType} of this field
      */
     public FieldType getDeobfuscatedType() {
-        return MappingsHelper.deobfuscateField(getParent().getContext(), getObfuscatedType());
+        return MappingsHelper.deobfuscateField(getParent().getContext(), ref.getSignature().getType().orElse(null));
     }
 
     @Override
     public void setDeobfuscatedName(String deobf) {
         super.setDeobfuscatedName(deobf);
 
-        Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
+        //TODO: moving this logic soon
+        /*Main.getLoadedJar().getClass(getParent().getFullObfuscatedName()).get()
                 .getCurrentFields().put(sig, getObfuscatedName().equals(getDeobfuscatedName()) ? sig
-                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null)));
-    }
-
-    @Override
-    public FieldSignature getSignature() {
-        return sig;
-    }
-
-    @Override
-    protected SelectableMember.MemberKey getMemberKey() {
-        return new SelectableMember.MemberKey(MemberType.FIELD, getQualifiedName(),
-                sig.getType().map(FieldType::toString).orElse(null));
-    }
-
-    private String getQualifiedName() {
-        return (getParent() instanceof InnerClassMapping
-                ? getParent().getFullObfuscatedName()
-                : getParent().getObfuscatedName())
-                + CLASS_PATH_SEPARATOR_CHAR + getObfuscatedName();
+                : new FieldSignature(getDeobfuscatedName(), sig.getType().orElse(null)));*/
     }
 
     @Override

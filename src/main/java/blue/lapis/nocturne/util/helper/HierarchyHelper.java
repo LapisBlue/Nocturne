@@ -32,6 +32,7 @@ import static blue.lapis.nocturne.util.helper.StringHelper.resolvePackageName;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.processor.index.model.IndexedMethod;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
 import java.util.Set;
@@ -42,15 +43,17 @@ import java.util.stream.Collectors;
  */
 public final class HierarchyHelper {
 
-    public static Set<String> getClassesInHierarchy(String className, MethodSignature sig) {
-        checkState(INDEXED_CLASSES.containsKey(className), "Class \"" + className + "\" is not indexed");
-        IndexedClass clazz = INDEXED_CLASSES.get(className);
+    public static Set<ClassReference> getClassesInHierarchy(ClassReference classRef, MethodSignature sig) {
+        checkState(INDEXED_CLASSES.containsKey(classRef), "Class \"" + classRef.toJvmsIdentifier()
+                + "\" is not indexed");
+        IndexedClass clazz = INDEXED_CLASSES.get(classRef);
 
-        return clazz.getHierarchy().stream().filter(c -> c.getMethods().containsKey(sig)).map(IndexedClass::getName)
+        return clazz.getHierarchy().stream().filter(c -> c.getMethods().containsKey(sig))
+                .map(IndexedClass::getReference)
                 .collect(Collectors.toSet());
     }
 
-    public static boolean isVisible(String class1, String class2, IndexedMethod.Visibility vis) {
+    public static boolean isVisible(ClassReference class1, ClassReference class2, IndexedMethod.Visibility vis) {
         switch (vis) {
             case PUBLIC:
             case PROTECTED:

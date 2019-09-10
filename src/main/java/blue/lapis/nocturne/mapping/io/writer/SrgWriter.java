@@ -82,10 +82,10 @@ public class SrgWriter extends MappingsWriter {
      *
      * @param classMapping The {@link ClassMapping} to write
      */
-    protected void writeClassMapping(ClassMapping classMapping) {
+    protected void writeClassMapping(ClassMapping<?> classMapping) {
         if (NOT_USELESS.test(classMapping)) {
             clWriter.format("CL: %s %s\n",
-                    classMapping.getFullObfuscatedName(), classMapping.getFullDeobfuscatedName());
+                    classMapping.getReference().toJvmsIdentifier(), classMapping.getFullDeobfuscatedName());
         }
 
         classMapping.getInnerClassMappings().values().stream()
@@ -109,8 +109,10 @@ public class SrgWriter extends MappingsWriter {
      */
     protected void writeFieldMapping(FieldMapping fieldMapping) {
         fdWriter.format("FD: %s/%s %s/%s\n",
-                fieldMapping.getParent().getFullObfuscatedName(), fieldMapping.getObfuscatedName(),
-                fieldMapping.getParent().getFullDeobfuscatedName(), fieldMapping.getDeobfuscatedName());
+                fieldMapping.getParent().getReference().toJvmsIdentifier(),
+                fieldMapping.getReference().getSignature().getName(),
+                fieldMapping.getParent().getFullDeobfuscatedName(),
+                fieldMapping.getDeobfuscatedName());
     }
 
     /**
@@ -121,9 +123,11 @@ public class SrgWriter extends MappingsWriter {
      */
     protected void writeMethodMapping(MethodMapping mapping) {
         mdWriter.format("MD: %s/%s %s %s/%s %s\n",
-                mapping.getParent().getFullObfuscatedName(), mapping.getObfuscatedName(),
-                mapping.getObfuscatedDescriptor(),
-                mapping.getParent().getFullDeobfuscatedName(), mapping.getDeobfuscatedName(),
+                mapping.getParent().getReference().toJvmsIdentifier(),
+                mapping.getReference().getSignature().getName(),
+                mapping.getReference().getSignature().getDescriptor(),
+                mapping.getParent().getFullDeobfuscatedName(),
+                mapping.getDeobfuscatedName(),
                 mapping.getDeobfuscatedDescriptor());
     }
 }

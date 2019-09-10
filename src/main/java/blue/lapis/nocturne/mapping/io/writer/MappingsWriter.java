@@ -31,11 +31,13 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MethodMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -45,19 +47,20 @@ import java.util.function.Predicate;
 public abstract class MappingsWriter implements Closeable {
 
     protected static final Predicate<Mapping> NOT_USELESS
-            = mapping -> !mapping.getObfuscatedName().equals(mapping.getDeobfuscatedName());
+            = mapping -> !Objects.equals(ReferenceHelper.getName(mapping.getReference(), null),
+            mapping.getDeobfuscatedName());
 
     protected static final Comparator<ClassMapping> ALPHABETISE_CLASSES =
-            comparingLength(ClassMapping::getFullObfuscatedName);
+            comparingLength(cm -> cm.getReference().toJvmsIdentifier());
 
     protected static final Comparator<FieldMapping> ALPHABETISE_FIELDS =
-            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedType());
+            Comparator.comparing(mapping -> mapping.getReference().toJvmsIdentifier());
 
     protected static final Comparator<MethodMapping> ALPHABETISE_METHODS =
-            Comparator.comparing(mapping -> mapping.getObfuscatedName() + mapping.getObfuscatedDescriptor().toString());
+            Comparator.comparing(mapping -> mapping.getReference().toJvmsIdentifier());
 
     protected static final Comparator<MethodParameterMapping> ALPHABETISE_PARAMS =
-            Comparator.comparingInt(MethodParameterMapping::getIndex);
+            Comparator.comparingInt(mapping -> mapping.getReference().getParameterIndex());
 
     private static <T> Comparator<T> comparingLength(final Function<? super T, String> keyExtractor) {
         return (c1, c2) -> {

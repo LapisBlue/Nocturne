@@ -25,50 +25,40 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.mapping.MappingContext;
-import blue.lapis.nocturne.util.MemberType;
+
+import org.cadixdev.bombe.type.reference.MethodParameterReference;
 
 import java.util.Objects;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents a {@link Mapping} for arguments.
  */
-public class MethodParameterMapping extends Mapping {
+public class MethodParameterMapping extends Mapping<MethodParameterReference> {
 
-    private final SelectableMember.MemberKey memberKey;
     private final MethodMapping parent;
-    private final int index;
 
     /**
      * Constructs a new {@link MethodParameterMapping} with the given parameters.
      *
-     * @param parent    The parent method mapping
-     * @param index     The index of the argument
-     * @param deobfName The deobfuscated name of the mapped argument
+     * @param parent The parent method mapping
+     * @param ref A reference to the mapped parameter
+     * @param deobf The deobfuscated name of the descriptor, if any
      * @param propagate Whether to propagate this mapping to super- and
      *                  sub-classes
      */
-    public MethodParameterMapping(MethodMapping parent, int index, String deobfName, boolean propagate) {
-        super(deobfName, deobfName);
-        this.memberKey = new SelectableMember.MemberKey(MemberType.ARG, "", ""); // TODO: Use actual values
+    public MethodParameterMapping(MethodMapping parent, MethodParameterReference ref, @Nullable String deobf,
+            boolean propagate) {
+        super(ref, deobf != null ? deobf : "param_" + ref.getParameterIndex());
         this.parent = parent;
-        this.index = index;
 
         this.parent.addParamMapping(this, propagate);
     }
 
     public void initialize(boolean propagate) {
         this.setDeobfuscatedName(getDeobfuscatedName(), propagate);
-    }
-
-    /**
-     * Gets the index of the mapped argument.
-     *
-     * @return The index
-     */
-    public int getIndex() {
-        return index;
     }
 
     /**
@@ -86,11 +76,6 @@ public class MethodParameterMapping extends Mapping {
     }
 
     @Override
-    protected SelectableMember.MemberKey getMemberKey() {
-        return this.memberKey;
-    }
-
-    @Override
     public void setDeobfuscatedName(String name) {
         setDeobfuscatedName(name, true);
     }
@@ -104,15 +89,14 @@ public class MethodParameterMapping extends Mapping {
     @Override
     public String toString() {
         return "{"
-                + "obfName=" + this.getObfuscatedName() + ";"
+                + "ref=" + this.getReference() + ";"
                 + "deobfName=" + this.getDeobfuscatedName() + ";"
-                + "index=" + this.index
                 + "}";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.index);
+        return Objects.hash(super.hashCode(), this.ref);
     }
 
     @Override
@@ -127,7 +111,7 @@ public class MethodParameterMapping extends Mapping {
             return false;
         }
         final MethodParameterMapping that = (MethodParameterMapping) obj;
-        return Objects.equals(this.index, that.index);
+        return Objects.equals(this.ref, that.ref);
     }
 
 }

@@ -25,15 +25,20 @@
 
 package blue.lapis.nocturne.mapping.model;
 
-import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_PATTERN;
+import static blue.lapis.nocturne.util.Constants.INNER_CLASS_SEPARATOR_CHAR;
+import static blue.lapis.nocturne.util.helper.ReferenceHelper.explodeScopedClasses;
 
-import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
-import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.mapping.MappingContext;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 import blue.lapis.nocturne.util.helper.StringHelper;
+import blue.lapis.nocturne.util.tuple.Pair;
 
+import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.QualifiedReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 import org.cadixdev.bombe.type.signature.FieldSignature;
 import org.cadixdev.bombe.type.signature.MethodSignature;
 
@@ -43,27 +48,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Stack;
 
 /**
  * Represents a {@link Mapping} for a class.
  */
-public abstract class ClassMapping extends Mapping {
+public abstract class ClassMapping<T extends ClassReference> extends Mapping<T> {
 
     private final Map<FieldSignature, FieldMapping> fieldMappings = new HashMap<>();
     private final Map<MethodSignature, MethodMapping> methodMappings = new HashMap<>();
-    private final Map<String, InnerClassMapping> innerClassMappings = new HashMap<>();
+    private final Map<InnerClassReference, InnerClassMapping> innerClassMappings = new HashMap<>();
 
     /**
      * Constructs a new {@link ClassMapping} with the given parameters.
      *
-     * @param obfName   The obfuscated name of the class
+     * @param ref A reference to the mapped item
      * @param deobfName The deobfuscated name of the class
      */
-    protected ClassMapping(String obfName, String deobfName) {
-        super(obfName, deobfName);
+    protected ClassMapping(T ref, String deobfName) {
+        super(ref, deobfName);
     }
-
-    public abstract String getFullObfuscatedName();
 
     public abstract String getFullDeobfuscatedName();
 
@@ -77,6 +81,15 @@ public abstract class ClassMapping extends Mapping {
     }
 
     /**
+     * Gets the field mapping with the given signature, if any.
+     * @param sig The signature to lookup
+     * @return The field mapping, if it exists
+     */
+    public Optional<FieldMapping> getFieldMapping(FieldSignature sig) {
+        return Optional.ofNullable(this.fieldMappings.get(sig));
+    }
+
+    /**
      * Gets a clone of the {@link MethodMapping}s.
      *
      * @return A clone of the {@link MethodMapping}s
@@ -86,12 +99,30 @@ public abstract class ClassMapping extends Mapping {
     }
 
     /**
+     * Gets the method mapping with the given signature, if any.
+     * @param sig The signature to lookup
+     * @return The method mapping, if it exists
+     */
+    public Optional<MethodMapping> getMethodMapping(MethodSignature sig) {
+        return Optional.ofNullable(this.methodMappings.get(sig));
+    }
+
+    /**
      * Gets a clone of the {@link InnerClassMapping}s.
      *
      * @return A clone of the {@link InnerClassMapping}s
      */
-    public Map<String, InnerClassMapping> getInnerClassMappings() {
+    public Map<InnerClassReference, InnerClassMapping> getInnerClassMappings() {
         return Collections.unmodifiableMap(this.innerClassMappings);
+    }
+
+    /**
+     * Gets the inner class mapping with the given signature, if any.
+     * @param ref The reference to lookup
+     * @return The inner class mapping, if it exists
+     */
+    public Optional<InnerClassMapping> getInnerClassMapping(InnerClassReference ref) {
+        return Optional.ofNullable(this.innerClassMappings.get(ref));
     }
 
     /**
@@ -101,7 +132,7 @@ public abstract class ClassMapping extends Mapping {
      */
     void addFieldMapping(FieldMapping mapping) {
         mapping.initialize();
-        fieldMappings.put(mapping.getSignature(), mapping);
+        fieldMappings.put(mapping.getReference().getSignature(), mapping);
     }
 
     /**
@@ -123,7 +154,7 @@ public abstract class ClassMapping extends Mapping {
      */
     void addMethodMapping(MethodMapping mapping, boolean propagate) {
         mapping.initialize(propagate);
-        methodMappings.put(mapping.getSignature(), mapping);
+        methodMappings.put(mapping.getReference().getSignature(), mapping);
     }
 
     /**
@@ -143,7 +174,7 @@ public abstract class ClassMapping extends Mapping {
      */
     void addInnerClassMapping(InnerClassMapping mapping) {
         mapping.initialize();
-        innerClassMappings.put(mapping.getObfuscatedName(), mapping);
+        innerClassMappings.put(mapping.getReference(), mapping);
     }
 
     /**
@@ -151,32 +182,45 @@ public abstract class ClassMapping extends Mapping {
      * {@link MappingContext}'s ability.
      *
      * @param context       The {@link MappingContext} to use
-     * @param qualifiedName The fully-qualified name of the class to get a
-     *                      mapping for
+     * @param classRef A reference to the class to get the mapping of
      * @return The retrieved or created {@link ClassMapping}
      */
-    public static String deobfuscate(MappingContext context, String qualifiedName) {
-        String[] arr = INNER_CLASS_SEPARATOR_PATTERN.split(qualifiedName);
+    public static String deobfuscate(MappingContext context, ClassReference classRef) {
+        Pair<TopLevelClassReference, List<InnerClassReference>> hierarchy = explodeScopedClasses(classRef);
 
-        ClassMapping mapping = context.getMappings().get(arr[0]);
-        if (mapping == null) {
-            return qualifiedName;
+        // get the mapping of the top-level class
+        TopLevelClassMapping rootMapping = context.getMappings().get(hierarchy.first());
+        // if it doesn't exist, nothing is deobfuscated yet
+        if (rootMapping == null) {
+            return classRef.toJvmsIdentifier();
         }
 
-        String deobfName = mapping.getFullDeobfuscatedName();
-        for (int i = 1; i < arr.length; i++) {
-            ClassMapping child = mapping.getInnerClassMappings().get(arr[i]);
-            if (child == null) {
-                for (; i < arr.length; i++) {
-                    deobfName += "$" + arr[i];
-                }
-                break;
+        if (hierarchy.second().isEmpty()) {
+            return rootMapping.getFullDeobfuscatedName();
+        }
+
+        StringBuilder deobfBuilder = new StringBuilder(rootMapping.getFullDeobfuscatedName());
+
+        ClassMapping<?> curMapping = rootMapping;
+        for (InnerClassReference innerRef : hierarchy.second()) {
+            deobfBuilder.append(INNER_CLASS_SEPARATOR_CHAR);
+
+            // no more mappings, so just slap on the deobfuscated name of this inner class
+            if (curMapping == null) {
+                String qualInnerName = innerRef.getClassType().getClassName();
+                // we have to unqualify the name
+                deobfBuilder.append(qualInnerName.substring(qualInnerName.lastIndexOf(INNER_CLASS_SEPARATOR_CHAR) + 1));
+                continue;
             }
-            deobfName += "$" + child.getDeobfuscatedName();
-            mapping = child;
+
+            // get the mapping for the current inner class and append its unqualified deobfuscated name
+            curMapping = curMapping.getInnerClassMappings().get(innerRef);
+            if (curMapping != null) {
+                deobfBuilder.append(curMapping.innerClassMappings.get(innerRef).getDeobfuscatedName());
+            }
         }
 
-        return deobfName;
+        return deobfBuilder.toString();
     }
 
     @Override
@@ -188,7 +232,8 @@ public abstract class ClassMapping extends Mapping {
         super.setDeobfuscatedName(name);
         updateEntryDeobfuscation();
 
-        List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
+        //TODO: we're moving this logic soon anyway
+        /*List<SelectableMember> memberList = SelectableMember.MEMBERS.get(getMemberKey());
         if (memberList == null) {
             return;
         }
@@ -196,25 +241,26 @@ public abstract class ClassMapping extends Mapping {
         String unqualName = this instanceof InnerClassMapping ? name : StringHelper.unqualify(name);
         memberList.forEach(member -> {
             member.setText(unqualName);
-            member.setDeobfuscated(!name.equals(member.getName()), true);
+            //member.setDeobfuscated(!name.equals(member.getReference()), true);
         });
 
         if (updateClassViews) {
             MainController.INSTANCE.updateClassViews();
-        }
+        }*/
     }
 
     private void updateEntryDeobfuscation() {
-        if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
+        //TODO: moving this logic soon
+        /*if (Main.getInstance() != null && Main.getLoadedJar() != null) { // first check is to fix stupid unit tests
             Optional<JarClassEntry> classEntry = Main.getLoadedJar().getClass(getFullObfuscatedName());
             classEntry.ifPresent(jce -> jce.setDeobfuscated(!getObfuscatedName().equals(getDeobfuscatedName())));
-        }
+        }*/
     }
 
     @Override
     public String toString() {
         return "{"
-                + "obfName=" + this.getObfuscatedName() + ";"
+                + "ref=" + this.toString() + ";"
                 + "deobfName=" + this.getDeobfuscatedName() + ";"
                 + "fields=" + this.getFieldMappings() + ";"
                 + "methods=" + this.getMethodMappings() + ";"
@@ -233,7 +279,7 @@ public abstract class ClassMapping extends Mapping {
         if (!(obj instanceof ClassMapping)) {
             return false;
         }
-        final ClassMapping that = (ClassMapping) obj;
+        final ClassMapping<?> that = (ClassMapping) obj;
         return Objects.equals(this.fieldMappings, that.fieldMappings)
                 && Objects.equals(this.methodMappings, that.methodMappings)
                 && Objects.equals(this.innerClassMappings, that.innerClassMappings);
