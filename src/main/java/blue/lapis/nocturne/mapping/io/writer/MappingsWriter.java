@@ -47,8 +47,8 @@ import java.util.function.Predicate;
 public abstract class MappingsWriter implements Closeable {
 
     protected static final Predicate<Mapping> NOT_USELESS
-            = mapping -> !Objects.equals(ReferenceHelper.getDisplayName(mapping.getReference(), null),
-            mapping.getDeobfuscatedName());
+            = mapping -> mapping.getDeobfuscatedName() != null
+            && !mapping.getDeobfuscatedName().equals(ReferenceHelper.getDisplayName(mapping.getReference(), null));
 
     protected static final Comparator<ClassMapping> ALPHABETISE_CLASSES =
             comparingLength(cm -> cm.getReference().toJvmsIdentifier());
