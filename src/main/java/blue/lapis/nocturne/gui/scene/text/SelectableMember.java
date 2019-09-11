@@ -292,7 +292,13 @@ public class SelectableMember extends Text {
     private void updateCodeTab() {
         CodeTab.SelectableMemberType sType = CodeTab.SelectableMemberType.fromReferenceType(reference.getType());
         this.codeTab.setMemberType(sType);
-        this.codeTab.setMemberIdentifier(this.getText());
+
+        if (reference.getType() == QualifiedReference.Type.TOP_LEVEL_CLASS) {
+            this.codeTab.setMemberIdentifier(reference.toJvmsIdentifier());
+        } else {
+            this.codeTab.setMemberIdentifier(this.getText());
+        }
+
         if (sType.isInfoEnabled()) {
             switch (reference.getType()) {
                 case FIELD:
