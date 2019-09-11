@@ -36,6 +36,7 @@ import static blue.lapis.nocturne.util.helper.StringHelper.getProcessedName;
 import static blue.lapis.nocturne.util.helper.StringHelper.getUnprocessedName;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.jar.model.JarClassEntry;
 import blue.lapis.nocturne.processor.ClassProcessor;
 import blue.lapis.nocturne.processor.constantpool.model.ConstantPool;
 import blue.lapis.nocturne.processor.constantpool.model.ImmutableConstantPool;
@@ -50,10 +51,13 @@ import blue.lapis.nocturne.processor.constantpool.model.structure.StructureType;
 import blue.lapis.nocturne.processor.constantpool.model.structure.Utf8Structure;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
+import blue.lapis.nocturne.util.helper.ReferenceHelper;
 import blue.lapis.nocturne.util.helper.collections.SetBuilder;
 import blue.lapis.nocturne.util.tuple.Pair;
 
 import org.cadixdev.bombe.type.reference.ClassReference;
+import org.cadixdev.bombe.type.reference.InnerClassReference;
+import org.cadixdev.bombe.type.reference.TopLevelClassReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,6 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -233,7 +238,7 @@ public class ClassTransformer extends ClassProcessor {
                         nameIndex = map.get(nameIndex);
                     } else {
                         String procName = getProcessedName(
-                                classRef.toJvmsIdentifier() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
+                                ref.toJvmsIdentifier() + CLASS_PATH_SEPARATOR_CHAR + getString(nameIndex),
                                 getString(descriptorIndex),
                                 isMethod ? MemberType.METHOD : MemberType.FIELD
                         );
@@ -280,30 +285,45 @@ public class ClassTransformer extends ClassProcessor {
 
     private ConstantPool getProcessedPool() {
         if (!isPoolProcessed) {
-            IntStream.range(1, processedPool.size() + 1).forEach(this::handleMember);
+            IntStream.range(1, processedPool.size() + 1).forEach(this::handleStructure);
             isPoolProcessed = true;
         }
         return processedPool;
     }
 
-    private void handleMember(int index) {
+    private void handleStructure(int index) {
         ConstantStructure cs = processedPool.get(index);
         if (!(cs instanceof IgnoredStructure)) {
             if (cs.getType() == StructureType.CLASS) {
-                handleClassMember(cs, index, processedPool);
+                handleClassStructure(cs, index, processedPool);
             } else if (cs.getType() == StructureType.FIELDREF
                     || cs.getType() == StructureType.INTERFACE_METHODREF
                     || cs.getType() == StructureType.METHODREF) {
-                handleNonClassMember(cs, index, processedPool);
+                handleMemberStructure(cs, index, processedPool);
             }
         }
     }
 
-    private void handleClassMember(ConstantStructure cs, int index, ConstantPool pool) {
+    private void handleClassStructure(ConstantStructure cs, int index, ConstantPool pool) {
         String name = getString(((ClassStructure) cs).getNameIndex());
 
-        if (!Main.getLoadedJar().getClass(classRef).isPresent()) {
+        ClassReference classRef = ReferenceHelper.createClassReference(name);
+
+        if (classRef instanceof TopLevelClassReference && !Main.getLoadedJar().getClass(classRef).isPresent()) {
             return;
+        }
+
+        if (classRef instanceof InnerClassReference) {
+            //TODO: nested inner classes are hopelessly broken at the moment, so we'll disable processing them for now
+            if (((InnerClassReference) classRef).getParentClass() instanceof InnerClassReference) {
+                return;
+            } else {
+                Optional<JarClassEntry> jceOpt
+                        = Main.getLoadedJar().getClass(((InnerClassReference) classRef).getParentClass());
+                if (jceOpt.map(jce -> jce.getCurrentInnerClassNames().containsKey(classRef)).orElse(false)) {
+                    return;
+                }
+            }
         }
 
         String newName = getProcessedName(name, null, MemberType.CLASS);
@@ -320,7 +340,7 @@ public class ClassTransformer extends ClassProcessor {
         pool.set(index, new ClassStructure(classBuffer.array()));
     }
 
-    private void handleNonClassMember(ConstantStructure cs, int index, ConstantPool pool) {
+    private void handleMemberStructure(ConstantStructure cs, int index, ConstantPool pool) {
         MemberType memberType;
         switch (cs.getType()) {
             case FIELDREF: {
@@ -336,6 +356,7 @@ public class ClassTransformer extends ClassProcessor {
                 throw new AssertionError();
             }
         }
+
         String className = getClassNameFromStruct((RefStructure) cs);
         if (className.startsWith(CLASS_PREFIX)) {
             className = getUnprocessedName(className);
@@ -357,7 +378,10 @@ public class ClassTransformer extends ClassProcessor {
         boolean isSynthetic
                 = (memberType == MemberType.FIELD ? syntheticFields : syntheticMethods).contains(nat.getName());
 
-        if (Main.getLoadedJar().getClass(classRef).isPresent() && !isSynthetic && !ignored) {
+        ClassReference containingClassRef = ReferenceHelper.createClassReference(className);
+
+        //TODO: handle inner classes properly
+        if (Main.getLoadedJar().getClass(containingClassRef).isPresent() && !isSynthetic && !ignored) {
             String newName = getProcessedName(className + CLASS_PATH_SEPARATOR_CHAR + nat.getName(), desc,
                     memberType);
             byte[] newNameBytes = newName.getBytes(StandardCharsets.UTF_8);

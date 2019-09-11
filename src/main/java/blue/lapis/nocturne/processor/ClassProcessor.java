@@ -32,16 +32,16 @@ import org.cadixdev.bombe.type.reference.ClassReference;
  */
 public abstract class ClassProcessor {
 
-    protected final ClassReference classRef;
+    protected final ClassReference ref;
     protected final byte[] bytes;
 
-    protected ClassProcessor(ClassReference classRef, byte[] bytes) {
-        this.classRef = classRef;
+    protected ClassProcessor(ClassReference ref, byte[] bytes) {
+        this.ref = ref;
         this.bytes = bytes;
     }
 
     public ClassReference getClassReference() {
-        return classRef;
+        return ref;
     }
 
     public byte[] getOriginalBytes() {
