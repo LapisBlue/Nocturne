@@ -69,33 +69,38 @@ public class ClassesTreeView extends TreeView<String> {
 
     public ClassesTreeView() {
         this.setShowRoot(false);
-        this.setOnMouseClicked(this::onClick);
-        this.setOnKeyReleased(this::onClick);
+        this.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // isDoubleClick
+                this.open(event);
+            }
+        });
+        this.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                this.open(event);
+            }
+        });
     }
 
-    private void onClick(final InputEvent event) {
-        if ((event instanceof MouseEvent && ((MouseEvent) event).getClickCount() == 2)
-                || (event instanceof KeyEvent && ((KeyEvent) event).getCode() == KeyCode.ENTER)) {
-            TreeItem<String> selected = this.getSelectionModel().getSelectedItem();
-            if (selected == null) {
-                return;
-            }
+    private void open(final InputEvent event) {
+        TreeItem<String> selected = this.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
 
-            if (selected.getChildren().isEmpty()) {
-                String className = ((IdentifiableTreeItem) selected).getId().substring(1);
-                if (Main.getLoadedJar() != null) {
-                    MainController.INSTANCE.openTab(className, selected.getValue());
+        if (selected.getChildren().isEmpty()) {
+            final String className = ((IdentifiableTreeItem) selected).getId().substring(1);
+            if (Main.getLoadedJar() != null) {
+                MainController.INSTANCE.openTab(className, selected.getValue());
+            }
+        } else {
+            if (event instanceof MouseEvent == selected.isExpanded()) {
+                selected.setExpanded(true);
+                while (selected.getChildren().size() == 1) {
+                    selected = selected.getChildren().get(0);
+                    selected.setExpanded(true);
                 }
             } else {
-                if (event instanceof MouseEvent == selected.isExpanded()) {
-                    selected.setExpanded(true);
-                    while (selected.getChildren().size() == 1) {
-                        selected = selected.getChildren().get(0);
-                        selected.setExpanded(true);
-                    }
-                } else {
-                    selected.setExpanded(false);
-                }
+                selected.setExpanded(false);
             }
         }
     }
