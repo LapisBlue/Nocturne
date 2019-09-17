@@ -132,7 +132,16 @@ public class ClassesTreeView extends TreeView<String> {
 
         if (element instanceof Hierarchy
                 || (element instanceof HierarchyNode && !((HierarchyNode) element).isTerminal())) {
-            treeItem.getChildren().addAll(element.getChildren().stream()
+            HierarchyElement ele = element;
+
+            if (ele instanceof HierarchyNode) {
+                while (ele.getChildren().size() == 1 && !ele.getChildren().get(0).isTerminal()) {
+                    ele = ele.getChildren().get(0);
+                    treeItem.setValue(treeItem.getValue() + "." + ((HierarchyNode) ele).getDisplayName());
+                }
+            }
+
+            treeItem.getChildren().addAll(ele.getChildren().stream()
                     .map(e -> this.generateTreeItem(e, expanded, checkLength)).collect(Collectors.toList()));
         }
         treeItem.getChildren().setAll(treeItem.getChildren().sorted((t1, t2) -> {
