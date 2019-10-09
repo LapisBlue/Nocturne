@@ -30,13 +30,13 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
 import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
 import java.util.Collections;
@@ -54,12 +54,15 @@ import java.util.stream.Collectors;
 public class ClassesTreeView extends TreeView<String> {
 
     private BooleanProperty checkLength;
+
     public final void setCheckLength(final boolean value) {
         this.checkLengthProperty().set(value);
     }
+
     public final boolean isCheckLength() {
         return this.checkLength == null || this.checkLength.get();
     }
+
     public final BooleanProperty checkLengthProperty() {
         if (this.checkLength == null) {
             this.checkLength = new SimpleBooleanProperty(this, "checkLength", true);

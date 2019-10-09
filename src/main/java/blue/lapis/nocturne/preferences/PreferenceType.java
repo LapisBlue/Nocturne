@@ -23,56 +23,51 @@
  * THE SOFTWARE.
  */
 
-.copyright {
-    -fx-font-weight: bold;
-}
+package blue.lapis.nocturne.preferences;
 
-.syntax {
-    -fx-font-family: monospace;
-}
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-.semicolon {
-    -fx-font-weight: bold;
-}
+public enum PreferenceType {
 
-.keyword {
-    -fx-fill: purple;
-    -fx-font-weight: bold;
-}
+    COLORBLIND_MODE(boolean.class, "accessibility.colorblind", false);
 
-.string {
-    -fx-fill: blue;
-}
+    private final Class<?> valType;
+    private final String key;
+    private final Object def;
 
-.number {
-    -fx-fill: darkorange;
-}
+    PreferenceType(Class<?> valType, String key, Object def) {
+        this.valType = valType;
+        this.key = key;
+        this.def = def;
+        register();
+    }
 
-.obfuscated {
-    -fx-fill: red;
-}
+    public Class<?> getValueType() {
+        return valType;
+    }
 
-.deobfuscated {
-    -fx-fill: green;
-}
+    public String getKey() {
+        return key;
+    }
 
-.keyword.colorblind {
-    -fx-fill: purple;
-    -fx-font-weight: bold;
-}
+    public Object getDefaultValue() {
+        return def;
+    }
 
-.string.colorblind {
-    -fx-fill: blue;
-}
+    private void register() {
+        if (keyMap == null) {
+            keyMap = new HashMap<>();
+        }
 
-.number.colorblind {
-    -fx-fill: darkorange;
-}
+        keyMap.put(this.key, this);
+    }
 
-.obfuscated.colorblind {
-    -fx-fill: #E0A000;
-}
+    private static Map<String, PreferenceType> keyMap;
 
-.deobfuscated.colorblind {
-    -fx-fill: #0080E8;
+    private static Optional<PreferenceType> fromKey(String key) {
+        return Optional.ofNullable(keyMap.get(key));
+    }
+
 }

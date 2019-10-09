@@ -34,45 +34,33 @@ import blue.lapis.nocturne.gui.io.mappings.MappingsOpenDialogHelper;
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.ClassesTreeView;
 import blue.lapis.nocturne.gui.scene.control.CodeTab;
-import blue.lapis.nocturne.gui.scene.control.IdentifiableTreeItem;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.jar.model.JarClassEntry;
-import blue.lapis.nocturne.jar.model.hierarchy.Hierarchy;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyElement;
-import blue.lapis.nocturne.jar.model.hierarchy.HierarchyNode;
 import blue.lapis.nocturne.util.Constants;
-import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.CacheHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * The main JavaFX controller.
@@ -92,6 +80,7 @@ public class MainController implements Initializable {
     public MenuItem closeButton;
 
     public MenuItem resetMappingsButton;
+    public MenuItem preferencesButton;
 
     public ToggleGroup languageGroup;
 
@@ -238,6 +227,16 @@ public class MainController implements Initializable {
         System.exit(0);
     }
 
+    public void showPreferences(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(ClassLoader.getSystemResource("fxml/preferences.fxml"));
+        loader.setResources(Main.getResourceBundle());
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        stage.setTitle(Main.getResourceBundle().getString("preferences.title"));
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
+    }
+
     public void showAbout(ActionEvent actionEvent) throws IOException {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(Main.getResourceBundle().getString("about.title"));
@@ -260,7 +259,7 @@ public class MainController implements Initializable {
         String langId = radioItem.getId().substring(langPrefix.length());
 
         if (!langId.equals(Main.getCurrentLocale())) {
-            Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LOCALE, langId);
+            Main.getCacheHelper().setProperty(CacheHelper.CacheKey.LOCALE, langId);
 
             RESTART_ALERT.showAndWait();
         }

@@ -29,7 +29,7 @@ import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.jar.io.JarLoader;
 import blue.lapis.nocturne.jar.model.ClassSet;
-import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.CacheHelper;
 
 import javafx.scene.control.Dialog;
 import javafx.stage.FileChooser;
@@ -64,7 +64,7 @@ public final class JarDialogHelper {
                 new FileChooser.ExtensionFilter(Main.getResourceBundle().getString("filechooser.type_jar"), "*.jar")
         );
 
-        String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_JAR_DIRECTORY);
+        String lastDir = Main.getCacheHelper().getProperty(CacheHelper.CacheKey.LAST_JAR_DIRECTORY);
         if (!lastDir.isEmpty()) {
             File initialDir = new File(lastDir);
             if (initialDir.exists()) {
@@ -76,7 +76,7 @@ public final class JarDialogHelper {
         if (selectedFile == null) {
             return;
         }
-        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_JAR_DIRECTORY, selectedFile.getParent());
+        Main.getCacheHelper().setProperty(CacheHelper.CacheKey.LAST_JAR_DIRECTORY, selectedFile.getParent());
 
         if (Files.exists(selectedFile.toPath())) {
             loadDialog.show();

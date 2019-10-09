@@ -44,6 +44,7 @@ import blue.lapis.nocturne.mapping.model.FieldMapping;
 import blue.lapis.nocturne.mapping.model.Mapping;
 import blue.lapis.nocturne.mapping.model.MemberMapping;
 import blue.lapis.nocturne.mapping.model.MethodParameterMapping;
+import blue.lapis.nocturne.preferences.PreferenceType;
 import blue.lapis.nocturne.processor.index.model.IndexedClass;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.HierarchyHelper;
@@ -522,6 +523,10 @@ public class SelectableMember extends Text {
             getStyleClass().add("deobfuscated");
         } else {
             getStyleClass().add("obfuscated");
+        }
+
+        if (Main.getPreferencesContext().<Boolean>getPreference(PreferenceType.COLORBLIND_MODE)) {
+            getStyleClass().add("colorblind");
         }
     }
 

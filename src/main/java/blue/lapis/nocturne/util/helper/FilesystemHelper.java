@@ -23,56 +23,22 @@
  * THE SOFTWARE.
  */
 
-.copyright {
-    -fx-font-weight: bold;
-}
+package blue.lapis.nocturne.util.helper;
 
-.syntax {
-    -fx-font-family: monospace;
-}
+import blue.lapis.nocturne.util.OperatingSystem;
 
-.semicolon {
-    -fx-font-weight: bold;
-}
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-.keyword {
-    -fx-fill: purple;
-    -fx-font-weight: bold;
-}
+public class FilesystemHelper {
 
-.string {
-    -fx-fill: blue;
-}
+    public static Path getNocturneDirectory() {
+        Path appdata = Paths.get(OperatingSystem.getOs().getConfigFolder());
+        if (OperatingSystem.getOs() == OperatingSystem.LINUX) {
+            return appdata.resolve("nocturne"); // to maintain compatibility with earlier Nocturne versions
+        } else {
+            return appdata.resolve("Nocturne");
+        }
+    }
 
-.number {
-    -fx-fill: darkorange;
-}
-
-.obfuscated {
-    -fx-fill: red;
-}
-
-.deobfuscated {
-    -fx-fill: green;
-}
-
-.keyword.colorblind {
-    -fx-fill: purple;
-    -fx-font-weight: bold;
-}
-
-.string.colorblind {
-    -fx-fill: blue;
-}
-
-.number.colorblind {
-    -fx-fill: darkorange;
-}
-
-.obfuscated.colorblind {
-    -fx-fill: #E0A000;
-}
-
-.deobfuscated.colorblind {
-    -fx-fill: #0080E8;
 }

@@ -25,12 +25,16 @@
 
 package blue.lapis.nocturne;
 
+import static blue.lapis.nocturne.util.Constants.PREFS_FILE_NAME;
+import static blue.lapis.nocturne.util.helper.FilesystemHelper.getNocturneDirectory;
+
 import blue.lapis.nocturne.gui.io.mappings.MappingsSaveDialogHelper;
 import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.MappingFormat;
-import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.preferences.PreferencesContext;
+import blue.lapis.nocturne.util.helper.CacheHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.application.Application;
@@ -60,10 +64,6 @@ import java.util.logging.Logger;
 
 public class Main extends Application {
 
-    public final boolean testingEnv;
-
-    private static Main instance;
-
     private static final EventHandler<WindowEvent> CLOSE_HANDLER = event -> {
         try {
             if (MappingsSaveDialogHelper.doDirtyConfirmation()) {
@@ -77,7 +77,11 @@ public class Main extends Application {
     private static final Logger LOGGER = Logger.getLogger("Nocturne");
     private static final Logger FERNFLOWER_LOGGER = Logger.getLogger("FernFlower");
 
-    private PropertiesHelper propertiesHelper;
+    private static Main instance;
+
+    public final boolean testingEnv;
+
+    private CacheHelper cacheHelper;
 
     private String locale; // reassigned on reload
     private ResourceBundle resourceBundle; // reassigned on reload
@@ -89,6 +93,8 @@ public class Main extends Application {
     private Path currentMappingsPath;
     private MappingFormat currentMappingFormat;
     private ClassSet loadedJar;
+
+    private PreferencesContext prefsCtx;
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -126,8 +132,18 @@ public class Main extends Application {
     }
 
     public void initialize() {
-        propertiesHelper = new PropertiesHelper();
-        locale = getPropertiesHelper().getProperty(PropertiesHelper.Key.LOCALE);
+        cacheHelper = new CacheHelper();
+
+        try {
+            Path prefsPath = getNocturneDirectory().resolve(PREFS_FILE_NAME);
+            prefsCtx = PreferencesContext.loadFrom(prefsPath);
+            getLogger().info("Successfully loaded preferences from " + prefsPath.toAbsolutePath().toString());
+        } catch (IOException ex) {
+            getLogger().severe("Failed to load preferences from disk");
+            prefsCtx = new PreferencesContext();
+        }
+
+        locale = getCacheHelper().getProperty(CacheHelper.CacheKey.LOCALE);
         initLocale();
     }
 
@@ -222,8 +238,12 @@ public class Main extends Application {
         }
     }
 
-    public static PropertiesHelper getPropertiesHelper() {
-        return getInstance().propertiesHelper;
+    public static PreferencesContext getPreferencesContext() {
+        return getInstance().prefsCtx;
+    }
+
+    public static CacheHelper getCacheHelper() {
+        return getInstance().cacheHelper;
     }
 
     public static String getCurrentLocale() {

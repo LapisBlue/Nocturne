@@ -28,7 +28,7 @@ package blue.lapis.nocturne.gui.io.mappings;
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.writer.MappingsWriter;
-import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.CacheHelper;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -64,13 +64,13 @@ public final class MappingsSaveDialogHelper {
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.save_mapping"));
         Arrays.asList(MappingFormat.values()).forEach(t -> {
             fileChooser.getExtensionFilters().add(t.getExtensionFilter());
-            if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT)
+            if (Main.getCacheHelper().getProperty(CacheHelper.CacheKey.LAST_MAPPING_SAVE_FORMAT)
                     .equals(t.name())) {
                 fileChooser.setSelectedExtensionFilter(t.getExtensionFilter());
             }
         });
 
-        String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
+        String lastDir = Main.getCacheHelper().getProperty(CacheHelper.CacheKey.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
             File initialDir = new File(lastDir);
             if (initialDir.exists()) {
@@ -82,7 +82,7 @@ public final class MappingsSaveDialogHelper {
         if (selectedFile == null) {
             return false;
         }
-        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
+        Main.getCacheHelper().setProperty(CacheHelper.CacheKey.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
 
         Path selectedPath = selectedFile.toPath();
 
@@ -110,8 +110,8 @@ public final class MappingsSaveDialogHelper {
         Main.setCurrentMappingFormat(mappingFormat.get());
 
         saveMappings0(mappingFormat.get());
-        Main.getPropertiesHelper()
-                .setProperty(PropertiesHelper.Key.LAST_MAPPING_SAVE_FORMAT, mappingFormat.get().name());
+        Main.getCacheHelper()
+                .setProperty(CacheHelper.CacheKey.LAST_MAPPING_SAVE_FORMAT, mappingFormat.get().name());
         return true;
     }
 

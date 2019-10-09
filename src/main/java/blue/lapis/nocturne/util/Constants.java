@@ -41,6 +41,8 @@ public final class Constants {
 
     public static final String VERSION;
 
+    public static final String PREFS_FILE_NAME = "prefs.properties";
+
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
     public static final Pattern INNER_CLASS_SEPARATOR_PATTERN
             = Pattern.compile(INNER_CLASS_SEPARATOR_CHAR + "", Pattern.LITERAL);

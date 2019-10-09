@@ -30,7 +30,7 @@ import blue.lapis.nocturne.gui.MainController;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.MappingFormat;
 import blue.lapis.nocturne.mapping.io.reader.MappingsReader;
-import blue.lapis.nocturne.util.helper.PropertiesHelper;
+import blue.lapis.nocturne.util.helper.CacheHelper;
 
 import javafx.stage.FileChooser;
 
@@ -54,13 +54,13 @@ public final class MappingsOpenDialogHelper {
         fileChooser.setTitle(Main.getResourceBundle().getString("filechooser.open_mapping"));
         Arrays.asList(MappingFormat.values()).forEach(t -> {
             fileChooser.getExtensionFilters().add(t.getExtensionFilter());
-            if (Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT)
+            if (Main.getCacheHelper().getProperty(CacheHelper.CacheKey.LAST_MAPPING_LOAD_FORMAT)
                     .equals(t.name())) {
                 fileChooser.setSelectedExtensionFilter(t.getExtensionFilter());
             }
         });
 
-        String lastDir = Main.getPropertiesHelper().getProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY);
+        String lastDir = Main.getCacheHelper().getProperty(CacheHelper.CacheKey.LAST_MAPPINGS_DIRECTORY);
         if (!lastDir.isEmpty()) {
             File initialDir = new File(lastDir);
             if (initialDir.exists()) {
@@ -72,14 +72,14 @@ public final class MappingsOpenDialogHelper {
         if (selectedFile == null) {
             return;
         }
-        Main.getPropertiesHelper().setProperty(PropertiesHelper.Key.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
+        Main.getCacheHelper().setProperty(CacheHelper.CacheKey.LAST_MAPPINGS_DIRECTORY, selectedFile.getParent());
 
         Path selectedPath = selectedFile.toPath();
 
         final MappingFormat mappingFormat
                 = MappingFormat.fromExtensionFilter(fileChooser.getSelectedExtensionFilter()).get();
-        Main.getPropertiesHelper()
-                .setProperty(PropertiesHelper.Key.LAST_MAPPING_LOAD_FORMAT, mappingFormat.name());
+        Main.getCacheHelper()
+                .setProperty(CacheHelper.CacheKey.LAST_MAPPING_LOAD_FORMAT, mappingFormat.name());
         try (MappingsReader reader = mappingFormat.createParser(new BufferedReader(new FileReader(selectedFile)))) {
             MappingContext context = reader.read();
             if (!merge) {

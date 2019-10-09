@@ -24,6 +24,7 @@
     THE SOFTWARE.
 -->
 
+<?import blue.lapis.nocturne.gui.scene.control.ClassesTreeView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -35,9 +36,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.VBox?>
-<?import blue.lapis.nocturne.gui.scene.control.ClassesTreeView?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.MainController" prefWidth="1280" prefHeight="720">
     <MenuBar>
@@ -65,6 +64,9 @@
         <Menu mnemonicParsing="true" text="%menu.edit">
             <MenuItem mnemonicParsing="true" fx:id="resetMappingsButton" onAction="#resetMappings"
                       text="%menu.edit.reset_mappings"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="true" fx:id="preferencesButton" onAction="#showPreferences"
+                      text="%menu.edit.preferences"/>
         </Menu>
         <Menu text="%menu.view">
             <MenuItem fx:id="closeAllTabsButton" onAction="#closeAllTabs" text="%menu.view.close_all_tabs"/>
