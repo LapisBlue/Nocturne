@@ -29,9 +29,11 @@ import static blue.lapis.nocturne.util.Constants.PREFS_FILE_NAME;
 import static blue.lapis.nocturne.util.helper.FilesystemHelper.getNocturneDirectory;
 
 import blue.lapis.nocturne.Main;
+import blue.lapis.nocturne.gui.scene.control.CodeTab;
+import blue.lapis.nocturne.gui.scene.text.SelectableMember;
 import blue.lapis.nocturne.preferences.PreferenceType;
 import blue.lapis.nocturne.preferences.PreferencesContext;
-import blue.lapis.nocturne.util.Constants;
+import blue.lapis.nocturne.util.helper.SceneHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -42,7 +44,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class PreferencesController implements Initializable {
@@ -58,16 +60,28 @@ public class PreferencesController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.prefsCtx = Main.getPreferencesContext().copy();
+
+        this.colorblindToggle.setSelected(this.prefsCtx.getPreference(PreferenceType.COLORBLIND_MODE));
     }
 
     public void applyPreferences(ActionEvent actionEvent) {
+        boolean needsColorUpdate = this.prefsCtx.getPreference(PreferenceType.COLORBLIND_MODE)
+                != Main.getPreferencesContext().getPreference(PreferenceType.COLORBLIND_MODE);
+
+        Main.getPreferencesContext().mergeFrom(this.prefsCtx);
+
         try {
-            Main.getPreferencesContext().mergeFrom(this.prefsCtx);
             Main.getPreferencesContext().saveTo(getNocturneDirectory().resolve(PREFS_FILE_NAME));
-        } catch (Throwable t) {
-            Main.getLogger().severe("Failed to save preferences to disk");
-            t.printStackTrace();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
+
+        if (needsColorUpdate) {
+            SceneHelper.setColors(Main.getMainStage().getScene(),
+                    Main.getPreferencesContext().getPreference(PreferenceType.COLORBLIND_MODE));
+        }
+
+        setDirty(false);
     }
 
     public void closePreferences(ActionEvent actionEvent) {
@@ -81,5 +95,16 @@ public class PreferencesController implements Initializable {
 
     public void toggleColorblindMode(ActionEvent actionEvent) {
         this.prefsCtx.setPreference(PreferenceType.COLORBLIND_MODE, colorblindToggle.isSelected());
+
+        checkDirty();
     }
+
+    private void setDirty(boolean dirty) {
+        this.applyButton.setDisable(!dirty);
+    }
+
+    private void checkDirty() {
+        setDirty(!this.prefsCtx.equals(Main.getPreferencesContext()));
+    }
+
 }

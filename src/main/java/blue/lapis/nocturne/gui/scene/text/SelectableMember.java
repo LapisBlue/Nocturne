@@ -524,10 +524,6 @@ public class SelectableMember extends Text {
         } else {
             getStyleClass().add("obfuscated");
         }
-
-        if (Main.getPreferencesContext().<Boolean>getPreference(PreferenceType.COLORBLIND_MODE)) {
-            getStyleClass().add("colorblind");
-        }
     }
 
     private Mapping genMapping() {

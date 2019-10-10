@@ -24,19 +24,18 @@
     THE SOFTWARE.
 -->
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TreeItem?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import java.awt.Insets?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.40"
       fx:controller="blue.lapis.nocturne.gui.PreferencesController" prefWidth="720" prefHeight="480">
     <SplitPane dividerPositions="0.25, 0.75" VBox.vgrow="ALWAYS">
@@ -50,16 +49,16 @@
         <Pane fx:id="preferencesPage" id="preferencesPage">
             <GridPane id="accessibilityPane" fx:id="accessibilityPane" visible="true">
                 <VBox GridPane.rowIndex="0">
-                    <CheckBox fx:id="colorblindToggle" id="colorblindToggle" GridPane.columnIndex="0"
-                              onAction="#toggleColorblindMode"/>
-                    <Text GridPane.columnIndex="1" text="%preferences.colorblind"/>
+                    <CheckBox fx:id="colorblindToggle" id="colorblindToggle"
+                              GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#toggleColorblindMode"/>
+                    <Text GridPane.rowIndex="0" GridPane.columnIndex="1" text="%preferences.colorblind"/>
                 </VBox>
             </GridPane>
         </Pane>
     </SplitPane>
 
-    <HBox spacing="10" alignment="BOTTOM_RIGHT">
-        <Button fx:id="applyButton" text="%preferences.apply" onAction="#applyPreferences"/>
+    <HBox spacing="10" alignment="BOTTOM_RIGHT" style="-fx-padding: 8px;">
+        <Button fx:id="applyButton" text="%preferences.apply" disable="true" onAction="#applyPreferences"/>
         <Button fx:id="cancelButton" text="%preferences.cancel" onAction="#closePreferences"/>
         <Button fx:id="okButton" text="%preferences.ok" onAction="#submitPreferences"/>
     </HBox>

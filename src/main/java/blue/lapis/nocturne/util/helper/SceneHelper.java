@@ -33,14 +33,36 @@ import javafx.scene.Scene;
  */
 public final class SceneHelper {
 
-    private static final String STYLESHEET_PATH = "css/nocturne.css";
+    private static final String PRIMARY_STYLESHEET_PATH = "css/nocturne.css";
+    private static final String COLORS_STANDARD_PATH = "css/colors_standard.css";
+    private static final String COLORS_ADJUSTED_PATH = "css/colors_adjusted.css";
 
     public static void addStdStylesheet(Scene scene) {
-        scene.getStylesheets().add(STYLESHEET_PATH);
+        scene.getStylesheets().add(PRIMARY_STYLESHEET_PATH);
     }
 
     public static void addStdStylesheet(Parent parent) {
-        parent.getStylesheets().add(STYLESHEET_PATH);
+        parent.getStylesheets().add(PRIMARY_STYLESHEET_PATH);
+    }
+
+    public static void setColors(Scene scene, boolean colorblind) {
+        if (colorblind) {
+            scene.getStylesheets().remove(COLORS_STANDARD_PATH);
+            scene.getStylesheets().add(COLORS_ADJUSTED_PATH);
+        } else {
+            scene.getStylesheets().remove(COLORS_ADJUSTED_PATH);
+            scene.getStylesheets().add(COLORS_STANDARD_PATH);
+        }
+    }
+
+    public static void setColors(Parent parent, boolean colorblind) {
+        if (colorblind) {
+            parent.getStylesheets().remove(COLORS_STANDARD_PATH);
+            parent.getStylesheets().add(COLORS_ADJUSTED_PATH);
+        } else {
+            parent.getStylesheets().remove(COLORS_ADJUSTED_PATH);
+            parent.getStylesheets().add(COLORS_STANDARD_PATH);
+        }
     }
 
 }

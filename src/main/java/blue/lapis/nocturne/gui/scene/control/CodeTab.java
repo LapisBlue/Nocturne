@@ -31,6 +31,7 @@ import static blue.lapis.nocturne.util.Constants.Processing.MEMBER_REGEX;
 
 import blue.lapis.nocturne.Main;
 import blue.lapis.nocturne.gui.scene.text.SelectableMember;
+import blue.lapis.nocturne.preferences.PreferenceType;
 import blue.lapis.nocturne.util.JavaSyntaxHighlighter;
 import blue.lapis.nocturne.util.MemberType;
 import blue.lapis.nocturne.util.helper.StringHelper;
@@ -89,6 +90,8 @@ public class CodeTab extends Tab {
         getTabPane().getSelectionModel().select(this);
 
         this.setOnClosed(event -> CODE_TABS.remove(this.getClassName()));
+
+        markColorblind(Main.getPreferencesContext().<Boolean>getPreference(PreferenceType.COLORBLIND_MODE));
     }
 
     public String getClassName() {
@@ -156,6 +159,14 @@ public class CodeTab extends Tab {
         TextFlow flow = new TextFlow(nodeArr);
 
         this.code.getChildren().add(flow);
+    }
+
+    public void markColorblind(boolean colorblind) {
+        if (colorblind) {
+            this.getStyleClass().add("colorblind");
+        } else {
+            this.getStyleClass().remove("colorblind");
+        }
     }
 
     public enum SelectableMemberType {

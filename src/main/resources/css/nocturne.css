@@ -36,43 +36,5 @@
 }
 
 .keyword {
-    -fx-fill: purple;
     -fx-font-weight: bold;
-}
-
-.string {
-    -fx-fill: blue;
-}
-
-.number {
-    -fx-fill: darkorange;
-}
-
-.obfuscated {
-    -fx-fill: red;
-}
-
-.deobfuscated {
-    -fx-fill: green;
-}
-
-.keyword.colorblind {
-    -fx-fill: purple;
-    -fx-font-weight: bold;
-}
-
-.string.colorblind {
-    -fx-fill: blue;
-}
-
-.number.colorblind {
-    -fx-fill: darkorange;
-}
-
-.obfuscated.colorblind {
-    -fx-fill: #E0A000;
-}
-
-.deobfuscated.colorblind {
-    -fx-fill: #0080E8;
 }

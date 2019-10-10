@@ -33,6 +33,7 @@ import blue.lapis.nocturne.gui.scene.control.WebLink;
 import blue.lapis.nocturne.jar.model.ClassSet;
 import blue.lapis.nocturne.mapping.MappingContext;
 import blue.lapis.nocturne.mapping.MappingFormat;
+import blue.lapis.nocturne.preferences.PreferenceType;
 import blue.lapis.nocturne.preferences.PreferencesContext;
 import blue.lapis.nocturne.util.helper.CacheHelper;
 import blue.lapis.nocturne.util.helper.SceneHelper;
@@ -229,6 +230,7 @@ public class Main extends Application {
         if (scene == null) {
             scene = new Scene(root);
             SceneHelper.addStdStylesheet(scene);
+            SceneHelper.setColors(scene, getPreferencesContext().getPreference(PreferenceType.COLORBLIND_MODE));
             mainStage.setTitle("Nocturne");
             mainStage.setScene(scene);
             mainStage.setOnCloseRequest(CLOSE_HANDLER);

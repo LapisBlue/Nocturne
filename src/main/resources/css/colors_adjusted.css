@@ -1,0 +1,19 @@
+.keyword {
+    -fx-fill: #924900;
+}
+
+.string {
+    -fx-fill: #6DB6FF;
+}
+
+.number {
+    -fx-fill: #F08090;
+}
+
+.obfuscated {
+    -fx-fill: #C0C020;
+}
+
+.deobfuscated {
+    -fx-fill: #006DDB;
+}

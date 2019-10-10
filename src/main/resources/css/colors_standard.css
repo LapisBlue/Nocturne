@@ -1,0 +1,19 @@
+.keyword {
+    -fx-fill: purple;
+}
+
+.string {
+    -fx-fill: blue;
+}
+
+.number {
+    -fx-fill: darkorange;
+}
+
+.obfuscated {
+    -fx-fill: red;
+}
+
+.deobfuscated {
+    -fx-fill: green;
+}

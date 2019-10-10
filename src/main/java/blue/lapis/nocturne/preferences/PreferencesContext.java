@@ -64,6 +64,54 @@ public class PreferencesContext {
         return new PreferencesContext(new HashMap<>(prefMap));
     }
 
+    private String serializeValue(Map.Entry<PreferenceType, Object> entry) {
+        String valStr;
+
+        if (entry.getKey().getValueType() == String.class) {
+            valStr = (String) entry.getValue();
+        } else if (entry.getKey().getValueType() == boolean.class) {
+            valStr = String.valueOf((boolean) entry.getValue());
+        } else if (entry.getKey().getValueType() == int.class) {
+            valStr = String.valueOf((int) entry.getValue());
+        } else if (entry.getKey().getValueType() == long.class) {
+            valStr = String.valueOf((long) entry.getValue());
+        } else if (entry.getKey().getValueType() == short.class) {
+            valStr = String.valueOf((short) entry.getValue());
+        } else if (entry.getKey().getValueType() == byte.class) {
+            valStr = String.valueOf((byte) entry.getValue());
+        } else if (entry.getKey().getValueType() == char.class) {
+            valStr = String.valueOf((char) entry.getValue());
+        } else {
+            throw new AssertionError("Unsupported value type " + entry.getKey().getValueType().getSimpleName()
+                    + " for preference type " + entry.getKey().name());
+        }
+
+        return valStr;
+    }
+
+    private static Object deserializeValue(PreferenceType type, String valStr) {
+        Object val;
+        if (type.getValueType() == String.class) {
+            val = valStr;
+        } else if (type.getValueType() == boolean.class) {
+            val = Boolean.valueOf(valStr);
+        } else if (type.getValueType() == int.class) {
+            val = Integer.valueOf(valStr);
+        } else if (type.getValueType() == long.class) {
+            val = Integer.valueOf(valStr);
+        } else if (type.getValueType() == short.class) {
+            val = Integer.valueOf(valStr);
+        } else if (type.getValueType() == byte.class) {
+            val = Integer.valueOf(valStr);
+        } else if (type.getValueType() == char.class) {
+            val = Integer.valueOf(valStr);
+        } else {
+            throw new AssertionError("Unsupported value type " + type.getValueType().getSimpleName()
+                    + " for preference type " + type.name());
+        }
+        return val;
+    }
+
     private final Map<PreferenceType, Object> prefMap;
 
     private PreferencesContext(Map<PreferenceType, Object> map) {
@@ -106,52 +154,9 @@ public class PreferencesContext {
         props.store(Files.newOutputStream(path), null);
     }
 
-    private String serializeValue(Map.Entry<PreferenceType, Object> entry) {
-        String valStr;
-
-        if (entry.getKey().getValueType() == String.class) {
-            valStr = (String) entry.getValue();
-        } else if (entry.getKey().getValueType() == boolean.class) {
-            valStr = String.valueOf((boolean) entry.getValue());
-        } else if (entry.getKey().getValueType() == int.class) {
-            valStr = String.valueOf((int) entry.getValue());
-        } else if (entry.getKey().getValueType() == long.class) {
-            valStr = String.valueOf((long) entry.getValue());
-        } else if (entry.getKey().getValueType() == short.class) {
-            valStr = String.valueOf((short) entry.getValue());
-        } else if (entry.getKey().getValueType() == byte.class) {
-            valStr = String.valueOf((byte) entry.getValue());
-        } else if (entry.getKey().getValueType() == char.class) {
-            valStr = String.valueOf((char) entry.getValue());
-        } else {
-            throw new AssertionError("Unsupported value type " + entry.getKey().getValueType().getSimpleName()
-                    + " for preference type " + entry.getKey().name());
-        }
-
-        return valStr;
-    }
-
-    private static Object deserializeValue(PreferenceType type, String valStr) {
-        Object val;
-        if (type.getValueType() == String.class) {
-            val = valStr;
-        } else if (type.getValueType() == boolean.class) {
-            val = Boolean.getBoolean(valStr);
-        } else if (type.getValueType() == int.class) {
-            val = Integer.valueOf(valStr);
-        } else if (type.getValueType() == long.class) {
-            val = Integer.valueOf(valStr);
-        } else if (type.getValueType() == short.class) {
-            val = Integer.valueOf(valStr);
-        } else if (type.getValueType() == byte.class) {
-            val = Integer.valueOf(valStr);
-        } else if (type.getValueType() == char.class) {
-            val = Integer.valueOf(valStr);
-        } else {
-            throw new AssertionError("Unsupported value type " + type.getValueType().getSimpleName()
-                    + " for preference type " + type.name());
-        }
-        return val;
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof PreferencesContext && this.prefMap.equals(((PreferencesContext) other).prefMap);
     }
 
 }
